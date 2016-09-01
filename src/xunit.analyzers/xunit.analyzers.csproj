@@ -8,7 +8,7 @@
     <ProjectGuid>{F513916A-00AD-499A-9B76-E52D9FBFCED5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xunit.analyzers</RootNamespace>
+    <RootNamespace>Xunit.Analyzers</RootNamespace>
     <AssemblyName>xunit.analyzers</AssemblyName>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TestClassMustBePublicFixer.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="TestClassMustBePublic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

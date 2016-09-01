@@ -7,7 +7,7 @@
     <ProjectGuid>{31AD5C1D-71FF-4129-97BA-E42BF1120917}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>xunit.analyzers.tests</RootNamespace>
+    <RootNamespace>Xunit.Analyzers</RootNamespace>
     <AssemblyName>xunit.analyzers.tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestClassMustBePublicTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj">
