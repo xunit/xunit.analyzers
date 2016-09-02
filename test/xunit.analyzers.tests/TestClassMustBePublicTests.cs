@@ -27,14 +27,14 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("Xunit.Fact")]
             [InlineData("Xunit.Theory")]
-            public async void FindErrorForPrivateClass(string attribute)
+            public async void FindsErrorForPrivateClass(string attribute)
             {
                 var diagnostics = await GetDiagnosticsAsync(analyzer, "class TestClass { [" + attribute + "] public void TestMethod() { } }");
 
                 Assert.Collection(diagnostics,
                     d =>
                     {
-                        Assert.Equal("Make the type TestClass public so that test methods on it can be discovered and executed", d.GetMessage());
+                        Assert.Equal("Test classes must be public", d.GetMessage());
                         Assert.Equal("xUnit1000", d.Descriptor.Id);
                     });
             }

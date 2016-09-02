@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -23,17 +22,14 @@ namespace Xunit.Analyzers
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var classDeclaration = (ClassDeclarationSyntax)root.FindNode(diagnosticSpan);
+            var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
                     createChangedDocument: ct => MakePublicAsync(context.Document, classDeclaration, ct),
                     equivalenceKey: title),
-                diagnostic);
+                context.Diagnostics);
         }
 
         async Task<Document> MakePublicAsync(Document document, ClassDeclarationSyntax classDeclaration, CancellationToken cancellationToken)

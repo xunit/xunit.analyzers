@@ -30,7 +30,10 @@ namespace Xunit.Analyzers
                     var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
                     if (methods.Any(method => MarkedWithAttributeAssignableToType(method, factType, syntaxNodeContext.SemanticModel)))
                     {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(Constants.Descriptors.X1000_TestClassMustBePublic, classDeclaration.GetLocation(), classDeclaration.Identifier.ValueText));
+                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
+                            Constants.Descriptors.X1000_TestClassMustBePublic,
+                            classDeclaration.Identifier.GetLocation(), 
+                            classDeclaration.Identifier.ValueText));
                     }
                 }, SyntaxKind.ClassDeclaration);
             });

@@ -13,8 +13,8 @@ namespace Xunit.Analyzers
         internal static class Descriptors
         {
             internal static DiagnosticDescriptor X1000_TestClassMustBePublic { get; } = new DiagnosticDescriptor("xUnit1000",
-                "Types with test methods must be public",
-                "Make the type {0} public so that test methods on it can be discovered and executed",
+                "Test classes must be public",
+                "Test classes must be public",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
         }
     }
