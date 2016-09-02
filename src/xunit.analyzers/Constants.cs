@@ -16,6 +16,18 @@ namespace Xunit.Analyzers
                 "Test classes must be public",
                 "Test classes must be public",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1001_FactMethodMustNotHaveParameters { get; } = new DiagnosticDescriptor("xUnit1001",
+                "Fact methods cannot have parameters",
+                "Fact methods cannot have parameters",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+                description: "Remove the parameters from the method or convert it into a Theory.");
+        }
+
+        internal static class Types
+        {
+            internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
+            internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
         }
     }
 }

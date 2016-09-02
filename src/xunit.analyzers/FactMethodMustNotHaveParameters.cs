@@ -1,5 +1,4 @@
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,10 +7,10 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TestClassMustBePublic : DiagnosticAnalyzer
+    public class FactMethodMustNotHaveParameters : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(Constants.Descriptors.X1000_TestClassMustBePublic);
+           ImmutableArray.Create(Constants.Descriptors.X1001_FactMethodMustNotHaveParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -23,19 +22,18 @@ namespace Xunit.Analyzers
 
                 compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
                 {
-                    var classDeclaration = syntaxNodeContext.Node as ClassDeclarationSyntax;
-                    if (classDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                    var methodDeclaration = syntaxNodeContext.Node as MethodDeclarationSyntax;
+                    if (methodDeclaration.ParameterList.Parameters.Count == 0)
                         return;
 
-                    var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
-                    if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType)))
+                    if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType, exactMatch: true))
                     {
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1000_TestClassMustBePublic,
-                            classDeclaration.Identifier.GetLocation(), 
-                            classDeclaration.Identifier.ValueText));
+                            Constants.Descriptors.X1001_FactMethodMustNotHaveParameters,
+                            methodDeclaration.Identifier.GetLocation(),
+                            methodDeclaration.Identifier.ValueText));
                     }
-                }, SyntaxKind.ClassDeclaration);
+                }, SyntaxKind.MethodDeclaration);
             });
         }
     }
