@@ -38,6 +38,11 @@ namespace Xunit.Analyzers
                 "Test methods should not be skipped",
                 "Test methods should not be skipped",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1005_FactMethodShouldNotHaveTestData { get; } = new DiagnosticDescriptor("xUnit1005",
+                "Fact methods should not have test data",
+                "Fact methods should not have test data",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
