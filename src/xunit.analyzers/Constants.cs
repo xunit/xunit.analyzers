@@ -33,6 +33,11 @@ namespace Xunit.Analyzers
                 "Theory methods must have test data",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
                 description: "Use InlineData, MemberData, or ClassData to provide test data for the Theory");
+
+            internal static DiagnosticDescriptor X1004_TestMethodShouldNotBeSkipped { get; } = new DiagnosticDescriptor("xUnit1004",
+                "Test methods should not be skipped",
+                "Test methods should not be skipped",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
