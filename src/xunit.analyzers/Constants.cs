@@ -27,12 +27,20 @@ namespace Xunit.Analyzers
                 "Test methods cannot have multiple Fact or Theory attributes",
                 "Test methods cannot have multiple Fact or Theory attributes",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1003_TheoryMethodMustHaveTestData { get; } = new DiagnosticDescriptor("xUnit1003",
+                "Theory methods must have test data",
+                "Theory methods must have test data",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+                description: "Use InlineData, MemberData, or ClassData to provide test data for the Theory");
         }
 
         internal static class Types
         {
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
+
+            internal static readonly string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
         }
     }
 }

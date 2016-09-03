@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Xunit.Analyzers
@@ -17,6 +19,11 @@ namespace Xunit.Analyzers
                 }
             }
             return false;
+        }
+
+        internal static bool ContainsAttributeType(this ImmutableArray<AttributeData> attributes, INamedTypeSymbol attributeType, bool exactMatch = false)
+        {
+            return attributes.Any(a => attributeType.IsAssignableFrom(a.AttributeClass, exactMatch));
         }
 
         internal static bool IsAssignableFrom(this ITypeSymbol targetType, ITypeSymbol sourceType, bool exactMatch = false)
