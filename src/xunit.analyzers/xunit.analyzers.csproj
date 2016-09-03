@@ -32,9 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FactMethodMustNotHaveParameters.cs" />
     <Compile Include="FactMethodMustNotHaveParametersFixer.cs" />
+    <Compile Include="TheoryMethodMustHaveTestDataFixer.cs" />
     <Compile Include="TestMethodMustNotHaveMultipleFactAttributesFixer.cs" />
     <Compile Include="TestClassMustBePublicFixer.cs" />
     <Compile Include="Constants.cs" />
