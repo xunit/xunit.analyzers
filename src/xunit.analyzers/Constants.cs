@@ -22,6 +22,11 @@ namespace Xunit.Analyzers
                 "Fact methods cannot have parameters",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
                 description: "Remove the parameters from the method or convert it into a Theory.");
+
+            internal static DiagnosticDescriptor X1002_TestMethodMustNotHaveMultipleFactAttributes { get; } = new DiagnosticDescriptor("xUnit1002",
+                "Test methods cannot have multiple Fact or Theory attributes",
+                "Test methods cannot have multiple Fact or Theory attributes",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
         }
 
         internal static class Types

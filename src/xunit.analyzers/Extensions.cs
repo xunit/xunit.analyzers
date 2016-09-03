@@ -12,18 +12,29 @@ namespace Xunit.Analyzers
                 foreach (var attribute in attributeList.Attributes)
                 {
                     var type = semanticModel.GetTypeInfo(attribute).Type;
-                    while (type != null)
-                    {
-                        if (type == attributeType)
-                            return true;
-
-                        if (exactMatch)
-                            return false;
-
-                        type = type.BaseType;
-                    }
+                    if (attributeType.IsAssignableFrom(type, exactMatch))
+                        return true;
                 }
             }
+            return false;
+        }
+
+        internal static bool IsAssignableFrom(this ITypeSymbol targetType, ITypeSymbol sourceType, bool exactMatch = false)
+        {
+            if (targetType != null)
+            {
+                while (sourceType != null)
+                {
+                    if (sourceType == targetType)
+                        return true;
+
+                    if (exactMatch)
+                        return false;
+
+                    sourceType = sourceType.BaseType;
+                }
+            }
+
             return false;
         }
     }

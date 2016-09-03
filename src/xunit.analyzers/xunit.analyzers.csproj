@@ -35,10 +35,12 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FactMethodMustNotHaveParameters.cs" />
     <Compile Include="FactMethodMustNotHaveParametersFixer.cs" />
+    <Compile Include="TestMethodMustNotHaveMultipleFactAttributesFixer.cs" />
     <Compile Include="TestClassMustBePublicFixer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="TestClassMustBePublic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestMethodMustNotHaveMultipleFactAttributes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="xunit.analyzers.nuspec">
