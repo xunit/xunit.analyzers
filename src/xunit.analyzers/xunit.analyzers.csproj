@@ -39,6 +39,8 @@
     <Compile Include="FactMethodShouldNotHaveTestData.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestDataFixer.cs" />
+    <Compile Include="TheoryMethodShouldHaveParametersFixer.cs" />
+    <Compile Include="TheoryMethodShouldHaveParameters.cs" />
     <Compile Include="TheoryMethodMustHaveTestDataFixer.cs" />
     <Compile Include="TestMethodMustNotHaveMultipleFactAttributesFixer.cs" />
     <Compile Include="TestClassMustBePublicFixer.cs" />

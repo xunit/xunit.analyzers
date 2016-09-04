@@ -43,6 +43,11 @@ namespace Xunit.Analyzers
                 "Fact methods should not have test data",
                 "Fact methods should not have test data",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1006_TheoryMethodShouldHaveParameters { get; } = new DiagnosticDescriptor("xUnit1006",
+                "Theory methods should have parameters",
+                "Theory methods should have parameters",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
