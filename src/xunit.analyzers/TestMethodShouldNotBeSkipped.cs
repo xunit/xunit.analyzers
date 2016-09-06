@@ -24,7 +24,7 @@ namespace Xunit.Analyzers
                 compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
                 {
                     var attribute = syntaxNodeContext.Node as AttributeSyntax;
-                    if (!attribute.ArgumentList.Arguments.Any())
+                    if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
                         return;
 
                     var attributeType = syntaxNodeContext.SemanticModel.GetTypeInfo(attribute).Type;
