@@ -8,7 +8,7 @@ using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TheoryMethodMustHaveTestDataFixer)), Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class TheoryMethodMustHaveTestDataFixer : CodeFixProvider
     {
         const string title = "Convert to Fact";

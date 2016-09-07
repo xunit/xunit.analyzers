@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(TestClassMustBePublicFixer)), Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class TestClassMustBePublicFixer : CodeFixProvider
     {
         const string title = "Make Public";

@@ -11,7 +11,7 @@ using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(FactMethodMustNotHaveParametersFixer)), Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class FactMethodMustNotHaveParametersFixer : CodeFixProvider
     {
         const string convertToTheoryTitle = "Convert to Theory";
