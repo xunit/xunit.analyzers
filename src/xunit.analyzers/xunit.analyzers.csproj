@@ -34,7 +34,9 @@
   <ItemGroup>
     <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="ClassDataAttributeMustPointAtValidClass.cs" />
     <Compile Include="FactMethodMustNotHaveParameters.cs" />
+    <Compile Include="ClassDataAttributeMustPointAtValidClassFixer.cs" />
     <Compile Include="FactMethodMustNotHaveParametersFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestData.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedFixer.cs" />
@@ -50,6 +52,7 @@
     <Compile Include="TestMethodMustNotHaveMultipleFactAttributes.cs" />
     <Compile Include="TestMethodShouldNotBeSkipped.cs" />
     <Compile Include="TheoryMethodMustHaveTestData.cs" />
+    <Compile Include="TypeSymbolFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="xunit.analyzers.nuspec">

@@ -114,6 +114,7 @@
     <Compile Include="TestMethodMustNotHaveMultipleFactAttributesTests.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedTests.cs" />
     <Compile Include="FactMethodShouldNotHaveTestDataTests.cs" />
+    <Compile Include="ClassDataAttributeMustPointAtValidClassTests.cs" />
     <Compile Include="TheoryMethodShouldHaveParametersTests.cs" />
     <Compile Include="TheoryMethodMustHaveTestDataTests.cs" />
   </ItemGroup>

@@ -38,6 +38,9 @@ namespace Xunit.Analyzers
                     if (exactMatch)
                         return false;
 
+                    if (targetType.TypeKind == TypeKind.Interface)
+                        return sourceType.AllInterfaces.Contains(targetType);
+
                     sourceType = sourceType.BaseType;
                 }
             }

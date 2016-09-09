@@ -48,10 +48,17 @@ namespace Xunit.Analyzers
                 "Theory methods should have parameters",
                 "Theory methods should have parameters",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1007_ClassDataAttributeMustPointAtValidClass { get; } = new DiagnosticDescriptor("xUnit1007",
+                "ClassData must point at a valid class",
+                "ClassData must point at a valid class",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+                description: "The class {0} must be public, not sealed, with an empty constructor, and implement IEnumerable<object[]>.");
         }
 
         internal static class Types
         {
+            internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
