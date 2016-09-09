@@ -33,11 +33,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />
+    <Compile Include="CodeActions\RemoveAttributesOfTypeCodeAction.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ClassDataAttributeMustPointAtValidClass.cs" />
     <Compile Include="FactMethodMustNotHaveParameters.cs" />
     <Compile Include="ClassDataAttributeMustPointAtValidClassFixer.cs" />
     <Compile Include="FactMethodMustNotHaveParametersFixer.cs" />
+    <Compile Include="DataAttributeShouldBeUsedOnATheory.cs" />
+    <Compile Include="DataAttributeShouldBeUsedOnATheoryFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestData.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestDataFixer.cs" />

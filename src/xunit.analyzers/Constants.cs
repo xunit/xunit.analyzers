@@ -54,6 +54,11 @@ namespace Xunit.Analyzers
                 "ClassData must point at a valid class",
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
                 description: "The class {0} must be public, not sealed, with an empty constructor, and implement IEnumerable<object[]>.");
+
+            internal static DiagnosticDescriptor X1008_DataAttributeShouldBeUsedOnATheory { get; } = new DiagnosticDescriptor("xUnit1008",
+                "Test data attribute should only be used on a Theory",
+                "Test data attribute should only be used on a Theory",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
