@@ -80,6 +80,13 @@ namespace Xunit.Analyzers
                 "Null should not be used for value type parameter '{0}' of type '{1}'.",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "XUnit will execute the theory initializing the parameter to the default value of the type, which might not be the desired behavior");
+
+            internal static DiagnosticDescriptor X1013_PublicMethodShouldBeMarkedAsTest { get; } = new DiagnosticDescriptor("xUnit1013",
+                "Public method should be marked as test",
+                "Public method '{0}' on test class '{1}' should be marked as a {2}.",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+                description: "Public methods on a test class that return void or Task should be marked as tests or have their accessibility reduced. While test methods do not have to be public "
+                + " having public non-test methods might indicate that a method was intended to be a test but the annotation was not applied.");
         }
 
         internal static class Types
@@ -90,6 +97,7 @@ namespace Xunit.Analyzers
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
             internal static readonly string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
+            internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
         }
     }
 }

@@ -36,6 +36,7 @@
     <Compile Include="CodeActions\RemoveAttributesOfTypeCodeAction.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ClassDataAttributeMustPointAtValidClass.cs" />
+    <Compile Include="PublicMethodShouldBeMarkedAsTest.cs" />
     <Compile Include="FactMethodMustNotHaveParameters.cs" />
     <Compile Include="ClassDataAttributeMustPointAtValidClassFixer.cs" />
     <Compile Include="FactMethodMustNotHaveParametersFixer.cs" />
@@ -44,6 +45,7 @@
     <Compile Include="InlineDataMustMatchTheoryParametersFixer.cs" />
     <Compile Include="InlineDataMustMatchTheoryParameters.cs" />
     <Compile Include="FactMethodShouldNotHaveTestData.cs" />
+    <Compile Include="PublicMethodShouldBeMarkedAsTestFixer.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestDataFixer.cs" />
     <Compile Include="TheoryMethodShouldHaveParametersFixer.cs" />
