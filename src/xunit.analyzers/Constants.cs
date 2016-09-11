@@ -59,11 +59,33 @@ namespace Xunit.Analyzers
                 "Test data attribute should only be used on a Theory",
                 "Test data attribute should only be used on a Theory",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1009_InlineDataMustMatchTheoryParameters_TooFewValues { get; } = new DiagnosticDescriptor("xUnit1009",
+                "InlineData values must match the number of method parameters",
+                "InlineData values must match the number of method parameters",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType { get; } = new DiagnosticDescriptor("xUnit1010",
+                "The value is not convertible to the method parameter type",
+                "The value is not convertible to the method parameter '{0}' of type '{1}'.",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1011_InlineDataMustMatchTheoryParameters_ExtraValue { get; } = new DiagnosticDescriptor("xUnit1011",
+                "There is no matching method parameter",
+                "There is no matching method parameter for value: {0}.",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } = new DiagnosticDescriptor("xUnit1012",
+                "Null should not be used for value type parameters",
+                "Null should not be used for value type parameter '{0}' of type '{1}'.",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+                description: "XUnit will execute the theory initializing the parameter to the default value of the type, which might not be the desired behavior");
         }
 
         internal static class Types
         {
             internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
+            internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
