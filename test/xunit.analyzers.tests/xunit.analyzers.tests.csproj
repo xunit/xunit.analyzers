@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeAnalyzerHelper.cs" />
+    <Compile Include="AssertEqualLiteralValueShouldBeFirstTests.cs" />
     <Compile Include="InlineDataMustMatchTheoryParametersTests.cs" />
     <Compile Include="FactMethodMustNotHaveParametersTests.cs" />
     <Compile Include="DataAttributeShouldBeUsedOnATheoryTests.cs" />

@@ -7,6 +7,7 @@ namespace Xunit.Analyzers
         static class Categories
         {
             internal static string Usage { get; } = "Usage";
+            internal static string Assertions { get; } = "Assertions";
             internal static string Extensibility { get; } = "Extensibility";
         }
 
@@ -87,6 +88,13 @@ namespace Xunit.Analyzers
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "Public methods on a test class that return void or Task should be marked as tests or have their accessibility reduced. While test methods do not have to be public "
                 + " having public non-test methods might indicate that a method was intended to be a test but the annotation was not applied.");
+
+            internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
+                "Expected value should be first",
+                "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+                description: "The xUnit Assertion library produces the best error messages if the expected value is passed in as the first argument.");
+
         }
 
         internal static class Types
@@ -97,6 +105,9 @@ namespace Xunit.Analyzers
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
             internal static readonly string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
+
+            internal static readonly string XunitAssert = "Xunit.Assert";
+
             internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
         }
     }

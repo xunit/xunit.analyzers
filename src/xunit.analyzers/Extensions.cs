@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Xunit.Analyzers
@@ -46,6 +48,32 @@ namespace Xunit.Analyzers
             }
 
             return false;
+        }
+
+        internal static bool IsNameofExpression(this ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (!expression.IsKind(SyntaxKind.InvocationExpression))
+                return false;
+
+            var invocation = (InvocationExpressionSyntax)expression;
+            if (invocation.ArgumentList.Arguments.Count != 1)
+                return false;
+
+            if ((invocation.Expression as IdentifierNameSyntax)?.Identifier.ValueText != "nameof")
+                return false;
+
+            // A real nameof expression doesn't have a matching symbol, but it does have the string type
+            return semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol == null &&
+                semanticModel.GetTypeInfo(expression, cancellationToken).Type?.SpecialType == SpecialType.System_String;
+        }
+
+        internal static bool IsEnumValueExpression(this ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (!expression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+                return false;
+
+            var symbol = semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol;
+            return symbol?.Kind == SymbolKind.Field && symbol.ContainingType.TypeKind == TypeKind.Enum;
         }
     }
 }

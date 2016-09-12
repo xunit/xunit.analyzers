@@ -18,6 +18,7 @@ namespace Xunit.Analyzers
         static readonly MetadataReference SystemRuntimeReference;
         static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
 
         static CodeAnalyzerHelper()
         {
@@ -44,6 +45,7 @@ namespace Xunit.Analyzers
                     SystemRuntimeReference,
                     XunitCoreReference,
                     XunitAbstractionsReference,
+                    XunitAssertReference,
                 });
 
             int count = 0;
@@ -59,7 +61,7 @@ namespace Xunit.Analyzers
             var compilation = await project.GetCompilationAsync();
             var compilationDiagnostics = compilation.GetDiagnostics();
             if (compilationDiagnostics.Any())
-                throw new InvalidOperationException("Compilation has errors");
+                throw new InvalidOperationException("Compilation has errors. First error: " + compilationDiagnostics.First().GetMessage());
             var results = await compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
             return results;
         }
