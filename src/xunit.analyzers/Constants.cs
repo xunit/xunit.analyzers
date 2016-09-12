@@ -95,6 +95,10 @@ namespace Xunit.Analyzers
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "The xUnit Assertion library produces the best error messages if the expected value is passed in as the first argument.");
 
+            internal static DiagnosticDescriptor X2001_AssertEqualsShouldNotBeUsed { get; } = new DiagnosticDescriptor("xUnit2001",
+                "Do not use invalid equality check",
+                "Do not use {0}.",
+                Categories.Assertions, DiagnosticSeverity.Hidden, isEnabledByDefault: true);
         }
 
         internal static class Types

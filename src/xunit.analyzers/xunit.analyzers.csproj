@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssertEqualsShouldNotBeUsedFixer.cs" />
+    <Compile Include="AssertEqualsShouldNotBeUsed.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirst.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstFixer.cs" />
     <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />

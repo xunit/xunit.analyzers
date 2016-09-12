@@ -29,7 +29,12 @@ namespace Xunit.Analyzers
             SystemRuntimeReference = MetadataReference.CreateFromFile(a.Location);
         }
 
-        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
+        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
+        {
+            return GetDiagnosticsAsync(analyzer, false, source, additionalSources);
+        }
+
+        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, bool ignoreCompilationErrors, string source, params string[] additionalSources)
         {
             const string fileNamePrefix = "Source";
             const string projectName = "Project";
@@ -60,7 +65,7 @@ namespace Xunit.Analyzers
             project = project.WithCompilationOptions(project.CompilationOptions.WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
             var compilation = await project.GetCompilationAsync();
             var compilationDiagnostics = compilation.GetDiagnostics();
-            if (compilationDiagnostics.Any())
+            if (!ignoreCompilationErrors && compilationDiagnostics.Any())
                 throw new InvalidOperationException("Compilation has errors. First error: " + compilationDiagnostics.First().GetMessage());
             var results = await compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
             return results;

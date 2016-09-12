@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertEqualsShouldNotBeUsedTests.cs" />
     <Compile Include="CodeAnalyzerHelper.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstTests.cs" />
     <Compile Include="InlineDataMustMatchTheoryParametersTests.cs" />
