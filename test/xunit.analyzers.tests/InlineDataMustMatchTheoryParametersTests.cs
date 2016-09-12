@@ -126,6 +126,21 @@ namespace Xunit.Analyzers
                 "System.Guid",
             };
 
+            [Fact]
+            public async void FindsWarningForAttributeWithSingleNullValue()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(null)] public void TestMethod(int a) { } }");
+
+                Assert.Collection(diagnostics,
+                   d =>
+                   {
+                       Assert.Equal("Null should not be used for value type parameter 'a' of type 'int'.", d.GetMessage());
+                       Assert.Equal("xUnit1012", d.Descriptor.Id);
+                       Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                   });
+            }
+
             [Theory]
             [MemberData(nameof(ValueTypes))]
             public async void FindsWarningForAttributeWithNullValueForValueTypeParameter(string type)
@@ -134,12 +149,12 @@ namespace Xunit.Analyzers
                     "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null)] public void TestMethod(int a, " + type + " b) { } }");
 
                 Assert.Collection(diagnostics,
-                  d =>
-                  {
-                      Assert.Equal("Null should not be used for value type parameter 'b' of type '" + type + "'.", d.GetMessage());
-                      Assert.Equal("xUnit1012", d.Descriptor.Id);
-                      Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                  });
+                   d =>
+                   {
+                       Assert.Equal("Null should not be used for value type parameter 'b' of type '" + type + "'.", d.GetMessage());
+                       Assert.Equal("xUnit1012", d.Descriptor.Id);
+                       Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                   });
             }
 
             [Theory]

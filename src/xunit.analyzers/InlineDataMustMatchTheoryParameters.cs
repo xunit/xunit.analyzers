@@ -66,7 +66,9 @@ namespace Xunit.Analyzers
                         }
 
                         var dataArrayArgument = attribute.ConstructorArguments.Single();
-                        if (dataArrayArgument.Values.Length < method.Parameters.Length)
+                        // Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
+                        var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
+                        if (values.Length < method.Parameters.Length)
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterArrayStyle] = arrayStyle.ToString();
@@ -76,7 +78,7 @@ namespace Xunit.Analyzers
                                 builder.ToImmutable()));
                         }
 
-                        for (int i = 0; i < Math.Min(dataArrayArgument.Values.Length, method.Parameters.Length); i++)
+                        for (int i = 0; i < Math.Min(values.Length, method.Parameters.Length); i++)
                         {
                             var parameter = method.Parameters[i];
                             if (parameter.Type == compilation.ObjectType)
@@ -87,16 +89,19 @@ namespace Xunit.Analyzers
                             builder[ParameterName] = parameter.Name;
                             var properties = builder.ToImmutable();
 
-                            var value = dataArrayArgument.Values[i];
-                            var conversion = compilation.ClassifyConversion(source: value.Type, destination: parameter.Type);
-                            if (!conversion.IsImplicit && !conversion.IsUnboxing && !(conversion.IsExplicit && conversion.IsReference))
+                            var value = values[i];
+                            if (!value.IsNull)
                             {
-                                symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-                                    dataParameterExpressions[i].GetLocation(),
-                                    properties,
-                                    parameter.Name,
-                                    SymbolDisplay.ToDisplayString(parameter.Type)));
+                                var conversion = compilation.ClassifyConversion(source: value.Type, destination: parameter.Type);
+                                if (!conversion.IsImplicit && !conversion.IsUnboxing && !(conversion.IsExplicit && conversion.IsReference))
+                                {
+                                    symbolContext.ReportDiagnostic(Diagnostic.Create(
+                                        Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
+                                        dataParameterExpressions[i].GetLocation(),
+                                        properties,
+                                        parameter.Name,
+                                        SymbolDisplay.ToDisplayString(parameter.Type)));
+                                }
                             }
 
                             if (value.IsNull && parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
@@ -110,7 +115,7 @@ namespace Xunit.Analyzers
                             }
                         }
 
-                        for (int i = method.Parameters.Length; i < dataArrayArgument.Values.Length; i++)
+                        for (int i = method.Parameters.Length; i < values.Length; i++)
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterIndex] = i.ToString();
@@ -118,7 +123,7 @@ namespace Xunit.Analyzers
                                 Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
                                 dataParameterExpressions[i].GetLocation(),
                                 builder.ToImmutable(),
-                                dataArrayArgument.Values[i].ToCSharpString()));
+                                values[i].ToCSharpString()));
                         }
                     }
                 }, SymbolKind.Method);
