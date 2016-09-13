@@ -20,6 +20,7 @@ namespace Xunit.Analyzers
                 if (factType == null)
                     return;
 
+                var iDisposableType = compilationStartContext.Compilation.GetSpecialType(SpecialType.System_IDisposable);
                 var taskType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
 
                 compilationStartContext.RegisterSymbolAction(symbolContext =>
@@ -29,6 +30,12 @@ namespace Xunit.Analyzers
                     if (type.TypeKind != TypeKind.Class ||
                         type.DeclaredAccessibility != Accessibility.Public)
                         return;
+
+                    ISymbol disposeMethod = null;
+                    if (iDisposableType != null && type.AllInterfaces.Contains(iDisposableType))
+                    {
+                        disposeMethod = type.FindImplementationForInterfaceMember(iDisposableType.GetMembers().First());
+                    }
 
                     bool hasTestMethods = false;
                     var violations = new List<IMethodSymbol>();
@@ -45,7 +52,8 @@ namespace Xunit.Analyzers
 
                         if (!isTestMethod &&
                             method.DeclaredAccessibility == Accessibility.Public &&
-                            (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)))
+                            (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)) &&
+                            !method.Equals(disposeMethod))
                         {
                             violations.Add(method);
                         }

@@ -27,6 +27,18 @@ namespace Xunit.Analyzers
                 Assert.Empty(diagnostics);
             }
 
+            [Fact]
+            public async void DoesNotFindErrorForIDisposableDisposeMethod()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, 
+@"public class TestClass : System.IDisposable {
+    [Xunit.Fact] public void TestMethod() { }
+    public void Dispose() { }
+}");
+
+                Assert.Empty(diagnostics);
+            }
+
             [Theory]
             [InlineData("Xunit.Fact")]
             [InlineData("Xunit.Theory")]
