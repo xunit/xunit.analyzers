@@ -202,6 +202,39 @@ namespace Xunit.Analyzers
                       Assert.Equal("xUnit1010", d.Descriptor.Id);
                   });
             }
+
+            public static TheoryData<string, string> NumericTypesAndValues
+            {
+                get
+                {
+                    var numericTypes = new[]
+                    {
+                        "int", "long", "short", "byte", "float", "double", "decimal", "uint", "ulong", "ushort", "sbyte",
+                    };
+
+                    // Note: decimal literal 42M is not valid as an attribute argument
+                    var numericValues = new[]
+                    {
+                        "42", "42f", "42d", "42L", "42u", "42ul", "(short)42", "(byte)42", "(ushort)42", "(sbyte)42",
+                    };
+
+                    var td = new TheoryData<string, string>();
+                    foreach (var type in numericTypes)
+                        foreach (var value in numericValues)
+                            td.Add(value, type);
+                    return td;
+                }
+            }
+
+            [Theory]
+            [MemberData(nameof(NumericTypesAndValues))]
+            public async void DoesNotFindErrorForSupportedConversionToNumericTypes(string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + " a) { } }");
+
+                Assert.Empty(diagnostics);
+            }
         }
     }
 }

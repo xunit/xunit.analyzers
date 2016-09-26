@@ -92,8 +92,8 @@ namespace Xunit.Analyzers
                             var value = values[i];
                             if (!value.IsNull)
                             {
-                                var conversion = compilation.ClassifyConversion(source: value.Type, destination: parameter.Type);
-                                if (!conversion.IsImplicit && !conversion.IsUnboxing && !(conversion.IsExplicit && conversion.IsReference))
+                                var isConvertible = DetermineIsConvertible(compilation, value.Type, parameter.Type);
+                                if (!isConvertible)
                                 {
                                     symbolContext.ReportDiagnostic(Diagnostic.Create(
                                         Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
@@ -128,6 +128,15 @@ namespace Xunit.Analyzers
                     }
                 }, SymbolKind.Method);
             });
+        }
+
+        static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        {
+            var conversion = compilation.ClassifyConversion(source, destination);
+            if (conversion.IsNumeric)
+                return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
+            var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsReference);
+            return isConvertible;
         }
 
         static List<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
