@@ -134,8 +134,17 @@ namespace Xunit.Analyzers
         {
             var conversion = compilation.ClassifyConversion(source, destination);
             if (conversion.IsNumeric)
+            {
+                if (destination == compilation.GetSpecialType(SpecialType.System_Char) &&
+                    (source == compilation.GetSpecialType(SpecialType.System_Double) || source == compilation.GetSpecialType(SpecialType.System_Single)))
+                {
+                    // Conversions from float to char (though numeric) do not actually work at runtime, so report them
+                    return false;
+                }
+
                 return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
-            var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsReference);
+            }
+            var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsNullable);
             return isConvertible;
         }
 

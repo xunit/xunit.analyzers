@@ -122,6 +122,7 @@
     <Compile Include="ClassDataAttributeMustPointAtValidClassTests.cs" />
     <Compile Include="TheoryMethodShouldHaveParametersTests.cs" />
     <Compile Include="TheoryMethodMustHaveTestDataTests.cs" />
+    <Compile Include="TupleMemberDataAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj">
