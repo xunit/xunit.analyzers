@@ -516,6 +516,115 @@ namespace Xunit.Analyzers
                 }
             }
 
+            public class ForConversionToGeneric : Analyzer
+            {
+                [Theory]
+                [TupleMemberData(nameof(BoolValues))]
+                [TupleMemberData(nameof(NumericValues))]
+                [InlineData("System.StringComparison.Ordinal")]
+                [InlineData("'a'")]
+                [InlineData("\"abc\"")]
+                [InlineData("null")]
+                [InlineData("typeof(string)")]
+                public async void DoesNotFindError_FromAnyValue_WithNoConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) { } }");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Theory]
+                [TupleMemberData(nameof(BoolValues))]
+                [TupleMemberData(nameof(NumericValues))]
+                [InlineData("System.StringComparison.Ordinal")]
+                [InlineData("'a'")]
+                public async void DoesNotFindError_FromAnyValueType_WithStructConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Theory]
+                [InlineData("\"abc\"")]
+                [InlineData("typeof(string)")]
+                public async void FindsError_FromAnyReferenceType_WithStructConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }");
+
+                    Assert.Collection(diagnostics,
+                      d =>
+                      {
+                          Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                          Assert.Equal("xUnit1010", d.Descriptor.Id);
+                      });
+                }
+
+                [Theory]
+                [InlineData("\"abc\"")]
+                [InlineData("typeof(string)")]
+                [InlineData("null")]
+                public async void DoesNotFindError_FromAnyReferenceType_WithClassConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Theory]
+                [TupleMemberData(nameof(BoolValues))]
+                [TupleMemberData(nameof(NumericValues))]
+                [InlineData("System.StringComparison.Ordinal")]
+                [InlineData("'a'")]
+                public async void FindsError_FromAnyValueType_WithClassConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }");
+
+                    Assert.Collection(diagnostics,
+                      d =>
+                      {
+                          Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                          Assert.Equal("xUnit1010", d.Descriptor.Id);
+                      });
+                }
+
+                [Theory]
+                [InlineData("null")]
+                [InlineData("System.StringComparison.Ordinal")]
+                [TupleMemberData(nameof(NumericValues))]
+                public async void DoesNotFindError_FromAnyMatchingType_WithTypeConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Theory]
+                [InlineData("typeof(string)")]
+                [InlineData("new int[] { 1, 2, 3 }")]
+                [InlineData("'a'")]
+                [InlineData("\"abc\"")]
+                [TupleMemberData(nameof(BoolValues))]
+                public async void FindsError_FromNonMatchingType_WithTypeConstraint(string value)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }");
+
+                    Assert.Collection(diagnostics,
+                      d =>
+                      {
+                          Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                          Assert.Equal("xUnit1010", d.Descriptor.Id);
+                      });
+                }
+            }
+
             // Note: decimal literal 42M is not valid as an attribute argument
             public static IEnumerable<Tuple<string>> IntegerValues { get; } = new[] { "42", "42L", "42u", "42ul", "(short)42", "(byte)42", "(ushort)42", "(sbyte)42", }.Select(v => Tuple.Create(v)).ToArray();
 

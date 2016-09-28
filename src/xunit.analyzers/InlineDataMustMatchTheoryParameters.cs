@@ -132,20 +132,33 @@ namespace Xunit.Analyzers
 
         static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
-            var conversion = compilation.ClassifyConversion(source, destination);
-            if (conversion.IsNumeric)
+            if (destination.TypeKind == TypeKind.TypeParameter)
             {
-                if (destination == compilation.GetSpecialType(SpecialType.System_Char) &&
-                    (source == compilation.GetSpecialType(SpecialType.System_Double) || source == compilation.GetSpecialType(SpecialType.System_Single)))
-                {
-                    // Conversions from float to char (though numeric) do not actually work at runtime, so report them
+                var genericDestination = (ITypeParameterSymbol)destination;
+                if (genericDestination.HasValueTypeConstraint && !source.IsValueType)
                     return false;
-                }
+                if (genericDestination.HasReferenceTypeConstraint && source.IsValueType)
+                    return false;
 
-                return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
+                return genericDestination.ConstraintTypes.All(c => c.IsAssignableFrom(source));
             }
-            var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsNullable);
-            return isConvertible;
+            else
+            {
+                var conversion = compilation.ClassifyConversion(source, destination);
+                if (conversion.IsNumeric)
+                {
+                    if (destination == compilation.GetSpecialType(SpecialType.System_Char) &&
+                        (source == compilation.GetSpecialType(SpecialType.System_Double) || source == compilation.GetSpecialType(SpecialType.System_Single)))
+                    {
+                        // Conversions from float to char (though numeric) do not actually work at runtime, so report them
+                        return false;
+                    }
+
+                    return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
+                }
+                var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsNullable);
+                return isConvertible;
+            }
         }
 
         static List<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
