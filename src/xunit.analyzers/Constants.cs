@@ -104,6 +104,11 @@ namespace Xunit.Analyzers
                 "Do not use invalid equality check",
                 "Do not use {0}.",
                 Categories.Assertions, DiagnosticSeverity.Hidden, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X2002_AssertNullShouldNotBeCalledOnValueTypes { get; } = new DiagnosticDescriptor("xUnit2002",
+                "Do not use null check on value type",
+                "Do not use {0} on value type '{1}'.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types

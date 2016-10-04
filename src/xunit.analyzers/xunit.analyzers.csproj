@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssertNullShouldNotBeCalledOnValueTypes.cs" />
+    <Compile Include="AssertNullShouldNotBeCalledOnValueTypesFixer.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsedFixer.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsed.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirst.cs" />
