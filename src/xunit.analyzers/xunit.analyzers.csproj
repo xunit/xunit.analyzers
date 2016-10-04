@@ -36,8 +36,10 @@
     <Compile Include="AssertEqualsShouldNotBeUsed.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirst.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstFixer.cs" />
+    <Compile Include="MemberDataShouldUseNameOfOperatorFixer.cs" />
     <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />
     <Compile Include="CodeActions\RemoveAttributesOfTypeCodeAction.cs" />
+    <Compile Include="MemberDataShouldUseNameOfOperator.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ClassDataAttributeMustPointAtValidClass.cs" />
     <Compile Include="PublicMethodShouldBeMarkedAsTest.cs" />

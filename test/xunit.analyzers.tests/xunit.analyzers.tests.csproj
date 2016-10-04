@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertEqualsShouldNotBeUsedTests.cs" />
+    <Compile Include="MemberDataShouldUseNameOfOperatorTests.cs" />
     <Compile Include="CodeAnalyzerHelper.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstTests.cs" />
     <Compile Include="InlineDataMustMatchTheoryParametersTests.cs" />

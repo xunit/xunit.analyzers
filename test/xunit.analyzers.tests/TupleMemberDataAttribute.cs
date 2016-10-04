@@ -39,7 +39,7 @@ namespace Xunit.Analyzers
             {
                 var methodName = "Convert" + t.GenericTypeArguments.Length;
 
-                // (object item) => Convert<TN>((TN)item)
+                // (object item) => Convert<TN>((Tuple<TN>)item)
                 var param = Expression.Parameter(typeof(object), "item");
                 var cast = Expression.Convert(param, t);
                 var call = Expression.Call(typeof(TupleMemberDataAttribute), methodName, t.GenericTypeArguments, cast);

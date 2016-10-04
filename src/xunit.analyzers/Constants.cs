@@ -89,6 +89,11 @@ namespace Xunit.Analyzers
                 description: "Public methods on a test class that return void or Task should be marked as tests or have their accessibility reduced. While test methods do not have to be public "
                 + " having public non-test methods might indicate that a method was intended to be a test but the annotation was not applied.");
 
+            internal static DiagnosticDescriptor X1014_MemberDataShouldUseNameOfOperator { get; } = new DiagnosticDescriptor("xUnit1014",
+                "MemberData should use nameof operator for member name",
+                "MemberData should use nameof operator to reference member '{0}' on type '{1}'.",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
             internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
                 "Expected value should be first",
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
@@ -105,6 +110,7 @@ namespace Xunit.Analyzers
         {
             internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
             internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
+            internal static readonly string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
