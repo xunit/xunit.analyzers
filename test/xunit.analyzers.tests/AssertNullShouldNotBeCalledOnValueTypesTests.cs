@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
             [MemberData(nameof(Methods))]
             public async void FindsWarning_ForValueType(string method)
             {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     int val = 1;
     Xunit.Assert." + method + @"(val);
@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
             [MemberData(nameof(Methods))]
             public async void DoesNotFindWarning_ForNullableValueType(string method)
             {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     int? val = 1;
     Xunit.Assert." + method + @"(val);
@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
             [MemberData(nameof(Methods))]
             public async void DoesNotFindWarning_ForNullableReferenceType(string method)
             {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     string val = null;
     Xunit.Assert." + method + @"(val);
