@@ -33,8 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssertUsageAnalyzerBase.cs" />
+    <Compile Include="AssertEqualShouldNotBeUsedForNullCheckFixer.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypes.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypesFixer.cs" />
+    <Compile Include="AssertEqualShouldNotBeUsedForNullCheck.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsedFixer.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsed.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirst.cs" />

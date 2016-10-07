@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertEqualShouldNotBeUsedForNullCheckTests.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypesTests.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsedTests.cs" />
     <Compile Include="MemberDataShouldUseNameOfOperatorTests.cs" />
