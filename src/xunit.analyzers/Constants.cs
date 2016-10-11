@@ -114,6 +114,11 @@ namespace Xunit.Analyzers
                 "Do not use equality check to test for null value",
                 "Do not use {0} to check for null value.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X2004_AssertEqualShouldNotUsedForBoolLiteralCheck { get; } = new DiagnosticDescriptor("xUnit2004",
+                "Do not use equality check to test for boolean conditions",
+                "Do not use {0} to check for boolean conditions.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types

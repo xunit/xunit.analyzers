@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheck.cs" />
+    <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.cs" />
     <Compile Include="AssertUsageAnalyzerBase.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForNullCheckFixer.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypes.cs" />
