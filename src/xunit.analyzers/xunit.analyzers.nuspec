@@ -5,9 +5,9 @@
     <version>0.0.1</version>
     <title>xUnit.net Code Analyzers</title>
     <authors>Marcin Dobosz</authors>
-    <copyright>Copyright © 2016 Marcin Dobosz</copyright>
-    <licenseUrl>https://raw.githubusercontent.com/marcind/xunit.analyzers/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/marcind/xunit.analyzers</projectUrl>
+    <copyright>Copyright © 2017 Marcin Dobosz</copyright>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit.analyzers/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/xunit/xunit.analyzers</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Code Analyzers for projects using xUnit.net that help find and fix frequent issues when writing tests.</description>
