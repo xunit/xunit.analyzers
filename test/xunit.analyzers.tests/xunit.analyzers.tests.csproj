@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheckTests.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForNullCheckTests.cs" />
+    <Compile Include="AssertSameShouldNotBeCalledOnValueTypesTests.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypesTests.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsedTests.cs" />
     <Compile Include="MemberDataShouldUseNameOfOperatorTests.cs" />

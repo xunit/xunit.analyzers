@@ -119,6 +119,13 @@ namespace Xunit.Analyzers
                 "Do not use equality check to test for boolean conditions",
                 "Do not use {0} to check for boolean conditions.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X2005_AssertSameShouldNotBeCalledOnValueTypes { get; } = new DiagnosticDescriptor("xUnit2005",
+                "Do not use identity check on value type",
+                "Do not use {0} on value type '{1}'.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+                description: "The value type will be boxed which means its identity will always be different.");
+
         }
 
         internal static class Types

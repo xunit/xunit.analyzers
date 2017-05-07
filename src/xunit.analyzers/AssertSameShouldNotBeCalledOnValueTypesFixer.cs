@@ -11,26 +11,27 @@ using Xunit.Analyzers.CodeActions;
 namespace Xunit.Analyzers
 {
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class AssertEqualsShouldNotBeUsedFixer : CodeFixProvider
+    public class AssertSameShouldNotBeCalledOnValueTypesFixer : CodeFixProvider
     {
         const string titleTemplate = "Use Assert.{0}";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var methodName = context.Diagnostics.First().Properties[AssertSameShouldNotBeCalledOnValueTypes.MethodName];
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
             string replacement = null;
-            switch (context.Diagnostics.First().Properties[AssertEqualsShouldNotBeUsed.MethodName])
+            switch (methodName)
             {
-                case AssertEqualsShouldNotBeUsed.EqualsMethod:
+                case AssertSameShouldNotBeCalledOnValueTypes.SameMethod:
                     replacement = "Equal";
                     break;
-                case AssertEqualsShouldNotBeUsed.ReferenceEqualsMethod:
-                    replacement = "Same";
+                case AssertSameShouldNotBeCalledOnValueTypes.NotSameMethod:
+                    replacement = "NotEqual";
                     break;
             }
 
