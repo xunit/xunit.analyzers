@@ -32,7 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssertEqualGenericShouldNotBeUsedForStringValue.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheck.cs" />
+    <Compile Include="AssertEqualGenericShouldNotBeUsedForStringValueFixer.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.cs" />
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypesFixer.cs" />
     <Compile Include="AssertUsageAnalyzerBase.cs" />

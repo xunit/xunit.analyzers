@@ -126,6 +126,10 @@ namespace Xunit.Analyzers
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "The value type will be boxed which means its identity will always be different.");
 
+            internal static DiagnosticDescriptor X2006_AssertEqualGenericShouldNotBeUsedForStringValue { get; } = new DiagnosticDescriptor("xUnit2006",
+                "Do not use invalid string equality check",
+                "Do not use {0} to test for string equality.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
