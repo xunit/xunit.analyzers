@@ -183,6 +183,12 @@ namespace Xunit.Analyzers
                 "Do not use typeof expression to check the type",
                 "Do not use typeof({0}) expression to check the type.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck { get; } = new DiagnosticDescriptor("xUnit2008",
+                "Do not use boolean check to match on regular expressions",
+                "Do not use {0} to match on regular expressions.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         }
 
         internal static class Types
