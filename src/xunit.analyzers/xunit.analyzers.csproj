@@ -46,6 +46,7 @@
     <Compile Include="AssertEqualLiteralValueShouldBeFirstFixer.cs" />
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypes.cs" />
     <Compile Include="CodeActions\UseDifferentMethodCodeAction.cs" />
+    <Compile Include="FixProviders\ConvertToFactFix.cs" />
     <Compile Include="MemberDataShouldUseNameOfOperatorFixer.cs" />
     <Compile Include="CodeActions\ConvertAttributeCodeAction.cs" />
     <Compile Include="CodeActions\RemoveAttributesOfTypeCodeAction.cs" />
@@ -64,9 +65,7 @@
     <Compile Include="PublicMethodShouldBeMarkedAsTestFixer.cs" />
     <Compile Include="TestMethodShouldNotBeSkippedFixer.cs" />
     <Compile Include="FactMethodShouldNotHaveTestDataFixer.cs" />
-    <Compile Include="TheoryMethodShouldHaveParametersFixer.cs" />
     <Compile Include="TheoryMethodShouldHaveParameters.cs" />
-    <Compile Include="TheoryMethodMustHaveTestDataFixer.cs" />
     <Compile Include="TestMethodMustNotHaveMultipleFactAttributesFixer.cs" />
     <Compile Include="TestClassMustBePublicFixer.cs" />
     <Compile Include="Constants.cs" />
