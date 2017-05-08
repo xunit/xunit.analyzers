@@ -126,6 +126,11 @@ namespace Xunit.Analyzers
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "The value type will be boxed which means its identity will always be different.");
 
+            internal static DiagnosticDescriptor X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck { get; } = new DiagnosticDescriptor("xUnit2008",
+                "Do not use boolean check to match on regular expressions",
+                "Do not use {0} to match on regular expressions.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         }
 
         internal static class Types

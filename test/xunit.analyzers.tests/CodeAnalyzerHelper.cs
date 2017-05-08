@@ -15,6 +15,7 @@ namespace Xunit.Analyzers
     {
         static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference SystemTextReference = MetadataReference.CreateFromFile(typeof(System.Text.RegularExpressions.Regex).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemRuntimeReference;
         static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
@@ -47,6 +48,7 @@ namespace Xunit.Analyzers
                 .AddMetadataReferences(projectId, new[] {
                     CorlibReference,
                     SystemCoreReference,
+                    SystemTextReference,
                     SystemRuntimeReference,
                     XunitCoreReference,
                     XunitAbstractionsReference,
