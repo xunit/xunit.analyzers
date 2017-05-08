@@ -34,6 +34,8 @@
   <ItemGroup>
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheck.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.cs" />
+    <Compile Include="AssertIsTypeShouldUseGenericOverloadType.cs" />
+    <Compile Include="AssertIsTypeShouldUseGenericOverloadFixer.cs" />
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypesFixer.cs" />
     <Compile Include="AssertUsageAnalyzerBase.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForNullCheckFixer.cs" />
