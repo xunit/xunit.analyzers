@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: convertTitle,
-                    createChangedDocument: ct => Foo(context.Document, methodDeclaration, convertType, ct),
+                    createChangedDocument: ct => AddAttributeAsync(context.Document, methodDeclaration, convertType, ct),
                     equivalenceKey: convertTitle),
                 context.Diagnostics);
             context.RegisterCodeFix(
@@ -44,7 +44,7 @@ namespace Xunit.Analyzers
                 context.Diagnostics);
         }
 
-        async Task<Document> Foo(Document document, MethodDeclarationSyntax methodDeclaration, string type, CancellationToken cancellationToken)
+        async Task<Document> AddAttributeAsync(Document document, MethodDeclarationSyntax methodDeclaration, string type, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             editor.AddAttribute(methodDeclaration, editor.Generator.Attribute(type));

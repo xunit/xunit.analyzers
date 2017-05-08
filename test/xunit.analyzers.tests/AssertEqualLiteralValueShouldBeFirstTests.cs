@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
                 Assert.Empty(diagnostics);
             }
 
-            public static TheoryData<string, string> Foo { get; } = new TheoryData<string, string>
+            public static TheoryData<string, string> TypesAndValues { get; } = new TheoryData<string, string>
             {
                 {"int", "0"},
                 {"int", "0.0"},
@@ -34,7 +34,7 @@ namespace Xunit.Analyzers
             };
 
             [Theory]
-            [MemberData(nameof(Foo))]
+            [MemberData(nameof(TypesAndValues))]
             public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsFirstArgument(string type, string value)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
             }
 
             [Theory]
-            [MemberData(nameof(Foo))]
+            [MemberData(nameof(TypesAndValues))]
             public async void FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(string type, string value)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
