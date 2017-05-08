@@ -7,8 +7,8 @@ namespace Xunit.Analyzers
         public class Analyzer
         {
             readonly DiagnosticAnalyzer analyzer = new MemberDataShouldUseNameOfOperator();
-            static readonly string sharedCode =
-@"public partial class TestClass { public static System.Collections.Generic.IEnumerable<object[]> Data { get;set; } }
+
+            private const string SharedCode = @"public partial class TestClass { public static System.Collections.Generic.IEnumerable<object[]> Data { get;set; } }
 public class OtherClass { public static System.Collections.Generic.IEnumerable<object[]> OtherData { get;set; } }
 ";
 
@@ -16,7 +16,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void DoesNotFindError_ForNameofOnSameClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(nameof(Data))] public void TestMethod() { } }");
 
                 Assert.Empty(diagnostics);
@@ -26,7 +26,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void DoesNotFindError_ForNameofOnOtherClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))] public void TestMethod() { } }");
 
                 Assert.Empty(diagnostics);
@@ -36,7 +36,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void DoesNotFindError_ForInvalidStringReferenceOnSameClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(\"Typo\")] public void TestMethod() { } }");
 
                 Assert.Empty(diagnostics);
@@ -46,7 +46,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void DoesNotFindError_ForInvalidStringReferenceOnOtherClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(\"Typo\", MemberType = typeof(OtherClass))] public void TestMethod() { } }");
 
                 Assert.Empty(diagnostics);
@@ -56,7 +56,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void FindsError_ForStringReferenceOnSameClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(\"Data\")] public void TestMethod() { } }");
 
                 Assert.Collection(diagnostics,
@@ -71,7 +71,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
             public async void FindsError_ForStringReferenceOnOtherClass()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    sharedCode,
+                    SharedCode,
                     "public partial class TestClass { [Xunit.MemberData(\"OtherData\", MemberType = typeof(OtherClass))] public void TestMethod() { } }");
 
                 Assert.Collection(diagnostics,
