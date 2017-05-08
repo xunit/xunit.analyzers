@@ -200,7 +200,7 @@ namespace Xunit.Analyzers
 
             public class ForConversionToNumericValue : Analyzer
             {
-                public static IEnumerable<Tuple<string>> NumericTypes = new[] { "int", "long", "short", "byte", "float", "double", "decimal", "uint", "ulong", "ushort", "sbyte", }.Select(t => Tuple.Create(t));
+                public static readonly IEnumerable<Tuple<string>> NumericTypes = new[] { "int", "long", "short", "byte", "float", "double", "decimal", "uint", "ulong", "ushort", "sbyte", }.Select(t => Tuple.Create(t));
 
                 public static IEnumerable<Tuple<string, string>> NumericValuesAndNumericTypes { get; } = from value in NumericValues
                                                                                                          from type in NumericTypes

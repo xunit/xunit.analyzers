@@ -13,8 +13,8 @@ namespace Xunit.Analyzers
     {
         internal static string MethodName = "MethodName";
         internal static string LiteralValue = "LiteralValue";
-        internal static HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
-        internal static HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual" });
+        internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
+        internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual" });
 
         public AssertEqualShouldNotBeUsedForBoolLiteralCheck() :
             base(Constants.Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, EqualMethods.Union(NotEqualMethods))

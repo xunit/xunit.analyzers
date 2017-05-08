@@ -11,8 +11,8 @@ namespace Xunit.Analyzers
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public sealed class TupleMemberDataAttribute : MemberDataAttributeBase
     {
-        private static Type[] TupleOpenGenericTypes = new[] { typeof(Tuple<>), typeof(Tuple<,>), typeof(Tuple<,,>), typeof(Tuple<,,,>), typeof(Tuple<,,,,>), typeof(Tuple<,,,,,>), typeof(Tuple<,,,,,,>), };
-        private static ConcurrentDictionary<Type, Func<object, object[]>> converterCache = new ConcurrentDictionary<Type, Func<object, object[]>>();
+        private static readonly Type[] TupleOpenGenericTypes = { typeof(Tuple<>), typeof(Tuple<,>), typeof(Tuple<,,>), typeof(Tuple<,,,>), typeof(Tuple<,,,,>), typeof(Tuple<,,,,,>), typeof(Tuple<,,,,,,>), };
+        private static readonly ConcurrentDictionary<Type, Func<object, object[]>> ConverterCache = new ConcurrentDictionary<Type, Func<object, object[]>>();
 
         public TupleMemberDataAttribute(string memberName, params object[] parameters)
             : base(memberName, parameters) { }
@@ -35,7 +35,7 @@ namespace Xunit.Analyzers
                 return null;
             }
 
-            return converterCache.GetOrAdd(item.GetType(), valueFactory: t =>
+            return ConverterCache.GetOrAdd(item.GetType(), valueFactory: t =>
             {
                 var methodName = "Convert" + t.GenericTypeArguments.Length;
 
