@@ -178,6 +178,11 @@ namespace Xunit.Analyzers
                 "Do not use invalid string equality check",
                 "Do not use {0} to test for string equality.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X2007_AssertIsTypeShouldUseGenericOverload { get; } = new DiagnosticDescriptor("xUnit2007",
+                "Do not use typeof expression to check the type",
+                "Do not use typeof({0}) expression to check the type.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
