@@ -12,8 +12,8 @@ namespace Xunit.Analyzers
     public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
     {
         internal static string MethodName = "MethodName";
-        internal static HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual", "Same" });
-        internal static HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual", "NotSame" });
+        internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual", "Same" });
+        internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual", "NotSame" });
 
         public AssertEqualShouldNotBeUsedForNullCheck() :
             base(Constants.Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
