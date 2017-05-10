@@ -6,7 +6,7 @@ namespace Xunit.Analyzers
     {
         public class Analyzer
         {
-            private static readonly string TestMethodSource = "public class TestClass { [Xunit.Theory][Xunit.ClassData(typeof(DataClass))] public void TestMethod() { } }";
+            private const string TestMethodSource = "public class TestClass { [Xunit.Theory][Xunit.ClassData(typeof(DataClass))] public void TestMethod() { } }";
             readonly DiagnosticAnalyzer analyzer = new ClassDataAttributeMustPointAtValidClass();
 
             [Fact]

@@ -130,17 +130,17 @@ namespace Xunit.Analyzers
 
         internal static class Types
         {
-            internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
-            internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
-            internal static readonly string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
-            internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
-            internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
+            internal const string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
+            internal const string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
+            internal const string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
+            internal const string XunitFactAttribute = "Xunit.FactAttribute";
+            internal const string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
-            internal static readonly string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
+            internal const string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
 
-            internal static readonly string XunitAssert = "Xunit.Assert";
+            internal const string XunitAssert = "Xunit.Assert";
 
-            internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
+            internal const string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
         }
     }
 }

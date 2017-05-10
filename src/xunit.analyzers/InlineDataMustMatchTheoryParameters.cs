@@ -12,9 +12,9 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class InlineDataMustMatchTheoryParameters : DiagnosticAnalyzer
     {
-        internal static readonly string ParameterIndex = "ParameterIndex";
-        internal static readonly string ParameterName = "ParameterName";
-        internal static readonly string ParameterArrayStyle = "ParameterArrayStyle";
+        internal const string ParameterIndex = "ParameterIndex";
+        internal const string ParameterName = "ParameterName";
+        internal const string ParameterArrayStyle = "ParameterArrayStyle";
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(
