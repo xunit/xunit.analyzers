@@ -35,6 +35,8 @@
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheck.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.cs" />
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypesFixer.cs" />
+    <Compile Include="AssertSubstringCheckShouldNotUseBoolCheck.cs" />
+    <Compile Include="AssertSubstringCheckShouldNotUseBoolCheckFixer.cs" />
     <Compile Include="AssertUsageAnalyzerBase.cs" />
     <Compile Include="AssertEqualShouldNotBeUsedForNullCheckFixer.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypes.cs" />

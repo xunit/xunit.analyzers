@@ -126,6 +126,11 @@ namespace Xunit.Analyzers
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "The value type will be boxed which means its identity will always be different.");
 
+            internal static DiagnosticDescriptor X2009_AssertSubstringCheckShouldNotUseBoolCheck { get; } = new DiagnosticDescriptor("xUnit2009",
+                "Do not use boolean check to check for substrings",
+                "Do not use {0} to check for substrings.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         }
 
         internal static class Types
