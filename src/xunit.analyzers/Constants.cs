@@ -189,6 +189,11 @@ namespace Xunit.Analyzers
                 "Do not use {0} to match on regular expressions.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
+            internal static DiagnosticDescriptor X2009_AssertSubstringCheckShouldNotUseBoolCheck { get; } = new DiagnosticDescriptor("xUnit2009",
+                "Do not use boolean check to check for substrings",
+                "Do not use {0} to check for substrings.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         }
 
         internal static class Types
