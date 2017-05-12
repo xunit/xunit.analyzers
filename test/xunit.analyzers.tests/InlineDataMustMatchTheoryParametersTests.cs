@@ -60,12 +60,48 @@ namespace Xunit.Analyzers
                 }
 
                 [Fact]
-                public async void DoesNotFindErrorFor_UsingParamsArray()
+                public async void DoesNotFindErrorFor_MethodUsingNormalAndUnusedParamsArgument()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
+                        "   public void TestMethod(string first, params string[] theRest) { }" +
+                        "}");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Fact]
+                public async void DoesNotFindErrorFor_UsingParameters()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                         "public class TestClass {" +
                         "   [Xunit.Theory, Xunit.InlineData(\"abc\", 1, null)]" +
                         "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Fact]
+                public async void DoesNotFindErrorFor_UsingParametersWithDefaultValues()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
+                        "   public void TestMethod(string a, string b = \"default\", string c = null) { }" +
+                        "}");
+
+                    Assert.Empty(diagnostics);
+                }
+
+                [Fact]
+                public async void DoesNotFindErrorFor_UsingParametersWithDefaultValuesAndParamsArgument()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
+                        "   public void TestMethod(string a, string b = \"default\", string c = null, params string[] d) { }" +
                         "}");
 
                     Assert.Empty(diagnostics);

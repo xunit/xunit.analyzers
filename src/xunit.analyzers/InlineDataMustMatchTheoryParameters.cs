@@ -36,6 +36,7 @@ namespace Xunit.Analyzers
                     ?? new Version("1.0.0.0");
 
                 var xunitSupportsParameterArrays = xunitVersion >= new Version(2, 2, 0, 0);
+                var xunitSupportsDefaultParameterValues = xunitVersion >= new Version(2, 2, 0, 0);
 
                 var theoryType = compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
                 var inlineDataType = compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);
@@ -76,7 +77,7 @@ namespace Xunit.Analyzers
                         var dataArrayArgument = attribute.ConstructorArguments.Single();
                         // Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
                         var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
-                        if (values.Length < method.Parameters.Length)
+                        if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues)))
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterArrayStyle] = arrayStyle.ToString();
@@ -163,6 +164,12 @@ namespace Xunit.Analyzers
                     }
                 }, SymbolKind.Method);
             });
+        }
+
+        private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray, bool supportsDefaultValue)
+        {
+            return !(parameter.HasExplicitDefaultValue && supportsDefaultValue)
+                && !(parameter.IsParams && supportsParamsArray);
         }
 
         static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
