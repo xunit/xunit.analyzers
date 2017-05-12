@@ -20,8 +20,12 @@ namespace Xunit.Analyzers
                 if (factType == null)
                     return;
 
-                var iDisposableType = compilationStartContext.Compilation.GetSpecialType(SpecialType.System_IDisposable);
                 var taskType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
+                var interfacesToIgnore = new List<INamedTypeSymbol>
+                {
+                    compilationStartContext.Compilation.GetSpecialType(SpecialType.System_IDisposable),
+                    compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
+                };
 
                 compilationStartContext.RegisterSymbolAction(symbolContext =>
                 {
@@ -31,11 +35,11 @@ namespace Xunit.Analyzers
                         type.DeclaredAccessibility != Accessibility.Public)
                         return;
 
-                    ISymbol disposeMethod = null;
-                    if (iDisposableType != null && type.AllInterfaces.Contains(iDisposableType))
-                    {
-                        disposeMethod = type.FindImplementationForInterfaceMember(iDisposableType.GetMembers().First());
-                    }
+                    var methodsToIgnore = interfacesToIgnore.Where(i => i != null && type.AllInterfaces.Contains(i))
+                        .SelectMany(i => i.GetMembers())
+                        .Select(m => type.FindImplementationForInterfaceMember(m))
+                        .Where(s => s != null)
+                        .ToList();
 
                     bool hasTestMethods = false;
                     var violations = new List<IMethodSymbol>();
@@ -53,7 +57,7 @@ namespace Xunit.Analyzers
                         if (!isTestMethod &&
                             method.DeclaredAccessibility == Accessibility.Public &&
                             (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)) &&
-                            !method.Equals(disposeMethod))
+                            !methodsToIgnore.Any(m => method.Equals(m)))
                         {
                             violations.Add(method);
                         }

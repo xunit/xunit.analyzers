@@ -131,6 +131,7 @@ namespace Xunit.Analyzers
         internal static class Types
         {
             internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
+            internal static readonly string XunitIAsyncLifetime = "Xunit.IAsyncLifetime";
             internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
             internal static readonly string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
