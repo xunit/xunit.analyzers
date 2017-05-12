@@ -39,7 +39,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindErrorFor_MethodUsingParamsArgument()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")] public void TestMethod(params string[] args) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")]" +
+                        "   public void TestMethod(params string[] args) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -48,7 +51,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindErrorFor_MethodUsingNormalAndParamsArgument()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")] public void TestMethod(string first, params string[] theRest) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")]" +
+                        "   public void TestMethod(string first, params string[] theRest) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -57,7 +63,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindErrorFor_UsingParamsArray()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(\"abc\", 1, null)] public void TestMethod(string a, int b, object c) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(\"abc\", 1, null)]" +
+                        "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -66,7 +75,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindError_UsingExplicitArray()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(new object[] {\"abc\", 1, null})] public void TestMethod(string a, int b, object c) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(new object[] {\"abc\", 1, null})]" +
+                        "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -75,7 +87,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindError_UsingExplicitNamedArray()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(data: new object[] {\"abc\", 1, null})] public void TestMethod(string a, int b, object c) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(data: new object[] {\"abc\", 1, null})]" +
+                        "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -84,7 +99,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindError_UsingImplicitArray()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(new [] {(object)\"abc\", 1, null})] public void TestMethod(string a, int b, object c) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(new [] {(object)\"abc\", 1, null})]" +
+                        "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
@@ -93,7 +111,10 @@ namespace Xunit.Analyzers
                 public async void DoesNotFindError_UsingImplicitNamedArray()
                 {
                     var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                        "public class TestClass { [Xunit.Theory, Xunit.InlineData(data: new [] {(object)\"abc\", 1, null})] public void TestMethod(string a, int b, object c) { } }");
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(data: new [] {(object)\"abc\", 1, null})]" +
+                        "   public void TestMethod(string a, int b, object c) { }" +
+                        "}");
 
                     Assert.Empty(diagnostics);
                 }
