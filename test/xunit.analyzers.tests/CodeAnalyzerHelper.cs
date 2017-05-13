@@ -70,12 +70,15 @@ namespace Xunit.Analyzers
             }
 
             var project = solution.GetProject(projectId);
-            project = project.WithCompilationOptions(project.CompilationOptions.WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+            project = project.WithCompilationOptions(((CSharpCompilationOptions)project.CompilationOptions).WithOutputKind(OutputKind.DynamicallyLinkedLibrary).WithWarningLevel(2));
             var compilation = await project.GetCompilationAsync();
             var compilationDiagnostics = compilation.GetDiagnostics();
             if (!ignoreCompilationErrors && compilationDiagnostics.Any())
-                throw new InvalidOperationException("Compilation has errors. First error: " + compilationDiagnostics.First().GetMessage());
-            var results = await compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
+            {
+                Diagnostic error = compilationDiagnostics.First();
+                throw new InvalidOperationException($"Compilation has errors. First error: {error.Id} {error.WarningLevel} {error.GetMessage()}");
+            }
+            var results = await compilation.WithOptions(((CSharpCompilationOptions)compilation.Options).WithWarningLevel(4)).WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
             return results;
         }
     }
