@@ -194,6 +194,11 @@ namespace Xunit.Analyzers
                 "Do not use {0} to check for substrings.",
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
+            internal static DiagnosticDescriptor X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer { get; } = new DiagnosticDescriptor("xUnit2010",
+                "Do not use boolean check to check for string equality",
+                "Do not use {0} to check for string equality.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         }
 
         internal static class Types
