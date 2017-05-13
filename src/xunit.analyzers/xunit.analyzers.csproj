@@ -45,6 +45,8 @@
     <Compile Include="AssertEqualLiteralValueShouldBeFirst.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstFixer.cs" />
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypes.cs" />
+    <Compile Include="AssertStringEqualityCheckShouldNotUseBoolCheckFixer.cs" />
+    <Compile Include="AssertStringEqualityCheckShouldNotUseBoolCheck.cs" />
     <Compile Include="CodeActions\UseDifferentMethodCodeAction.cs" />
     <Compile Include="FixProviders\ConvertToFactFix.cs" />
     <Compile Include="MemberDataShouldUseNameOfOperatorFixer.cs" />
