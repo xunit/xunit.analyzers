@@ -11,6 +11,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class InlineDataMustMatchTheoryParameters : DiagnosticAnalyzer
     {
+        private static readonly IList<ExpressionSyntax> EmptyExpressionList = new ExpressionSyntax[0];
+
         internal static readonly string ParameterIndex = "ParameterIndex";
         internal static readonly string ParameterName = "ParameterName";
         internal static readonly string ParameterArrayStyle = "ParameterArrayStyle";
@@ -198,7 +200,7 @@ namespace Xunit.Analyzers
             }
         }
 
-        static List<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
+        static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
         {
             if (attribute.ArgumentList.Arguments.Count != 1)
                 return null;
@@ -216,6 +218,12 @@ namespace Xunit.Analyzers
                 default:
                     return null;
             }
+
+            if (initializer == null)
+            {
+                return EmptyExpressionList;
+            }
+
             return initializer.Expressions.ToList();
         }
 

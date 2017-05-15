@@ -154,6 +154,18 @@ namespace Xunit.Analyzers
 
                     Assert.Empty(diagnostics);
                 }
+
+                [Fact]
+                public async void DoesNotFindError_EmptyArray()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass {" +
+                        "   [Xunit.Theory, Xunit.InlineData(new byte[0])]" +
+                        "   public void TestMethod(byte[] input) { }" +
+                        "}");
+
+                    Assert.Empty(diagnostics);
+                }
             }
 
             public class ForAttributeWithTooFewArguments : Analyzer

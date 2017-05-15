@@ -80,8 +80,17 @@ namespace Xunit.Analyzers
                 Diagnostic error = compilationDiagnostics.First();
                 throw new InvalidOperationException($"Compilation has errors. First error: {error.Id} {error.WarningLevel} {error.GetMessage()}");
             }
-            var results = await compilation.WithOptions(((CSharpCompilationOptions)compilation.Options).WithWarningLevel(4)).WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
-            return results;
+
+            var compilationWithAnalyzers = compilation
+                .WithOptions(((CSharpCompilationOptions)compilation.Options)
+                .WithWarningLevel(4))
+                .WithAnalyzers(ImmutableArray.Create(analyzer));
+
+            var allDiagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
+
+            Assert.DoesNotContain(allDiagnostics, d => d.Id == "AD0001");
+
+            return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
         }
     }
 }
