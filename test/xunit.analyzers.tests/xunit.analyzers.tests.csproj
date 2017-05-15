@@ -111,6 +111,7 @@
     <Compile Include="AssertSameShouldNotBeCalledOnValueTypesTests.cs" />
     <Compile Include="AssertNullShouldNotBeCalledOnValueTypesTests.cs" />
     <Compile Include="AssertEqualsShouldNotBeUsedTests.cs" />
+    <Compile Include="AssertSubstringCheckShouldNotUseBoolCheckTests.cs" />
     <Compile Include="MemberDataShouldUseNameOfOperatorTests.cs" />
     <Compile Include="CodeAnalyzerHelper.cs" />
     <Compile Include="AssertEqualLiteralValueShouldBeFirstTests.cs" />
