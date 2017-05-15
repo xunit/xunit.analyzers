@@ -25,7 +25,8 @@ namespace Xunit.Analyzers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 
-            var memberNameExpression = root.FindNode(context.Span).FirstAncestorOrSelf<LiteralExpressionSyntax>();
+            var attributeArgument = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeArgumentSyntax>();
+            var memberNameExpression = (LiteralExpressionSyntax)attributeArgument.Expression;
             INamedTypeSymbol memberType = null;
             string memberTypeName = null;
             if (context.Diagnostics.First().Properties.TryGetValue(MemberDataShouldUseNameOfOperator.MemberType, out memberTypeName))

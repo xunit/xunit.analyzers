@@ -55,7 +55,7 @@ namespace Xunit.Analyzers
                     if (memberSymbol != null)
                     {
                         var builder = ImmutableDictionary.CreateBuilder<string, string>();
-                        if (memberSymbol.ContainingType != declaredMemberTypeSymbol)
+                        if (memberSymbol.ContainingType != testClassTypeSymbol)
                         {
                             builder.Add(MemberType, memberSymbol.ContainingType.ToDisplayString());
                         }
