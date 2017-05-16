@@ -7,6 +7,13 @@ namespace Xunit.Analyzers.CodeActions
 {
     public static class Actions
     {
+        public static async Task<Document> ChangeAccessibility(Document document, SyntaxNode declaration, Accessibility accessibility, CancellationToken cancellationToken)
+        {
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            editor.SetAccessibility(declaration, accessibility);
+            return editor.GetChangedDocument();
+        }
+
         public static async Task<Solution> ChangeMemberAccessiblity(Solution solution, ISymbol memberSymbol, Accessibility accessibility, CancellationToken cancellationToken)
         {
             var editor = SymbolEditor.Create(solution);

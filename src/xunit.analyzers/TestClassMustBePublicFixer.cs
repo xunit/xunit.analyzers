@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
@@ -27,16 +28,9 @@ namespace Xunit.Analyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedDocument: ct => MakePublicAsync(context.Document, classDeclaration, ct),
+                    createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct),
                     equivalenceKey: title),
                 context.Diagnostics);
-        }
-
-        async Task<Document> MakePublicAsync(Document document, ClassDeclarationSyntax classDeclaration, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.SetAccessibility(classDeclaration, Accessibility.Public);
-            return editor.GetChangedDocument();
         }
     }
 }
