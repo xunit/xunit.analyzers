@@ -94,6 +94,42 @@ namespace Xunit.Analyzers
                 "MemberData should use nameof operator to reference member '{0}' on type '{1}'.",
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
+            internal static DiagnosticDescriptor X1015_MemberDataMustReferenceExistingMember { get; } = new DiagnosticDescriptor("xUnit1015",
+                "MemberData must reference an existing member",
+                "MemberData must reference an existing member '{0}' on type '{1}'.",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1016_MemberDataMustReferencePublicMember { get; } = new DiagnosticDescriptor("xUnit1016",
+                "MemberData must reference a public member",
+                "MemberData must reference a public member",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1017_MemberDataMustReferenceStaticMember { get; } = new DiagnosticDescriptor("xUnit1017",
+                "MemberData must reference a static member",
+                "MemberData must reference a static member",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1018_MemberDataMustReferenceValidMemberKind { get; } = new DiagnosticDescriptor("xUnit1018",
+                "MemberData must reference a valid member type",
+                "MemberData must reference a property, field, or method",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1019_MemberDataMustReferenceMemberOfValidType { get; } = new DiagnosticDescriptor("xUnit1019",
+                "MemberData must reference a member providing a valid data type",
+                "MemberData must reference a data type assignable to '{0}'. The referenced type '{1}' is not valid.",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1020_MemberDataPropertyMustHaveGetter { get; } = new DiagnosticDescriptor("xUnit1020",
+                "MemberData must reference a property with a getter",
+                "MemberData must reference a property with a getter",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+            internal static DiagnosticDescriptor X1021_MemberDataNonMethodShouldNotHaveParameters { get; } = new DiagnosticDescriptor("xUnit1021",
+                "MemberData should not have parameters if the referenced member is not a method",
+                "MemberData should not have parameters if the referenced member is not a method",
+                Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+                description: "Additional MemberData parameters are only used for methods. They are ignored for fields and properties.");
+
             internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
                 "Expected value should be first",
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",

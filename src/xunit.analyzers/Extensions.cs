@@ -34,14 +34,14 @@ namespace Xunit.Analyzers
             {
                 while (sourceType != null)
                 {
-                    if (sourceType == targetType)
+                    if (sourceType.Equals(targetType))
                         return true;
 
                     if (exactMatch)
                         return false;
 
                     if (targetType.TypeKind == TypeKind.Interface)
-                        return sourceType.AllInterfaces.Contains(targetType);
+                        return sourceType.AllInterfaces.Any(i => i.Equals(targetType));
 
                     sourceType = sourceType.BaseType;
                 }
