@@ -162,6 +162,10 @@ namespace Xunit.Analyzers
                 Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "The value type will be boxed which means its identity will always be different.");
 
+            internal static DiagnosticDescriptor X2007_AssertIsTypeShouldUseGenericOverload { get; } = new DiagnosticDescriptor("xUnit2007",
+                "Do not use typeof expression to check the type",
+                "Do not use typeof({0}) expression to check the type.",
+                Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
         }
 
         internal static class Types
