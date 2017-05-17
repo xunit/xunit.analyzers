@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("xUnit.net Code Analyzers")]
-[assembly: AssemblyProduct("xUnit.net Code Analyzers")]
+[assembly: AssemblyCompany("Marcin Dobosz")]
+[assembly: AssemblyProduct("xUnit.net Testing Framework")]
 [assembly: AssemblyCopyright("Copyright © Marcin Dobosz")]
-[assembly: AssemblyVersion("0.2.0")]
+[assembly: AssemblyTitle("xUnit.net Code Analyzers")]
+[assembly: AssemblyVersion("99.99.99.0")]
+[assembly: AssemblyFileVersion("99.99.99.0")]
+[assembly: AssemblyInformationalVersionAttribute("99.99.99-dev")]
