@@ -48,6 +48,7 @@
     <Compile Include="CodeActions\Actions.cs" />
     <Compile Include="CodeActions\UseDifferentMethodCodeAction.cs" />
     <Compile Include="FixProviders\ChangeMemberTypeFix.cs" />
+    <Compile Include="FixProviders\ConvertToTheoryFix.cs" />
     <Compile Include="FixProviders\MakeMemberStaticFix.cs" />
     <Compile Include="FixProviders\MakeMemberPublicFix.cs" />
     <Compile Include="FixProviders\ConvertToFactFix.cs" />
