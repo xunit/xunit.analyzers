@@ -50,5 +50,12 @@ namespace Xunit.Analyzers.CodeActions
             }, cancellationToken).ConfigureAwait(false);
             return editor.ChangedSolution;
         }
+
+        public static async Task<Document> RemoveNodeAsync(Document document, SyntaxNode node, CancellationToken cancellationToken)
+        {
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            editor.RemoveNode(node);
+            return editor.GetChangedDocument();
+        }
     }
 }

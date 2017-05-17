@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -29,14 +28,10 @@ namespace Xunit.Analyzers
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
                 var compilation = compilationStartContext.Compilation;
-                var xunitVersion = compilation
-                    .ReferencedAssemblyNames
-                    .FirstOrDefault(a => a.Name.Equals("xunit.core", StringComparison.OrdinalIgnoreCase))
-                    ?.Version
-                    ?? new Version("1.0.0.0");
+                var xunitCapabilities = XunitCapabilities.Create(compilation);
 
-                var xunitSupportsParameterArrays = xunitVersion >= new Version(2, 2, 0, 0);
-                var xunitSupportsDefaultParameterValues = xunitVersion >= new Version(2, 2, 0, 0);
+                var xunitSupportsParameterArrays = xunitCapabilities.TheorySupportsParameterArrays;
+                var xunitSupportsDefaultParameterValues = xunitCapabilities.TheorySupportsDefaultParameterValues;
 
                 var theoryType = compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
                 var inlineDataType = compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);

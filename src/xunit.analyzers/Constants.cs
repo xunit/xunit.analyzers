@@ -130,6 +130,12 @@ namespace Xunit.Analyzers
                 Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
                 description: "Additional MemberData parameters are only used for methods. They are ignored for fields and properties.");
 
+            internal static DiagnosticDescriptor X1022_TheoryMethodCannotHaveParameterArray { get; } = new DiagnosticDescriptor("xUnit1022",
+                "Theory methods cannot have a parameter array",
+                "Theory method '{0}' on test class '{1}' cannot have a parameter array '{2}'.",
+                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+                description: "Params array support was added in Xunit 2.2. Remove the parameter or upgrade the Xunit binaries.");
+
             internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
                 "Expected value should be first",
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
