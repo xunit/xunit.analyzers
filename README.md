@@ -16,5 +16,5 @@ To open an issue for this project, please visit the [core xUnit.net project issu
 Channel  | Status
 -------- | :-------:
 CI |  <a href="https://ci.appveyor.com/project/xunit/xunit.analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
-NuGet | ![#](https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)
-MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)
+NuGet | <a href="https://www.nuget.org/packages/xunit.analyzers/"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)" /></a>
+MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | <a href="https://www.myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)"/></a>
