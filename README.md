@@ -9,3 +9,12 @@ To open an issue for this project, please visit the [core xUnit.net project issu
 ## Analysis and Code Fix in Action
 
 ![Analyzer in action animation](https://cloud.githubusercontent.com/assets/607223/25752060/fb4af444-316b-11e7-9e7c-fc69ade132fb.gif)
+
+## Build Status
+
+
+Channel  | Status
+-------- | :-------:
+CI |  <a href="https://ci.appveyor.com/project/xunit/xunit.analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
+NuGet | ![#](https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)
+MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)
