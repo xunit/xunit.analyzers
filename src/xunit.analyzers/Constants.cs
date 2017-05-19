@@ -136,6 +136,12 @@ namespace Xunit.Analyzers
                 Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
                 description: "Params array support was added in Xunit 2.2. Remove the parameter or upgrade the Xunit binaries.");
 
+            internal static DiagnosticDescriptor X1023_TheoryMethodCannotHaveDefaultParameter { get; } = new DiagnosticDescriptor("xUnit1023",
+               "Theory methods cannot have default parameter values",
+               "Theory method '{0}' on test class '{1}' parameter '{2}' cannot have a default value.",
+               Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+               description: "Default parameter values support was added in Xunit 2.2. Remove the default value or upgrade the Xunit binaries.");
+
             internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
                 "Expected value should be first",
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
