@@ -1,4 +1,8 @@
-## About This Project
+## About xUnit.net Analyzers
+
+[<img align="right" src="https://xunit.github.io/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
+
+xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
 
 This project contains source code analysis and cleanup rules for xUnit.net. It supports xUnit.net v2.0+ and Visual Studio 2015+.
 
@@ -13,7 +17,6 @@ To build the project, you will need Visual Studio 2017. The VSIX project can be 
 ![Analyzer in action animation](https://cloud.githubusercontent.com/assets/607223/25752060/fb4af444-316b-11e7-9e7c-fc69ade132fb.gif)
 
 ## Build Status
-
 
 Channel  | Status
 -------- | :-------:
