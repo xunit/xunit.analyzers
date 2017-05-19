@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -34,6 +36,25 @@ namespace Xunit.Analyzers
 @"public class TestClass : System.IDisposable {
     [Xunit.Fact] public void TestMethod() { }
     public void Dispose() { }
+}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Fact]
+            public async void DoesNotFindErrorForIAsyncLifetimeMethods()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class TestClass : Xunit.IAsyncLifetime {
+    [Xunit.Fact] public void TestMethod() { }
+    public System.Threading.Tasks.Task DisposeAsync()
+    {
+        throw new System.NotImplementedException();
+    }
+    public System.Threading.Tasks.Task InitializeAsync()
+    {
+        throw new System.NotImplementedException();
+    }
 }");
 
                 Assert.Empty(diagnostics);

@@ -11,7 +11,6 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class FactMethodShouldNotHaveTestDataFixer : CodeFixProvider
     {
-        const string convertToTheoryTitle = "Convert to Theory";
         const string removeDataAttributesTitle = "Remove Data Attributes";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
@@ -23,14 +22,6 @@ namespace Xunit.Analyzers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
-            context.RegisterCodeFix(
-                new ConvertAttributeCodeAction(
-                    convertToTheoryTitle,
-                    context.Document,
-                    methodDeclaration.AttributeLists,
-                    fromTypeName: Constants.Types.XunitFactAttribute,
-                    toTypeName: Constants.Types.XunitTheoryAttribute),
-                context.Diagnostics);
             context.RegisterCodeFix(
                 new RemoveAttributesOfTypeCodeAction(removeDataAttributesTitle, context.Document, methodDeclaration.AttributeLists, Constants.Types.XunitSdkDataAttribute),
                 context.Diagnostics);

@@ -6,14 +6,16 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.FixProviders
 {
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class TheoryMethodShouldHaveParametersFixer : CodeFixProvider
+    public class ConvertToTheoryFix : CodeFixProvider
     {
-        const string title = "Convert to Fact";
+        const string title = "Convert to Theory";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1006_TheoryMethodShouldHaveParameters.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
+            Constants.Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
+            Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

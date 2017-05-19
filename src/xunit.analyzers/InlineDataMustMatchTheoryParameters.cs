@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -29,6 +28,11 @@ namespace Xunit.Analyzers
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
                 var compilation = compilationStartContext.Compilation;
+                var xunitCapabilities = XunitCapabilities.Create(compilation);
+
+                var xunitSupportsParameterArrays = xunitCapabilities.TheorySupportsParameterArrays;
+                var xunitSupportsDefaultParameterValues = xunitCapabilities.TheorySupportsDefaultParameterValues;
+
                 var theoryType = compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
                 var inlineDataType = compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);
                 if (theoryType == null || inlineDataType == null)
@@ -68,7 +72,7 @@ namespace Xunit.Analyzers
                         var dataArrayArgument = attribute.ConstructorArguments.Single();
                         // Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
                         var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
-                        if (values.Length < method.Parameters.Length)
+                        if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues)))
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterArrayStyle] = arrayStyle.ToString();
@@ -78,56 +82,89 @@ namespace Xunit.Analyzers
                                 builder.ToImmutable()));
                         }
 
-                        for (int i = 0; i < Math.Min(values.Length, method.Parameters.Length); i++)
+                        int valueIdx = 0, paramIdx = 0;
+                        for (; valueIdx < values.Length && paramIdx < method.Parameters.Length; valueIdx++)
                         {
-                            var parameter = method.Parameters[i];
-                            if (parameter.Type == compilation.ObjectType)
-                                continue; // Everything is assignable to object so move one
+                            var parameter = method.Parameters[paramIdx];
+
+                            // unwrap parameter type when the argument is a parameter list
+                            var parameterType = xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+                                ? arrayParam.ElementType
+                                : parameter.Type;
+
+                            if (parameterType == compilation.ObjectType)
+                            {
+                                // Everything is assignable to object and 'params object[]' so move on
+                                if (xunitSupportsParameterArrays && parameter.IsParams)
+                                {
+                                    valueIdx = values.Length;
+                                    break;
+                                }
+                                else
+                                {
+                                    paramIdx++;
+                                    continue;
+                                }
+                            }
 
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
-                            builder[ParameterIndex] = i.ToString();
+                            builder[ParameterIndex] = paramIdx.ToString();
                             builder[ParameterName] = parameter.Name;
                             var properties = builder.ToImmutable();
 
-                            var value = values[i];
+                            var value = values[valueIdx];
                             if (!value.IsNull)
                             {
-                                var isConvertible = DetermineIsConvertible(compilation, value.Type, parameter.Type);
+                                var isConvertible = DetermineIsConvertible(compilation, value.Type, parameterType);
                                 if (!isConvertible)
                                 {
                                     symbolContext.ReportDiagnostic(Diagnostic.Create(
                                         Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-                                        dataParameterExpressions[i].GetLocation(),
+                                        dataParameterExpressions[valueIdx].GetLocation(),
                                         properties,
                                         parameter.Name,
-                                        SymbolDisplay.ToDisplayString(parameter.Type)));
+                                        SymbolDisplay.ToDisplayString(parameterType)));
                                 }
                             }
 
-                            if (value.IsNull && parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
+                            if (value.IsNull
+                                && parameterType.IsValueType
+                                && parameterType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
                                     Constants.Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
-                                    dataParameterExpressions[i].GetLocation(),
+                                    dataParameterExpressions[valueIdx].GetLocation(),
                                     properties,
                                     parameter.Name,
-                                    SymbolDisplay.ToDisplayString(parameter.Type)));
+                                    SymbolDisplay.ToDisplayString(parameterType)));
+                            }
+
+                            if (!parameter.IsParams)
+                            {
+                                // Stop moving paramIdx forward if the argument is a parameter array, regardless of xunit's support for it
+                                paramIdx++;
                             }
                         }
 
-                        for (int i = method.Parameters.Length; i < values.Length; i++)
+                        for (; valueIdx < values.Length; valueIdx++)
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
-                            builder[ParameterIndex] = i.ToString();
+                            builder[ParameterIndex] = valueIdx.ToString();
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
                                 Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
-                                dataParameterExpressions[i].GetLocation(),
+                                dataParameterExpressions[valueIdx].GetLocation(),
                                 builder.ToImmutable(),
-                                values[i].ToCSharpString()));
+                                values[valueIdx].ToCSharpString()));
                         }
                     }
                 }, SymbolKind.Method);
             });
+        }
+
+        private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray, bool supportsDefaultValue)
+        {
+            return !(parameter.HasExplicitDefaultValue && supportsDefaultValue)
+                && !(parameter.IsParams && supportsParamsArray);
         }
 
         static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)

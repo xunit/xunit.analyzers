@@ -2,10 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{F513916A-00AD-499A-9B76-E52D9FBFCED5}"
+MinimumVisualStudioVersion = 15.0.26228.4
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{F513916A-00AD-499A-9B76-E52D9FBFCED5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.tests", "test\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{31AD5C1D-71FF-4129-97BA-E42BF1120917}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.tests", "test\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{31AD5C1D-71FF-4129-97BA-E42BF1120917}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.vsix", "src\xunit.analyzers.vsix\xunit.analyzers.vsix.csproj", "{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}"
 EndProject

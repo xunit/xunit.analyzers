@@ -10,10 +10,6 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ClassDataAttributeMustPointAtValidClass : DiagnosticAnalyzer
     {
-        //internal const string MissingInterface = "MissingInterface";
-        //internal const string Abstract = "Abstract";
-        //internal const string NoValidConstructor = "NoValidConstructor";
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Constants.Descriptors.X1007_ClassDataAttributeMustPointAtValidClass);
 
@@ -22,10 +18,11 @@ namespace Xunit.Analyzers
             context.RegisterCompilationStartAction(compilationContext =>
             {
                 var compilation = compilationContext.Compilation;
-                var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
                 var classDataType = compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute);
                 if (classDataType == null)
                     return;
+
+                var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
 
                 compilationContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
                 {
@@ -48,25 +45,13 @@ namespace Xunit.Analyzers
 
                     if (missingInterface || isAbstract || noValidConstructor)
                     {
-                        //var builder = ImmutableDictionary.CreateBuilder<string, string>();
-                        //SetFlag(builder, missingInterface, MissingInterface);
-                        //SetFlag(builder, isAbstract, Abstract);
-                        //SetFlag(builder, noValidConstructor, NoValidConstructor);
-
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                             Constants.Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
                             argumentExpression.Type.GetLocation(),
-                            //builder.ToImmutable(),
                             classType.Name));
                     }
                 }, SyntaxKind.Attribute);
             });
         }
-
-        //void SetFlag(ImmutableDictionary<string, string>.Builder builder, bool condition, string missingInterface)
-        //{
-        //    if (condition)
-        //        builder[missingInterface] = String.Empty;
-        //}
     }
 }

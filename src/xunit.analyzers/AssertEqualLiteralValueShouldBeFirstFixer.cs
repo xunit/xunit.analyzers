@@ -26,12 +26,12 @@ namespace Xunit.Analyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,
-                    createChangedDocument: ct => FixClassAsync(context.Document, invocation, ct),
+                    createChangedDocument: ct => SwapArgumentsAsync(context.Document, invocation, ct),
                     equivalenceKey: title),
                 context.Diagnostics);
         }
 
-        private async Task<Document> FixClassAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        private async Task<Document> SwapArgumentsAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             var firstArg = invocation.ArgumentList.Arguments[0];

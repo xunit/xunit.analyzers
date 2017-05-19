@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
@@ -45,7 +46,7 @@ namespace Xunit.Analyzers
             }
             else if (diagnosticId == Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id)
             {
-                context.RegisterCodeFix(CodeAction.Create("Remove Value", ct => RemoveValueAsync(context.Document, node, ct), "Remove Value"), context.Diagnostics);
+                context.RegisterCodeFix(CodeAction.Create("Remove Value", ct => Actions.RemoveNodeAsync(context.Document, node, ct), "Remove Value"), context.Diagnostics);
 
                 var parameterIndex = int.Parse(diagnostic.Properties[InlineDataMustMatchTheoryParameters.ParameterIndex]);
                 if (method.ParameterList.Parameters.Count == parameterIndex)
@@ -132,13 +133,6 @@ namespace Xunit.Analyzers
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             // TODO be better at guessing parameter type
             editor.AddParameter(method, editor.Generator.ParameterDeclaration("value", editor.Generator.TypeExpression(SpecialType.System_Object)));
-            return editor.GetChangedDocument();
-        }
-
-        private async Task<Document> RemoveValueAsync(Document document, SyntaxNode node, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.RemoveNode(node);
             return editor.GetChangedDocument();
         }
     }

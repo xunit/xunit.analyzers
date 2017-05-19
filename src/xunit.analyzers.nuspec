@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>xunit.analyzers</id>
+    <version>99.99.99-dev</version>
+    <title>xUnit.net [Code Analyzers]</title>
+    <authors>Marcin Dobosz</authors>
+    <summary>Code Analayzers for xUnit.net</summary>
+    <description>Code Analyzers for projects using xUnit.net that help find and fix frequent issues when writing tests.</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/xunit/xunit.analyzers</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit.analyzers/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
+  </metadata>
+  <files>
+    <file src="xunit.analyzers\bin\$Configuration$\netstandard1.1\xunit.analyzers.dll" target="analyzers\dotnet\cs\" />
+    <file src="xunit.analyzers\tools\*.ps1" target="tools\" />
+  </files>
+</package>

@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
@@ -33,28 +34,21 @@ namespace Xunit.Analyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: convertTitle,
-                    createChangedDocument: ct => Foo(context.Document, methodDeclaration, convertType, ct),
+                    createChangedDocument: ct => AddAttributeAsync(context.Document, methodDeclaration, convertType, ct),
                     equivalenceKey: convertTitle),
                 context.Diagnostics);
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: makeInternal,
-                    createChangedDocument: ct => MakePublicAsync(context.Document, methodDeclaration, ct),
+                    createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, methodDeclaration, Accessibility.Internal, ct),
                     equivalenceKey: makeInternal),
                 context.Diagnostics);
         }
 
-        async Task<Document> Foo(Document document, MethodDeclarationSyntax methodDeclaration, string type, CancellationToken cancellationToken)
+        async Task<Document> AddAttributeAsync(Document document, MethodDeclarationSyntax methodDeclaration, string type, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             editor.AddAttribute(methodDeclaration, editor.Generator.Attribute(type));
-            return editor.GetChangedDocument();
-        }
-
-        async Task<Document> MakePublicAsync(Document document, MethodDeclarationSyntax methodDeclaration, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.SetAccessibility(methodDeclaration, Accessibility.Internal);
             return editor.GetChangedDocument();
         }
     }

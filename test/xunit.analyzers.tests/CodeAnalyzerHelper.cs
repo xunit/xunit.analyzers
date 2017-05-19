@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 namespace Xunit.Analyzers
 {
@@ -16,6 +17,7 @@ namespace Xunit.Analyzers
         static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemRuntimeReference;
+        static readonly MetadataReference SystemThreadingTasksReference;
         static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
@@ -24,9 +26,14 @@ namespace Xunit.Analyzers
         {
             // Xunit is a PCL linked against System.Runtime, however on the Desktop framework all types in that assembly have been forwarded to
             // System.Core, so we need to find the assembly by name to compile without errors.
-            var fullName = typeof(FactAttribute).Assembly.GetReferencedAssemblies().FirstOrDefault(n => n.Name == "System.Runtime");
-            var a = Assembly.Load(fullName);
-            SystemRuntimeReference = MetadataReference.CreateFromFile(a.Location);
+            AssemblyName[] referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
+            SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
+            SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+        }
+
+        static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        {
+            return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
 
         public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
@@ -48,6 +55,7 @@ namespace Xunit.Analyzers
                     CorlibReference,
                     SystemCoreReference,
                     SystemRuntimeReference,
+                    SystemThreadingTasksReference,
                     XunitCoreReference,
                     XunitAbstractionsReference,
                     XunitAssertReference,
@@ -62,12 +70,15 @@ namespace Xunit.Analyzers
             }
 
             var project = solution.GetProject(projectId);
-            project = project.WithCompilationOptions(project.CompilationOptions.WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+            project = project.WithCompilationOptions(((CSharpCompilationOptions)project.CompilationOptions).WithOutputKind(OutputKind.DynamicallyLinkedLibrary).WithWarningLevel(2));
             var compilation = await project.GetCompilationAsync();
             var compilationDiagnostics = compilation.GetDiagnostics();
             if (!ignoreCompilationErrors && compilationDiagnostics.Any())
-                throw new InvalidOperationException("Compilation has errors. First error: " + compilationDiagnostics.First().GetMessage());
-            var results = await compilation.WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
+            {
+                Diagnostic error = compilationDiagnostics.First();
+                throw new InvalidOperationException($"Compilation has errors. First error: {error.Id} {error.WarningLevel} {error.GetMessage()}");
+            }
+            var results = await compilation.WithOptions(((CSharpCompilationOptions)compilation.Options).WithWarningLevel(4)).WithAnalyzers(ImmutableArray.Create(analyzer)).GetAnalyzerDiagnosticsAsync();
             return results;
         }
     }

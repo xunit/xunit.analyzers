@@ -31,13 +31,13 @@ namespace Xunit.Analyzers
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title,
-                        createChangedSolution: ct => FixClass(ct, context.Document.Project.Solution, typeSymbol),
+                        createChangedSolution: ct => FixClass(context.Document.Project.Solution, typeSymbol, ct),
                         equivalenceKey: title),
                     context.Diagnostics);
             }
         }
 
-        private async Task<Solution> FixClass(CancellationToken cancellationToken, Solution solution, INamedTypeSymbol typeSymbol)
+        private async Task<Solution> FixClass(Solution solution, INamedTypeSymbol typeSymbol, CancellationToken cancellationToken)
         {
             var symbolEditor = SymbolEditor.Create(solution);
             await symbolEditor.EditOneDeclarationAsync(typeSymbol, async (editor, declaration, ct) =>
