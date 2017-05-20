@@ -28,6 +28,17 @@ namespace Xunit.Analyzers
             return attributes.Any(a => attributeType.IsAssignableFrom(a.AttributeClass, exactMatch));
         }
 
+        internal static ImmutableArray<ISymbol> GetInheritedAndOwnMembers(this ITypeSymbol symbol, string name = null)
+        {
+            var builder = ImmutableArray.CreateBuilder<ISymbol>();
+            while (symbol != null)
+            {
+                builder.AddRange(name == null ? symbol.GetMembers() : symbol.GetMembers(name));
+                symbol = symbol.BaseType;
+            }
+            return builder.ToImmutable();
+        }
+
         internal static bool IsAssignableFrom(this ITypeSymbol targetType, ITypeSymbol sourceType, bool exactMatch = false)
         {
             if (targetType != null)

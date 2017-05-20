@@ -142,6 +142,14 @@ namespace Xunit.Analyzers
                Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
                description: "Default parameter values support was added in Xunit 2.2. Remove the default value or upgrade the Xunit binaries.");
 
+            internal static DiagnosticDescriptor X1024_TestMethodCannotHaveOverloads { get; } = new DiagnosticDescriptor("xUnit1024",
+               "Test methods cannot have overloads",
+               "Test method '{0}' on test class '{1}' has the same name as another method declared on class '{2}'.",
+               Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+               description: "Test method overloads are not supported as most test runners cannot correctly invoke the appropriate overload. " +
+                "This includes any combination of static and instance methods declared with any visibility in the same class or across a " +
+                "class hierarchy. Rename one of the methods.");
+
             internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
                 "Expected value should be first",
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
