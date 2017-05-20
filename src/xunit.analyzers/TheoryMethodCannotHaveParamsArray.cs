@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
+           ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -48,7 +48,7 @@ namespace Xunit.Analyzers
                     if (attributes.ContainsAttributeType(theoryType))
                     {
                         symbolContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1022_TheoryMethodCannotHaveParameterArray,
+                            Descriptors.X1022_TheoryMethodCannotHaveParameterArray,
                             parameter.DeclaringSyntaxReferences.First().GetSyntax(compilationStartContext.CancellationToken).GetLocation(),
                             method.Name,
                             method.ContainingType.ToDisplayString(),

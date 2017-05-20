@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
         internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual", "NotSame" });
 
         public AssertEqualShouldNotBeUsedForNullCheck() :
-            base(Constants.Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
+            base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
         {
         }
 
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
             builder[MethodName] = method.Name;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck,
+                Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

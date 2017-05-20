@@ -14,14 +14,14 @@ namespace Xunit.Analyzers
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(
-               Constants.Descriptors.X1014_MemberDataShouldUseNameOfOperator,
-               Constants.Descriptors.X1015_MemberDataMustReferenceExistingMember,
-               Constants.Descriptors.X1016_MemberDataMustReferencePublicMember,
-               Constants.Descriptors.X1017_MemberDataMustReferenceStaticMember,
-               Constants.Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
-               Constants.Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
-               Constants.Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-               Constants.Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters);
+               Descriptors.X1014_MemberDataShouldUseNameOfOperator,
+               Descriptors.X1015_MemberDataMustReferenceExistingMember,
+               Descriptors.X1016_MemberDataMustReferencePublicMember,
+               Descriptors.X1017_MemberDataMustReferenceStaticMember,
+               Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
+               Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
+               Descriptors.X1020_MemberDataPropertyMustHaveGetter,
+               Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -69,7 +69,7 @@ namespace Xunit.Analyzers
                     if (memberSymbol == null)
                     {
                         symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                  Constants.Descriptors.X1015_MemberDataMustReferenceExistingMember,
+                                  Descriptors.X1015_MemberDataMustReferenceExistingMember,
                                   attribute.GetLocation(),
                                   memberName,
                                   SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)));
@@ -81,7 +81,7 @@ namespace Xunit.Analyzers
                             memberSymbol.Kind != SymbolKind.Method)
                         {
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                Constants.Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
+                                Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
                                 attribute.GetLocation()));
                         }
                         else
@@ -94,7 +94,7 @@ namespace Xunit.Analyzers
                                     builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
                                 }
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1014_MemberDataShouldUseNameOfOperator,
+                                    Descriptors.X1014_MemberDataShouldUseNameOfOperator,
                                     memberNameArgument.Expression.GetLocation(),
                                     builder.ToImmutable(),
                                     memberName,
@@ -109,14 +109,14 @@ namespace Xunit.Analyzers
                             if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1016_MemberDataMustReferencePublicMember,
+                                    Descriptors.X1016_MemberDataMustReferencePublicMember,
                                     attribute.GetLocation(),
                                     memberProperties));
                             }
                             if (!memberSymbol.IsStatic)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1017_MemberDataMustReferenceStaticMember,
+                                    Descriptors.X1017_MemberDataMustReferenceStaticMember,
                                     attribute.GetLocation(),
                                     memberProperties));
                             }
@@ -124,7 +124,7 @@ namespace Xunit.Analyzers
                             if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
+                                    Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
                                     attribute.GetLocation(),
                                     memberProperties,
                                     SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType),
@@ -133,7 +133,7 @@ namespace Xunit.Analyzers
                             if (memberSymbol.Kind == SymbolKind.Property && ((IPropertySymbol)memberSymbol).GetMethod == null)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1020_MemberDataPropertyMustHaveGetter,
+                                    Descriptors.X1020_MemberDataPropertyMustHaveGetter,
                                     attribute.GetLocation()));
                             }
                             var extraArguments = attribute.ArgumentList.Arguments
@@ -146,7 +146,7 @@ namespace Xunit.Analyzers
                                 {
                                     var span = TextSpan.FromBounds(extraArguments.First().Span.Start, extraArguments.Last().Span.End);
                                     symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                        Constants.Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
+                                        Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
                                         Location.Create(attribute.SyntaxTree, span)));
                                 }
                             }

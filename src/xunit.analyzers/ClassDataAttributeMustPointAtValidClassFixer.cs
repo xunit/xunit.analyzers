@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
     {
         const string title = "Fix Data Class";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1007_ClassDataAttributeMustPointAtValidClass.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

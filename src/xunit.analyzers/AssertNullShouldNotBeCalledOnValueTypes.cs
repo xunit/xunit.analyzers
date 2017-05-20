@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
         internal const string NotNullMethod = "NotNull";
 
         public AssertNullShouldNotBeCalledOnValueTypes() : base(
-            Constants.Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
+            Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
             new[] { NullMethod, NotNullMethod })
         {
         }
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
+                Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
                 invocation.GetLocation(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None)),
                 SymbolDisplay.ToDisplayString(argumentType, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None))));

@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
     public class TestMethodShouldNotBeSkipped : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1004_TestMethodShouldNotBeSkipped);
+           ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
 
                     if (skipArgument != null)
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1004_TestMethodShouldNotBeSkipped,
+                            Descriptors.X1004_TestMethodShouldNotBeSkipped,
                             skipArgument.GetLocation()));
                 }, SyntaxKind.Attribute);
             });

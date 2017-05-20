@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
     public class TestMethodCannotHaveOverloads : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(Constants.Descriptors.X1024_TestMethodCannotHaveOverloads);
+            ImmutableArray.Create(Descriptors.X1024_TestMethodCannotHaveOverloads);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -62,7 +62,7 @@ namespace Xunit.Analyzers
                                 .OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
                                 .First().ContainingType;
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                Constants.Descriptors.X1024_TestMethodCannotHaveOverloads,
+                                Descriptors.X1024_TestMethodCannotHaveOverloads,
                                 method.Locations.First(),
                                 methodName,
                                 method.ContainingType.ToDisplayString(),

@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
     {
         const string title = "Use string Assert.Equal";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

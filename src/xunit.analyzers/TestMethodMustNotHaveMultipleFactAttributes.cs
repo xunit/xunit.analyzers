@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     public class TestMethodMustNotHaveMultipleFactAttributes : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(Constants.Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
+            ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
                     if (count > 1)
                     {
                         symbolContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
+                            Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
                             symbol.Locations.First(),
                             properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)));
                     }

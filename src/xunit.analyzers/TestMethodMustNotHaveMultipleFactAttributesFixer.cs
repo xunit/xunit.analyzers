@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
     {
         const string genericTitle = "Keep {0} Attribute";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

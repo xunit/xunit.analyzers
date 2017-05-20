@@ -10,7 +10,7 @@ namespace Xunit.Analyzers
     public class PublicMethodShouldBeMarkedAsTest : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
+           ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -68,7 +68,7 @@ namespace Xunit.Analyzers
                         foreach (var method in violations)
                         {
                             var testType = method.Parameters.Any() ? "Theory" : "Fact";
-                            symbolContext.ReportDiagnostic(Diagnostic.Create(Constants.Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
+                            symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
                                 method.Locations.First(),
                                 method.Name, method.ContainingType.Name, testType));
                         }

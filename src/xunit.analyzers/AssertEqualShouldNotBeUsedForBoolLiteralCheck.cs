@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
         internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual" });
 
         public AssertEqualShouldNotBeUsedForBoolLiteralCheck() :
-            base(Constants.Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, EqualMethods.Union(NotEqualMethods))
+            base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, EqualMethods.Union(NotEqualMethods))
         {
         }
 
@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
             builder[MethodName] = method.Name;
             builder[LiteralValue] = isTrue ? bool.TrueString : bool.FalseString;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck,
+                Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

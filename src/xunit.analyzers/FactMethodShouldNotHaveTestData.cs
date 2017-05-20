@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     public class FactMethodShouldNotHaveTestData : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData);
+           ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
                         !attributes.ContainsAttributeType(theoryType) &&
                         (attributes.Length > 1 && attributes.ContainsAttributeType(dataType)))
                     {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData, symbol.Locations.First()));
+                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData, symbol.Locations.First()));
                     }
                 }, SymbolKind.Method);
             });

@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     public class DataAttributeShouldBeUsedOnATheory : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1008_DataAttributeShouldBeUsedOnATheory);
+           ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
                     // Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
                     // we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
                     if (!attributes.ContainsAttributeType(factType) && attributes.ContainsAttributeType(dataType))
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Constants.Descriptors.X1008_DataAttributeShouldBeUsedOnATheory, methodSymbol.Locations.First()));
+                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory, methodSymbol.Locations.First()));
                 }, SymbolKind.Method);
             });
         }

@@ -19,7 +19,7 @@ namespace Xunit.Analyzers
         const string TitleTemplate = "Use Assert.{0}";
         const string EquivalenceKeyTemplate = "Use Assert.{0} for string equality checks";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

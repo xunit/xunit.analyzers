@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
     {
         const string TitleTemplate = "Use Assert.{0}";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

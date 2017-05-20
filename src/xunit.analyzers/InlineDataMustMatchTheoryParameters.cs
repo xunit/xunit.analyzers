@@ -19,10 +19,10 @@ namespace Xunit.Analyzers
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(
-               Constants.Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
-               Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-               Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
-               Constants.Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter
+               Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
+               Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
+               Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
+               Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter
                );
 
         public override void Initialize(AnalysisContext context)
@@ -79,7 +79,7 @@ namespace Xunit.Analyzers
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterArrayStyle] = arrayStyle.ToString();
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                Constants.Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
+                                Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
                                 attributeSyntax.GetLocation(),
                                 builder.ToImmutable()));
                         }
@@ -121,7 +121,7 @@ namespace Xunit.Analyzers
                                 if (!isConvertible)
                                 {
                                     symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                        Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
+                                        Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
                                         dataParameterExpressions[valueIdx].GetLocation(),
                                         properties,
                                         parameter.Name,
@@ -134,7 +134,7 @@ namespace Xunit.Analyzers
                                 && parameterType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                    Constants.Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
+                                    Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
                                     dataParameterExpressions[valueIdx].GetLocation(),
                                     properties,
                                     parameter.Name,
@@ -153,7 +153,7 @@ namespace Xunit.Analyzers
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
                             builder[ParameterIndex] = valueIdx.ToString();
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
+                                Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
                                 dataParameterExpressions[valueIdx].GetLocation(),
                                 builder.ToImmutable(),
                                 values[valueIdx].ToCSharpString()));

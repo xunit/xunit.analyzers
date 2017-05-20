@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
     public class TestClassMustBePublic : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(Constants.Descriptors.X1000_TestClassMustBePublic);
+            ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
                     if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType)))
                     {
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1000_TestClassMustBePublic,
+                            Descriptors.X1000_TestClassMustBePublic,
                             classDeclaration.Identifier.GetLocation(), 
                             classDeclaration.Identifier.ValueText));
                     }

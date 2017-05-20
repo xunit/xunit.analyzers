@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
     {
         const string removeDataAttributesTitle = "Remove Data Attributes";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.FixProviders
     public class RemoveMethodParameterDefaultFix : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
+            Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

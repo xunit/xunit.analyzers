@@ -24,7 +24,7 @@ namespace Xunit.Analyzers
         });
 
         public AssertSubstringCheckShouldNotUseBoolCheck() :
-            base(Constants.Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck, BooleanMethods)
+            base(Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck, BooleanMethods)
         {
         }
 
@@ -53,7 +53,7 @@ namespace Xunit.Analyzers
             builder[AssertMethodName] = method.Name;
             builder[SubstringMethodName] = methodSymbol.Name;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck,
+                Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.FixProviders
         const string title = "Make Member Static";
 
         public MakeMemberStaticFix() : base(new[] {
-            Constants.Descriptors.X1017_MemberDataMustReferenceStaticMember.Id
+            Descriptors.X1017_MemberDataMustReferenceStaticMember.Id
         })
         { }
 

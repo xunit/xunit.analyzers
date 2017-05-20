@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     public class TheoryMethodMustHaveTestData : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1003_TheoryMethodMustHaveTestData);
+           ImmutableArray.Create(Descriptors.X1003_TheoryMethodMustHaveTestData);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
                     if (attributes.ContainsAttributeType(theoryType) &&
                         (attributes.Length == 1 || !attributes.ContainsAttributeType(dataType)))
                     {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Constants.Descriptors.X1003_TheoryMethodMustHaveTestData, symbol.Locations.First()));
+                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1003_TheoryMethodMustHaveTestData, symbol.Locations.First()));
                     }
                 }, SymbolKind.Method);
             });

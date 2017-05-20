@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.FixProviders
         const string title = "Change Member Return Type";
 
         public ChangeMemberTypeFix() : base(new[] {
-            Constants.Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id
+            Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id
         })
         { }
 

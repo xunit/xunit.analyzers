@@ -18,10 +18,10 @@ namespace Xunit.Analyzers
     public class InlineDataMustMatchTheoryParametersFixer : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id,
-            Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType.Id,
-            Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id,
-            Constants.Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id
+            Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id,
+            Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType.Id,
+            Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id,
+            Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id
             );
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -34,17 +34,17 @@ namespace Xunit.Analyzers
             var diagnosticId = diagnostic.Id;
             var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
-            if (diagnosticId == Constants.Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id)
+            if (diagnosticId == Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id)
             {
                 InlineDataMustMatchTheoryParameters.ParameterArrayStyleType arrayStyle;
                 Enum.TryParse(diagnostic.Properties[InlineDataMustMatchTheoryParameters.ParameterArrayStyle], out arrayStyle);
                 context.RegisterCodeFix(CodeAction.Create("Add Default Values", ct => AddDefaultValuesAsync(context.Document, (AttributeSyntax)node, method, arrayStyle, ct), "AddDefaultValues"), context.Diagnostics);
             }
-            else if (diagnosticId == Constants.Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType.Id)
+            else if (diagnosticId == Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType.Id)
             {
                 // TODO
             }
-            else if (diagnosticId == Constants.Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id)
+            else if (diagnosticId == Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id)
             {
                 context.RegisterCodeFix(CodeAction.Create("Remove Value", ct => Actions.RemoveNodeAsync(context.Document, node, ct), "Remove Value"), context.Diagnostics);
 
@@ -52,7 +52,7 @@ namespace Xunit.Analyzers
                 if (method.ParameterList.Parameters.Count == parameterIndex)
                     context.RegisterCodeFix(CodeAction.Create("Add Theory Parameter", ct => AddTheoryParameterAsync(context.Document, method, ct), "Add Theory Parameter"), context.Diagnostics);
             }
-            else if (diagnosticId == Constants.Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
+            else if (diagnosticId == Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
             {
                 var parameterIndex = int.Parse(diagnostic.Properties[InlineDataMustMatchTheoryParameters.ParameterIndex]);
                 context.RegisterCodeFix(CodeAction.Create("Make Parameter Nullable", ct => MakeParameterNullableAsync(context.Document, method, parameterIndex, ct), "Make Parameter Nullable"), context.Diagnostics);

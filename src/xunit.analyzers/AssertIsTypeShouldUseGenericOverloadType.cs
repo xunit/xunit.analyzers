@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
         internal static HashSet<string> IsTypeMethods = new HashSet<string>(new[] { "IsType", "IsNotType", "IsAssignableFrom" });
 
         public AssertIsTypeShouldUseGenericOverloadType() :
-            base(Constants.Descriptors.X2007_AssertIsTypeShouldUseGenericOverload, IsTypeMethods)
+            base(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload, IsTypeMethods)
         {
         }
 
@@ -37,7 +37,7 @@ namespace Xunit.Analyzers
             builder[TypeName] = typeName;
             
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2007_AssertIsTypeShouldUseGenericOverload,
+                Descriptors.X2007_AssertIsTypeShouldUseGenericOverload,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 typeName));

@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
         const string convertToTheory = "Convert to Theory";
         const string convertToFact = "Convert to Fact";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1013_PublicMethodShouldBeMarkedAsTest.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

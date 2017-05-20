@@ -14,8 +14,8 @@ namespace Xunit.Analyzers.FixProviders
         const string title = "Convert to Theory";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
-            Constants.Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
+            Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
+            Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

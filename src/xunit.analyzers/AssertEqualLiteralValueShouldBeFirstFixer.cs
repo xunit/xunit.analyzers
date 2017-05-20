@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
     {
         const string title = "Swap Arguments";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

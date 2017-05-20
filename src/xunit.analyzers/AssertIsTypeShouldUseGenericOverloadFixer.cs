@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
         const string titleTemplate = "Use Assert<{0}>.{1}";
         const string equivalenceKey = "Use Assert.IsType";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X2007_AssertIsTypeShouldUseGenericOverload.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

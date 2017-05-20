@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
     {
         const string title = "Remove Skip Argument";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1004_TestMethodShouldNotBeSkipped.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

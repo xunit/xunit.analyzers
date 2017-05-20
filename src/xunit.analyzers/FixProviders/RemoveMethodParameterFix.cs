@@ -15,8 +15,8 @@ namespace Xunit.Analyzers.FixProviders
         const string titleTemplate = "Remove Parameter '{0}'";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
-            Constants.Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
+            Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
+            Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.FixProviders
         const string title = "Make Member Public";
 
         public MakeMemberPublicFix() : base(new[] {
-            Constants.Descriptors.X1016_MemberDataMustReferencePublicMember.Id
+            Descriptors.X1016_MemberDataMustReferencePublicMember.Id
         })
         { }
 

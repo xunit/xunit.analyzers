@@ -14,7 +14,7 @@ namespace Xunit.Analyzers
         internal const string ReferenceEqualsMethod = "ReferenceEquals";
 
         public AssertEqualsShouldNotBeUsed() : base(
-            Constants.Descriptors.X2001_AssertEqualsShouldNotBeUsed,
+            Descriptors.X2001_AssertEqualsShouldNotBeUsed,
             new[] { EqualsMethod, ReferenceEqualsMethod })
         {
         }
@@ -24,7 +24,7 @@ namespace Xunit.Analyzers
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
             builder[MethodName] = method.Name;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2001_AssertEqualsShouldNotBeUsed,
+                Descriptors.X2001_AssertEqualsShouldNotBeUsed,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None))));

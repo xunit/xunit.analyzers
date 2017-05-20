@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
+           ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -52,7 +52,7 @@ namespace Xunit.Analyzers
                                 .GetSyntax(compilationStartContext.CancellationToken)
                                 .FirstAncestorOrSelf<ParameterSyntax>();
                             symbolContext.ReportDiagnostic(Diagnostic.Create(
-                                Constants.Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter,
+                                Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter,
                                 syntaxNode.Default.GetLocation(),
                                 method.Name,
                                 method.ContainingType.ToDisplayString(),

@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
         const string MarkAsTheoryTitle = "Mark as Theory";
         const string removeDataAttributesTitle = "Remove Data Attributes";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Constants.Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

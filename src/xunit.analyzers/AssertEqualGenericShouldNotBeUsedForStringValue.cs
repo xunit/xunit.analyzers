@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
         private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
 
         public AssertEqualGenericShouldNotBeUsedForStringValue() :
-            base(Constants.Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, EqualMethods)
+            base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, EqualMethods)
         {
         }
 
@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
 
             var invalidUsageDescription = method.Name == "Equal" ? "generic Assert.Equal overload" : "Assert.StrictEqual";
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue,
+                Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue,
                 invocation.GetLocation(),
                 invalidUsageDescription));
         }

@@ -10,7 +10,7 @@ namespace Xunit.Analyzers
     public class FactMethodMustNotHaveParameters : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1001_FactMethodMustNotHaveParameters);
+           ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
                     if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType, exactMatch: true))
                     {
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1001_FactMethodMustNotHaveParameters,
+                            Descriptors.X1001_FactMethodMustNotHaveParameters,
                             methodDeclaration.Identifier.GetLocation(),
                             methodDeclaration.Identifier.ValueText));
                     }

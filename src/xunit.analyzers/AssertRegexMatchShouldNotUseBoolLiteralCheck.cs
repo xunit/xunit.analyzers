@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
         });
         
         public AssertRegexMatchShouldNotUseBoolLiteralCheck() :
-            base(Constants.Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck, Methods)
+            base(Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck, Methods)
         {
         }
 
@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
             builder[MethodName] = method.Name;
             builder[IsStatic] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck,
+                Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

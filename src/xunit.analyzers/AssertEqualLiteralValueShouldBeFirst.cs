@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
     {
         public AssertEqualLiteralValueShouldBeFirst() :
             base(
-                Constants.Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
+                Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
                 new[] { "Equal", "StrictEqual", "NotEqual", "NotStrictEqual" })
         {
         }
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
                 var parentMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
                 var parentType = parentMethod.FirstAncestorOrSelf<ClassDeclarationSyntax>();
                 context.ReportDiagnostic(Diagnostic.Create(
-                    Constants.Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
+                    Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
                     invocation.GetLocation(),
                     secondArg.Expression.ToString(),
                     SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None).WithParameterOptions(SymbolDisplayParameterOptions.IncludeName)),

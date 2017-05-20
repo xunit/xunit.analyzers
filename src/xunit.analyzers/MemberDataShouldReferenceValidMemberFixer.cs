@@ -17,8 +17,8 @@ namespace Xunit.Analyzers
     public class MemberDataShouldReferenceValidMemberFixer : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1014_MemberDataShouldUseNameOfOperator.Id,
-            Constants.Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id);
+            Descriptors.X1014_MemberDataShouldUseNameOfOperator.Id,
+            Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
             var diagnosticId = context.Diagnostics.Single().Id;
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-            if (diagnosticId == Constants.Descriptors.X1014_MemberDataShouldUseNameOfOperator.Id)
+            if (diagnosticId == Descriptors.X1014_MemberDataShouldUseNameOfOperator.Id)
             {
                 var attributeArgument = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeArgumentSyntax>();
                 var memberNameExpression = (LiteralExpressionSyntax)attributeArgument.Expression;
@@ -44,7 +44,7 @@ namespace Xunit.Analyzers
                         equivalenceKey: "Use nameof"),
                     context.Diagnostics);
             }
-            else if (diagnosticId == Constants.Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id)
+            else if (diagnosticId == Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id)
             {
                 var attribute = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeSyntax>();
                 context.RegisterCodeFix(

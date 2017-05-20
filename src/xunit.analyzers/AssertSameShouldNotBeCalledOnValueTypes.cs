@@ -14,7 +14,7 @@ namespace Xunit.Analyzers
         internal const string NotSameMethod = "NotSame";
 
         public AssertSameShouldNotBeCalledOnValueTypes() : base(
-            Constants.Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
+            Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
             new[] { SameMethod, NotSameMethod })
         {
         }
@@ -37,7 +37,7 @@ namespace Xunit.Analyzers
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
             builder[MethodName] = method.Name;
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
+                Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None)),

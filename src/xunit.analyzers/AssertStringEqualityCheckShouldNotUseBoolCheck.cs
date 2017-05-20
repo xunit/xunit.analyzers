@@ -32,7 +32,7 @@ namespace Xunit.Analyzers
         });
 
         public AssertStringEqualityCheckShouldNotUseBoolCheck() :
-            base(Constants.Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer, BooleanMethods)
+            base(Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer, BooleanMethods)
         {
         }
 
@@ -76,7 +76,7 @@ namespace Xunit.Analyzers
             builder[IgnoreCase] = ignoreCase;
 
             context.ReportDiagnostic(Diagnostic.Create(
-                Constants.Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer,
+                Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer,
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

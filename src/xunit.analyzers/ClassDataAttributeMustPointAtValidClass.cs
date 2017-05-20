@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
     public class ClassDataAttributeMustPointAtValidClass : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Constants.Descriptors.X1007_ClassDataAttributeMustPointAtValidClass);
+           ImmutableArray.Create(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
                     if (missingInterface || isAbstract || noValidConstructor)
                     {
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Constants.Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
+                            Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
                             argumentExpression.Type.GetLocation(),
                             classType.Name));
                     }

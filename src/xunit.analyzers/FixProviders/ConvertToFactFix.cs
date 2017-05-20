@@ -14,8 +14,8 @@ namespace Xunit.Analyzers.FixProviders
         const string title = "Convert to Fact";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Constants.Descriptors.X1003_TheoryMethodMustHaveTestData.Id,
-            Constants.Descriptors.X1006_TheoryMethodShouldHaveParameters.Id);
+            Descriptors.X1003_TheoryMethodMustHaveTestData.Id,
+            Descriptors.X1006_TheoryMethodShouldHaveParameters.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
