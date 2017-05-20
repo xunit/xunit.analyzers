@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 15.0.26228.4
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{F513916A-00AD-499A-9B76-E52D9FBFCED5}"
 EndProject
@@ -26,7 +26,6 @@ Global
 		{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
