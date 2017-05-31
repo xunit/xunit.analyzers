@@ -142,6 +142,12 @@ namespace Xunit.Analyzers
             "This includes any combination of static and instance methods declared with any visibility in the same class or across a " +
             "class hierarchy. Rename one of the methods.");
 
+        internal static DiagnosticDescriptor X1025_InlineDataShouldBeUniqueWithinTheory { get; } = new DiagnosticDescriptor("xUnit1025",
+            "InlineData should be unique within the Theory it belongs to",
+            "Theory method '{0}' on test class '{1}' has InlineData duplicate(s).",
+            Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+            description: "Theory should have all InlineData elements unique. Remove redundant attribute(s) from the theory method.");
+
         internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
             "Expected value should be first",
             "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
