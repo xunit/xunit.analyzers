@@ -198,5 +198,10 @@ namespace Xunit.Analyzers
             "Do not use boolean check to check for string equality",
             "Do not use {0} to check for string equality.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2011_AssertEmptyCollectionCheckShouldNotBeUsed { get; } = new DiagnosticDescriptor("xUnit2011",
+            "Do not use empty collection check",
+            "Do not use {0} to check for empty collections.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
     }
 }
