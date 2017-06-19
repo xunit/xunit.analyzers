@@ -54,8 +54,15 @@ namespace Xunit.Analyzers
                         var isTestMethod = method.GetAttributes().ContainsAttributeType(factType);
                         hasTestMethods = hasTestMethods || isTestMethod;
 
-                        if (!isTestMethod &&
-                            method.DeclaredAccessibility == Accessibility.Public &&
+                        if (isTestMethod)
+                            continue;
+
+                        while (method.IsOverride)
+                        {
+                            method = method.OverriddenMethod;
+                        }
+
+                        if (method.DeclaredAccessibility == Accessibility.Public &&
                             (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)) &&
                             !methodsToIgnore.Any(m => method.Equals(m)))
                         {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -36,6 +34,38 @@ namespace Xunit.Analyzers
 @"public class TestClass : System.IDisposable {
     [Xunit.Fact] public void TestMethod() { }
     public void Dispose() { }
+}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Fact]
+            public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class BaseClass : System.IDisposable {
+    public virtual void Dispose() { }
+}
+public class TestClass : BaseClass {
+    [Xunit.Fact] public void TestMethod() { }
+    public override void Dispose() { }
+}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Fact]
+            public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public abstract class BaseClass : System.IDisposable {
+    public abstract void Dispose();
+}
+public abstract class IntermediateClass : BaseClass {
+}
+public class TestClass : IntermediateClass {
+    [Xunit.Fact] public void TestMethod() { }
+    public override void Dispose() { }
 }");
 
                 Assert.Empty(diagnostics);
