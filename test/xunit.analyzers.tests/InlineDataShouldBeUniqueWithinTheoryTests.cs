@@ -280,6 +280,46 @@ namespace Xunit.Analyzers
                     Assert.Collection(diagnostics, VerifyDiagnostic);
                 }
 
+                [Theory]
+                [InlineData("", "")]
+                [InlineData("", ", null")]
+                [InlineData(", null", "")]
+                [InlineData(", null", ", null")]
+                public async void FindsError_WhenDuplicateContainsDefaultOfStruct(string firstDefaultOverride, 
+                    string secondDefaultOverride)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass" +
+                        "{" +
+                        "   [Xunit.Theory]" +
+                        $"   [Xunit.InlineData(1 {firstDefaultOverride})]" +
+                        $"   [Xunit.InlineData(1 {secondDefaultOverride})]" +
+                        "   public void TestMethod(int x, System.DateTime date = default(System.DateTime)) { }" +
+                        "}");
+
+                    Assert.Collection(diagnostics, VerifyDiagnostic);
+                }
+
+                [Theory]
+                [InlineData("", "")]
+                [InlineData("", ", null")]
+                [InlineData(", null", "")]
+                [InlineData(", null", ", null")]
+                public async void FindsError_WhenDuplicateContainsDefaultOfString(string firstDefaultOverride,
+                    string secondDefaultOverride)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass" +
+                        "{" +
+                        "   [Xunit.Theory]" +
+                        $"   [Xunit.InlineData(1 {firstDefaultOverride})]" +
+                        $"   [Xunit.InlineData(1 {secondDefaultOverride})]" +
+                        "   public void TestMethod(int x, string y = null) { }" +
+                        "}");
+
+                    Assert.Collection(diagnostics, VerifyDiagnostic);
+                }
+
                 [Fact]
                 public async void FindsError_WhenInlineDataDuplicateAndOriginalAreItemsOfDistinctAttributesLists()
                 {

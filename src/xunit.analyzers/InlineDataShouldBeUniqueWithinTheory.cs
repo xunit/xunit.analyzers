@@ -153,7 +153,7 @@ namespace Xunit.Analyzers
                                         return false;
                                     break;
                                 case IParameterSymbol yMethodParamDefault:
-                                    if (!xArgPrimitive.Value.Equals(yMethodParamDefault.ExplicitDefaultValue))
+                                    if (xArgPrimitive.Value != yMethodParamDefault.ExplicitDefaultValue)
                                         return false;
                                     break;
                                 default:
@@ -164,11 +164,11 @@ namespace Xunit.Analyzers
                             switch (y)
                             {
                                 case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-                                    if (!xMethodParamDefault.ExplicitDefaultValue.Equals(yArgPrimitive.Value))
+                                    if (xMethodParamDefault.ExplicitDefaultValue != yArgPrimitive.Value)
                                         return false;
                                     break;
                                 case IParameterSymbol yMethodParamDefault:
-                                    if (!xMethodParamDefault.ExplicitDefaultValue.Equals(yMethodParamDefault.ExplicitDefaultValue))
+                                    if (xMethodParamDefault.ExplicitDefaultValue != yMethodParamDefault.ExplicitDefaultValue)
                                         return false;
                                     break;
                                 default:

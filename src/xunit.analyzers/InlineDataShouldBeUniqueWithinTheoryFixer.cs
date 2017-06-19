@@ -14,6 +14,8 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class InlineDataShouldBeUniqueWithinTheoryFixer : CodeFixProvider
     {
+        private const string Title = "Remove InlineData duplicate";
+
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory.Id
         );
@@ -32,8 +34,9 @@ namespace Xunit.Analyzers
             Debug.Assert(attributeDuplicate != null);
 
             var codeAction = CodeAction.Create(
-                "Remove InlineData duplicate",
-                ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct));
+                Title,
+                ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
+                equivalenceKey: Title);
 
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
