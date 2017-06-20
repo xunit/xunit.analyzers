@@ -68,7 +68,8 @@ namespace Xunit.Analyzers
                         if (dataParameterExpressions == null)
                         {
                             arrayStyle = ParameterArrayStyleType.Params;
-                            dataParameterExpressions = attributeSyntax.ArgumentList.Arguments.Select(a => a.Expression).ToList();
+                            dataParameterExpressions = attributeSyntax.ArgumentList?.Arguments.Select(a => a.Expression).ToList()
+                                ?? new List<ExpressionSyntax>();
                         }
 
                         var dataArrayArgument = attribute.ConstructorArguments.Single();
@@ -202,7 +203,7 @@ namespace Xunit.Analyzers
 
         static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
         {
-            if (attribute.ArgumentList.Arguments.Count != 1)
+            if (attribute.ArgumentList?.Arguments.Count != 1)
                 return null;
 
             var argumentExpression = attribute.ArgumentList.Arguments.Single().Expression;

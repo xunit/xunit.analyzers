@@ -185,6 +185,26 @@ namespace Xunit.Analyzers
                       });
                 }
 
+                [Theory]
+                [InlineData("Xunit.InlineData()")]
+                [InlineData("Xunit.InlineData")]
+                public async void FindsError_ForAttributeWithNoArguments(string attribute)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass {" +
+                        $"  [Xunit.Theory, {attribute}]" +
+                        "  public void TestMethod(int a) { }" +
+                        "}");
+
+                    Assert.Collection(diagnostics,
+                      d =>
+                      {
+                          Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                          Assert.Equal("xUnit1009", d.Descriptor.Id);
+                          Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                      });
+                }
+
                 [Fact]
                 public async void FindsError_UsingParams()
                 {
