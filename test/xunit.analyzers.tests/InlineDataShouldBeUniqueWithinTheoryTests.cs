@@ -133,6 +133,19 @@ namespace Xunit.Analyzers
 
                     Assert.Empty(diagnostics);
                 }
+
+                [Fact]
+                public async void DoesNotFindError_WhenNullAndEmptyInlineDataAttributes()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass " +
+                        "{ " +
+                        "   [Xunit.Theory, Xunit.InlineData(null), Xunit.InlineData]" +
+                        "   public void TestMethod(string s) { }" +
+                        "}");
+
+                    Assert.Empty(diagnostics);
+                }
             }
 
             public class ForDuplicatedInlineDataMethod : Analyzer
@@ -145,6 +158,19 @@ namespace Xunit.Analyzers
                         "{" +
                         "   [Xunit.Theory, Xunit.InlineData, Xunit.InlineData]" +
                         "   public void TestMethod(int x) { }" +
+                        "}");
+
+                    Assert.Collection(diagnostics, VerifyDiagnostic);
+                }
+
+                [Fact]
+                public async void FindsError_WhenNullInlineDataRepeatedTwice()
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass " +
+                        "{" +
+                        "   [Xunit.Theory, Xunit.InlineData(null), Xunit.InlineData(null)]" +
+                        "   public void TestMethod(string x) { }" +
                         "}");
 
                     Assert.Collection(diagnostics, VerifyDiagnostic);
@@ -262,6 +288,23 @@ namespace Xunit.Analyzers
                         "{" +
                         "   [Xunit.Theory, Xunit.InlineData(10, 1), Xunit.InlineData(10)]" +
                         "   public void TestMethod(int x, int y = 1) { }" +
+                        "}");
+
+                    Assert.Collection(diagnostics, VerifyDiagnostic);
+                }
+
+                [Theory]
+                [InlineData("null", "null")]
+                [InlineData("null", "")]
+                [InlineData("", "null")]
+                [InlineData("", "")]
+                public async void FindsError_WhenBothNullEntirelyOrBySingleDefaultParameterNullValue(string firstArg, string secondArg)
+                {
+                    var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                        "public class TestClass " +
+                        "{" +
+                        $"   [Xunit.Theory, Xunit.InlineData({firstArg}), Xunit.InlineData({secondArg})]" +
+                        "   public void TestMethod(string x = null) { }" +
                         "}");
 
                     Assert.Collection(diagnostics, VerifyDiagnostic);

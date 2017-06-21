@@ -125,7 +125,10 @@ namespace Xunit.Analyzers
                 var xArguments = GetEffectiveTestArguments(x);
                 var yArguments = GetEffectiveTestArguments(y);
 
-                return AreArgumentsEqual(xArguments, yArguments);
+                var areBothNullEntirely = IsSingleNullByInlineDataOrByDefaultParamValue(xArguments) 
+                                          && IsSingleNullByInlineDataOrByDefaultParamValue(yArguments);
+
+                return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments);
             }
 
             /// <summary>
@@ -175,7 +178,7 @@ namespace Xunit.Analyzers
                                     return false;
                             }
                             break;
-                        case TypedConstant xArgArray when xArgArray.Kind == TypedConstantKind.Array:
+                        case TypedConstant xArgArray when xArgArray.Kind == TypedConstantKind.Array && !xArgArray.IsNull:
                             switch (y)
                             {
                                 case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
@@ -191,6 +194,27 @@ namespace Xunit.Analyzers
                 }
 
                 return true;
+            }
+
+            /// <summary>
+            /// A special search for a degenerated case of either:
+            /// 1. InlineData(null) or
+            /// 2. InlineData() and a single param method with default returning null.
+            /// </summary>
+            private static bool IsSingleNullByInlineDataOrByDefaultParamValue(ImmutableArray<object> args)
+            {
+                if (args.Length != 1)
+                    return false;
+
+                switch (args[0])
+                {
+                    case TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull:
+                        return true;
+                    case IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null:
+                        return true;
+                }
+
+                return false;
             }
 
             /// <summary>
@@ -226,9 +250,11 @@ namespace Xunit.Analyzers
                         case IParameterSymbol methodParameterWithDefault:
                             results.Add(methodParameterWithDefault.ExplicitDefaultValue);
                             break;
-                        case TypedConstant argArray when argArray.Kind == TypedConstantKind.Array:
-                            var primitives = GetFlattenedArgumentPrimitives(argArray.Values.Cast<object>());
-                            results.AddRange(primitives);
+                        case TypedConstant argArray when argArray.Kind == TypedConstantKind.Array && !argArray.IsNull:
+                            results.AddRange(GetFlattenedArgumentPrimitives(argArray.Values.Cast<object>()));
+                            break;
+                        case TypedConstant nullObjectArray when nullObjectArray.Kind == TypedConstantKind.Array && nullObjectArray.IsNull:
+                            results.Add(null);
                             break;
                     }
                 }
