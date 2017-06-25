@@ -5,27 +5,24 @@ namespace Xunit.Analyzers
 {
     public class AssertEqualsShouldNotBeUsedTests
     {
-        public class Analyzer
-        {
-            readonly DiagnosticAnalyzer analyzer = new AssertEqualsShouldNotBeUsed();
+        readonly DiagnosticAnalyzer analyzer = new AssertEqualsShouldNotBeUsed();
 
-            [Theory]
-            [InlineData("Equals")]
-            [InlineData("ReferenceEquals")]
-            public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(string method)
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+        [Theory]
+        [InlineData("Equals")]
+        [InlineData("ReferenceEquals")]
+        public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(string method)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(null, null);
 } }");
 
-                Assert.Collection(diagnostics, d =>
-                {
-                    Assert.Equal($"Do not use Assert.{method}().", d.GetMessage());
-                    Assert.Equal("xUnit2001", d.Id);
-                    Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
-                });
-            }
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"Do not use Assert.{method}().", d.GetMessage());
+                Assert.Equal("xUnit2001", d.Id);
+                Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
+            });
         }
     }
 }

@@ -5,44 +5,42 @@ namespace Xunit.Analyzers
 {
     public class PublicMethodShouldBeMarkedAsTestTests
     {
-        public class Analyzer
+        readonly DiagnosticAnalyzer analyzer = new PublicMethodShouldBeMarkedAsTest();
+
+        [Fact]
+        public async void DoesNotFindErrorForPublicMethodInNonTestClass()
         {
-            readonly DiagnosticAnalyzer analyzer = new PublicMethodShouldBeMarkedAsTest();
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { public void TestMethod() { } }");
 
-            [Fact]
-            public async void DoesNotFindErrorForPublicMethodInNonTestClass()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { public void TestMethod() { } }");
+            Assert.Empty(diagnostics);
+        }
 
-                Assert.Empty(diagnostics);
-            }
+        [Theory]
+        [InlineData("Xunit.Fact")]
+        [InlineData("Xunit.Theory")]
+        public async void DoesNotFindErrorForTestMethods(string attribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [" + attribute + "] public void TestMethod() { } }");
 
-            [Theory]
-            [InlineData("Xunit.Fact")]
-            [InlineData("Xunit.Theory")]
-            public async void DoesNotFindErrorForTestMethods(string attribute)
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [" + attribute + "] public void TestMethod() { } }");
+            Assert.Empty(diagnostics);
+        }
 
-                Assert.Empty(diagnostics);
-            }
-
-            [Fact]
-            public async void DoesNotFindErrorForIDisposableDisposeMethod()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, 
+        [Fact]
+        public async void DoesNotFindErrorForIDisposableDisposeMethod()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public class TestClass : System.IDisposable {
     [Xunit.Fact] public void TestMethod() { }
     public void Dispose() { }
 }");
 
-                Assert.Empty(diagnostics);
-            }
+            Assert.Empty(diagnostics);
+        }
 
-            [Fact]
-            public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+        [Fact]
+        public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public class BaseClass : System.IDisposable {
     public virtual void Dispose() { }
 }
@@ -51,13 +49,13 @@ public class TestClass : BaseClass {
     public override void Dispose() { }
 }");
 
-                Assert.Empty(diagnostics);
-            }
+            Assert.Empty(diagnostics);
+        }
 
-            [Fact]
-            public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+        [Fact]
+        public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public abstract class BaseClass : System.IDisposable {
     public abstract void Dispose();
 }
@@ -68,13 +66,13 @@ public class TestClass : IntermediateClass {
     public override void Dispose() { }
 }");
 
-                Assert.Empty(diagnostics);
-            }
+            Assert.Empty(diagnostics);
+        }
 
-            [Fact]
-            public async void DoesNotFindErrorForIAsyncLifetimeMethods()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+        [Fact]
+        public async void DoesNotFindErrorForIAsyncLifetimeMethods()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public class TestClass : Xunit.IAsyncLifetime {
     [Xunit.Fact] public void TestMethod() { }
     public System.Threading.Tasks.Task DisposeAsync()
@@ -87,44 +85,43 @@ public class TestClass : IntermediateClass {
     }
 }");
 
-                Assert.Empty(diagnostics);
-            }
+            Assert.Empty(diagnostics);
+        }
 
-            [Theory]
-            [InlineData("Xunit.Fact")]
-            [InlineData("Xunit.Theory")]
+        [Theory]
+        [InlineData("Xunit.Fact")]
+        [InlineData("Xunit.Theory")]
 
-            public async void FindsWarningForPublicMethodWithoutParametersInTestClass(string attribute)
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method() {} }");
+        public async void FindsWarningForPublicMethodWithoutParametersInTestClass(string attribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method() {} }");
 
-                Assert.Collection(diagnostics,
-                    d =>
-                    {
-                        Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Fact.", d.GetMessage());
-                        Assert.Equal("xUnit1013", d.Id);
-                        Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                    });
-            }
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Fact.", d.GetMessage());
+                    Assert.Equal("xUnit1013", d.Id);
+                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                });
+        }
 
-            [Theory]
-            [InlineData("Xunit.Fact")]
-            [InlineData("Xunit.Theory")]
+        [Theory]
+        [InlineData("Xunit.Fact")]
+        [InlineData("Xunit.Theory")]
 
-            public async void FindsWarningForPublicMethodWithParametersInTestClass(string attribute)
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                    "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method(int a) {} }");
+        public async void FindsWarningForPublicMethodWithParametersInTestClass(string attribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method(int a) {} }");
 
-                Assert.Collection(diagnostics,
-                    d =>
-                    {
-                        Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Theory.", d.GetMessage());
-                        Assert.Equal("xUnit1013", d.Id);
-                        Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                    });
-            }
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Theory.", d.GetMessage());
+                    Assert.Equal("xUnit1013", d.Id);
+                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                });
         }
     }
 }

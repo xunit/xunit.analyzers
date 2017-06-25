@@ -372,4 +372,3 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         }
     }
 }
-

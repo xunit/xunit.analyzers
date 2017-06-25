@@ -4,32 +4,29 @@ namespace Xunit.Analyzers
 {
     public class TestClassMustBePublicTests
     {
-        public class Analyzer
+        readonly DiagnosticAnalyzer analyzer = new TestClassMustBePublic();
+
+        [Fact]
+        public async void DoesNotFindErrorForPublicClass()
         {
-            readonly DiagnosticAnalyzer analyzer = new TestClassMustBePublic();
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
 
-            [Fact]
-            public async void DoesNotFindErrorForPublicClass()
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
+            Assert.Empty(diagnostics);
+        }
 
-                Assert.Empty(diagnostics);
-            }
+        [Theory]
+        [InlineData("Xunit.Fact")]
+        [InlineData("Xunit.Theory")]
+        public async void FindsErrorForPrivateClass(string attribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "class TestClass { [" + attribute + "] public void TestMethod() { } }");
 
-            [Theory]
-            [InlineData("Xunit.Fact")]
-            [InlineData("Xunit.Theory")]
-            public async void FindsErrorForPrivateClass(string attribute)
-            {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "class TestClass { [" + attribute + "] public void TestMethod() { } }");
-
-                Assert.Collection(diagnostics,
-                    d =>
-                    {
-                        Assert.Equal("Test classes must be public", d.GetMessage());
-                        Assert.Equal("xUnit1000", d.Descriptor.Id);
-                    });
-            }
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Test classes must be public", d.GetMessage());
+                    Assert.Equal("xUnit1000", d.Descriptor.Id);
+                });
         }
     }
 }
