@@ -30,6 +30,19 @@ namespace Xunit.Analyzers
         [InlineData("InlineData")]
         [InlineData("MemberData(\"\")")]
         [InlineData("ClassData(typeof(string))")]
+        public async void DoesNotFindErrorForDerviedFactMethodWithDataAttributes(string dataAttribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public class DerivedFactAttribute: Xunit.FactAttribute {}",
+                "public class TestClass { [DerivedFactAttribute, Xunit." + dataAttribute + "] public void TestMethod() { } }");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Theory]
+        [InlineData("InlineData")]
+        [InlineData("MemberData(\"\")")]
+        [InlineData("ClassData(typeof(string))")]
         public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
