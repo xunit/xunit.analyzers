@@ -214,5 +214,10 @@ namespace Xunit.Analyzers
             "Do not use Enumerable.Any() to check if a value exists in a collection",
             "Do not use Enumerable.Any() to check if a value exists in a collection.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck { get; } = new DiagnosticDescriptor("xUnit2013",
+            "Do not use equality check to check for collection size.",
+            "Do not use {0} to check for collection size.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
     }
 }
