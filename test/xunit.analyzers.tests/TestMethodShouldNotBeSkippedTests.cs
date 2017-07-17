@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
@@ -28,6 +29,7 @@ namespace Xunit.Analyzers
                 {
                     Assert.Equal("Test methods should not be skipped", d.GetMessage());
                     Assert.Equal("xUnit1004", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Info, d.Severity);
                 });
         }
     }
