@@ -209,5 +209,10 @@ namespace Xunit.Analyzers
             "Do not use empty collection check",
             "Do not use {0} to check for empty collections.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck { get; } = new DiagnosticDescriptor("xUnit2012",
+            "Do not use Enumerable.Any() to check if a value exists in a collection",
+            "Do not use Enumerable.Any() to check if a value exists in a collection.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
     }
 }
