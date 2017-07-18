@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class AssertIsTypeShouldUseGenericOverloadFixer : CodeFixProvider
     {
-        const string titleTemplate = "Use Assert<{0}>.{1}";
+        const string titleTemplate = "Use Assert.{0}<{1}>";
         const string equivalenceKey = "Use Assert.IsType";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload.Id);
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             
             var methodName = context.Diagnostics[0].Properties[AssertIsTypeShouldUseGenericOverloadType.MethodName];
             var typeName = context.Diagnostics[0].Properties[AssertIsTypeShouldUseGenericOverloadType.TypeName];
-            var title = String.Format(titleTemplate, typeName, methodName);
+            var title = String.Format(titleTemplate, methodName, typeName);
             
             context.RegisterCodeFix(
                 CodeAction.Create(
