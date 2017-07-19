@@ -220,6 +220,16 @@ namespace Xunit.Analyzers
             "Do not use {0} to check for collection size.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
+        internal static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } = new DiagnosticDescriptor("xUnit2014",
+            "Do not use throws check to check for asynchronously thrown exception",
+            "Do not use {0} to check for asynchronously thrown exceptions.",
+            Categories.Assertions, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck_Hidden { get; } = new DiagnosticDescriptor("xUnit2014",
+            "Do not use throws check to check for asynchronously thrown exception",
+            "Do not use {0} to check for asynchronously thrown exceptions.",
+            Categories.Assertions, DiagnosticSeverity.Hidden, isEnabledByDefault: true);
+
         internal static DiagnosticDescriptor X2015_AssertThrowsShouldUseGenericOverload { get; } = new DiagnosticDescriptor("xUnit2015",
             "Do not use typeof expression to check the exception type",
             "Do not use typeof() expression to check the exception type.",
