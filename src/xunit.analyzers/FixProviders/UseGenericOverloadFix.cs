@@ -10,15 +10,17 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.FixProviders
 {
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class AssertIsTypeShouldUseGenericOverloadFixer : CodeFixProvider
+    public class UseGenericOverloadFix : CodeFixProvider
     {
-        const string titleTemplate = "Use Assert.{0}<{1}>";
-        const string equivalenceKey = "Use Assert.IsType";
+        private const string TitleTemplate = "Use Assert.{0}<{1}>";
+        private const string EquivalenceKeyTemplate = "Use Assert.{0}";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
+            Descriptors.X2007_AssertIsTypeShouldUseGenericOverload.Id,
+            Descriptors.X2015_AssertThrowsShouldUseGenericOverload.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -27,24 +29,35 @@ namespace Xunit.Analyzers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var syntaxNode = root.FindNode(context.Span);
             var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>();
-            
-            var methodName = context.Diagnostics[0].Properties[AssertIsTypeShouldUseGenericOverloadType.MethodName];
-            var typeName = context.Diagnostics[0].Properties[AssertIsTypeShouldUseGenericOverloadType.TypeName];
-            var title = String.Format(titleTemplate, methodName, typeName);
+
+            var typeOfExpression = invocation.ArgumentList.Arguments[0].Expression as TypeOfExpressionSyntax;
+            if (typeOfExpression == null)
+                return;
+
+            var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+            if (memberAccess == null)
+                return;
+
+            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type);
+            var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type, SymbolDisplayFormat.MinimallyQualifiedFormat);
+            var methodName = memberAccess.Name.Identifier.ValueText;
+
+            var title = String.Format(TitleTemplate, methodName, typeName);
+            var equivalenceKey = String.Format(EquivalenceKeyTemplate, methodName);
             
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,
-                    createChangedDocument: ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, ct),
+                    createChangedDocument: ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, memberAccess, typeOfExpression, ct),
                     equivalenceKey: equivalenceKey),
                 context.Diagnostics);
         }
 
-        static async Task<Document> RemoveTypeofInvocationAndAddGenericTypeAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+        private static async Task<Document> RemoveTypeofInvocationAndAddGenericTypeAsync(Document document, InvocationExpressionSyntax invocation, 
+            MemberAccessExpressionSyntax memberAccess, TypeOfExpressionSyntax typeOfExpression, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-            var typeOfExpression = (TypeOfExpressionSyntax)invocation.ArgumentList.Arguments[0].Expression;
             
             editor.ReplaceNode(invocation,
                 invocation
