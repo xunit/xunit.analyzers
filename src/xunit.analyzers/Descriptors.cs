@@ -219,5 +219,10 @@ namespace Xunit.Analyzers
             "Do not use equality check to check for collection size.",
             "Do not use {0} to check for collection size.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2015_AssertThrowsShouldUseGenericOverload { get; } = new DiagnosticDescriptor("xUnit2015",
+            "Do not use typeof expression to check the exception type",
+            "Do not use typeof() expression to check the exception type.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
     }
 }
