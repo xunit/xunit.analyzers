@@ -234,5 +234,10 @@ namespace Xunit.Analyzers
             "Do not use typeof expression to check the exception type",
             "Do not use typeof() expression to check the exception type.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
+        internal static DiagnosticDescriptor X2016_AssertEqualPrecisionShouldBeInRange { get; } = new DiagnosticDescriptor("xUnit2016",
+            "Keep precision in the allowed range when asserting equality of doubles or decimals.",
+            "Keep precision in range {0} when asserting equality of {1} typed actual value.",
+            Categories.Assertions, DiagnosticSeverity.Error, isEnabledByDefault: true);
     }
 }
