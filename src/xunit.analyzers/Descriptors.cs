@@ -148,6 +148,20 @@ namespace Xunit.Analyzers
             Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
             description: "Theory should have all InlineData elements unique. Remove redundant attribute(s) from the theory method.");
 
+        // Placeholder for rule X1026
+
+        // Placeholder for rule X1027
+
+        // Placeholder for rule X1028
+
+        // Placeholder for rule X1029
+
+        // Placeholder for rule X1030
+
+        // Placeholder for rule X1031
+
+        // Placeholder for rule X1032
+        
         internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
             "Expected value should be first",
             "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
@@ -239,5 +253,25 @@ namespace Xunit.Analyzers
             "Keep precision in the allowed range when asserting equality of doubles or decimals.",
             "Keep precision in range {0} when asserting equality of {1} typed actual value.",
             Categories.Assertions, DiagnosticSeverity.Error, isEnabledByDefault: true);
+
+        // Placeholder for rule X2017
+
+        // Placeholder for rule X2018
+
+        // Placeholder for rule X2019
+
+        // Placeholder for rule X2020
+
+        // Placeholder for rule X2021
+
+        // Placeholder for rule X2022
+
+        // Placeholder for rule X2023
+
+        // Placeholder for rule X2024
+
+        // Placeholder for rule X2025
+
+        // Placeholder for rule X2026
     }
 }
