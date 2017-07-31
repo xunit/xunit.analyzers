@@ -254,7 +254,10 @@ namespace Xunit.Analyzers
             "Keep precision in range {0} when asserting equality of {1} typed actual value.",
             Categories.Assertions, DiagnosticSeverity.Error, isEnabledByDefault: true);
 
-        // Placeholder for rule X2017
+        internal static DiagnosticDescriptor X2017_AssertCollectionContainsShouldNotUseBoolCheck { get; } = new DiagnosticDescriptor("xUnit2017",
+            "Do not use Contains() to check if a value exists in a collection",
+            "Do not use Contains() to check if a value exists in a collection.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         // Placeholder for rule X2018
 
