@@ -5,6 +5,8 @@
     <NoWarn>NU1701</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
+    <TargetFramework>net452</TargetFramework>
+    <AnalyzersOutputPath>..\..\src\xunit.analyzers\bin\$(Configuration)\netstandard1.1\xunit.analyzers.dll</AnalyzersOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
     <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Analyzer Include="$(AnalyzersOutputPath)" />
   </ItemGroup>
 
 </Project>
