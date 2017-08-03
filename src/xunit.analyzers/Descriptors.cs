@@ -148,7 +148,10 @@ namespace Xunit.Analyzers
             Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true,
             description: "Theory should have all InlineData elements unique. Remove redundant attribute(s) from the theory method.");
 
-        // Placeholder for rule X1026
+        internal static DiagnosticDescriptor X1026_TheoryMethodMustUseAllParameters { get; } = new DiagnosticDescriptor("xUnit1026",
+            "Theory methods should use all of their parameters",
+            "Theory method '{0}' on test class '{1}' does not use parameter '{2}'.",
+            Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         // Placeholder for rule X1027
 
@@ -161,7 +164,7 @@ namespace Xunit.Analyzers
         // Placeholder for rule X1031
 
         // Placeholder for rule X1032
-        
+
         internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } = new DiagnosticDescriptor("xUnit2000",
             "Expected value should be first",
             "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
