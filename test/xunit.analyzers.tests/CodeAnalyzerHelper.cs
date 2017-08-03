@@ -72,7 +72,12 @@ namespace Xunit.Analyzers
             }
 
             var project = solution.GetProject(projectId);
-            project = project.WithCompilationOptions(((CSharpCompilationOptions)project.CompilationOptions).WithOutputKind(OutputKind.DynamicallyLinkedLibrary).WithWarningLevel(2));
+            var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
+                .WithAllowUnsafe(true)
+                .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
+                .WithWarningLevel(2);
+            project = project.WithCompilationOptions(compilationOptions);
+
             var compilation = await project.GetCompilationAsync();
             var compilationDiagnostics = compilation.GetDiagnostics();
             if (!ignoreCompilationErrors && compilationDiagnostics.Any())
