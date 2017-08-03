@@ -57,16 +57,21 @@ namespace Xunit.Analyzers
                         if (isTestMethod)
                             continue;
 
-                        while (method.IsOverride)
-                        {
-                            method = method.OverriddenMethod;
-                        }
-
                         if (method.DeclaredAccessibility == Accessibility.Public &&
-                            (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)) &&
-                            !methodsToIgnore.Any(m => method.Equals(m)))
+                            (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)))
                         {
-                            violations.Add(method);
+                            bool shouldIgnore = false;
+                            while (!shouldIgnore || method.IsOverride)
+                            {
+                                if (methodsToIgnore.Any(m => method.Equals(m)))
+                                {
+                                    shouldIgnore = true;
+                                }
+                                if (!method.IsOverride) break;
+                                method = method.OverriddenMethod;
+                            }
+                            if (!shouldIgnore)
+                                violations.Add(method);
                         }
                     }
 

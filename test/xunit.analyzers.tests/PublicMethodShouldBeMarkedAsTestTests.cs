@@ -53,6 +53,21 @@ public class TestClass : BaseClass {
         }
 
         [Fact]
+        public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClassWithRepeatedInterfaceDeclaration()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class BaseClass : System.IDisposable {
+    public virtual void Dispose() { }
+}
+public class TestClass : BaseClass, System.IDisposable {
+    [Xunit.Fact] public void TestMethod() { }
+    public override void Dispose() { }
+}");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
