@@ -39,6 +39,19 @@ namespace Xunit.Analyzers
             return builder.ToImmutable();
         }
 
+        internal static SimpleNameSyntax GetSimpleName(this InvocationExpressionSyntax invocation)
+        {
+            switch (invocation.Expression)
+            {
+                case MemberAccessExpressionSyntax memberAccess:
+                    return memberAccess.Name;
+                case SimpleNameSyntax simpleName:
+                    return simpleName;
+            }
+
+            return null;
+        }
+
         internal static bool IsAssignableFrom(this ITypeSymbol targetType, ITypeSymbol sourceType, bool exactMatch = false)
         {
             if (targetType != null)
