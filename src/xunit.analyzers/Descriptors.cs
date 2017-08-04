@@ -262,7 +262,10 @@ namespace Xunit.Analyzers
             "Do not use Contains() to check if a value exists in a collection.",
             Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
-        // Placeholder for rule X2018
+        internal static DiagnosticDescriptor X2018_AssertIsTypeShouldNotBeUsedForAbstractType { get; } = new DiagnosticDescriptor("xUnit2018",
+            "Do not compare an object's exact type to an abstract class or interface",
+            "Do not compare an object's exact type to the {0} '{1}'.",
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         // Placeholder for rule X2019
 

@@ -12,6 +12,7 @@
     <PackageTargetFallback>portable-net45+win8</PackageTargetFallback>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFramework>netstandard1.1</TargetFramework>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
