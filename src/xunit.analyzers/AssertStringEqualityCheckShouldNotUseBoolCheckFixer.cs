@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
             var isStaticMethodCall = context.Diagnostics.First().Properties[AssertStringEqualityCheckShouldNotUseBoolCheck.IsStaticMethodCall];
             var ignoreCase = context.Diagnostics.First().Properties[AssertStringEqualityCheckShouldNotUseBoolCheck.IgnoreCase];
             var replacement = GetReplacementMethodName(assertMethodName);
-            
+
             context.RegisterCodeFix(
                 CodeAction.Create(
                     String.Format(TitleTemplate, replacement),
@@ -45,7 +45,7 @@ namespace Xunit.Analyzers
             return assertMethodName == "True" ? "Equal" : "NotEqual";
         }
 
-        static async Task<Document> UseEqualCheckAsync(Document document, InvocationExpressionSyntax invocation, string replacementMethodName, 
+        static async Task<Document> UseEqualCheckAsync(Document document, InvocationExpressionSyntax invocation, string replacementMethodName,
             string isStaticMethodCall, string ignoreCase, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
@@ -54,7 +54,7 @@ namespace Xunit.Analyzers
             var equalsMethodInvocation = (MemberAccessExpressionSyntax)equalsInvocation.Expression;
             var equalsTarget = equalsMethodInvocation.Expression;
 
-            var arguments = isStaticMethodCall == bool.TrueString 
+            var arguments = isStaticMethodCall == bool.TrueString
                 ? equalsInvocation.ArgumentList.Arguments
                 : equalsInvocation.ArgumentList.Arguments.Insert(0, SyntaxFactory.Argument(equalsTarget));
 

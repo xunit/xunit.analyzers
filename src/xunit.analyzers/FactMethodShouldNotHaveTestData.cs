@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
                 {
                     var symbol = (IMethodSymbol)symbolContext.Symbol;
                     var attributes = symbol.GetAttributes();
-                    if (attributes.Length > 1 && 
+                    if (attributes.Length > 1 &&
                         attributes.ContainsAttributeType(factType, exactMatch: true) &&
                         !attributes.ContainsAttributeType(theoryType) &&
                         attributes.ContainsAttributeType(dataType))

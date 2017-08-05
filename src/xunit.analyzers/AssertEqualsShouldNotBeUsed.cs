@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertEqualsShouldNotBeUsed : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
+        internal const string MethodName = "MethodName";
         internal const string EqualsMethod = "Equals";
         internal const string ReferenceEqualsMethod = "ReferenceEquals";
 

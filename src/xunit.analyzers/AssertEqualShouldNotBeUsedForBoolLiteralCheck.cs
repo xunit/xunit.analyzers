@@ -11,8 +11,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
-        internal static string LiteralValue = "LiteralValue";
+        internal const string MethodName = "MethodName";
+        internal const string LiteralValue = "LiteralValue";
         internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
         internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual" });
 

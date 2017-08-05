@@ -11,8 +11,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertCollectionContainsShouldNotUseBoolCheck : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
-        
+        internal const string MethodName = "MethodName";
+
         private static readonly HashSet<string> LinqContainsMethods = new HashSet<string>
         {
             "System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource)",

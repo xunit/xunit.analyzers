@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 
             if (method.IsGenericMethod &&
                (!method.TypeArguments[0].SpecialType.Equals(SpecialType.System_String) ||
-                !method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_String) || 
+                !method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_String) ||
                 !method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_String)))
                 return;
 
