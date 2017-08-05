@@ -93,7 +93,7 @@ class TestClass
     [Theory]
     void TestMethod(int foo, int bar, int baz)
     {
-        Console.WriteLine(bar);
+        TestMethod(bar, bar, bar);
         baz = 3;
     }
 }");
@@ -115,7 +115,7 @@ class TestClass
     [Theory]
     void TestMethod(int unused)
     {
-        Console.WriteLine(unused);
+        TestMethod(unused);
     }
 }");
         }

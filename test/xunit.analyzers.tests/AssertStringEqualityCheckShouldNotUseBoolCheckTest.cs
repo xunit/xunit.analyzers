@@ -21,8 +21,8 @@ namespace Xunit.Analyzers
             {
                 StringComparison.CurrentCulture,
                 StringComparison.CurrentCultureIgnoreCase,
-                StringComparison.InvariantCulture,
-                StringComparison.InvariantCultureIgnoreCase
+                (StringComparison)2, // InvariantCulture not exposed in .NET Core
+                (StringComparison)3 // InvariantCultureIgnoreCase not exposed in .NET Core
             };
 
         public static TheoryData<StringComparison> AllStringComparisons = new TheoryData<StringComparison>
@@ -31,8 +31,8 @@ namespace Xunit.Analyzers
                 StringComparison.OrdinalIgnoreCase,
                 StringComparison.CurrentCulture,
                 StringComparison.CurrentCultureIgnoreCase,
-                StringComparison.InvariantCulture,
-                StringComparison.InvariantCultureIgnoreCase
+                (StringComparison)2, // InvariantCulture not exposed in .NET Core
+                (StringComparison)3 // InvariantCultureIgnoreCase not exposed in .NET Core
             };
 
         private static void AssertHasDiagnostic(IEnumerable<Diagnostic> diagnostics, string method)

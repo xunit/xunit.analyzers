@@ -253,3 +253,9 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# OpenCover results file
+results.xml
+
+# ReportGenerator output folder
+/reports/

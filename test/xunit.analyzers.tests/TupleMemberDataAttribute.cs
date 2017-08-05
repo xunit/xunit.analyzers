@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 
         static Func<object, object[]> GetConverter(object item)
         {
-            if (!item.GetType().IsGenericType || !TupleOpenGenericTypes.Contains(item.GetType().GetGenericTypeDefinition()))
+            if (!item.GetType().GetTypeInfo().IsGenericType || !TupleOpenGenericTypes.Contains(item.GetType().GetGenericTypeDefinition()))
             {
                 return null;
             }

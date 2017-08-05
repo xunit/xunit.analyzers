@@ -11,13 +11,16 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageTargetFallback>portable-net45+win8</PackageTargetFallback>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <!--
+    This is needed to 1) make debugging the VSIX possible and 2) work around https://github.com/OpenCover/opencover/issues/601.
+    -->
     <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>

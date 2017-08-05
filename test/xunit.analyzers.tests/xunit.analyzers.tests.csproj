@@ -2,12 +2,19 @@
 
   <PropertyGroup>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <PackageTargetFallback>portable-net45+win8+wp8+wpa81</PackageTargetFallback>
+    <!-- This is needed to work around https://github.com/OpenCover/opencover/issues/601. -->
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
+  <!-- Please keep the OpenCover and ReportGenerator versions in sync with those in view-coverage.cmd. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="NSubstitute" Version="2.0.3" />
+    <PackageReference Include="OpenCover" Version="4.6.519" />
+    <PackageReference Include="ReportGenerator" Version="2.5.10" />
     <PackageReference Include="System.ValueTuple" Version="4.3.1" />
     <PackageReference Include="xunit.assert" Version="2.2.0" />
     <PackageReference Include="xunit.core" Version="2.2.0" />

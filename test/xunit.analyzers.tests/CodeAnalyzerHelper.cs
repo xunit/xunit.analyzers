@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,28 +16,45 @@ namespace Xunit.Analyzers
 {
     class CodeAnalyzerHelper
     {
-        static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemCollectionsImmutable = MetadataReference.CreateFromFile(typeof(ImmutableArray).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemTextReference = MetadataReference.CreateFromFile(typeof(System.Text.RegularExpressions.Regex).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemRuntimeReference;
-        static readonly MetadataReference SystemThreadingTasksReference;
-        static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
+        private static readonly ImmutableArray<MetadataReference> MetadataReferences = GetMetadataReferences().ToImmutableArray();
 
-        static CodeAnalyzerHelper()
+        private static IEnumerable<MetadataReference> GetMetadataReferences()
+            => GetFrameworkMetadataReferences().Concat(GetXunitMetadataReferences());
+
+        private static IEnumerable<MetadataReference> GetFrameworkMetadataReferences()
         {
-            // Xunit is a PCL linked against System.Runtime, however on the Desktop framework all types in that assembly have been forwarded to
-            // System.Core, so we need to find the assembly by name to compile without errors.
-            AssemblyName[] referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
-            SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
-            SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+            var systemPrivateCorelibNi = typeof(object).GetTypeInfo().Assembly;
+            var frameworkAssembliesDir = Path.GetDirectoryName(systemPrivateCorelibNi.Location);
+
+            var assemblyNames = new[]
+            {
+                "mscorlib",
+                "System.Collections",
+                "System.Collections.Immutable",
+                "System.IO",
+                "System.Linq",
+                "System.Private.CoreLib",
+                "System.Runtime",
+                "System.Text.RegularExpressions",
+                "System.Threading.Tasks"
+            };
+
+            foreach (var assemblyName in assemblyNames)
+            {
+                var assemblyPath = Path.Combine(frameworkAssembliesDir, assemblyName + ".dll");
+                yield return MetadataReference.CreateFromFile(assemblyPath);
+            }
+
+            // System.Collections.NonGeneric does not appear in NETStandard.Library for .NET Core apps.
+            // https://stackoverflow.com/q/39339427/4077294
+            yield return MetadataReference.CreateFromFile(typeof(ArrayList).GetTypeInfo().Assembly.Location);
         }
 
-        static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        private static IEnumerable<MetadataReference> GetXunitMetadataReferences()
         {
-            return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
+            yield return MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location); // xunit.core
+            yield return MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location); // xunit.abstractions
+            yield return MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location); // xunit.assert
         }
 
         public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
@@ -53,17 +72,7 @@ namespace Xunit.Analyzers
             var solution = new AdhocWorkspace()
                 .CurrentSolution
                 .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
-                .AddMetadataReferences(projectId, new[] {
-                    CorlibReference,
-                    SystemCollectionsImmutable,
-                    SystemCoreReference,
-                    SystemTextReference,
-                    SystemRuntimeReference,
-                    SystemThreadingTasksReference,
-                    XunitCoreReference,
-                    XunitAbstractionsReference,
-                    XunitAssertReference,
-                });
+                .AddMetadataReferences(projectId, MetadataReferences);
 
             int count = 0;
             foreach (var text in new[] { source }.Concat(additionalSources))
