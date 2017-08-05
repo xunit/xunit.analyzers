@@ -20,7 +20,8 @@ namespace Xunit.Analyzers
         private static readonly HashSet<string> SizeMethods = new HashSet<string>
         {
             "System.Array.Length",
-            "System.Collections.Generic.IEnumerable<TSource>.Count<TSource>()"
+            "System.Collections.Generic.IEnumerable<TSource>.Count<TSource>()",
+            "System.Collections.Immutable.ImmutableArray<T>.Length",
         };
 
         public AssertEqualShouldNotBeUsedForCollectionSizeCheck() :

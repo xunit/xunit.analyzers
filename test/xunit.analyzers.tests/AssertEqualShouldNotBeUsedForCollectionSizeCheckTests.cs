@@ -15,6 +15,7 @@ namespace Xunit.Analyzers
             "new System.Collections.Generic.HashSet<int>().Count",
             "new System.Collections.ObjectModel.Collection<int>().Count()",
             "System.Linq.Enumerable.Empty<int>().Count()",
+            "System.Collections.Immutable.ImmutableArray.Create<int>().Length",
         };
 
         public static TheoryData<string, int> CollectionsWithUnsupportedSize { get; } = new TheoryData<string, int>
@@ -24,7 +25,8 @@ namespace Xunit.Analyzers
             { "new System.Collections.Generic.List<int>().Count", 2 },
             { "new System.Collections.Generic.HashSet<int>().Count", 3 },
             { "new System.Collections.ObjectModel.Collection<int>().Count()", 13 },
-            { "System.Linq.Enumerable.Empty<int>().Count()", 354 }
+            { "System.Linq.Enumerable.Empty<int>().Count()", 354 },
+            { "System.Collections.Immutable.ImmutableArray.Create<int>().Length", 42 },
         };
 
         [Theory]

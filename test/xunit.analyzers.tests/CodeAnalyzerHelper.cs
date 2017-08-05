@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
@@ -8,13 +9,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 
 namespace Xunit.Analyzers
 {
     class CodeAnalyzerHelper
     {
         static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference SystemCollectionsImmutable = MetadataReference.CreateFromFile(typeof(ImmutableArray).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemTextReference = MetadataReference.CreateFromFile(typeof(System.Text.RegularExpressions.Regex).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemRuntimeReference;
@@ -54,6 +55,7 @@ namespace Xunit.Analyzers
                 .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
                 .AddMetadataReferences(projectId, new[] {
                     CorlibReference,
+                    SystemCollectionsImmutable,
                     SystemCoreReference,
                     SystemTextReference,
                     SystemRuntimeReference,
