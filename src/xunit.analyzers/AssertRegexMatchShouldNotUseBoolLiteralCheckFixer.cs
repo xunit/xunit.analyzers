@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
             var methodName = context.Diagnostics.First().Properties[AssertRegexMatchShouldNotUseBoolLiteralCheck.MethodName];
             var isStatic = context.Diagnostics.First().Properties[AssertRegexMatchShouldNotUseBoolLiteralCheck.IsStatic];
             var replacementMethod = methodName == "True" ? "Matches" : "DoesNotMatch";
-            
+
             var title = String.Format(titleTemplate, replacementMethod);
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -56,7 +56,7 @@ namespace Xunit.Analyzers
             {
                 var regexMemberAccess = (MemberAccessExpressionSyntax)regexIsMatchInvocation.Expression;
                 var regexMember = regexMemberAccess.Expression;
-                
+
                 editor.ReplaceNode(invocation,
                     invocation
                         .WithArgumentList(SyntaxFactory.ArgumentList(

@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
             public async void DoesNotFindError_ForDoubleArgumentWithPrecisionProvidedInRange(int precision)
             {
                 var diagnostics = await AnalyzeTestMethod(
-                    "double num = 0.133d;" + 
+                    "double num = 0.133d;" +
                     $"Xunit.Assert.Equal(0.13d, num, {precision});");
 
                 Assert.Empty(diagnostics);
@@ -87,7 +87,7 @@ namespace Xunit.Analyzers
             {
                 return await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "class TestClass { void TestMethod() {" + methodBody + "}}");
-            }            
+            }
         }
     }
 }

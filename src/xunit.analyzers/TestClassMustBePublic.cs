@@ -32,7 +32,7 @@ namespace Xunit.Analyzers
                     {
                         syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                             Descriptors.X1000_TestClassMustBePublic,
-                            classDeclaration.Identifier.GetLocation(), 
+                            classDeclaration.Identifier.GetLocation(),
                             classDeclaration.Identifier.ValueText));
                     }
                 }, SyntaxKind.ClassDeclaration);

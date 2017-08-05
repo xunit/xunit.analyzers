@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
         };
 
         public AssertThrowsShouldNotBeUsedForAsyncThrowsCheck() :
-            base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, new [] { "Throws", "ThrowsAny" })
+            base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, new[] { "Throws", "ThrowsAny" })
         {
         }
 
@@ -32,7 +32,7 @@ namespace Xunit.Analyzers
             var throwExpressionSymbol = GetThrowExpressionSymbol(context, invocation);
             if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
                 return;
-            
+
             var descriptor = ObsoleteMethods.Contains(SymbolDisplay.ToDisplayString(method))
                 ? Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck_Hidden
                 : Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck;
@@ -52,7 +52,7 @@ namespace Xunit.Analyzers
         {
             var argumentExpression = invocation.ArgumentList.Arguments.Last().Expression;
             var lambdaExpression = argumentExpression as LambdaExpressionSyntax;
-            
+
             if (lambdaExpression == null)
                 return context.SemanticModel.GetSymbolInfo(argumentExpression);
 

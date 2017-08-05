@@ -30,13 +30,13 @@ namespace Xunit.Analyzers
 
         protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
         {
-            if (method.Parameters.Length != 2 || 
+            if (method.Parameters.Length != 2 ||
                 !method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_Int32) ||
                 !method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_Int32))
                 return;
 
             var size = context.SemanticModel.GetConstantValue(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken);
-            
+
             if (!size.HasValue || (int)size.Value < 0 || (int)size.Value > 1 || (int)size.Value == 1 && method.Name != "Equal")
                 return;
 
@@ -49,7 +49,7 @@ namespace Xunit.Analyzers
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken);
 
-            if (!IsWellKnownSizeMethod(symbolInfo) && 
+            if (!IsWellKnownSizeMethod(symbolInfo) &&
                 !IsCollectionCountProperty(context, symbolInfo) &&
                 !IsGenericCountProperty(context, symbolInfo))
                 return;

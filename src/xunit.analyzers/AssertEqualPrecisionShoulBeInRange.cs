@@ -8,12 +8,12 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
     {
-        public AssertEqualPrecisionShouldBeInRange() 
-            : base(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange, new[] {"Equal", "NotEqual"})
+        public AssertEqualPrecisionShouldBeInRange()
+            : base(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange, new[] { "Equal", "NotEqual" })
         {
         }
 
-        protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, 
+        protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation,
             IMethodSymbol method)
         {
             var numericType = GetMethodNumericType(method);
@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 
             var precisionLiteralExpression = invocation.ArgumentList.Arguments[2].Expression;
 
-            EnsurePrecisionInRange(context, precisionLiteralExpression.GetLocation(), numericType.Value, 
+            EnsurePrecisionInRange(context, precisionLiteralExpression.GetLocation(), numericType.Value,
                 numericLiteralValue.Value);
         }
 
@@ -62,24 +62,24 @@ namespace Xunit.Analyzers
             var precisionArgumentExpression = invocation.ArgumentList.Arguments[2].Expression;
             var constantValue = contextSemanticModel.GetConstantValue(precisionArgumentExpression);
 
-            return constantValue.HasValue && constantValue.Value is int 
-                ? (int?) constantValue.Value 
+            return constantValue.HasValue && constantValue.Value is int
+                ? (int?)constantValue.Value
                 : null;
         }
 
-        private static void EnsurePrecisionInRange(SyntaxNodeAnalysisContext context, Location location, 
+        private static void EnsurePrecisionInRange(SyntaxNodeAnalysisContext context, Location location,
             SpecialType numericType, int numericValue)
         {
             var precisionMax = PrecisionMaxLimits[numericType];
 
             if (numericValue < 0 || numericValue > precisionMax)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange, 
+                context.ReportDiagnostic(Diagnostic.Create(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange,
                     location, $"[0..{precisionMax}]", TypeNames[numericType]));
             }
         }
 
-        private static readonly IReadOnlyDictionary<SpecialType, int> PrecisionMaxLimits = 
+        private static readonly IReadOnlyDictionary<SpecialType, int> PrecisionMaxLimits =
             new Dictionary<SpecialType, int>
             {
                 {SpecialType.System_Double, 15},

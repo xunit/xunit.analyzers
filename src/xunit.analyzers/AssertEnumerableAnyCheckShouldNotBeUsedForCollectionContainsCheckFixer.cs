@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
             var assertMethodName = context.Diagnostics.First().Properties[AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck.AssertMethodName];
             var replacement = assertMethodName == "True" ? "Contains" : "DoesNotContain";
-            
+
             var title = string.Format(TitleTemplate, replacement);
             context.RegisterCodeFix(
                 CodeAction.Create(

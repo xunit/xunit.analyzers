@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
             var typeKind = GetAbstractTypeKind(typeInfo.Type);
             if (typeKind == null)
                 return;
-            
+
             var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type);
 
             context.ReportDiagnostic(Diagnostic.Create(
