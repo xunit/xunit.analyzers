@@ -12,8 +12,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
-        internal static string SizeValue = "SizeValue";
+        internal const string MethodName = "MethodName";
+        internal const string SizeValue = "SizeValue";
 
         private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "NotEqual" });
 

@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
+        internal const string MethodName = "MethodName";
         internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual", "Same" });
         internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual", "NotSame" });
 

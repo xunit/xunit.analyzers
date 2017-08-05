@@ -10,8 +10,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
-        internal static string TypeName = "TypeName";
+        internal const string MethodName = "MethodName";
+        internal const string TypeName = "TypeName";
         internal static HashSet<string> IsTypeMethods = new HashSet<string>(new[] { "IsType", "IsNotType", "IsAssignableFrom" });
 
         public AssertIsTypeShouldUseGenericOverloadType() :

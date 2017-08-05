@@ -9,8 +9,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertThrowsShouldUseGenericOverloadCheck : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
-        internal static string TypeName = "TypeName";
+        internal const string MethodName = "MethodName";
+        internal const string TypeName = "TypeName";
 
         public AssertThrowsShouldUseGenericOverloadCheck() :
             base(Descriptors.X2015_AssertThrowsShouldUseGenericOverload, new[] { "Throws", "ThrowsAsync" })

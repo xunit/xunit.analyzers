@@ -9,7 +9,7 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AssertSameShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
     {
-        internal static string MethodName = "MethodName";
+        internal const string MethodName = "MethodName";
         internal const string SameMethod = "Same";
         internal const string NotSameMethod = "NotSame";
 
