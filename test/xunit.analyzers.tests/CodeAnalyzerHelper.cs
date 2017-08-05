@@ -73,7 +73,6 @@ namespace Xunit.Analyzers
 
             var project = solution.GetProject(projectId);
             var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
-                .WithAllowUnsafe(true)
                 .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
                 .WithWarningLevel(2);
             project = project.WithCompilationOptions(compilationOptions);
