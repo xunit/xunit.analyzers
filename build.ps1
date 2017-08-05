@@ -103,7 +103,7 @@ function __target__setversion() {
 
 function __target__test() {
     _build_step "Running unit tests"
-        _xunit_console ("test\xunit.analyzers.tests\bin\" + $configuration + "\net452\xunit.analyzers.tests.dll -xml artifacts\test\TestResults.xml -diagnostics")
+        _xunit_console ("test\xunit.analyzers.tests\bin\" + $configuration + "\netcoreapp1.1\xunit.analyzers.tests.dll -xml artifacts\test\TestResults.xml -diagnostics")
 }
 
 # Dispatch
