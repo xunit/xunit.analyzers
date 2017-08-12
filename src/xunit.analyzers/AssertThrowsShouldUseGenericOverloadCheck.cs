@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
             builder[MethodName] = method.Name;
             builder[TypeName] = typeName;
-            
+
             context.ReportDiagnostic(Diagnostic.Create(
                 Descriptors.X2015_AssertThrowsShouldUseGenericOverload,
                 invocation.GetLocation(),

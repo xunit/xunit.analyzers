@@ -53,7 +53,7 @@ namespace Xunit.Analyzers
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
             if (!EqualsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
                 return;
-            
+
             string ignoreCase = null;
 
             if (methodSymbol.Parameters.Last().Type.TypeKind == TypeKind.Enum)

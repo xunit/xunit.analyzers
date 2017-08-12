@@ -7,7 +7,7 @@ namespace Xunit.Analyzers
     public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
     {
         private readonly DiagnosticAnalyzer analyzer = new AssertThrowsShouldNotBeUsedForAsyncThrowsCheck();
-        
+
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingMethod()
         {
@@ -89,7 +89,7 @@ void TestMethod() {
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
 } }");
-            
+
             Assert.Collection(diagnostics, d =>
             {
                 Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());

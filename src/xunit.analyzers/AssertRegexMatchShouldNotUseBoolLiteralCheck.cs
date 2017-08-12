@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
             "System.Text.RegularExpressions.Regex.IsMatch(string, string)",
             "System.Text.RegularExpressions.Regex.IsMatch(string)"
         });
-        
+
         public AssertRegexMatchShouldNotUseBoolLiteralCheck() :
             base(Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck, Methods)
         {
@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
             if (!RegexIsMatchSymbols.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
                 return;
-            
+
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
             builder[MethodName] = method.Name;
             builder[IsStatic] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;

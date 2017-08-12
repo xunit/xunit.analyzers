@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
             var methodName = context.Diagnostics.First().Properties[AssertEqualShouldNotBeUsedForCollectionSizeCheck.MethodName];
             var sizeValue = context.Diagnostics.First().Properties[AssertEqualShouldNotBeUsedForCollectionSizeCheck.SizeValue];
             var replacement = GetReplacementMethodName(methodName, sizeValue);
-            
+
             var title = string.Format(TitleTemplate, replacement);
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -42,7 +42,7 @@ namespace Xunit.Analyzers
         {
             if (literalValue == "1")
                 return "Single";
-            
+
             return methodName == "Equal" ? "Empty" : "NotEmpty";
         }
 

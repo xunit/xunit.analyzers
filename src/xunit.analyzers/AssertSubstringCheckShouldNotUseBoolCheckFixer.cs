@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
             var assertMethodName = context.Diagnostics.First().Properties[AssertSubstringCheckShouldNotUseBoolCheck.AssertMethodName];
             var substringMethodName = context.Diagnostics.First().Properties[AssertSubstringCheckShouldNotUseBoolCheck.SubstringMethodName];
             var replacement = GetReplacementMethodName(assertMethodName, substringMethodName);
-            
+
             var title = String.Format(TitleTemplate, replacement);
             context.RegisterCodeFix(
                 CodeAction.Create(

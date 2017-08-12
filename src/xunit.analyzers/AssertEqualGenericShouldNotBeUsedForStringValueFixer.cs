@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var syntaxNode = root.FindNode(context.Span);
             var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>();
-            
+
             if (invocation.Expression is MemberAccessExpressionSyntax)
             {
                 context.RegisterCodeFix(

@@ -45,7 +45,7 @@ namespace Xunit.Analyzers.FixProviders
 
             var title = String.Format(TitleTemplate, methodName, typeName);
             var equivalenceKey = String.Format(EquivalenceKeyTemplate, methodName);
-            
+
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,
@@ -54,11 +54,11 @@ namespace Xunit.Analyzers.FixProviders
                 context.Diagnostics);
         }
 
-        private static async Task<Document> RemoveTypeofInvocationAndAddGenericTypeAsync(Document document, InvocationExpressionSyntax invocation, 
+        private static async Task<Document> RemoveTypeofInvocationAndAddGenericTypeAsync(Document document, InvocationExpressionSyntax invocation,
             MemberAccessExpressionSyntax memberAccess, TypeOfExpressionSyntax typeOfExpression, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            
+
             editor.ReplaceNode(invocation,
                 invocation
                     .WithExpression(memberAccess

@@ -14,7 +14,7 @@ namespace Xunit.Analyzers
         private const string EnumerableAnyExtensionMethod = "System.Linq.Enumerable.Any<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 
         private static readonly HashSet<string> BooleanMethods = new HashSet<string>(new[] { "True", "False" });
-        
+
         public AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck() :
             base(Descriptors.X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck, BooleanMethods)
         {

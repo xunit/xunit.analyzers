@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-            
+
             context.RegisterCodeFix(
                 CodeAction.Create(
                     UseAssertEmptyCheckTitle,

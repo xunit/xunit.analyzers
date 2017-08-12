@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
     {
         private const string title = "Use precision 0";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = 
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
             ImmutableArray.Create(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
                 context.Diagnostics);
         }
 
-        private static async Task<Document> UseRecommendedPrecision(Document document, 
+        private static async Task<Document> UseRecommendedPrecision(Document document,
             ArgumentSyntax precisionArgument, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);

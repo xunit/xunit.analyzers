@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
             var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
             var methodName = context.Diagnostics.First().Properties[AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.MethodName];
-            
+
             var title = String.Format(TitleTemplate, methodName + "Async");
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -44,7 +44,7 @@ namespace Xunit.Analyzers
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-            
+
             var modifiers = GetModifiersWithAsyncKeywordAdded(method);
             var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
             var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacementMethod, memberAccess);
@@ -65,7 +65,7 @@ namespace Xunit.Analyzers
                 : method.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.AsyncKeyword));
         }
 
-        private static async Task<TypeSyntax> GetReturnType(MethodDeclarationSyntax method, InvocationExpressionSyntax invocation, 
+        private static async Task<TypeSyntax> GetReturnType(MethodDeclarationSyntax method, InvocationExpressionSyntax invocation,
             Document document, DocumentEditor editor, CancellationToken cancellationToken)
         {
             // Consider the case where a custom awaiter type is awaited
@@ -92,7 +92,7 @@ namespace Xunit.Analyzers
 
             if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
                 return asyncThrowsInvocation;
-            
+
             return SyntaxFactory.AwaitExpression(asyncThrowsInvocation.WithoutLeadingTrivia())
                     .WithLeadingTrivia(invocation.GetLeadingTrivia());
         }
@@ -112,16 +112,16 @@ namespace Xunit.Analyzers
             var arguments = invocation.ArgumentList;
             var argumentSyntax = invocation.ArgumentList.Arguments.Last();
             var lambdaExpression = argumentSyntax.Expression as LambdaExpressionSyntax;
-            
+
             if (lambdaExpression == null)
                 return arguments;
-            
+
             var awaitExpression = lambdaExpression.Body as AwaitExpressionSyntax;
             if (awaitExpression == null)
                 return arguments;
-            
+
             var lambdaExpressionWithoutAsyncKeyword = RemoveAsyncKeywordFromLambdaExpression(lambdaExpression, awaitExpression);
-            
+
             return invocation.ArgumentList.WithArguments(
                 invocation.ArgumentList.Arguments
                     .Replace(argumentSyntax, SyntaxFactory.Argument(lambdaExpressionWithoutAsyncKeyword)));
@@ -145,7 +145,7 @@ namespace Xunit.Analyzers
                     .WithAsyncKeyword(default(SyntaxToken))
                     .WithLeadingTrivia(parenthesizedLambdaExpression.AsyncKeyword.LeadingTrivia);
             }
-                
+
             return lambdaExpression;
         }
     }

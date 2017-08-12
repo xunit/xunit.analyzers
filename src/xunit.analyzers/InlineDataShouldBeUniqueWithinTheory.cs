@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 
         private static void AnalyzeMethod(SymbolAnalysisContext context, CompilationTypes compilationTypes)
         {
-            var method = (IMethodSymbol) context.Symbol;
+            var method = (IMethodSymbol)context.Symbol;
 
             var methodAllAttributes = method.GetAttributes();
             if (!methodAllAttributes.ContainsAttributeType(compilationTypes.Theory))
@@ -66,7 +66,7 @@ namespace Xunit.Analyzers
 
         private static AttributeSyntax GetAttributeSyntax(SymbolAnalysisContext context, AttributeData attribute)
         {
-            return (AttributeSyntax) attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
+            return (AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
         }
 
         private static void ReportDuplicate(SymbolAnalysisContext context, AttributeData duplicateAttribute)
@@ -125,7 +125,7 @@ namespace Xunit.Analyzers
                 var xArguments = GetEffectiveTestArguments(x);
                 var yArguments = GetEffectiveTestArguments(y);
 
-                var areBothNullEntirely = IsSingleNullByInlineDataOrByDefaultParamValue(xArguments) 
+                var areBothNullEntirely = IsSingleNullByInlineDataOrByDefaultParamValue(xArguments)
                                           && IsSingleNullByInlineDataOrByDefaultParamValue(yArguments);
 
                 return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments);
@@ -183,7 +183,7 @@ namespace Xunit.Analyzers
                             {
                                 case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
                                     return AreArgumentsEqual(
-                                        xArgArray.Values.Cast<object>().ToImmutableArray(), 
+                                        xArgArray.Values.Cast<object>().ToImmutableArray(),
                                         yArgArray.Values.Cast<object>().ToImmutableArray());
                                 default:
                                     return false;

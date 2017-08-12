@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
     {
         public const string AssertMethodName = "AssertMethodName";
         public const string SubstringMethodName = "SubstringMethodName";
-        
+
         private static readonly HashSet<string> BooleanMethods = new HashSet<string>(new[] { "True", "False" });
         private static readonly HashSet<string> SubstringMethods = new HashSet<string>(new[]
         {
