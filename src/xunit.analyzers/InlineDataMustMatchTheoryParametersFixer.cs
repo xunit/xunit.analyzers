@@ -36,8 +36,7 @@ namespace Xunit.Analyzers
 
             if (diagnosticId == Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id)
             {
-                InlineDataMustMatchTheoryParameters.ParameterArrayStyleType arrayStyle;
-                Enum.TryParse(diagnostic.Properties[InlineDataMustMatchTheoryParameters.ParameterArrayStyle], out arrayStyle);
+                Enum.TryParse(diagnostic.Properties[InlineDataMustMatchTheoryParameters.ParameterArrayStyle], out InlineDataMustMatchTheoryParameters.ParameterArrayStyleType arrayStyle);
                 context.RegisterCodeFix(CodeAction.Create("Add Default Values", ct => AddDefaultValuesAsync(context.Document, (AttributeSyntax)node, method, arrayStyle, ct), "AddDefaultValues"), context.Diagnostics);
             }
             else if (diagnosticId == Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType.Id)

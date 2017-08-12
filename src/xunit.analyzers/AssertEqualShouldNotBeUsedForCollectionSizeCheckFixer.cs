@@ -60,8 +60,7 @@ namespace Xunit.Analyzers
 
         private static ExpressionSyntax GetExpressionSyntax(InvocationExpressionSyntax invocation)
         {
-            var sizeInvocation = invocation.ArgumentList.Arguments[1].Expression as InvocationExpressionSyntax;
-            if (sizeInvocation != null)
+            if (invocation.ArgumentList.Arguments[1].Expression is InvocationExpressionSyntax sizeInvocation)
                 return ((MemberAccessExpressionSyntax)sizeInvocation.Expression).Expression;
 
             var sizeMemberAccess = invocation.ArgumentList.Arguments[1].Expression as MemberAccessExpressionSyntax;

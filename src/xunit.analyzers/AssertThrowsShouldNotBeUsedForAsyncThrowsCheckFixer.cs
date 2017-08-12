@@ -130,16 +130,14 @@ namespace Xunit.Analyzers
         private static ExpressionSyntax RemoveAsyncKeywordFromLambdaExpression(LambdaExpressionSyntax lambdaExpression,
             AwaitExpressionSyntax awaitExpression)
         {
-            var simpleLambdaExpression = lambdaExpression as SimpleLambdaExpressionSyntax;
-            if (simpleLambdaExpression != null)
+            if (lambdaExpression is SimpleLambdaExpressionSyntax simpleLambdaExpression)
             {
                 return simpleLambdaExpression.ReplaceNode(awaitExpression, awaitExpression.Expression)
                     .WithAsyncKeyword(default(SyntaxToken))
                     .WithLeadingTrivia(simpleLambdaExpression.AsyncKeyword.LeadingTrivia);
             }
 
-            var parenthesizedLambdaExpression = lambdaExpression as ParenthesizedLambdaExpressionSyntax;
-            if (parenthesizedLambdaExpression != null)
+            if (lambdaExpression is ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression)
             {
                 return parenthesizedLambdaExpression.ReplaceNode(awaitExpression, awaitExpression.Expression)
                     .WithAsyncKeyword(default(SyntaxToken))
