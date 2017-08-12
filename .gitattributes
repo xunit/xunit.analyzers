@@ -1,0 +1,24 @@
+* text=auto
+
+*.bat text
+*.config text
+*.cs text diff=csharp
+*.csproj text merge=union
+*.nuspec text
+*.resx text merge=union
+*.ruleset text
+*.settings text
+*.targets text
+*.txt text
+*.vb text
+*.vbproj text merge=union
+*.vsixmanifest text
+*.vstemplate text
+*.xml text
+*.xsl text
+*.xslt text
+*.xunit text
+
+*.sln text eol=crlf merge=union
+
+.gitmodules text eol=lf
