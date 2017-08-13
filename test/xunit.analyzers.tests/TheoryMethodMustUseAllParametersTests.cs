@@ -14,10 +14,10 @@ namespace Xunit.Analyzers
             var diagnosticArray = diagnostics.ToArray();
             Assert.Equal(messageArgs.Length, diagnosticArray.Length);
 
-            for (int i = 0; i < messageArgs.Length; i++)
+            for (var i = 0; i < messageArgs.Length; i++)
             {
                 var (method, type, parameter) = messageArgs[i];
-                string message = $"Theory method '{method}' on test class '{type}' does not use parameter '{parameter}'.";
+                var message = $"Theory method '{method}' on test class '{type}' does not use parameter '{parameter}'.";
 
                 var diagnostic = diagnosticArray[i];
                 Assert.Equal(message, diagnostic.GetMessage());

@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
                         .Where(s => s != null)
                         .ToList();
 
-                    bool hasTestMethods = false;
+                    var hasTestMethods = false;
                     var violations = new List<IMethodSymbol>();
                     foreach (var member in type.GetMembers().Where(m => m.Kind == SymbolKind.Method))
                     {
@@ -60,7 +60,7 @@ namespace Xunit.Analyzers
                         if (method.DeclaredAccessibility == Accessibility.Public &&
                             (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)))
                         {
-                            bool shouldIgnore = false;
+                            var shouldIgnore = false;
                             while (!shouldIgnore || method.IsOverride)
                             {
                                 if (methodsToIgnore.Any(m => method.Equals(m)))

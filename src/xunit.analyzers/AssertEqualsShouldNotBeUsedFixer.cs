@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
 
             if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
             {
-                var title = String.Format(titleTemplate, replacement);
+                var title = string.Format(titleTemplate, replacement);
                 context.RegisterCodeFix(
                     new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
                     context.Diagnostics);

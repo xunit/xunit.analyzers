@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
             var flowAnalysis = context.SemanticModel.AnalyzeDataFlow(methodSyntax.Body);
             var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside);
 
-            for (int i = 0; i < methodSymbol.Parameters.Length; i++)
+            for (var i = 0; i < methodSymbol.Parameters.Length; i++)
             {
                 var parameterSymbol = methodSymbol.Parameters[i];
                 if (!usedParameters.Contains(parameterSymbol))

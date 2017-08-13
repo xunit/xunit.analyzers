@@ -29,8 +29,8 @@ namespace Xunit.Analyzers
             var attributeTypes = context.Diagnostics.First().Properties.Keys.ToList();
             foreach (var attributeType in attributeTypes)
             {
-                string simpleName = GetAttributeSimpleName(attributeType);
-                string title = string.Format(genericTitle, simpleName);
+                var simpleName = GetAttributeSimpleName(attributeType);
+                var title = string.Format(genericTitle, simpleName);
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title: title,
@@ -42,7 +42,7 @@ namespace Xunit.Analyzers
 
         static string GetAttributeSimpleName(string attributeType)
         {
-            string simpleName = attributeType;
+            var simpleName = attributeType;
             if (simpleName.Contains("."))
                 simpleName = simpleName.Substring(attributeType.LastIndexOf('.') + 1);
             const string nameSuffix = "Attribute";
@@ -55,7 +55,7 @@ namespace Xunit.Analyzers
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-            bool oneKept = false;
+            var oneKept = false;
             foreach (var attributeList in methodDeclaration.AttributeLists)
             {
                 foreach (var attribute in attributeList.Attributes)

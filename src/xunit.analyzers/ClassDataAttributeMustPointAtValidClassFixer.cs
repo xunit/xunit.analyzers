@@ -42,7 +42,7 @@ namespace Xunit.Analyzers
             var symbolEditor = SymbolEditor.Create(solution);
             await symbolEditor.EditOneDeclarationAsync(typeSymbol, async (editor, declaration, ct) =>
             {
-                ClassDeclarationSyntax classDeclaration = (ClassDeclarationSyntax)declaration;
+                var classDeclaration = (ClassDeclarationSyntax)declaration;
                 var compilation = editor.SemanticModel.Compilation;
                 var generator = editor.Generator;
 

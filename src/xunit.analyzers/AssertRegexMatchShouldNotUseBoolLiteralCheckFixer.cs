@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             var isStatic = context.Diagnostics.First().Properties[AssertRegexMatchShouldNotUseBoolLiteralCheck.IsStatic];
             var replacementMethod = methodName == "True" ? "Matches" : "DoesNotMatch";
 
-            var title = String.Format(titleTemplate, replacementMethod);
+            var title = string.Format(titleTemplate, replacementMethod);
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,

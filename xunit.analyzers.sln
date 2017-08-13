@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 15.0.26228.4
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{F513916A-00AD-499A-9B76-E52D9FBFCED5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.tests", "test\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{31AD5C1D-71FF-4129-97BA-E42BF1120917}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.vsix", "src\xunit.analyzers.vsix\xunit.analyzers.vsix.csproj", "{381C5B6A-C37A-4B60-A7DC-8A5208AFA309}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31701222-FE1A-4D88-92F7-06DA84184794}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

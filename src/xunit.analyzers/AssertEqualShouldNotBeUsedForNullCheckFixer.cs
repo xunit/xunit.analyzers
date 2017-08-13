@@ -27,11 +27,11 @@ namespace Xunit.Analyzers
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
             var methodName = context.Diagnostics.First().Properties[AssertEqualShouldNotBeUsedForNullCheck.MethodName];
-            string replacement = GetReplacementMethod(methodName);
+            var replacement = GetReplacementMethod(methodName);
 
             if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
             {
-                var title = String.Format(titleTemplate, replacement);
+                var title = string.Format(titleTemplate, replacement);
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title,

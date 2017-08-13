@@ -43,8 +43,8 @@ namespace Xunit.Analyzers.FixProviders
             var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type, SymbolDisplayFormat.MinimallyQualifiedFormat);
             var methodName = memberAccess.Name.Identifier.ValueText;
 
-            var title = String.Format(TitleTemplate, methodName, typeName);
-            var equivalenceKey = String.Format(EquivalenceKeyTemplate, methodName);
+            var title = string.Format(TitleTemplate, methodName, typeName);
+            var equivalenceKey = string.Format(EquivalenceKeyTemplate, methodName);
 
             context.RegisterCodeFix(
                 CodeAction.Create(

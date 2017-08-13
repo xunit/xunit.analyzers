@@ -66,7 +66,7 @@ namespace Xunit.Analyzers
                 arrayInitializer = (InitializerExpressionSyntax)attribute.DescendantNodes().First(n => n.IsKind(SyntaxKind.ArrayInitializerExpression));
 
             var originalInitializer = arrayInitializer;
-            int i = originalInitializer?.Expressions.Count ?? attribute.ArgumentList?.Arguments.Count ?? 0;
+            var i = originalInitializer?.Expressions.Count ?? attribute.ArgumentList?.Arguments.Count ?? 0;
             for (; i < method.ParameterList.Parameters.Count; i++)
             {
                 var defaultExpression = (ExpressionSyntax)CreateDefaultValueSyntax(editor, method.ParameterList.Parameters[i].Type);

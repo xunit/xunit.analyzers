@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
             var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
             var methodName = context.Diagnostics.First().Properties[AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.MethodName];
 
-            var title = String.Format(TitleTemplate, methodName + "Async");
+            var title = string.Format(TitleTemplate, methodName + "Async");
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title,

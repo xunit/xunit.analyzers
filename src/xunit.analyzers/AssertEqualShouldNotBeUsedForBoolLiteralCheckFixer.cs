@@ -28,11 +28,11 @@ namespace Xunit.Analyzers
             var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
             var methodName = context.Diagnostics.First().Properties[AssertEqualShouldNotBeUsedForBoolLiteralCheck.MethodName];
             var literalValue = context.Diagnostics.First().Properties[AssertEqualShouldNotBeUsedForBoolLiteralCheck.LiteralValue];
-            string replacement = GetReplacementMethodName(methodName, literalValue);
+            var replacement = GetReplacementMethodName(methodName, literalValue);
 
             if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
             {
-                var title = String.Format(titleTemplate, replacement);
+                var title = string.Format(titleTemplate, replacement);
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         title,

@@ -64,7 +64,7 @@ namespace Xunit.Analyzers
 
                     var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>());
                     var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-                    ISymbol memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol);
+                    var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol);
 
                     if (memberSymbol == null)
                     {

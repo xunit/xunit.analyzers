@@ -141,7 +141,7 @@ namespace Xunit.Analyzers
                 if (xArguments.Length != yArguments.Length)
                     return false;
 
-                for (int i = 0; i < xArguments.Length; i++)
+                for (var i = 0; i < xArguments.Length; i++)
                 {
                     var x = xArguments[i];
                     var y = yArguments[i];
@@ -226,7 +226,7 @@ namespace Xunit.Analyzers
                 var arguments = GetEffectiveTestArguments(attributeData);
                 var flattened = GetFlattenedArgumentPrimitives(arguments);
 
-                int hash = 17;
+                var hash = 17;
 
                 foreach (var primitive in flattened)
                 {

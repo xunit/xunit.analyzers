@@ -34,9 +34,9 @@ namespace Xunit.Analyzers
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    String.Format(TitleTemplate, replacement),
+                    string.Format(TitleTemplate, replacement),
                     createChangedDocument: ct => UseEqualCheckAsync(context.Document, invocation, replacement, isStaticMethodCall, ignoreCase, ct),
-                    equivalenceKey: String.Format(EquivalenceKeyTemplate, replacement)),
+                    equivalenceKey: string.Format(EquivalenceKeyTemplate, replacement)),
                 context.Diagnostics);
         }
 

@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
         {
             // Xunit is a PCL linked against System.Runtime, however on the Desktop framework all types in that assembly have been forwarded to
             // System.Core, so we need to find the assembly by name to compile without errors.
-            AssemblyName[] referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
+            var referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
             SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
         }
@@ -65,7 +65,7 @@ namespace Xunit.Analyzers
                     XunitAssertReference,
                 });
 
-            int count = 0;
+            var count = 0;
             foreach (var text in new[] { source }.Concat(additionalSources))
             {
                 var newFileName = $"{fileNamePrefix}{count++}.cs";
@@ -83,7 +83,7 @@ namespace Xunit.Analyzers
             var compilationDiagnostics = compilation.GetDiagnostics();
             if (!ignoreCompilationErrors && compilationDiagnostics.Any())
             {
-                Diagnostic error = compilationDiagnostics.First();
+                var error = compilationDiagnostics.First();
                 throw new InvalidOperationException($"Compilation has errors. First error: {error.Id} {error.WarningLevel} {error.GetMessage()}");
             }
 
