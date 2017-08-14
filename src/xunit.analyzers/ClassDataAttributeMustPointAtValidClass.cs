@@ -15,16 +15,16 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationContext =>
+            context.RegisterCompilationStartAction(compilationStartContext =>
             {
-                var compilation = compilationContext.Compilation;
+                var compilation = compilationStartContext.Compilation;
                 var classDataType = compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute);
                 if (classDataType == null)
                     return;
 
                 var iEnumerableOfObjectArray = compilation.GetIEnumerableOfObjectArrayType();
 
-                compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
+                compilationStartContext.RegisterSyntaxNodeAction(syntaxContext =>
                 {
                     var attribute = syntaxContext.Node as AttributeSyntax;
                     var semanticModel = syntaxContext.SemanticModel;
