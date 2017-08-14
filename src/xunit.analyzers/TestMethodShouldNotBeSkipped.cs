@@ -15,31 +15,25 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitFactAttribute).RegisterSyntaxNodeAction(syntaxContext =>
             {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                if (factType == null)
+                var attribute = syntaxContext.Node as AttributeSyntax;
+                if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
-                {
-                    var attribute = syntaxNodeContext.Node as AttributeSyntax;
-                    if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
-                        return;
+                var factType = syntaxContext.Compilation().GetFactAttributeType();
+                var attributeType = syntaxContext.SemanticModel.GetTypeInfo(attribute).Type;
+                if (!factType.IsAssignableFrom(attributeType))
+                    return;
 
-                    var attributeType = syntaxNodeContext.SemanticModel.GetTypeInfo(attribute).Type;
-                    if (!factType.IsAssignableFrom(attributeType))
-                        return;
+                var skipArgument = attribute.ArgumentList.Arguments
+                    .FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
 
-                    var skipArgument = attribute.ArgumentList.Arguments
-                        .FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
-
-                    if (skipArgument != null)
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1004_TestMethodShouldNotBeSkipped,
-                            skipArgument.GetLocation()));
-                }, SyntaxKind.Attribute);
-            });
+                if (skipArgument != null)
+                    syntaxContext.ReportDiagnostic(Diagnostic.Create(
+                        Descriptors.X1004_TestMethodShouldNotBeSkipped,
+                        skipArgument.GetLocation()));
+            }, SyntaxKind.Attribute);
         }
     }
 }

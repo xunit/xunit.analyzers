@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
                 if (memberDataType == null)
                     return;
 
-                var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+                var iEnumerableOfObjectArrayType = compilation.GetIEnumerableOfObjectArrayType();
 
                 var supportsNameofOperator = compilation is CSharpCompilation cSharpCompilation
                     && cSharpCompilation.LanguageVersion >= LanguageVersion.CSharp6;

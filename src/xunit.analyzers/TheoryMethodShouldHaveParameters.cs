@@ -13,25 +13,19 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitTheoryAttribute).RegisterSymbolAction(symbolContext =>
             {
-                var theoryType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-                if (theoryType == null)
+                var symbol = (IMethodSymbol)symbolContext.Symbol;
+                if (symbol.Parameters.Length > 0)
                     return;
 
-                compilationStartContext.RegisterSymbolAction(symbolContext =>
+                var theoryType = symbolContext.Compilation.GetTheoryAttributeType();
+                var attributes = symbol.GetAttributes();
+                if (attributes.ContainsAttributeType(theoryType))
                 {
-                    var symbol = (IMethodSymbol)symbolContext.Symbol;
-                    if (symbol.Parameters.Length > 0)
-                        return;
-
-                    var attributes = symbol.GetAttributes();
-                    if (attributes.ContainsAttributeType(theoryType))
-                    {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1006_TheoryMethodShouldHaveParameters, symbol.Locations.First()));
-                    }
-                }, SymbolKind.Method);
-            });
+                    symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1006_TheoryMethodShouldHaveParameters, symbol.Locations.First()));
+                }
+            }, SymbolKind.Method);
         }
     }
 }

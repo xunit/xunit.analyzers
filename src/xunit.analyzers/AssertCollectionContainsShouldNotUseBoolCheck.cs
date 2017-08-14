@@ -64,7 +64,7 @@ namespace Xunit.Analyzers
             if (symbolInfo.Symbol.ContainingType.TypeArguments.IsEmpty)
                 return false;
 
-            var genericCollectionCountSymbol = context.SemanticModel.Compilation
+            var genericCollectionCountSymbol = context.Compilation()
                 .GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T)
                 .Construct(symbolInfo.Symbol.ContainingType.TypeArguments.ToArray())
                 .GetMembers(nameof(ICollection<int>.Contains))
@@ -74,7 +74,7 @@ namespace Xunit.Analyzers
                 return false;
 
             var genericCollectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(genericCollectionCountSymbol);
-            return genericCollectionSymbolImplementation != null && genericCollectionSymbolImplementation.Equals(symbolInfo.Symbol);
+            return genericCollectionSymbolImplementation?.Equals(symbolInfo.Symbol) ?? false;
         }
     }
 }

@@ -65,10 +65,10 @@ namespace Xunit.Analyzers
 
         private static bool ThrowExpressionReturnsTask(SymbolInfo symbol, SyntaxNodeAnalysisContext context)
         {
-            if (symbol.Symbol == null || symbol.Symbol.Kind != SymbolKind.Method)
+            if (symbol.Symbol?.Kind != SymbolKind.Method)
                 return false;
 
-            var taskType = context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName);
+            var taskType = context.Compilation().GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
             return taskType.IsAssignableFrom(((IMethodSymbol)symbol.Symbol).ReturnType);
         }
     }

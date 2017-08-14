@@ -22,30 +22,26 @@ namespace Xunit.Analyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationContext =>
+            context.RequireTypes(Constants.Types.XunitAssert).RegisterSyntaxNodeAction(syntaxContext =>
             {
-                var assertType = compilationContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
-                if (assertType == null)
+                var invocation = (InvocationExpressionSyntax)syntaxContext.Node;
+
+                var symbolInfo = syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
+                if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
                     return;
 
-                compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
-                {
-                    var invocation = (InvocationExpressionSyntax)syntaxContext.Node;
+                var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
+                if (methodSymbol.MethodKind != MethodKind.Ordinary)
+                    return;
 
-                    var symbolInfo = syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
-                    if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
-                        return;
+                var assertType = syntaxContext.Compilation().GetAssertType();
+                if (methodSymbol.ContainingType != assertType ||
+                    !methodNames.Contains(methodSymbol.Name))
+                    return;
 
-                    var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-                    if (methodSymbol.MethodKind != MethodKind.Ordinary ||
-                        methodSymbol.ContainingType != assertType ||
-                        !methodNames.Contains(methodSymbol.Name))
-                        return;
+                Analyze(syntaxContext, invocation, methodSymbol);
 
-                    Analyze(syntaxContext, invocation, methodSymbol);
-
-                }, SyntaxKind.InvocationExpression);
-            });
+            }, SyntaxKind.InvocationExpression);
         }
 
         protected abstract void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method);

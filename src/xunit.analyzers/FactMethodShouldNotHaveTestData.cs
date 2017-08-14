@@ -13,27 +13,27 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
-            {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                var theoryType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-                var dataType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute);
-                if (factType == null || theoryType == null || dataType == null)
-                    return;
+            var typesContext = context.RequireTypes(
+                Constants.Types.XunitFactAttribute,
+                Constants.Types.XunitTheoryAttribute,
+                Constants.Types.XunitSdkDataAttribute);
 
-                compilationStartContext.RegisterSymbolAction(symbolContext =>
+            typesContext.RegisterSymbolAction(symbolContext =>
+            {
+                var factType = symbolContext.Compilation.GetFactAttributeType();
+                var theoryType = symbolContext.Compilation.GetTheoryAttributeType();
+                var dataType = symbolContext.Compilation.GetDataAttributeType();
+
+                var symbol = (IMethodSymbol)symbolContext.Symbol;
+                var attributes = symbol.GetAttributes();
+                if (attributes.Length > 1 &&
+                    attributes.ContainsAttributeType(factType, exactMatch: true) &&
+                    !attributes.ContainsAttributeType(theoryType) &&
+                    attributes.ContainsAttributeType(dataType))
                 {
-                    var symbol = (IMethodSymbol)symbolContext.Symbol;
-                    var attributes = symbol.GetAttributes();
-                    if (attributes.Length > 1 &&
-                        attributes.ContainsAttributeType(factType, exactMatch: true) &&
-                        !attributes.ContainsAttributeType(theoryType) &&
-                        attributes.ContainsAttributeType(dataType))
-                    {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData, symbol.Locations.First()));
-                    }
-                }, SymbolKind.Method);
-            });
+                    symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData, symbol.Locations.First()));
+                }
+            }, SymbolKind.Method);
         }
     }
 }
