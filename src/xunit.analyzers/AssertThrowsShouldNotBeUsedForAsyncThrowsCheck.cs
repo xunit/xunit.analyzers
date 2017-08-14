@@ -68,7 +68,7 @@ namespace Xunit.Analyzers
             if (symbol.Symbol == null || symbol.Symbol.Kind != SymbolKind.Method)
                 return false;
 
-            var taskType = context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName);
+            var taskType = context.Compilation().GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
             return taskType.IsAssignableFrom(((IMethodSymbol)symbol.Symbol).ReturnType);
         }
     }
