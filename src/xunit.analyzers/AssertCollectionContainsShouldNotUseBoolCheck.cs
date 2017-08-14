@@ -74,7 +74,7 @@ namespace Xunit.Analyzers
                 return false;
 
             var genericCollectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(genericCollectionCountSymbol);
-            return genericCollectionSymbolImplementation != null && genericCollectionSymbolImplementation.Equals(symbolInfo.Symbol);
+            return genericCollectionSymbolImplementation?.Equals(symbolInfo.Symbol) ?? false;
         }
     }
 }
