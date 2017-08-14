@@ -15,25 +15,19 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitTheoryAttribute).RegisterSyntaxNodeAction(syntaxContext =>
             {
-                var theoryType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-                if (theoryType == null)
+                var methodSyntax = (MethodDeclarationSyntax)syntaxContext.Node;
+                var methodSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
+
+                var theoryType = syntaxContext.Compilation().GetTheoryAttributeType();
+                var attributes = methodSymbol.GetAttributes();
+                if (!attributes.ContainsAttributeType(theoryType))
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
-                {
-                    var methodSyntax = (MethodDeclarationSyntax)syntaxNodeContext.Node;
-                    var methodSymbol = syntaxNodeContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
-
-                    var attributes = methodSymbol.GetAttributes();
-                    if (!attributes.ContainsAttributeType(theoryType))
-                        return;
-
-                    AnalyzeTheoryParameters(syntaxNodeContext, methodSyntax, methodSymbol);
-                },
-                SyntaxKind.MethodDeclaration);
-            });
+                AnalyzeTheoryParameters(syntaxContext, methodSyntax, methodSymbol);
+            },
+            SyntaxKind.MethodDeclaration);
         }
 
         private static void AnalyzeTheoryParameters(SyntaxNodeAnalysisContext context, MethodDeclarationSyntax methodSyntax, IMethodSymbol methodSymbol)

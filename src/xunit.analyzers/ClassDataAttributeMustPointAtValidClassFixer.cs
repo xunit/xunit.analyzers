@@ -66,7 +66,7 @@ namespace Xunit.Analyzers
                     }
                 }
 
-                var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+                var iEnumerableOfObjectArray = compilation.GetIEnumerableOfObjectArrayType();
                 if (!iEnumerableOfObjectArray.IsAssignableFrom(typeSymbol))
                 {
                     editor.AddInterfaceType(classDeclaration, generator.TypeExpression(iEnumerableOfObjectArray));

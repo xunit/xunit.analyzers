@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -13,35 +14,32 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitFactAttribute).RegisterSymbolAction(symbolContext =>
             {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                if (factType == null)
-                    return;
+                var factType = symbolContext.Compilation.GetFactAttributeType();
+                var symbol = (IMethodSymbol)symbolContext.Symbol;
 
-                compilationStartContext.RegisterSymbolAction(symbolContext =>
+                var attributeTypes = new HashSet<INamedTypeSymbol>();
+                var count = 0;
+
+                foreach (var attribute in symbol.GetAttributes())
                 {
-                    var symbol = (IMethodSymbol)symbolContext.Symbol;
-                    var attributeTypes = new HashSet<INamedTypeSymbol>();
-                    var count = 0;
-                    foreach (var attribute in symbol.GetAttributes())
+                    var attributeType = attribute.AttributeClass;
+                    if (factType.IsAssignableFrom(attributeType))
                     {
-                        var attributeType = attribute.AttributeClass;
-                        if (factType.IsAssignableFrom(attributeType))
-                        {
-                            attributeTypes.Add(attributeType);
-                            count++;
-                        }
+                        attributeTypes.Add(attributeType);
+                        count++;
                     }
-                    if (count > 1)
-                    {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
-                            symbol.Locations.First(),
-                            properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)));
-                    }
-                }, SymbolKind.Method);
-            });
+                }
+
+                if (count > 1)
+                {
+                    symbolContext.ReportDiagnostic(Diagnostic.Create(
+                        Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
+                        symbol.Locations.First(),
+                        properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)));
+                }
+            }, SymbolKind.Method);
         }
     }
 }

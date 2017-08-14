@@ -101,9 +101,9 @@ namespace Xunit.Analyzers
 
             public CompilationTypes(Compilation compilation)
             {
-                Theory = TypeSymbolFactory.GetTheoryType(compilation);
-                InlineData = TypeSymbolFactory.GetInlineDataType(compilation);
-                ObjectArray = TypeSymbolFactory.GetObjectArrayType(compilation);
+                Theory = compilation.GetTheoryAttributeType();
+                InlineData = compilation.GetInlineDataAttributeType();
+                ObjectArray = compilation.GetObjectArrayType();
             }
 
             public bool IsCompilationCapableOfBeingProcessedByThisAnalyzer => Theory != null && InlineData != null;

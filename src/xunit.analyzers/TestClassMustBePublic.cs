@@ -15,28 +15,22 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitFactAttribute).RegisterSyntaxNodeAction(syntaxContext =>
             {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                if (factType == null)
+                var classDeclaration = syntaxContext.Node as ClassDeclarationSyntax;
+                if (classDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+                var factType = syntaxContext.Compilation().GetFactAttributeType();
+                var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
+                if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxContext.SemanticModel, factType)))
                 {
-                    var classDeclaration = syntaxNodeContext.Node as ClassDeclarationSyntax;
-                    if (classDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
-                        return;
-
-                    var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
-                    if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType)))
-                    {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1000_TestClassMustBePublic,
-                            classDeclaration.Identifier.GetLocation(),
-                            classDeclaration.Identifier.ValueText));
-                    }
-                }, SyntaxKind.ClassDeclaration);
-            });
+                    syntaxContext.ReportDiagnostic(Diagnostic.Create(
+                        Descriptors.X1000_TestClassMustBePublic,
+                        classDeclaration.Identifier.GetLocation(),
+                        classDeclaration.Identifier.ValueText));
+                }
+            }, SyntaxKind.ClassDeclaration);
         }
     }
 }

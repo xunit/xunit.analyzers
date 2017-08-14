@@ -12,9 +12,9 @@ namespace Xunit.Analyzers.Utilities
 
         public int Compare(ITypeSymbol x, ITypeSymbol y)
         {
-            if (x == null || x.TypeKind != TypeKind.Class)
+            if (x?.TypeKind != TypeKind.Class)
                 throw new ArgumentException("The argument must be a class", nameof(x));
-            if (y == null || x.TypeKind != TypeKind.Class)
+            if (y?.TypeKind != TypeKind.Class)
                 throw new ArgumentException("The argument must be a class", nameof(y));
 
             if (x.Equals(y)) return 0;

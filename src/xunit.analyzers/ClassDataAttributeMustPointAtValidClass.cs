@@ -22,12 +22,12 @@ namespace Xunit.Analyzers
                 if (classDataType == null)
                     return;
 
-                var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+                var iEnumerableOfObjectArray = compilation.GetIEnumerableOfObjectArrayType();
 
-                compilationContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+                compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
                 {
-                    var attribute = syntaxNodeContext.Node as AttributeSyntax;
-                    var semanticModel = syntaxNodeContext.SemanticModel;
+                    var attribute = syntaxContext.Node as AttributeSyntax;
+                    var semanticModel = syntaxContext.SemanticModel;
                     if (semanticModel.GetTypeInfo(attribute).Type != classDataType)
                         return;
 
@@ -45,7 +45,7 @@ namespace Xunit.Analyzers
 
                     if (missingInterface || isAbstract || noValidConstructor)
                     {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
+                        syntaxContext.ReportDiagnostic(Diagnostic.Create(
                             Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
                             argumentExpression.Type.GetLocation(),
                             classType.Name));

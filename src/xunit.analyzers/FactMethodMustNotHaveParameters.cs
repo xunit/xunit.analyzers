@@ -14,27 +14,21 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            context.RequireTypes(Constants.Types.XunitFactAttribute).RegisterSyntaxNodeAction(syntaxContext =>
             {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                if (factType == null)
+                var methodDeclaration = syntaxContext.Node as MethodDeclarationSyntax;
+                if (methodDeclaration.ParameterList.Parameters.Count == 0)
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+                var factType = syntaxContext.Compilation().GetFactAttributeType();
+                if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxContext.SemanticModel, factType, exactMatch: true))
                 {
-                    var methodDeclaration = syntaxNodeContext.Node as MethodDeclarationSyntax;
-                    if (methodDeclaration.ParameterList.Parameters.Count == 0)
-                        return;
-
-                    if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType, exactMatch: true))
-                    {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1001_FactMethodMustNotHaveParameters,
-                            methodDeclaration.Identifier.GetLocation(),
-                            methodDeclaration.Identifier.ValueText));
-                    }
-                }, SyntaxKind.MethodDeclaration);
-            });
+                    syntaxContext.ReportDiagnostic(Diagnostic.Create(
+                        Descriptors.X1001_FactMethodMustNotHaveParameters,
+                        methodDeclaration.Identifier.GetLocation(),
+                        methodDeclaration.Identifier.ValueText));
+                }
+            }, SyntaxKind.MethodDeclaration);
         }
     }
 }
