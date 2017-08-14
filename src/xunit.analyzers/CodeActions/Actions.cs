@@ -32,8 +32,8 @@ namespace Xunit.Analyzers.CodeActions
                 var newMods = DeclarationModifiers.From(memberSymbol).WithIsStatic(isStatic);
                 if (memberSymbol is IPropertySymbol propertySymbol && propertySymbol.IsReadOnly)
                 {
-                    // Looks like there's a bug in Roslym where SetModifiers will apply the 'readonly'
-                    // keyword to a property that only has a getter, which produces illegal syntax.
+                    // Looks like there's a bug in Roslyn where SetModifiers applies the 'readonly'
+                    // keyword to a get-only property, producing illegal syntax.
                     newMods = newMods.WithIsReadOnly(false);
                 }
                 docEditor.SetModifiers(syntaxNode, newMods);

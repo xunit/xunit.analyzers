@@ -62,7 +62,7 @@ namespace Xunit.Analyzers
                     if (!(ctor.IsImplicitlyDeclared && typeSymbol.IsAbstract))
                     {
                         var ctorSyntaxRef = ctor.DeclaringSyntaxReferences.FirstOrDefault();
-                        editor.SetAccessibility(await ctorSyntaxRef.GetSyntaxAsync(ct), Accessibility.Public);
+                        editor.SetAccessibility(await ctorSyntaxRef.GetSyntaxAsync(ct).ConfigureAwait(false), Accessibility.Public);
                     }
                 }
 
@@ -72,7 +72,7 @@ namespace Xunit.Analyzers
                     editor.AddInterfaceType(classDeclaration, generator.TypeExpression(iEnumerableOfObjectArray));
                 }
 
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
             return symbolEditor.ChangedSolution;
         }
     }
