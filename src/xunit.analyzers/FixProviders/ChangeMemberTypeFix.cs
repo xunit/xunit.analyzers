@@ -19,7 +19,7 @@ namespace Xunit.Analyzers.FixProviders
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context, ISymbol member)
         {
-            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
             var type = TypeSymbolFactory.IEnumerableOfObjectArray(semanticModel.Compilation);
 
             context.RegisterCodeFix(

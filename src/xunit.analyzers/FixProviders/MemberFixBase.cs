@@ -34,7 +34,7 @@ namespace Xunit.Analyzers.FixProviders
             if (member.Locations.FirstOrDefault()?.IsInMetadata ?? true)
                 return;
 
-            await RegisterCodeFixesAsync(context, member);
+            await RegisterCodeFixesAsync(context, member).ConfigureAwait(false);
         }
 
         public abstract Task RegisterCodeFixesAsync(CodeFixContext context, ISymbol member);

@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
             var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
 
             var modifiers = GetModifiersWithAsyncKeywordAdded(method);
-            var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
+            var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken).ConfigureAwait(false);
             var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacementMethod, memberAccess);
 
             editor.ReplaceNode(method,
