@@ -49,7 +49,9 @@ namespace Xunit.Analyzers
             {
                 editor.ReplaceNode(invocation,
                     invocation
-                        .WithArgumentList(regexIsMatchInvocation.ArgumentList)
+                        .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
+                            regexIsMatchInvocation.ArgumentList.Arguments.Reverse()
+                        )))
                         .WithExpression(memberAccess.WithName(SyntaxFactory.IdentifierName(replacementMethod))));
             }
             else
