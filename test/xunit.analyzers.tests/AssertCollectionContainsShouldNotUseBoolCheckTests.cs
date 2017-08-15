@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -20,6 +21,16 @@ namespace Xunit.Analyzers
             "System.Linq.Enumerable.Empty<int>()"
         };
 
+        private static void CheckDiagnostics(IEnumerable<Diagnostic> diagnostics)
+        {
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
+                Assert.Equal("xUnit2017", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
+        }
+
         [Theory]
         [MemberData(nameof(Collections))]
         public async void FindsWarningForTrueCollectionContainsCheck(string collection)
@@ -29,12 +40,7 @@ namespace Xunit.Analyzers
     Xunit.Assert.True(" + collection + @".Contains(1));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -46,12 +52,7 @@ namespace Xunit.Analyzers
     Xunit.Assert.False(" + collection + @".Contains(1));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -64,12 +65,7 @@ class TestClass { void TestMethod() {
     Xunit.Assert.True(" + enumerable + @".Contains(1));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -82,12 +78,7 @@ class TestClass { void TestMethod() {
     Xunit.Assert.True(" + enumerable + @".Contains(1, System.Collections.Generic.EqualityComparer<int>.Default));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -100,12 +91,7 @@ class TestClass { void TestMethod() {
     Xunit.Assert.False(" + enumerable + @".Contains(1));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -118,12 +104,7 @@ class TestClass { void TestMethod() {
     Xunit.Assert.False(" + enumerable + @".Contains(1, System.Collections.Generic.EqualityComparer<int>.Default));
 } }");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Contains() to check if a value exists in a collection.", d.GetMessage());
-                Assert.Equal("xUnit2017", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -171,6 +152,31 @@ class TestClass { void TestMethod() {
                 @"using System.Linq;
 class TestClass { void TestMethod() { 
     Xunit.Assert.False(" + enumerable + @".Contains(1), ""Custom message"");
+} }");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
+        public async void DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_ZeroParameters()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"using System.Collections.Generic;
+class IntList : List<int> { }
+class TestClass { void TestMethod() {
+    Xunit.Assert.False(new IntList().Contains(1));
+} }");
+
+            CheckDiagnostics(diagnostics);
+        }
+
+        [Fact]
+        public async void DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_TwoParameters()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"using System.Collections.Generic;
+class TestClass { void TestMethod() {
+    Xunit.Assert.False(new Dictionary<int, int>().ContainsKey(1));
 } }");
 
             Assert.Empty(diagnostics);

@@ -42,7 +42,7 @@ namespace Xunit.Analyzers
                 return;
 
             var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-            if (!IsLinqContainsMethod(methodSymbol) && !IsCollectionContainsMethod(context, symbolInfo))
+            if (!IsLinqContainsMethod(methodSymbol) && !IsICollectionContainsMethod(context, symbolInfo))
                 return;
 
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -59,22 +59,29 @@ namespace Xunit.Analyzers
             return methodSymbol.ReducedFrom != null && LinqContainsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol.ReducedFrom));
         }
 
-        private static bool IsCollectionContainsMethod(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+        private static bool IsICollectionContainsMethod(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
         {
-            if (symbolInfo.Symbol.ContainingType.TypeArguments.IsEmpty)
+            var methodSymbol = symbolInfo.Symbol;
+            var containingType = methodSymbol.ContainingType;
+            var genericCollectionType = GetICollectionType(containingType, context.SemanticModel.Compilation);
+            if (genericCollectionType == null)
                 return false;
 
-            var genericCollectionCountSymbol = context.SemanticModel.Compilation
-                .GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T)
-                .Construct(symbolInfo.Symbol.ContainingType.TypeArguments.ToArray())
+            var genericCollectionContainsSymbol = genericCollectionType
                 .GetMembers(nameof(ICollection<int>.Contains))
                 .FirstOrDefault();
 
-            if (genericCollectionCountSymbol == null)
+            if (genericCollectionContainsSymbol == null)
                 return false;
 
-            var genericCollectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(genericCollectionCountSymbol);
-            return genericCollectionSymbolImplementation != null && genericCollectionSymbolImplementation.Equals(symbolInfo.Symbol);
+            var genericCollectionSymbolImplementation = containingType.FindImplementationForInterfaceMember(genericCollectionContainsSymbol);
+            return genericCollectionSymbolImplementation?.Equals(symbolInfo.Symbol) ?? false;
+        }
+
+        private static INamedTypeSymbol GetICollectionType(INamedTypeSymbol implementingType, Compilation compilation)
+        {
+            var openCollectionType = compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T);
+            return implementingType.AllInterfaces.FirstOrDefault(i => i.OriginalDefinition == openCollectionType);
         }
     }
 }
