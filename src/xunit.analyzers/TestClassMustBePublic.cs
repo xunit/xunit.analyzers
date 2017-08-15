@@ -15,6 +15,8 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
                 var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);

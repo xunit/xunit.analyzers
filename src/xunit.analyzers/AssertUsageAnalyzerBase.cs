@@ -22,6 +22,8 @@ namespace Xunit.Analyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterCompilationStartAction(compilationContext =>
             {
                 var assertType = compilationContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);

@@ -63,7 +63,7 @@ namespace Xunit.Analyzers
         {
             var methodSymbol = symbolInfo.Symbol;
             var containingType = methodSymbol.ContainingType;
-            var genericCollectionType = GetICollectionType(containingType, context.SemanticModel.Compilation);
+            var genericCollectionType = GetICollectionType(containingType, context.Compilation);
             if (genericCollectionType == null)
                 return false;
 
