@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
         }
 
         [Fact]
-        public async void FindsError_ParameterNotReferenced()
+        public async void FindsWarning_ParameterNotReferenced()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
 using Xunit;
@@ -43,7 +43,7 @@ class TestClass
         }
 
         [Fact]
-        public async void FindsError_ParameterUnread()
+        public async void FindsWarning_ParameterUnread()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
 using System;
@@ -64,7 +64,7 @@ class TestClass
         }
 
         [Fact]
-        public async void FindsError_MultipleUnreadParameters()
+        public async void FindsWarning_MultipleUnreadParameters()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
 using Xunit;
@@ -82,7 +82,7 @@ class TestClass
         }
 
         [Fact]
-        public async void FindsError_SomeUnreadParameters()
+        public async void FindsWarning_SomeUnreadParameters()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
 using System;
@@ -104,7 +104,23 @@ class TestClass
         }
 
         [Fact]
-        public async void DoesNotFindError_ParameterRead()
+        public async void FindsWarning_ExpressionBodiedMethod()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+using Xunit;
+
+class TestClass
+{
+    [Theory]
+    void TestMethod(int unused) => Assert.Equal(5, 2 + 2);
+}");
+
+            CheckDiagnostics(diagnostics,
+                (method: "TestMethod", type: "TestClass", parameter: "unused"));
+        }
+
+        [Fact]
+        public async void DoesNotFindWarning_ParameterRead()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
 using System;
@@ -113,11 +129,28 @@ using Xunit;
 class TestClass
 {
     [Theory]
-    void TestMethod(int unused)
+    void TestMethod(int used)
     {
-        Console.WriteLine(unused);
+        Console.WriteLine(used);
     }
 }");
+
+            CheckDiagnostics(diagnostics);
+        }
+
+        [Fact]
+        public async void DoesNotFindWarning_ExpressionBodiedMethod()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+using Xunit;
+
+class TestClass
+{
+    [Theory]
+    void TestMethod(int used) => Assert.Equal(used, 2 + 2);
+}");
+
+            CheckDiagnostics(diagnostics);
         }
     }
 }
