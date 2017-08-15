@@ -73,7 +73,7 @@ namespace Xunit.Analyzers
 
         private static bool IsCollectionCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
         {
-            var collectionCountSymbol = context.SemanticModel.Compilation
+            var collectionCountSymbol = context.Compilation
                 .GetTypeByMetadataName(typeof(ICollection).FullName)
                 .GetMembers(nameof(ICollection.Count))
                 .Single();
@@ -87,14 +87,14 @@ namespace Xunit.Analyzers
             if (symbolInfo.Symbol.ContainingType.TypeArguments.IsEmpty)
                 return false;
 
-            var genericCollectionCountSymbol = context.SemanticModel.Compilation
+            var genericCollectionCountSymbol = context.Compilation
                 .GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T)
                 .Construct(symbolInfo.Symbol.ContainingType.TypeArguments.ToArray())
                 .GetMembers(nameof(ICollection<int>.Count))
                 .Single();
 
             var genericCollectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(genericCollectionCountSymbol);
-            return genericCollectionSymbolImplementation != null && genericCollectionSymbolImplementation.Equals(symbolInfo.Symbol);
+            return genericCollectionSymbolImplementation?.Equals(symbolInfo.Symbol) ?? false;
         }
     }
 }

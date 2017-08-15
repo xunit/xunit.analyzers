@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -13,6 +14,8 @@ namespace Xunit.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
                 var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
@@ -33,6 +36,7 @@ namespace Xunit.Analyzers
                             count++;
                         }
                     }
+
                     if (count > 1)
                     {
                         symbolContext.ReportDiagnostic(Diagnostic.Create(
