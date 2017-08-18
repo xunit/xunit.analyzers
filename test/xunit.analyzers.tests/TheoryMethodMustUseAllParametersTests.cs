@@ -152,5 +152,20 @@ class TestClass
 
             CheckDiagnostics(diagnostics);
         }
+
+        [Fact]
+        public async void DoesNotCrash_MethodWithoutBody()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+using Xunit;
+
+class TestClass
+{
+    [Theory]
+    extern void TestMethod(int foo);
+}");
+
+            CheckDiagnostics(diagnostics);
+        }
     }
 }
