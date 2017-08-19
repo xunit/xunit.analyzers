@@ -40,7 +40,11 @@ namespace Xunit.Analyzers
 
         private static void AnalyzeTheoryParameters(SyntaxNodeAnalysisContext context, MethodDeclarationSyntax methodSyntax, IMethodSymbol methodSymbol)
         {
-            var flowAnalysis = context.SemanticModel.AnalyzeDataFlow(methodSyntax.Body);
+            var methodBody = (SyntaxNode)methodSyntax.Body ?? methodSyntax.ExpressionBody?.Expression;
+            if (methodBody == null)
+                return;
+
+            var flowAnalysis = context.SemanticModel.AnalyzeDataFlow(methodBody);
             var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside);
 
             for (var i = 0; i < methodSymbol.Parameters.Length; i++)
