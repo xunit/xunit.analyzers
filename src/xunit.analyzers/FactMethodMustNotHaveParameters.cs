@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -6,37 +7,29 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
+
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class FactMethodMustNotHaveParameters : DiagnosticAnalyzer
+    public class FactMethodMustNotHaveParameters : XunitDiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters);
 
-        public override void Initialize(AnalysisContext context)
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var factType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-                if (factType == null)
+                var methodDeclaration = syntaxNodeContext.Node as MethodDeclarationSyntax;
+                if (methodDeclaration.ParameterList.Parameters.Count == 0)
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+                if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.FactAttributeType, exactMatch: true))
                 {
-                    var methodDeclaration = syntaxNodeContext.Node as MethodDeclarationSyntax;
-                    if (methodDeclaration.ParameterList.Parameters.Count == 0)
-                        return;
-
-                    if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, factType, exactMatch: true))
-                    {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1001_FactMethodMustNotHaveParameters,
-                            methodDeclaration.Identifier.GetLocation(),
-                            methodDeclaration.Identifier.ValueText));
-                    }
-                }, SyntaxKind.MethodDeclaration);
-            });
+                    syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
+                        Descriptors.X1001_FactMethodMustNotHaveParameters,
+                        methodDeclaration.Identifier.GetLocation(),
+                        methodDeclaration.Identifier.ValueText));
+                }
+            }, SyntaxKind.MethodDeclaration);
         }
     }
 }

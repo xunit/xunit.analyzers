@@ -6,33 +6,23 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TheoryMethodMustHaveTestData : DiagnosticAnalyzer
+    public class TheoryMethodMustHaveTestData : XunitDiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1003_TheoryMethodMustHaveTestData);
 
-        public override void Initialize(AnalysisContext context)
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            compilationStartContext.RegisterSymbolAction(symbolContext =>
             {
-                var theoryType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-                var dataType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute);
-                if (theoryType == null || dataType == null)
-                    return;
-
-                compilationStartContext.RegisterSymbolAction(symbolContext =>
+                var symbol = (IMethodSymbol)symbolContext.Symbol;
+                var attributes = symbol.GetAttributes();
+                if (attributes.ContainsAttributeType(xunitContext.TheoryAttributeType) &&
+                    (attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.DataAttributeType)))
                 {
-                    var symbol = (IMethodSymbol)symbolContext.Symbol;
-                    var attributes = symbol.GetAttributes();
-                    if (attributes.ContainsAttributeType(theoryType) &&
-                        (attributes.Length == 1 || !attributes.ContainsAttributeType(dataType)))
-                    {
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1003_TheoryMethodMustHaveTestData, symbol.Locations.First()));
-                    }
-                }, SymbolKind.Method);
-            });
+                    symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1003_TheoryMethodMustHaveTestData, symbol.Locations.First()));
+                }
+            }, SymbolKind.Method);
         }
     }
 }

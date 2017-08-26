@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,38 +8,30 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class InlineDataShouldBeUniqueWithinTheory : DiagnosticAnalyzer
+    public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory);
 
-        public override void Initialize(AnalysisContext context)
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationStartContext =>
-            {
-                var compilationTypes = new CompilationTypes(compilationStartContext.Compilation);
-
-                if (!compilationTypes.IsCompilationCapableOfBeingProcessedByThisAnalyzer)
-                    return;
-
-                compilationStartContext.RegisterSymbolAction(
-                    symbolContext => AnalyzeMethod(symbolContext, compilationTypes), SymbolKind.Method);
-            });
+            compilationStartContext.RegisterSymbolAction(
+                symbolContext => AnalyzeMethod(symbolContext, xunitContext), SymbolKind.Method);
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context, CompilationTypes compilationTypes)
+        private static void AnalyzeMethod(SymbolAnalysisContext context, XunitContext xunitContext)
         {
             var method = (IMethodSymbol)context.Symbol;
 
             var methodAllAttributes = method.GetAttributes();
-            if (!methodAllAttributes.ContainsAttributeType(compilationTypes.Theory))
+            if (!methodAllAttributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
                 return;
 
+            var objectArrayType = TypeSymbolFactory.GetObjectArrayType(context.Compilation);
+
             var wellFormedInlineDataAttributes = methodAllAttributes
-                .Where(a => a.AttributeClass == compilationTypes.InlineData
-                            && HasAttributeDeclarationNoCompilationErrors(a, compilationTypes));
+                .Where(a => a.AttributeClass == xunitContext.InlineDataAttributeType
+                            && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
             AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);
         }
@@ -86,29 +77,10 @@ namespace Xunit.Analyzers
         }
 
         private static bool HasAttributeDeclarationNoCompilationErrors(AttributeData attribute,
-            CompilationTypes compilationTypes)
+            IArrayTypeSymbol objectArrayType)
         {
             return attribute.ConstructorArguments.Length == 1 &&
-                   compilationTypes.ObjectArray.Equals(attribute.ConstructorArguments.FirstOrDefault().Type);
-        }
-
-        /// <summary>
-        /// Types used by this analyzer
-        /// </summary>
-        private struct CompilationTypes
-        {
-            public INamedTypeSymbol Theory { get; }
-            public INamedTypeSymbol InlineData { get; }
-            public IArrayTypeSymbol ObjectArray { get; }
-
-            public CompilationTypes(Compilation compilation)
-            {
-                Theory = TypeSymbolFactory.GetTheoryType(compilation);
-                InlineData = TypeSymbolFactory.GetInlineDataType(compilation);
-                ObjectArray = TypeSymbolFactory.GetObjectArrayType(compilation);
-            }
-
-            public bool IsCompilationCapableOfBeingProcessedByThisAnalyzer => Theory != null && InlineData != null;
+                   objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type);
         }
 
         private class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>

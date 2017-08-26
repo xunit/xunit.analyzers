@@ -8,34 +8,25 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TheoryMethodMustUseAllParameters : DiagnosticAnalyzer
+    public class TheoryMethodMustUseAllParameters : XunitDiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1026_TheoryMethodMustUseAllParameters);
 
-        public override void Initialize(AnalysisContext context)
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationStartContext =>
+            compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var theoryType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-                if (theoryType == null)
+                var methodSyntax = (MethodDeclarationSyntax)syntaxNodeContext.Node;
+                var methodSymbol = syntaxNodeContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
+
+                var attributes = methodSymbol.GetAttributes();
+                if (!attributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
                     return;
 
-                compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
-                {
-                    var methodSyntax = (MethodDeclarationSyntax)syntaxNodeContext.Node;
-                    var methodSymbol = syntaxNodeContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
-
-                    var attributes = methodSymbol.GetAttributes();
-                    if (!attributes.ContainsAttributeType(theoryType))
-                        return;
-
-                    AnalyzeTheoryParameters(syntaxNodeContext, methodSyntax, methodSymbol);
-                },
-                SyntaxKind.MethodDeclaration);
-            });
+                AnalyzeTheoryParameters(syntaxNodeContext, methodSyntax, methodSymbol);
+            },
+            SyntaxKind.MethodDeclaration);
         }
 
         private static void AnalyzeTheoryParameters(SyntaxNodeAnalysisContext context, MethodDeclarationSyntax methodSyntax, IMethodSymbol methodSymbol)
