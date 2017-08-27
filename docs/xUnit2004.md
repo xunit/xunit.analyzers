@@ -50,13 +50,17 @@ Assert.False(2 + 2 == 5);
 
 ### For `Equal` and `StrictEqual`
 
-- `Assert.{Strict}Equal(true, b)` => `Assert.True(b)`
-- `Assert.{Strict}Equal(false, b)` => `Assert.False(b)`
+- `Assert.Equal(true, b)` => `Assert.True(b)`
+- `Assert.StrictEqual(true, b)` => `Assert.True(b)`
+- `Assert.Equal(false, b)` => `Assert.False(b)`
+- `Assert.StrictEqual(false, b)` => `Assert.False(b)`
 
 ### For `NotEqual` and `NotStrictEqual`
 
-- `Assert.Not{Strict}Equal(true, b)` => `Assert.False(b)`
-- `Assert.Not{Strict}Equal(false, b)` => `Assert.True(b)`
+- `Assert.NotEqual(true, b)` => `Assert.False(b)`
+- `Assert.NotStrictEqual(true, b)` => `Assert.False(b)`
+- `Assert.NotEqual(false, b)` => `Assert.True(b)`
+- `Assert.NotStrictEqual(false, b)` => `Assert.True(b)`
 
 ## How to suppress violations
 
