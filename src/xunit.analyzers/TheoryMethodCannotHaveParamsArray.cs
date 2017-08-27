@@ -8,8 +8,6 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class TheoryMethodCannotHaveParamsArray : XunitDiagnosticAnalyzer
     {
-        readonly XunitCapabilitiesFactory capabilitiesFactory;
-
         public TheoryMethodCannotHaveParamsArray() : base() { }
 
         // For testing
