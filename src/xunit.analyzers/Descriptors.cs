@@ -8,7 +8,8 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X1000_TestClassMustBePublic { get; } = new DiagnosticDescriptor("xUnit1000",
             "Test classes must be public",
             "Test classes must be public",
-            Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true);
+            Categories.Usage, DiagnosticSeverity.Error, isEnabledByDefault: true,
+            helpLinkUri: "https://xunit.github.io/xunit.analyzers/xUnit1000");
 
         internal static DiagnosticDescriptor X1001_FactMethodMustNotHaveParameters { get; } = new DiagnosticDescriptor("xUnit1001",
             "Fact methods cannot have parameters",
@@ -174,7 +175,8 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X2001_AssertEqualsShouldNotBeUsed { get; } = new DiagnosticDescriptor("xUnit2001",
             "Do not use invalid equality check",
             "Do not use {0}.",
-            Categories.Assertions, DiagnosticSeverity.Hidden, isEnabledByDefault: true);
+            Categories.Assertions, DiagnosticSeverity.Hidden, isEnabledByDefault: true,
+            helpLinkUri: "https://xunit.github.io/xunit.analyzers/xUnit2001");
 
         internal static DiagnosticDescriptor X2002_AssertNullShouldNotBeCalledOnValueTypes { get; } = new DiagnosticDescriptor("xUnit2002",
             "Do not use null check on value type",
@@ -189,7 +191,8 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X2004_AssertEqualShouldNotUsedForBoolLiteralCheck { get; } = new DiagnosticDescriptor("xUnit2004",
             "Do not use equality check to test for boolean conditions",
             "Do not use {0} to check for boolean conditions.",
-            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+            Categories.Assertions, DiagnosticSeverity.Warning, isEnabledByDefault: true,
+            helpLinkUri: "https://xunit.github.io/xunit.analyzers/xUnit2004");
 
         internal static DiagnosticDescriptor X2005_AssertSameShouldNotBeCalledOnValueTypes { get; } = new DiagnosticDescriptor("xUnit2005",
             "Do not use identity check on value type",
