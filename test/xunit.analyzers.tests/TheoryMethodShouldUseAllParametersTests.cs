@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
-    public class TheoryMethodMustUseAllParametersTests
+    public class TheoryMethodShouldUseAllParametersTests
     {
-        private static DiagnosticAnalyzer Analyzer { get; } = new TheoryMethodMustUseAllParameters();
+        private static DiagnosticAnalyzer Analyzer { get; } = new TheoryMethodShouldUseAllParameters();
 
         private static void CheckDiagnostics(IEnumerable<Diagnostic> diagnostics, params (string method, string type, string parameter)[] messageArgs)
         {

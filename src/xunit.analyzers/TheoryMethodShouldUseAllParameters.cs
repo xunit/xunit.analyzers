@@ -8,10 +8,10 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TheoryMethodMustUseAllParameters : XunitDiagnosticAnalyzer
+    public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-           ImmutableArray.Create(Descriptors.X1026_TheoryMethodMustUseAllParameters);
+           ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
 
         internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
@@ -52,7 +52,7 @@ namespace Xunit.Analyzers
                     var parameterSyntax = methodSyntax.ParameterList.Parameters[i];
 
                     context.ReportDiagnostic(Diagnostic.Create(
-                        Descriptors.X1026_TheoryMethodMustUseAllParameters,
+                        Descriptors.X1026_TheoryMethodShouldUseAllParameters,
                         parameterSyntax.Identifier.GetLocation(),
                         methodSymbol.Name,
                         methodSymbol.ContainingType.Name,

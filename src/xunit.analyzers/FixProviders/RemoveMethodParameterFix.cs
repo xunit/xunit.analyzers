@@ -17,7 +17,7 @@ namespace Xunit.Analyzers.FixProviders
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
             Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id,
-            Descriptors.X1026_TheoryMethodMustUseAllParameters.Id);
+            Descriptors.X1026_TheoryMethodShouldUseAllParameters.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
