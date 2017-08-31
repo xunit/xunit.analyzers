@@ -18,6 +18,9 @@ namespace Xunit.Analyzers
             compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
                 var methodSyntax = (MethodDeclarationSyntax)syntaxNodeContext.Node;
+                if (methodSyntax.ParameterList.Parameters.Count == 0)
+                    return;
+
                 var methodSymbol = syntaxNodeContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
 
                 var attributes = methodSymbol.GetAttributes();
@@ -36,6 +39,9 @@ namespace Xunit.Analyzers
                 return;
 
             var flowAnalysis = context.SemanticModel.AnalyzeDataFlow(methodBody);
+            if (!flowAnalysis.Succeeded)
+                return;
+
             var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside);
 
             for (var i = 0; i < methodSymbol.Parameters.Length; i++)
