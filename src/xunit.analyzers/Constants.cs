@@ -2,13 +2,6 @@
 {
     internal static class Constants
     {
-        internal static class Categories
-        {
-            internal static string Usage { get; } = "Usage";
-            internal static string Assertions { get; } = "Assertions";
-            internal static string Extensibility { get; } = "Extensibility";
-        }
-
         internal static class Types
         {
             internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
