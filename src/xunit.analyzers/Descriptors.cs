@@ -153,7 +153,10 @@ namespace Xunit.Analyzers
             "Theory method '{0}' on test class '{1}' does not use parameter '{2}'.",
             Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
-        // Placeholder for rule X1027
+        internal static DiagnosticDescriptor X1027_TestMethodShouldNotHaveReturnType { get; } = new DiagnosticDescriptor("xUnit1027",
+            "Test methods should not have a return type",
+            "Test method '{0}' on test class '{1}' should not have a return type.",
+            Categories.Usage, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         // Placeholder for rule X1028
 
