@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
 
-        protected override bool ShouldAnalzye(XunitContext xunitContext)
+        protected override bool ShouldAnalyze(XunitContext xunitContext)
         {
             return !xunitContext.Capabilities.TheorySupportsDefaultParameterValues;
         }

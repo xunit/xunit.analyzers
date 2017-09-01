@@ -42,12 +42,12 @@ namespace Xunit.Analyzers
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
                 var xunitContext = new XunitContext(compilationStartContext.Compilation, capabilitiesFactory);
-                if (xunitContext.FactAttributeType != null && ShouldAnalzye(xunitContext))
+                if (xunitContext.FactAttributeType != null && ShouldAnalyze(xunitContext))
                     AnalyzeCompilation(compilationStartContext, xunitContext);
             });
         }
 
-        protected virtual bool ShouldAnalzye(XunitContext xunitContext) => true;
+        protected virtual bool ShouldAnalyze(XunitContext xunitContext) => true;
 
         internal abstract void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext);
     }

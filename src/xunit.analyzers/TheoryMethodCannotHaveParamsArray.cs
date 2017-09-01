@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
 
-        protected override bool ShouldAnalzye(XunitContext xunitContext)
+        protected override bool ShouldAnalyze(XunitContext xunitContext)
         {
             return !xunitContext.Capabilities.TheorySupportsParameterArrays;
         }
