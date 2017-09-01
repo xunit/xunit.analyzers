@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -51,8 +49,9 @@ namespace Xunit.Analyzers
             var symbolInfo = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken);
 
             if (!IsWellKnownSizeMethod(symbolInfo) &&
-                !IsCollectionCountProperty(context, symbolInfo) &&
-                !IsGenericCountProperty(context, symbolInfo))
+                !IsICollectionCountProperty(context, symbolInfo) &&
+                !IsICollectionOfTCountProperty(context, symbolInfo) &&
+                !IsIReadOnlyCollectionOfTCountProperty(context, symbolInfo))
                 return;
 
             var builder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -68,33 +67,44 @@ namespace Xunit.Analyzers
 
         private static bool IsWellKnownSizeMethod(SymbolInfo symbolInfo)
         {
-            return SizeMethods.Contains(SymbolDisplay.ToDisplayString(symbolInfo.Symbol.OriginalDefinition));
+            return SizeMethods.Contains(symbolInfo.Symbol.OriginalDefinition.ToDisplayString());
         }
 
-        private static bool IsCollectionCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+        private static bool IsICollectionCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
         {
-            var collectionCountSymbol = context.Compilation
-                .GetTypeByMetadataName(typeof(ICollection).FullName)
-                .GetMembers(nameof(ICollection.Count))
-                .Single();
-
-            var collectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(collectionCountSymbol);
-            return collectionSymbolImplementation != null && collectionSymbolImplementation.Equals(symbolInfo.Symbol);
+            return IsCountPropertyOf(
+                context.Compilation.GetTypeByMetadataName(Constants.Types.SystemCollectionsICollection),
+                symbolInfo);
         }
 
-        private static bool IsGenericCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+        private static bool IsICollectionOfTCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
         {
-            if (symbolInfo.Symbol.ContainingType.TypeArguments.IsEmpty)
-                return false;
+            return IsCountPropertyOfGenericType(
+                context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T),
+                symbolInfo);
+        }
 
-            var genericCollectionCountSymbol = context.Compilation
-                .GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T)
-                .Construct(symbolInfo.Symbol.ContainingType.TypeArguments.ToArray())
-                .GetMembers(nameof(ICollection<int>.Count))
-                .Single();
+        private static bool IsIReadOnlyCollectionOfTCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+        {
+            return IsCountPropertyOfGenericType(
+                context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T),
+                symbolInfo);
+        }
 
-            var genericCollectionSymbolImplementation = symbolInfo.Symbol.ContainingType.FindImplementationForInterfaceMember(genericCollectionCountSymbol);
-            return genericCollectionSymbolImplementation?.Equals(symbolInfo.Symbol) ?? false;
+        private static bool IsCountPropertyOfGenericType(INamedTypeSymbol openCollectionType, SymbolInfo symbolInfo)
+        {
+            var containingType = symbolInfo.Symbol.ContainingType;
+            var concreteCollectionType = containingType.GetGenericInterfaceImplementation(openCollectionType);
+            return concreteCollectionType != null && IsCountPropertyOf(concreteCollectionType, symbolInfo);
+        }
+
+        private static bool IsCountPropertyOf(INamedTypeSymbol collectionType, SymbolInfo symbolInfo)
+        {
+            var memberSymbol = symbolInfo.Symbol;
+            var containingType = memberSymbol.ContainingType;
+            var countSymbol = collectionType.GetMember("Count");
+            var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
+            return countSymbolImplementation?.Equals(memberSymbol) ?? false;
         }
     }
 }

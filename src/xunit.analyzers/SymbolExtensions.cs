@@ -11,6 +11,16 @@ namespace Xunit.Analyzers
             return attributes.Any(a => attributeType.IsAssignableFrom(a.AttributeClass, exactMatch));
         }
 
+        internal static INamedTypeSymbol GetGenericInterfaceImplementation(this ITypeSymbol implementingType, INamedTypeSymbol openInterfaceType)
+        {
+            return implementingType.AllInterfaces.FirstOrDefault(i => i.OriginalDefinition == openInterfaceType);
+        }
+
+        internal static ISymbol GetMember(this INamespaceOrTypeSymbol namespaceOrType, string name)
+        {
+            return namespaceOrType.GetMembers(name).FirstOrDefault();
+        }
+
         internal static ImmutableArray<ISymbol> GetInheritedAndOwnMembers(this ITypeSymbol symbol, string name = null)
         {
             var builder = ImmutableArray.CreateBuilder<ISymbol>();

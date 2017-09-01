@@ -22,6 +22,7 @@
 
             internal static readonly string XunitAssert = "Xunit.Assert";
 
+            internal static readonly string SystemCollectionsICollection = "System.Collections.ICollection";
             internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
         }
     }
