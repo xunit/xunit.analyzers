@@ -1,45 +1,31 @@
-## xUnit0000
-
-<table>
-<tr>
-  <td>Name</td>
-  <td>Rule name</td>
-</tr>
-<tr>
-  <td>ID</td>
-  <td>xUnit0000</td>
-</tr>
-<tr>
-  <td>Category</td>
-  <td>Diagnostic category</td>
-</tr>
-<tr>
-  <td>Severity</td>
-  <td>Hidden, Info, Warning, or Error</td>
-</tr>
-</table>
+---
+title: xUnit0000
+description: Rule title
+category: Diagnostic category
+severity: Hidden, Info, Warning, or Error
+---
 
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..." [example 1](xUnit1000.md#cause), [example 2](xUnit2004.md#cause)
+A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..." [example 1](_rules/xUnit1000.md#cause), [example 2](_rules/xUnit2004.md#cause)
 
 ## Reason for rule
 
-Explain why the user should care if (s)he violates the rule. [example](xUnit1000.md#reason-for-rule)
+Explain why the user should care about the violation. [example](_rules/xUnit1000.md#reason-for-rule)
+
+## How to fix violations
+
+To fix a violation of this rule, [describe how to fix a violation]. [example](_rules/xUnit1000.md#how-to-fix-violations)
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule. [example](xUnit1000.md#violates)
+Example(s) of code that violates the rule. [example](_rules/xUnit1000.md#violates)
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule. [example](xUnit1000.md#does-not-violate)
-
-## How to fix violations
-
-To fix a violation of this rule, [describe how to fix a violation]. [example](xUnit1000.md#how-to-fix-violations)
+Example(s) of code that does not violate the rule. [example](_rules/xUnit1000.md#does-not-violate)
 
 ## How to suppress violations
 

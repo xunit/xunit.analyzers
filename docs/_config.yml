@@ -1,0 +1,18 @@
+title: xUnit.net Analyzers
+description: Roslyn analyzers for xUnit.net
+logo: https://raw.github.com/xunit/media/master/logo-128-transparent.png
+collections:
+  rules:
+    output: true
+defaults:
+  - scope:
+      path: ""
+      type: "rules"
+    values:
+      layout: rule
+baseurl: /xunit.analyzers
+repository: xunit/xunit.analyzers
+plugins:
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+exclude: ["README.md", "RULE_TEMPLATE.md", "Gemfile*"]

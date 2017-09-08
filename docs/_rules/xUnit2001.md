@@ -1,23 +1,9 @@
-## xUnit2001
-
-<table>
-<tr>
-  <td>Name</td>
-  <td>AssertEqualsShouldNotBeUsed</td>
-</tr>
-<tr>
-  <td>ID</td>
-  <td>xUnit2001</td>
-</tr>
-<tr>
-  <td>Category</td>
-  <td>Assertions</td>
-</tr>
-<tr>
-  <td>Severity</td>
-  <td>Hidden</td>
-</tr>
-</table>
+---
+title: xUnit2001
+description: Do not use invalid equality check
+category: Assertions
+severity: Hidden
+---
 
 ## Cause
 
@@ -26,6 +12,10 @@
 ## Reason for rule
 
 `Assert.Equals` does not assert that two objects are equal; it exists only to hide the static `Equals` method inherited from `object`. It's a similar story for `Assert.ReferenceEquals`.
+
+## How to fix violations
+
+To fix a violation of this rule, use `Assert.Equal` instead of `Equals` and `Assert.Same` instead of `ReferenceEquals`.
 
 ## Examples
 
@@ -44,7 +34,3 @@ var o = new object();
 Assert.Equal(o, o);
 Assert.Same(o, o);
 ```
-
-## How to fix violations
-
-To fix a violation of this rule, use `Assert.Equal` instead of `Equals` and `Assert.Same` instead of `ReferenceEquals`.

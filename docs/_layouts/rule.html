@@ -1,0 +1,21 @@
+---
+layout: default
+---
+
+{% case page.severity %}
+  {% when 'Error' %}
+    {% assign severity-label = 'label-danger' %}
+  {% when 'Warning' %}
+    {% assign severity-label = 'label-warning' %}
+  {% when 'Info' %}
+    {% assign severity-label = 'label-info' %}
+  {% when 'Hidden' %}
+    {% assign severity-label = 'label-default' %}
+  {% else %}
+    {% assign severity-label = '' %}
+{% endcase %}
+<h1>{{ page.title }} <small><span class="label {{ severity-label }}">{{ page.severity }}</span></small></h1>
+
+<p>{{ page.description }}</p>
+
+{{ content }}
