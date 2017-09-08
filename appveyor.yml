@@ -29,6 +29,7 @@ skip_commits:
   - CONTRIBUTING.md
   - LICENSE
   - README.md
+  - docs/
 
 nuget:
   disable_publish_on_pr: true
