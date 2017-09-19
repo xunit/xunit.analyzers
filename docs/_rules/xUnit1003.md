@@ -38,14 +38,20 @@ public class TestClass
 public class TestClass
 {
     [Fact]
+    public void TestMethod()
+    {
+    }
 }
 ```
 
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+    [Theory]
+    [InlineData(5)]
+    public void TestMethod(int p1)
+    {
+        Assert.Equal(2 + 2, p1);
+    }
+}
 ```
