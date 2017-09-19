@@ -21,17 +21,34 @@ To fix a violation of this rule, remove all but one of the Fact or Theory attrib
 
 ### Violates
 
-Example(s) of code that violates the rule. [example](_rules/xUnit1000.md#violates)
+```csharp
+public class TestClass
+{
+    [Fact, Theory]
+    public void TestMethod()
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule. [example](_rules/xUnit1000.md#does-not-violate)
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
+```csharp
+public class TestClass
+{
+    [Fact]
+    public void TestMethod()
+    {
+    }
+}
+```
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+    [Theory]
+    public void TestMethod()
+    {
+    }
+}
 ```
