@@ -5,31 +5,41 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A Theory method does not have test data.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+If a Theory method does not have test data, it is never run.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+- Add a data attribute such as InlineData, MemberData, or ClassData to the test method.
+- Change `[Theory]` to `[Fact]` if you want a non-parameterized test.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+    [Theory]
+    public void TestMethod(int p1)
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+public class TestClass
+{
+    [Fact]
+}
+```
 
 ## How to suppress violations
 
