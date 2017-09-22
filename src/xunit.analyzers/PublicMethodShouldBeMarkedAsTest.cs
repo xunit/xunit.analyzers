@@ -43,7 +43,7 @@ namespace Xunit.Analyzers
                     symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
                     var method = (IMethodSymbol)member;
-                    if (method.MethodKind != MethodKind.Ordinary || method.IsStatic || method.IsAbstract)
+                    if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
                         continue;
 
                     var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.FactAttributeType);

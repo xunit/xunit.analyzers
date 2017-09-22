@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -38,24 +39,11 @@ namespace Xunit.Analyzers
         }
 
         [Fact]
-        public async void DoesNotFindErrorForPublicStaticMethod()
-        {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-@"public class TestClass {
-    [Xunit.Fact] public void TestMethod() { }
-    public static void ItIsNotTest() { }
-}");
-
-            Assert.Empty(diagnostics);
-        }
-
-        [Fact]
         public async void DoesNotFindErrorForPublicAbstractMethod()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public abstract class TestClass {
     [Xunit.Fact] public void TestMethod() { }
-    public static void ItIsNotTest() { }
     public abstract void AbstractTestError();
 }");
 
