@@ -38,6 +38,31 @@ namespace Xunit.Analyzers
         }
 
         [Fact]
+        public async void DoesNotFindErrorForPublicStaticMethod()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class TestClass {
+    [Xunit.Fact] public void TestMethod() { }
+    public static void ItIsNotTest() { }
+}");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
+        public async void DoesNotFindErrorForPublicAbstractMethod()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public abstract class TestClass {
+    [Xunit.Fact] public void TestMethod() { }
+    public static void ItIsNotTest() { }
+    public abstract void AbstractTestError();
+}");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,

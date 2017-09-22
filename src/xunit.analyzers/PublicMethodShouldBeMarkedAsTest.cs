@@ -26,7 +26,8 @@ namespace Xunit.Analyzers
                 var type = (INamedTypeSymbol)symbolContext.Symbol;
 
                 if (type.TypeKind != TypeKind.Class ||
-                    type.DeclaredAccessibility != Accessibility.Public)
+                    type.DeclaredAccessibility != Accessibility.Public ||
+                    type.IsAbstract)
                     return;
 
                 var methodsToIgnore = interfacesToIgnore.Where(i => i != null && type.AllInterfaces.Contains(i))
@@ -42,7 +43,7 @@ namespace Xunit.Analyzers
                     symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
                     var method = (IMethodSymbol)member;
-                    if (method.MethodKind != MethodKind.Ordinary)
+                    if (method.MethodKind != MethodKind.Ordinary || method.IsStatic || method.IsAbstract)
                         continue;
 
                     var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.FactAttributeType);
