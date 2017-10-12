@@ -35,8 +35,18 @@ namespace Xunit.Analyzers
                 return;
 
             var size = context.SemanticModel.GetConstantValue(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken);
+            if (!size.HasValue)
+            {
+                return;
+            }
 
-            if (!size.HasValue || (int)size.Value < 0 || (int)size.Value > 1 || (int)size.Value == 1 && method.Name != "Equal")
+            // Make sure the first parameter really is an int before checking it's value. Could for example be a char.
+            if (typeof(int) != size.Value.GetType())
+            {
+                return;
+            }
+
+            if ((int)size.Value < 0 || (int)size.Value > 1 || (int)size.Value == 1 && method.Name != "Equal")
                 return;
 
             var expression =
