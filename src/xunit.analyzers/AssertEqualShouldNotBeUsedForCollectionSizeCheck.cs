@@ -40,7 +40,7 @@ namespace Xunit.Analyzers
                 return;
             }
 
-            // Make sure the first parameter really is an int before checking it's value. Could for example be a char.
+            // Make sure the first parameter really is an int before checking its value. Could for example be a char.
             if (typeof(int) != size.Value.GetType())
             {
                 return;
