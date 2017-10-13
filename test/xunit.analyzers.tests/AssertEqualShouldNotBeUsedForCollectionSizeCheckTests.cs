@@ -181,5 +181,16 @@ class TestClass
 
             Assert.Empty(diagnostics);
         }
+
+        [Fact]
+        public async void DoesNotCrash_ForNonIntArguments()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"class TestClass { void TestMethod() {
+            Xunit.Assert.Equal('b', new int[0].Length);
+        } }");
+
+            Assert.Empty(diagnostics);
+        }
     }
 }
