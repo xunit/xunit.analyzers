@@ -43,6 +43,10 @@ namespace Xunit.Analyzers
                     symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
                     var method = (IMethodSymbol)member;
+                    // Check for method.IsAbstract and earlier for type.IsAbstract is done
+                    // twice to enable better diagnostics during code editing. It is useful with
+                    // incomplete code for abstract types - missing abstract keyword  on type
+                    // or on abstract method
                     if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
                         continue;
 
