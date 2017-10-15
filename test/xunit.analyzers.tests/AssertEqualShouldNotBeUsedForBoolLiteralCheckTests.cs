@@ -49,7 +49,7 @@ namespace Xunit.Analyzers
 
         [Theory]
         [MemberData(nameof(Methods))]
-        public async void FindsWarning_ForFirstBoolLiteral_ObjectOverload(string method)
+        public async void DoesNotFindWarning_ForFirstBoolLiteral_ObjectOverload(string method)
         {
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
@@ -57,7 +57,7 @@ namespace Xunit.Analyzers
     Xunit.Assert." + method + @"(true, val);
 } }");
 
-            AssertHasDiagnostic(diagnostics, method);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
