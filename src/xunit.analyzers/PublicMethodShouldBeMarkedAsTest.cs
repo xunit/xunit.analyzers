@@ -26,7 +26,8 @@ namespace Xunit.Analyzers
                 var type = (INamedTypeSymbol)symbolContext.Symbol;
 
                 if (type.TypeKind != TypeKind.Class ||
-                    type.DeclaredAccessibility != Accessibility.Public)
+                    type.DeclaredAccessibility != Accessibility.Public ||
+                    type.IsAbstract)
                     return;
 
                 var methodsToIgnore = interfacesToIgnore.Where(i => i != null && type.AllInterfaces.Contains(i))
@@ -42,7 +43,11 @@ namespace Xunit.Analyzers
                     symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
                     var method = (IMethodSymbol)member;
-                    if (method.MethodKind != MethodKind.Ordinary)
+                    // Check for method.IsAbstract and earlier for type.IsAbstract is done
+                    // twice to enable better diagnostics during code editing. It is useful with
+                    // incomplete code for abstract types - missing abstract keyword  on type
+                    // or on abstract method
+                    if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
                         continue;
 
                     var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.FactAttributeType);
