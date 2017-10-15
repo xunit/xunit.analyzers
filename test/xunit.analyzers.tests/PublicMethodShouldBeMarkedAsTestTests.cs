@@ -44,9 +44,20 @@ namespace Xunit.Analyzers
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"public abstract class TestClass {
     [Xunit.Fact] public void TestMethod() { }
-    public abstract void AbstractTestError();
+    public abstract void AbstractMethod();
 }");
 
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
+        public async void DoesNotFindErrorForPublicAbstractMethodMarkedWithFact()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public abstract class TestClass {
+    [Xunit.Fact] public void TestMethod() { }
+    [Xunit.Fact] public abstract void AbstractMethod();
+}");
             Assert.Empty(diagnostics);
         }
 
