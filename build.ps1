@@ -42,6 +42,8 @@ function __target_build() {
 
     _build_step "Compiling binaries"
         _msbuild "xunit.analyzers.sln" $configuration
+
+    _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.0\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
 }
 
 function __target_ci() {
