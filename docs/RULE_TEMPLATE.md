@@ -5,6 +5,10 @@ category: Diagnostic category
 severity: Hidden, Info, Warning, or Error
 ---
 
+# This is a documentation stub
+
+Please submit a PR with updates to the [appropriate file](https://github.com/xunit/xunit.analyzers/tree/master/docs/_rules) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
+
 ## Cause
 
 A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..." [example 1](_rules/xUnit1000.md#cause), [example 2](_rules/xUnit2004.md#cause)
