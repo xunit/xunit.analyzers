@@ -21,7 +21,7 @@ To build the project, you will need Visual Studio 2017. The VSIX project can be 
 
 Channel  | Status
 -------- | :-------:
-CI |  <a href="https://ci.appveyor.com/project/xunit/xunit.analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
+CI |  <a href="https://ci.appveyor.com/project/xunit/xunit-analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
 NuGet | <a href="https://www.nuget.org/packages/xunit.analyzers/"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)" /></a>
 MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | <a href="https://www.myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)"/></a>
 
