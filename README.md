@@ -1,17 +1,24 @@
+## About the project
 
-## About xUnit.net Analyzers
+This project contains source code analysis and cleanup rules for xUnit.net.
 
-[<img align="right" src="https://xunit.github.io/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
+**Requirements**: xUnit.net v2.0+ and Visual Studio 2015 Update 2 or later.
 
-xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
+**Documentation**: a list of supported rules is available at https://xunit.github.io/xunit.analyzers/
 
-This project contains source code analysis and cleanup rules for xUnit.net. It supports xUnit.net v2.0+ and Visual Studio 2015 Update 2 and above.
-
-To start using the analyzers in your test project, simply add a reference to the [xunit.analyzers NuGet package](https://www.nuget.org/packages/xunit.analyzers/).
-
-To open an issue for this project, please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
+**Bugs and issues**: please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
 
 To build the project, you will need Visual Studio 2017. The VSIX project can be set as your startup project, to debug the analyzers inside a special instance of Visual Studio.
+
+### How to install
+
+- xUnit 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box
+
+- xUnit 2.2.0 and earlier: you have to install the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers) explicitly
+
+### How to uninstall
+
+If you installed xUnit 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the correspoding versions of [`xunit.core` ](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
 
 ## Analysis and Code Fix in Action
 
@@ -25,6 +32,8 @@ CI |  <a href="https://ci.appveyor.com/project/xunit/xunit-analyzers"><img src="
 NuGet | <a href="https://www.nuget.org/packages/xunit.analyzers/"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)" /></a>
 MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | <a href="https://www.myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)"/></a>
 
-## Supported Rules
+## About xUnit.net
 
-Take a look at [Descriptors.cs](https://github.com/xunit/xunit.analyzers/blob/master/src/xunit.analyzers/Descriptors.cs) for a list of supported rules.
+[<img align="right" src="https://xunit.github.io/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
+
+xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
