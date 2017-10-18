@@ -19,7 +19,10 @@ namespace Xunit.Analyzers
         };
 
         public AssertThrowsShouldNotBeUsedForAsyncThrowsCheck() :
-            base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, new[] { "Throws", "ThrowsAny" })
+            base(new[] {
+                Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck,
+                Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
+                }, new[] { "Throws", "ThrowsAny" })
         {
         }
 
@@ -33,7 +36,7 @@ namespace Xunit.Analyzers
                 return;
 
             var descriptor = ObsoleteMethods.Contains(SymbolDisplay.ToDisplayString(method))
-                ? Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck_Hidden
+                ? Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
                 : Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck;
 
             var builder = ImmutableDictionary.CreateBuilder<string, string>();

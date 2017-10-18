@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id,
-            Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck_Hidden.Id);
+            Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

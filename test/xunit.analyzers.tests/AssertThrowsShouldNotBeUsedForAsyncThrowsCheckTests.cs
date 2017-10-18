@@ -76,8 +76,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }
@@ -92,8 +92,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }
@@ -108,8 +108,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }
@@ -129,8 +129,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }
@@ -145,8 +145,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }
@@ -161,8 +161,8 @@ void TestMethod() {
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
+                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
+                Assert.Equal("xUnit2019", d.Id);
                 Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
             });
         }

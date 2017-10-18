@@ -217,10 +217,6 @@ namespace Xunit.Analyzers
             Rule("xUnit2014", "Do not use throws check to check for asynchronously thrown exception", Assertions, Error,
                 "Do not use {0} to check for asynchronously thrown exceptions.");
 
-        internal static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck_Hidden { get; } =
-            Rule("xUnit2014", "Do not use throws check to check for asynchronously thrown exception", Assertions, Hidden,
-            "Do not use {0} to check for asynchronously thrown exceptions.");
-
         internal static DiagnosticDescriptor X2015_AssertThrowsShouldUseGenericOverload { get; } =
             Rule("xUnit2015", "Do not use typeof expression to check the exception type", Assertions, Warning,
                 "Do not use typeof() expression to check the exception type.");
@@ -237,7 +233,9 @@ namespace Xunit.Analyzers
             Rule("xUnit2018", "Do not compare an object's exact type to an abstract class or interface", Assertions, Warning,
                 "Do not compare an object's exact type to the {0} '{1}'.");
 
-        // Placeholder for rule X2019
+        internal static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
+            Rule("xUnit2019", "Do not use obsolete throws check to check for asynchronously thrown exception", Assertions, Hidden,
+            "Do not use obsolete {0} to check for asynchronously thrown exceptions.");
 
         // Placeholder for rule X2020
 

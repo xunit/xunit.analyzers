@@ -12,9 +12,14 @@ namespace Xunit.Analyzers
     {
         readonly HashSet<string> methodNames;
 
-        public AssertUsageAnalyzerBase(DiagnosticDescriptor descriptor, IEnumerable<string> methods)
+        protected AssertUsageAnalyzerBase(DiagnosticDescriptor descriptor, IEnumerable<string> methods)
+            : this(new[] { descriptor }, methods)
         {
-            SupportedDiagnostics = ImmutableArray.Create(descriptor);
+        }
+
+        protected AssertUsageAnalyzerBase(IEnumerable<DiagnosticDescriptor> descriptors, IEnumerable<string> methods)
+        {
+            SupportedDiagnostics = ImmutableArray.CreateRange(descriptors);
             methodNames = new HashSet<string>(methods, StringComparer.Ordinal);
         }
 
