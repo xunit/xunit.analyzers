@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
+    <None Include="..\..\docs\**\*.*" LinkBase="docs" />
   </ItemGroup>
 
 </Project>
