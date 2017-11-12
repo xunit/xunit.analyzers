@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit.Analyzers
 {
@@ -44,6 +45,7 @@ namespace Xunit.Analyzers
         static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference XunitExecutionReference = MetadataReference.CreateFromFile(typeof(XunitTestCase).GetTypeInfo().Assembly.Location);
 
         static CodeAnalyzerHelper()
         {
@@ -84,6 +86,7 @@ namespace Xunit.Analyzers
                         XunitCoreReference,
                         XunitAbstractionsReference,
                         XunitAssertReference,
+                        XunitExecutionReference,
                     });
 
                 var count = 0;
