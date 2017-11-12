@@ -64,7 +64,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { 
 System.Threading.Tasks.Task ThrowingMethod() {
     throw new System.NotImplementedException();
@@ -85,7 +85,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -101,7 +101,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnAsyncThrowingLambda()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.NotImplementedException>(async () => await System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -117,7 +117,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethodWithParamName()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { 
 System.Threading.Tasks.Task ThrowingMethod() {
     throw new System.NotImplementedException();
@@ -138,7 +138,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambdaWithParamName()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.ArgumentException>(""param1"", () => System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -154,7 +154,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnAsyncThrowingLambdaWithParamName()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.ArgumentException>(""param1"", async () => await System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -170,7 +170,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsAnyCheck_WithExceptionTypeArgument_OnThrowingMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { 
 System.Threading.Tasks.Task ThrowingMethod() {
     throw new System.NotImplementedException();
@@ -191,7 +191,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsAnyCheck_WithExceptionTypeArgument_OnThrowingLambda()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.ThrowsAny<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -207,7 +207,7 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsAnyCheck_WithExceptionTypeArgument_OnAsyncThrowingLambda()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.ThrowsAny<System.NotImplementedException>(async () => await System.Threading.Tasks.Task.Delay(0));
 } }");
@@ -223,7 +223,7 @@ void TestMethod() {
         [Fact]
         public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionParameter_OnNonAsyncThrowingMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { 
 void ThrowingMethod() {
     throw new System.NotImplementedException();
@@ -239,7 +239,7 @@ void TestMethod() {
         [Fact]
         public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionParameter_OnNonAsyncThrowingLamba()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws(typeof(System.NotImplementedException), () => 1);
 } }");

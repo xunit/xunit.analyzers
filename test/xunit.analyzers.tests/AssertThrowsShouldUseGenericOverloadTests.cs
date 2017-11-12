@@ -54,7 +54,7 @@ void TestMethod() {
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass {
 System.Threading.Tasks.Task ThrowingMethod() {
     throw new System.NotImplementedException();
@@ -71,7 +71,7 @@ async System.Threading.Tasks.Task TestMethod() {
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
                 @"class TestClass { async System.Threading.Tasks.Task TestMethod() {
     await Xunit.Assert." + method + @"<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
 } }");

@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
         [InlineData("ReferenceEquals")]
         public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(null, null);
 } }");

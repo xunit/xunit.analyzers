@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
         [InlineData("NotSame")]
         public async void FindsWarningForTwoValueParameters(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
 @"class TestClass { void TestMethod() {
     int a = 0;
     Xunit.Assert." + method + @"(0, a);
@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
         [InlineData("NotSame")]
         public async void FindsWarningForFirstValueParameters(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
 @"class TestClass { void TestMethod() {
     object a = 0;
     Xunit.Assert." + method + @"(0, a);
@@ -50,7 +50,7 @@ namespace Xunit.Analyzers
         [InlineData("NotSame")]
         public async void FindsWarningForSecondValueParameters(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, true,
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
 @"class TestClass { void TestMethod() {
     object a = 0;
     Xunit.Assert." + method + @"(a, 0);

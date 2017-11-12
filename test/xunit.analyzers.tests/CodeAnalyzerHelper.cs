@@ -12,6 +12,27 @@ using Xunit.Abstractions;
 
 namespace Xunit.Analyzers
 {
+    enum CompilationReporting
+    {
+        /// <summary>Ignores all errors and warnings</summary>
+        IgnoreErrors = -1,
+
+        /// <summary>Fails on all errors, ignores all warnings</summary>
+        FailOnErrors = 0,
+
+        /// <summary>Fails on all errors and level 1 warnings, ignores all other warnings</summary>
+        FailOnErrorsAndLevel1Warnings = 1,
+
+        /// <summary>Fails on all errors and level 1 and 2 warnings, ignores all other warnings</summary>
+        FailOnErrorsAndLevel2Warnings = 2,
+
+        /// <summary>Fails on all errors and level 1 through 3 warnings, ignores all other warnings</summary>
+        FailOnErrorsAndLevel3Warnings = 3,
+
+        /// <summary>Fails on all errors and warnings</summary>
+        FailOnErrorsAndLevel4Warnings = 4,
+    }
+
     class CodeAnalyzerHelper
     {
         static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
@@ -39,11 +60,9 @@ namespace Xunit.Analyzers
         }
 
         public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
-        {
-            return GetDiagnosticsAsync(analyzer, false, source, additionalSources);
-        }
+            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, source, additionalSources);
 
-        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, bool ignoreCompilationErrors, string source, params string[] additionalSources)
+        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, string source, params string[] additionalSources)
         {
             const string fileNamePrefix = "Source";
             const string projectName = "Project";
@@ -73,18 +92,26 @@ namespace Xunit.Analyzers
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(text));
             }
 
+            var compileWarningLevel = Math.Max(0, (int)compilationReporting);
             var project = solution.GetProject(projectId);
             var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
                 .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
-                .WithWarningLevel(2);
+                .WithWarningLevel(compileWarningLevel);
             project = project.WithCompilationOptions(compilationOptions);
 
             var compilation = await project.GetCompilationAsync();
-            var compilationDiagnostics = compilation.GetDiagnostics();
-            if (!ignoreCompilationErrors && compilationDiagnostics.Any())
+            if (compilationReporting != CompilationReporting.IgnoreErrors)
             {
-                var error = compilationDiagnostics.First();
-                throw new InvalidOperationException($"Compilation has errors. First error: {error.Id} {error.WarningLevel} {error.GetMessage()}");
+                var compilationDiagnostics = compilation.GetDiagnostics();
+                if (compilationReporting == CompilationReporting.FailOnErrors)
+                    compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
+
+                if (compilationDiagnostics.Length > 0)
+                {
+                    var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
+                                                         .Select(t => $"source.cs({t.line.Line},{t.line.Character}): {t.diag.Severity.ToString().ToLowerInvariant()} {t.diag.Id}: {t.diag.GetMessage()}");
+                    throw new InvalidOperationException($"Compilation has issues:{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
+                }
             }
 
             var compilationWithAnalyzers = compilation
