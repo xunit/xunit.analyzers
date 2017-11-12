@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -56,27 +59,37 @@ namespace Xunit.Analyzers
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
         }
 
+        static async Task<ImmutableArray<Diagnostic>> ApplyAnalyzers(Compilation compilation, params DiagnosticAnalyzer[] analyzers)
+        {
+            var compilationWithAnalyzers = compilation
+                .WithOptions(((CSharpCompilationOptions)compilation.Options)
+                .WithWarningLevel(4))
+                .WithAnalyzers(ImmutableArray.Create(analyzers));
+
+            var allDiagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
+
+            Assert.DoesNotContain(allDiagnostics, d => d.Id == "AD0001");
+
+            return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+        }
+
         static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
         {
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
 
-        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
-            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, source, additionalSources);
-
-        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, string source, params string[] additionalSources)
+        static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, string source, params string[] additionalSources)
         {
             const string fileNamePrefix = "Source";
             const string projectName = "Project";
 
             var projectId = ProjectId.CreateNewId(debugName: projectName);
 
-            using (var workspace = new AdhocWorkspace())
-            {
-                var solution = workspace
-                    .CurrentSolution
-                    .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
-                    .AddMetadataReferences(projectId, new[] {
+            var workspace = new AdhocWorkspace();
+            var solution = workspace
+                .CurrentSolution
+                .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
+                .AddMetadataReferences(projectId, new[] {
                         CorlibReference,
                         SystemCollectionsImmutable,
                         SystemCoreReference,
@@ -87,48 +100,89 @@ namespace Xunit.Analyzers
                         XunitAbstractionsReference,
                         XunitAssertReference,
                         XunitExecutionReference,
-                    });
+                });
 
-                var count = 0;
-                foreach (var text in new[] { source }.Concat(additionalSources))
+            var count = 0;
+            var firstDocument = default(Document);
+
+            foreach (var text in new[] { source }.Concat(additionalSources))
+            {
+                var newFileName = $"{fileNamePrefix}{count++}.cs";
+                var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+                solution = solution.AddDocument(documentId, newFileName, SourceText.From(text));
+                if (firstDocument == default(Document))
+                    firstDocument = solution.GetDocument(documentId);
+            }
+
+            var compileWarningLevel = Math.Max(0, (int)compilationReporting);
+            var project = solution.GetProject(projectId);
+            var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
+                .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
+                .WithWarningLevel(compileWarningLevel);
+            project = project.WithCompilationOptions(compilationOptions);
+
+            var compilation = await project.GetCompilationAsync();
+            if (compilationReporting != CompilationReporting.IgnoreErrors)
+            {
+                var compilationDiagnostics = compilation.GetDiagnostics();
+                if (compilationReporting == CompilationReporting.FailOnErrors)
+                    compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
+
+                if (compilationDiagnostics.Length > 0)
                 {
-                    var newFileName = $"{fileNamePrefix}{count++}.cs";
-                    var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-                    solution = solution.AddDocument(documentId, newFileName, SourceText.From(text));
+                    var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
+                                                         .Select(t => $"source.cs({t.line.Line},{t.line.Character}): {t.diag.Severity.ToString().ToLowerInvariant()} {t.diag.Id}: {t.diag.GetMessage()}");
+                    throw new InvalidOperationException($"Compilation has issues:{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
                 }
+            }
 
-                var compileWarningLevel = Math.Max(0, (int)compilationReporting);
-                var project = solution.GetProject(projectId);
-                var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
-                    .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
-                    .WithWarningLevel(compileWarningLevel);
-                project = project.WithCompilationOptions(compilationOptions);
+            return (compilation, firstDocument, workspace);
+        }
 
-                var compilation = await project.GetCompilationAsync();
-                if (compilationReporting != CompilationReporting.IgnoreErrors)
-                {
-                    var compilationDiagnostics = compilation.GetDiagnostics();
-                    if (compilationReporting == CompilationReporting.FailOnErrors)
-                        compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
+        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
+            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, source, additionalSources);
 
-                    if (compilationDiagnostics.Length > 0)
-                    {
-                        var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
-                                                             .Select(t => $"source.cs({t.line.Line},{t.line.Character}): {t.diag.Severity.ToString().ToLowerInvariant()} {t.diag.Id}: {t.diag.GetMessage()}");
-                        throw new InvalidOperationException($"Compilation has issues:{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
-                    }
-                }
+        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, string source, params string[] additionalSources)
+        {
+            var (compilation, _, workspace) = await GetCompilationAsync(compilationReporting, source, additionalSources);
 
-                var compilationWithAnalyzers = compilation
-                    .WithOptions(((CSharpCompilationOptions)compilation.Options)
-                    .WithWarningLevel(4))
-                    .WithAnalyzers(ImmutableArray.Create(analyzer));
+            using (workspace)
+                return await ApplyAnalyzers(compilation, analyzer);
+        }
 
-                var allDiagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
+        public static Task<string> GetFixedCodeAsync(DiagnosticAnalyzer analyzer, CodeFixProvider fixer, string source, int actionIndex = 0)
+            => GetFixedCodeAsync(analyzer, fixer, CompilationReporting.FailOnErrors, source, actionIndex);
 
-                Assert.DoesNotContain(allDiagnostics, d => d.Id == "AD0001");
+        public static async Task<string> GetFixedCodeAsync(DiagnosticAnalyzer analyzer, CodeFixProvider fixer, CompilationReporting compilationReporting, string source, int actionIndex = 0)
+        {
+            var (compilation, document, workspace) = await GetCompilationAsync(compilationReporting, source);
 
-                return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+            using (workspace)
+            {
+                var diagnostics = await ApplyAnalyzers(compilation, analyzer);
+                if (diagnostics.Length == 0)
+                    throw new InvalidOperationException("The requested source code does not trigger the analyzer");
+                if (diagnostics.Length > 1)
+                    throw new InvalidOperationException($"The requested source code triggered the analyzer too many times (expected 1, got {diagnostics.Length})");
+
+                var codeActions = new List<CodeAction>();
+                var context = new CodeFixContext(document, diagnostics[0], (a, d) => codeActions.Add(a), CancellationToken.None);
+                await fixer.RegisterCodeFixesAsync(context);
+                if (codeActions.Count <= actionIndex)
+                    throw new InvalidOperationException($"Not enough code actions were registered (index {actionIndex} is out of range for length {codeActions.Count})");
+
+                var operations = await codeActions[actionIndex].GetOperationsAsync(CancellationToken.None);
+                var changeOperations = operations.OfType<ApplyChangesOperation>().ToList();
+                if (changeOperations.Count != 1)
+                    throw new InvalidOperationException($"The change action did not yield the right number of ApplyChangesOperation objects (expected 1, got {changeOperations.Count})");
+
+                var changeOperation = changeOperations[0];
+                changeOperation.Apply(workspace, CancellationToken.None);
+
+                var solution = changeOperation.ChangedSolution;
+                var changedDocument = solution.GetDocument(document.Id);
+                var text = await changedDocument.GetTextAsync();
+                return text.ToString();
             }
         }
     }
