@@ -18,7 +18,6 @@ namespace Xunit.Analyzers
             Assert.Equal("public class MyTestCase : Xunit.LongLivedMarshalByRefObject, Xunit.Abstractions.ITestCase { }", result);
         }
 
-
         [Fact]
         public async void WithBadBaseClass_ReplacesBaseClass()
         {
