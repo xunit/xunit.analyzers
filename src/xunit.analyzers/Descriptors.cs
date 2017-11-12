@@ -7,8 +7,9 @@ namespace Xunit.Analyzers
 {
     internal enum Category
     {
-        Usage,
-        Assertions,
+        Usage,           // 1xxx
+        Assertions,      // 2xxx
+        Extensibility,   // 3xxx
     }
 
     internal static class Descriptors
@@ -250,5 +251,9 @@ namespace Xunit.Analyzers
         // Placeholder for rule X2025
 
         // Placeholder for rule X2026
+
+        internal static DiagnosticDescriptor X3000_TestCaseMustBeLongLivedMarshalByRefObject { get; } =
+            Rule("xUnit3000", "Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject", Extensibility, Error,
+                "Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject");
     }
 }

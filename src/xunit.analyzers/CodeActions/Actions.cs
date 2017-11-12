@@ -57,5 +57,12 @@ namespace Xunit.Analyzers.CodeActions
             editor.RemoveNode(node);
             return editor.GetChangedDocument();
         }
+
+        public static async Task<Document> SetBaseClass(Document document, SyntaxNode declaration, SyntaxNode baseType, CancellationToken cancellationToken)
+        {
+            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            editor.AddBaseType(declaration, baseType);
+            return editor.GetChangedDocument();
+        }
     }
 }
