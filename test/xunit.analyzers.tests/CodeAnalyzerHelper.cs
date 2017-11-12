@@ -69,61 +69,64 @@ namespace Xunit.Analyzers
 
             var projectId = ProjectId.CreateNewId(debugName: projectName);
 
-            var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
-                .AddMetadataReferences(projectId, new[] {
-                    CorlibReference,
-                    SystemCollectionsImmutable,
-                    SystemCoreReference,
-                    SystemTextReference,
-                    SystemRuntimeReference,
-                    SystemThreadingTasksReference,
-                    XunitCoreReference,
-                    XunitAbstractionsReference,
-                    XunitAssertReference,
-                });
-
-            var count = 0;
-            foreach (var text in new[] { source }.Concat(additionalSources))
+            using (var workspace = new AdhocWorkspace())
             {
-                var newFileName = $"{fileNamePrefix}{count++}.cs";
-                var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-                solution = solution.AddDocument(documentId, newFileName, SourceText.From(text));
-            }
+                var solution = workspace
+                    .CurrentSolution
+                    .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
+                    .AddMetadataReferences(projectId, new[] {
+                        CorlibReference,
+                        SystemCollectionsImmutable,
+                        SystemCoreReference,
+                        SystemTextReference,
+                        SystemRuntimeReference,
+                        SystemThreadingTasksReference,
+                        XunitCoreReference,
+                        XunitAbstractionsReference,
+                        XunitAssertReference,
+                    });
 
-            var compileWarningLevel = Math.Max(0, (int)compilationReporting);
-            var project = solution.GetProject(projectId);
-            var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
-                .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
-                .WithWarningLevel(compileWarningLevel);
-            project = project.WithCompilationOptions(compilationOptions);
-
-            var compilation = await project.GetCompilationAsync();
-            if (compilationReporting != CompilationReporting.IgnoreErrors)
-            {
-                var compilationDiagnostics = compilation.GetDiagnostics();
-                if (compilationReporting == CompilationReporting.FailOnErrors)
-                    compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
-
-                if (compilationDiagnostics.Length > 0)
+                var count = 0;
+                foreach (var text in new[] { source }.Concat(additionalSources))
                 {
-                    var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
-                                                         .Select(t => $"source.cs({t.line.Line},{t.line.Character}): {t.diag.Severity.ToString().ToLowerInvariant()} {t.diag.Id}: {t.diag.GetMessage()}");
-                    throw new InvalidOperationException($"Compilation has issues:{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
+                    var newFileName = $"{fileNamePrefix}{count++}.cs";
+                    var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+                    solution = solution.AddDocument(documentId, newFileName, SourceText.From(text));
                 }
+
+                var compileWarningLevel = Math.Max(0, (int)compilationReporting);
+                var project = solution.GetProject(projectId);
+                var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
+                    .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
+                    .WithWarningLevel(compileWarningLevel);
+                project = project.WithCompilationOptions(compilationOptions);
+
+                var compilation = await project.GetCompilationAsync();
+                if (compilationReporting != CompilationReporting.IgnoreErrors)
+                {
+                    var compilationDiagnostics = compilation.GetDiagnostics();
+                    if (compilationReporting == CompilationReporting.FailOnErrors)
+                        compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
+
+                    if (compilationDiagnostics.Length > 0)
+                    {
+                        var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
+                                                             .Select(t => $"source.cs({t.line.Line},{t.line.Character}): {t.diag.Severity.ToString().ToLowerInvariant()} {t.diag.Id}: {t.diag.GetMessage()}");
+                        throw new InvalidOperationException($"Compilation has issues:{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
+                    }
+                }
+
+                var compilationWithAnalyzers = compilation
+                    .WithOptions(((CSharpCompilationOptions)compilation.Options)
+                    .WithWarningLevel(4))
+                    .WithAnalyzers(ImmutableArray.Create(analyzer));
+
+                var allDiagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
+
+                Assert.DoesNotContain(allDiagnostics, d => d.Id == "AD0001");
+
+                return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
             }
-
-            var compilationWithAnalyzers = compilation
-                .WithOptions(((CSharpCompilationOptions)compilation.Options)
-                .WithWarningLevel(4))
-                .WithAnalyzers(ImmutableArray.Create(analyzer));
-
-            var allDiagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync();
-
-            Assert.DoesNotContain(allDiagnostics, d => d.Id == "AD0001");
-
-            return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
         }
     }
 }
