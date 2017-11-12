@@ -1,6 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers.CodeActions
@@ -58,10 +60,30 @@ namespace Xunit.Analyzers.CodeActions
             return editor.GetChangedDocument();
         }
 
-        public static async Task<Document> SetBaseClass(Document document, SyntaxNode declaration, SyntaxNode baseType, CancellationToken cancellationToken)
+        public static async Task<Document> SetBaseClass(Document document, ClassDeclarationSyntax declaration, TypeSyntax baseType, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.AddBaseType(declaration, baseType);
+            var baseListSyntax = declaration.BaseList;
+            var baseTypeSyntax = SyntaxFactory.SimpleBaseType(baseType);
+            var separatedList = default(SeparatedSyntaxList<BaseTypeSyntax>);
+
+            if (baseListSyntax == null || baseListSyntax.Types.Count == 0)
+                separatedList = SyntaxFactory.SingletonSeparatedList<BaseTypeSyntax>(baseTypeSyntax);
+            else
+            {
+                var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+                var firstBaseType = baseListSyntax.Types[0];
+                var firstBaseTypeInfo = semanticModel.GetTypeInfo(firstBaseType.Type, cancellationToken);
+
+                // Do we already have a base class? If so, replace it
+                if (firstBaseTypeInfo.Type?.TypeKind == TypeKind.Class)
+                    separatedList = baseListSyntax.Types.Replace(firstBaseType, baseTypeSyntax);
+                else
+                    separatedList = baseListSyntax.Types.Insert(0, baseTypeSyntax);
+            }
+
+            var updatedDeclaration = declaration.WithBaseList(SyntaxFactory.BaseList(separatedList));
+            editor.ReplaceNode(declaration, updatedDeclaration);
             return editor.GetChangedDocument();
         }
     }
