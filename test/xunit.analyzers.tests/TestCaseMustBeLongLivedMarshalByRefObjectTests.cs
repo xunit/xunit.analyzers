@@ -8,6 +8,7 @@ namespace Xunit.Analyzers
         readonly DiagnosticAnalyzer analyzer = new TestCaseMustBeLongLivedMarshalByRefObject();
 
         readonly static string Template = @"
+public class Foo {{ }}
 public class MyLLMBRO: Xunit.LongLivedMarshalByRefObject {{ }}
 public class MyTestCase: {0} {{ }}
 ";
@@ -48,7 +49,7 @@ public class MyTestCase: {0} {{ }}
 
         [Theory]
         [MemberData(nameof(InterfacesWithBaseClasses))]
-        public async void InterfaceWithBaseClass_NoDiagnostics(string @interface, string baseClass)
+        public async void InterfaceWithProperBaseClass_NoDiagnostics(string @interface, string baseClass)
         {
             var code = string.Format(Template, $"{baseClass}, {@interface}");
 
@@ -62,6 +63,23 @@ public class MyTestCase: {0} {{ }}
         public async void InterfaceWithoutBaseClass_ReturnsError(string @interface)
         {
             var code = string.Format(Template, @interface);
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, code);
+
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Test case class MyTestCase must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject", d.GetMessage());
+                    Assert.Equal("xUnit3000", d.Descriptor.Id);
+                }
+            );
+        }
+
+        [Theory]
+        [MemberData(nameof(Interfaces))]
+        public async void InterfaceWithBadBaseClass_ReturnsError(string @interface)
+        {
+            var code = string.Format(Template, $"Foo, {@interface}");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, code);
 

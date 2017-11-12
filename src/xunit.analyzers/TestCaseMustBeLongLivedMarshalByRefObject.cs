@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 
                 foreach (var baseType in classDeclaration.BaseList.Types)
                 {
-                    var type = semanticModel.GetTypeInfo(classDeclaration.BaseList.Types[0].Type).Type;
+                    var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
                     if (xunitContext.ITestCaseType?.IsAssignableFrom(type) == true)
                         isTestCase = true;
                     if (xunitContext.LongLivedMarshalByRefObjectType?.IsAssignableFrom(type) == true)
