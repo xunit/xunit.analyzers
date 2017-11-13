@@ -11,25 +11,25 @@ Please submit a PR with updates to the [appropriate file](https://github.com/xun
 
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..." [example 1](_rules/xUnit1000.md#cause), [example 2](_rules/xUnit2004.md#cause)
+A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
 
 ## Reason for rule
 
-Explain why the user should care about the violation. [example](_rules/xUnit1000.md#reason-for-rule)
+Explain why the user should care about the violation.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation]. [example](_rules/xUnit1000.md#how-to-fix-violations)
+To fix a violation of this rule, [describe how to fix a violation].
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule. [example](_rules/xUnit1000.md#violates)
+Example(s) of code that violates the rule.
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule. [example](_rules/xUnit1000.md#does-not-violate)
+Example(s) of code that does not violate the rule.
 
 ## How to suppress violations
 
