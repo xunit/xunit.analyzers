@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Xunit.Analyzers
 {
@@ -9,7 +10,7 @@ namespace Xunit.Analyzers
         readonly CodeFixProvider fixer = new TestCaseMustBeLongLivedMarshalByRefObjectFixer();
 
         [Fact]
-        public async void WithNoBaseClass_AddsBaseClass()
+        public async Task WithNoBaseClass_AddsBaseClass()
         {
             var code = "public class MyTestCase : Xunit.Abstractions.ITestCase { }";
 
@@ -19,7 +20,7 @@ namespace Xunit.Analyzers
         }
 
         [Fact]
-        public async void WithBadBaseClass_ReplacesBaseClass()
+        public async Task WithBadBaseClass_ReplacesBaseClass()
         {
             var code = "public class Foo { } public class MyTestCase : Foo, Xunit.Abstractions.ITestCase { }";
 
