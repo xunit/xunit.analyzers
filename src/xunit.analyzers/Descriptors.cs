@@ -255,5 +255,9 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X3000_TestCaseMustBeLongLivedMarshalByRefObject { get; } =
             Rule("xUnit3000", "Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject", Extensibility, Error,
                 "Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject");
+
+        internal static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =
+            Rule("xUnit3001", "Classes that implement Xunit.Abstractions.IXunitSerializable must have a public parameterless constructor", Extensibility, Error,
+                "Class {0} must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable");
     }
 }

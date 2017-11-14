@@ -35,6 +35,7 @@ namespace Xunit.Analyzers
             public INamedTypeSymbol MemberDataAttributeType => Compilation.GetTypeByMetadataName(Constants.Types.XunitMemberDataAttribute);
             public INamedTypeSymbol ITestCaseType => Compilation.GetTypeByMetadataName(Constants.Types.XunitAbstractionsITestCase);
             public INamedTypeSymbol LongLivedMarshalByRefObjectType => Compilation.GetTypeByMetadataName(Constants.Types.XunitLongLivedMarshalByRefObject);
+            public INamedTypeSymbol IXunitSerializableType => Compilation.GetTypeByMetadataName(Constants.Types.XunitAbstractionsIXunitSerializableType);
         }
 
         public override void Initialize(AnalysisContext context)
