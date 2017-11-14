@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Xunit.Analyzers
 
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ public class MyTestCase : Xunit.Abstractions.IXunitSerializable
 
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
     }
 }
