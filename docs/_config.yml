@@ -15,4 +15,5 @@ repository: xunit/xunit.analyzers
 plugins:
   - jekyll-redirect-from
   - jekyll-seo-tag
+  - jekyll-octicons
 exclude: ["README.md", "RULE_TEMPLATE.md", "Gemfile*"]

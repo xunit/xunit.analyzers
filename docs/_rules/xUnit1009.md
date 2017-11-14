@@ -7,7 +7,7 @@ severity: Error
 
 # This is a documentation stub
 
-Please submit a PR with updates to the [appropriate file](https://github.com/xunit/xunit.analyzers/tree/master/docs/_rules) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
+Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
 
 ## Cause
 
