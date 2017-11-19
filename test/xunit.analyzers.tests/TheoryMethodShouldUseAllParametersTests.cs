@@ -167,5 +167,19 @@ class TestClass
 
             CheckDiagnostics(diagnostics);
         }
+
+        [Fact]
+        public async void DoesNotFindWarning_ParameterStartingWithUnderscore()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+using Xunit;
+
+class TestClass
+{
+    [Theory]
+    void TestMethod(string _, int _discarded) { }
+}");
+            CheckDiagnostics(diagnostics);
+        }
     }
 }
