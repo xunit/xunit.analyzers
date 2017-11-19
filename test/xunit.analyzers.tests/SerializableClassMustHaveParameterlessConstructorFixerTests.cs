@@ -9,11 +9,12 @@ namespace Xunit.Analyzers
         readonly CodeFixProvider fixer = new SerializableClassMustHaveParameterlessConstructorFixer();
 
         [Fact]
-        public async void WithNoParameterlessConstructor_AddsConstructor()
+        public async void WithNoParameterlessConstructor_AddsConstructor_WithoutUsing()
         {
             var code =
 @"public class MyTestCase : Xunit.Abstractions.IXunitSerializable
 {
+    public void Foo() { }
 }";
             var expected =
 @"public class MyTestCase : Xunit.Abstractions.IXunitSerializable
@@ -22,6 +23,8 @@ namespace Xunit.Analyzers
     public MyTestCase()
     {
     }
+
+    public void Foo() { }
 }";
 
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
@@ -30,7 +33,37 @@ namespace Xunit.Analyzers
         }
 
         [Fact]
-        public async void WithNonPublicParameterlessConstructor_ChangesVisibility()
+        public async void WithNoParameterlessConstructor_AddsConstructor_WithUsing()
+        {
+            var code =
+@"using System;
+using Xunit.Abstractions;
+
+public class MyTestCase : IXunitSerializable
+{
+    public void Foo() { }
+}";
+            var expected =
+@"using System;
+using Xunit.Abstractions;
+
+public class MyTestCase : IXunitSerializable
+{
+    [Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
+    public MyTestCase()
+    {
+    }
+
+    public void Foo() { }
+}";
+
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+
+            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+        }
+
+        [Fact]
+        public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
         {
             var code =
 @"public class MyTestCase : Xunit.Abstractions.IXunitSerializable
@@ -42,6 +75,32 @@ namespace Xunit.Analyzers
 {
     [System.Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
     public MyTestCase() { throw new System.DivideByZeroException(); }
+}";
+
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+
+            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+        }
+
+        [Fact]
+        public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithUsing()
+        {
+            var code =
+@"using System;
+using Xunit.Abstractions;
+
+public class MyTestCase : IXunitSerializable
+{
+    protected MyTestCase() { throw new DivideByZeroException(); }
+}";
+            var expected =
+@"using System;
+using Xunit.Abstractions;
+
+public class MyTestCase : IXunitSerializable
+{
+    [Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
+    public MyTestCase() { throw new DivideByZeroException(); }
 }";
 
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);

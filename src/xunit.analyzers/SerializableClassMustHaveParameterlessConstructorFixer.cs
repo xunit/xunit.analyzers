@@ -18,11 +18,7 @@ namespace Xunit.Analyzers
         const string ObsoleteMessage = "Called by the de-serializer; should only be called by deriving classes for de-serialization purposes";
         const string Title = "Create/update constructor";
 
-        static readonly AttributeListSyntax attributeList;
-        static readonly SyntaxList<AttributeListSyntax> attributes;
-        static readonly BlockSyntax body;
-        static readonly SyntaxTokenList modifiers;
-        static readonly ParameterListSyntax parameterList;
+        static readonly LiteralExpressionSyntax obsoleteText;
 
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id);
 
@@ -30,21 +26,8 @@ namespace Xunit.Analyzers
 
         static SerializableClassMustHaveParameterlessConstructorFixer()
         {
-            var attributeName = SyntaxFactory.ParseName(Constants.Types.SystemObsolete);
-            var obsoleteText = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(ObsoleteMessage));
-            var attributeArg = SyntaxFactory.AttributeArgument(obsoleteText);
-            var attributeArgs = SyntaxFactory.AttributeArgumentList(SyntaxFactory.SingletonSeparatedList(attributeArg));
-            var attribute = SyntaxFactory.Attribute(attributeName, attributeArgs);
-            var attributeSyntaxList = SyntaxFactory.SingletonSeparatedList(attribute);
-            attributeList = SyntaxFactory.AttributeList(attributeSyntaxList);
-            attributes = SyntaxFactory.SingletonList(attributeList);
-            modifiers = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
-            parameterList = SyntaxFactory.ParameterList();
-            body = SyntaxFactory.Block();
+            obsoleteText = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(ObsoleteMessage));
         }
-
-        static ConstructorDeclarationSyntax EmptyPublicConstructor(SyntaxToken identifier)
-            => SyntaxFactory.ConstructorDeclaration(attributes, modifiers, identifier, parameterList, null, body);
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -62,23 +45,27 @@ namespace Xunit.Analyzers
         async Task<Document> RunFix(Document document, ClassDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+            var generator = editor.Generator;
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
+            var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
 
             if (parameterlessCtor == null)
             {
-                var updatedDeclaration = declaration.AddMembers(EmptyPublicConstructor(declaration.Identifier));
+                var constructor = generator.ConstructorDeclaration(accessibility: Accessibility.Public);
+                var constructorWithAttributes = generator.AddAttributes(constructor, obsoleteAttribute);
+                var updatedDeclaration = editor.Generator.InsertMembers(declaration, 0, constructorWithAttributes);
                 editor.ReplaceNode(declaration, updatedDeclaration);
             }
             else
             {
-                var updatedCtor = parameterlessCtor.WithModifiers(modifiers);
+                var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
-                var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
                 var hasObsolete = parameterlessCtor.AttributeLists
                                                    .SelectMany(al => al.Attributes)
                                                    .Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
                 if (!hasObsolete)
-                    updatedCtor = updatedCtor.AddAttributeLists(attributeList);
+                    updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
 
                 editor.ReplaceNode(parameterlessCtor, updatedCtor);
             }

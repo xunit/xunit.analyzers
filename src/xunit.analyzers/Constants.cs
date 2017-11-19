@@ -18,7 +18,6 @@
 
             internal static readonly string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
 
-            internal static readonly string SystemObsolete = "System.Obsolete";
             internal static readonly string SystemObsoleteAttribute = "System.ObsoleteAttribute";
             internal static readonly string SystemCollectionsICollection = "System.Collections.ICollection";
             internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";

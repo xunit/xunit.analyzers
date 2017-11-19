@@ -26,5 +26,8 @@ namespace Xunit.Analyzers
         {
             return compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
         }
+
+        internal static INamedTypeSymbol GetObsoleteAttributeType(Compilation compilation)
+            => compilation.GetTypeByMetadataName(Constants.Types.SystemObsoleteAttribute);
     }
 }
