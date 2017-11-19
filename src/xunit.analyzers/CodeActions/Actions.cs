@@ -60,29 +60,20 @@ namespace Xunit.Analyzers.CodeActions
             return editor.GetChangedDocument();
         }
 
-        public static async Task<Document> SetBaseClass(Document document, ClassDeclarationSyntax declaration, TypeSyntax baseType, CancellationToken cancellationToken)
+        public static async Task<Document> SetBaseClass(Document document, ClassDeclarationSyntax declaration, string baseType, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            var baseListSyntax = declaration.BaseList;
-            var baseTypeSyntax = SyntaxFactory.SimpleBaseType(baseType);
-            var separatedList = default(SeparatedSyntaxList<BaseTypeSyntax>);
+            var generator = editor.Generator;
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+            var baseTypeNode = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName(baseType));
+            var baseTypes = generator.GetBaseAndInterfaceTypes(declaration);
+            var updatedDeclaration = default(SyntaxNode);
 
-            if (baseListSyntax == null || baseListSyntax.Types.Count == 0)
-                separatedList = SyntaxFactory.SingletonSeparatedList<BaseTypeSyntax>(baseTypeSyntax);
+            if (baseTypes?.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class)
+                updatedDeclaration = generator.AddBaseType(declaration, baseTypeNode);
             else
-            {
-                var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-                var firstBaseType = baseListSyntax.Types[0];
-                var firstBaseTypeInfo = semanticModel.GetTypeInfo(firstBaseType.Type, cancellationToken);
+                updatedDeclaration = generator.ReplaceNode(declaration, baseTypes[0], baseTypeNode);
 
-                // Do we already have a base class? If so, replace it
-                if (firstBaseTypeInfo.Type?.TypeKind == TypeKind.Class)
-                    separatedList = baseListSyntax.Types.Replace(firstBaseType, baseTypeSyntax);
-                else
-                    separatedList = baseListSyntax.Types.Insert(0, baseTypeSyntax);
-            }
-
-            var updatedDeclaration = declaration.WithBaseList(SyntaxFactory.BaseList(separatedList));
             editor.ReplaceNode(declaration, updatedDeclaration);
             return editor.GetChangedDocument();
         }

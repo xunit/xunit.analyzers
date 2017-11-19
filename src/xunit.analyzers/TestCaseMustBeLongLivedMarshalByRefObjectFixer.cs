@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
@@ -13,8 +12,7 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : CodeFixProvider
     {
-        static readonly TypeSyntax baseType = SyntaxFactory.ParseTypeName(Constants.Types.XunitLongLivedMarshalByRefObject);
-        const string title = "Add Base Class";
+        const string title = "Set Base Type";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
 
@@ -28,7 +26,7 @@ namespace Xunit.Analyzers
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedDocument: ct => Actions.SetBaseClass(context.Document, classDeclaration, baseType, ct),
+                    createChangedDocument: ct => Actions.SetBaseClass(context.Document, classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
                     equivalenceKey: title),
                 context.Diagnostics);
         }
