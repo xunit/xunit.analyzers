@@ -37,6 +37,48 @@ namespace Xunit.Analyzers
         FailOnErrorsAndLevel4Warnings = 4,
     }
 
+    [Flags]
+    enum XunitReferences
+    {
+        None = 0,
+
+        /// <summary>Adds a reference to xunit.abstractions</summary>
+        Abstractions = 0x01,
+
+        /// <summary>Adds a reference to xunit.assert</summary>
+        Assert = 0x02,
+
+        /// <summary>Adds a reference to xunit.core</summary>
+        Core = 0x04,
+
+        /// <summary>Adds a reference to xunit.execution</summary>
+        Execution = 0x08,
+
+        /// <summary>
+        /// This adds references akin to the xunit.extensibility.core NuGet package. This is appropriate
+        /// for simulating the typing references used when writing core-only extensibility.
+        /// </summary>
+        PkgCoreExtensibility = Abstractions | Core,
+
+        /// <summary>
+        /// This adds references akin to the xunit.extensibility.execution NuGet package. This is appropriate
+        /// for simulating the typing references used when writing full extensibility.
+        /// </summary>
+        PkgExecutionExtensibility = Abstractions | Core | Execution,
+
+        /// <summary>
+        /// This adds references akin to the xunit NuGet package. This is appropriate for simulating the
+        /// typical references used when writing unit tests.
+        /// </summary>
+        PkgXunit = Abstractions | Assert | Core,
+
+        /// <summary>
+        /// This adds references akin to the xunit.core NuGet package. This is appropriate for simulating the
+        /// typical references used when writing unit tests with a third party assertion library.
+        /// </summary>
+        PkgXunitCore = Abstractions | Core,
+    }
+
     class CodeAnalyzerHelper
     {
         static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
@@ -45,10 +87,19 @@ namespace Xunit.Analyzers
         static readonly MetadataReference SystemTextReference = MetadataReference.CreateFromFile(typeof(System.Text.RegularExpressions.Regex).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference SystemRuntimeReference;
         static readonly MetadataReference SystemThreadingTasksReference;
-        static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
         static readonly MetadataReference XunitExecutionReference = MetadataReference.CreateFromFile(typeof(XunitTestCase).GetTypeInfo().Assembly.Location);
+
+        static readonly IEnumerable<MetadataReference> SystemReferences;
+
+        static readonly Dictionary<XunitReferences, MetadataReference[]> ReferenceMap = new Dictionary<XunitReferences, MetadataReference[]> {
+            { XunitReferences.Abstractions, new[] { XunitAbstractionsReference } },
+            { XunitReferences.Assert, new[] { XunitAssertReference } },
+            { XunitReferences.Core, new[] {  XunitCoreReference } },
+            { XunitReferences.Execution, new[] { XunitExecutionReference } },
+        };
 
         static CodeAnalyzerHelper()
         {
@@ -57,6 +108,7 @@ namespace Xunit.Analyzers
             var referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
             SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+            SystemReferences = new[] { CorlibReference, SystemCollectionsImmutable, SystemCoreReference, SystemTextReference, SystemRuntimeReference, SystemThreadingTasksReference };
         }
 
         static async Task<ImmutableArray<Diagnostic>> ApplyAnalyzers(Compilation compilation, params DiagnosticAnalyzer[] analyzers)
@@ -78,7 +130,7 @@ namespace Xunit.Analyzers
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
 
-        static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, string source, params string[] additionalSources)
+        static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
         {
             const string fileNamePrefix = "Source";
             const string projectName = "Project";
@@ -89,18 +141,7 @@ namespace Xunit.Analyzers
             var solution = workspace
                 .CurrentSolution
                 .AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
-                .AddMetadataReferences(projectId, new[] {
-                        CorlibReference,
-                        SystemCollectionsImmutable,
-                        SystemCoreReference,
-                        SystemTextReference,
-                        SystemRuntimeReference,
-                        SystemThreadingTasksReference,
-                        XunitCoreReference,
-                        XunitAbstractionsReference,
-                        XunitAssertReference,
-                        XunitExecutionReference,
-                });
+                .AddMetadataReferences(projectId, GetMetadataReferences(references));
 
             var count = 0;
             var firstDocument = default(Document);
@@ -125,9 +166,6 @@ namespace Xunit.Analyzers
             if (compilationReporting != CompilationReporting.IgnoreErrors)
             {
                 var compilationDiagnostics = compilation.GetDiagnostics();
-                if (compilationReporting == CompilationReporting.FailOnErrors)
-                    compilationDiagnostics = compilationDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToImmutableArray();
-
                 if (compilationDiagnostics.Length > 0)
                 {
                     var messages = compilationDiagnostics.Select(d => (diag: d, line: d.Location.GetLineSpan().StartLinePosition))
@@ -140,22 +178,30 @@ namespace Xunit.Analyzers
         }
 
         public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, string source, params string[] additionalSources)
-            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, source, additionalSources);
+            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, XunitReferences.PkgXunit, source, additionalSources);
 
-        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, string source, params string[] additionalSources)
+        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, string source, params string[] additionalSources)
+            => GetDiagnosticsAsync(analyzer, compilationReporting, XunitReferences.PkgXunit, source, additionalSources);
+
+        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, XunitReferences references, string source, params string[] additionalSources)
+            => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, references, source, additionalSources);
+
+        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
         {
-            var (compilation, _, workspace) = await GetCompilationAsync(compilationReporting, source, additionalSources);
+            var (compilation, _, workspace) = await GetCompilationAsync(compilationReporting, references, source, additionalSources);
 
             using (workspace)
                 return await ApplyAnalyzers(compilation, analyzer);
         }
 
-        public static Task<string> GetFixedCodeAsync(DiagnosticAnalyzer analyzer, CodeFixProvider fixer, string source, int actionIndex = 0)
-            => GetFixedCodeAsync(analyzer, fixer, CompilationReporting.FailOnErrors, source, actionIndex);
-
-        public static async Task<string> GetFixedCodeAsync(DiagnosticAnalyzer analyzer, CodeFixProvider fixer, CompilationReporting compilationReporting, string source, int actionIndex = 0)
+        public static async Task<string> GetFixedCodeAsync(DiagnosticAnalyzer analyzer,
+                                                           CodeFixProvider fixer,
+                                                           string source,
+                                                           CompilationReporting compilationReporting = CompilationReporting.FailOnErrors,
+                                                           XunitReferences references = XunitReferences.PkgXunit,
+                                                           int actionIndex = 0)
         {
-            var (compilation, document, workspace) = await GetCompilationAsync(compilationReporting, source);
+            var (compilation, document, workspace) = await GetCompilationAsync(compilationReporting, references, source);
 
             using (workspace)
             {
@@ -184,6 +230,17 @@ namespace Xunit.Analyzers
                 var text = await changedDocument.GetTextAsync();
                 return text.ToString();
             }
+        }
+
+        static IEnumerable<MetadataReference> GetMetadataReferences(XunitReferences references)
+        {
+            var result = SystemReferences;
+
+            foreach (var kvp in ReferenceMap)
+                if (references.HasFlag(kvp.Key))
+                    result = result.Concat(kvp.Value);
+
+            return result;
         }
     }
 }

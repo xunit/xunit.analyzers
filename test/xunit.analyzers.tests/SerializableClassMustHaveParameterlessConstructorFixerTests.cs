@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
     public void Foo() { }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
@@ -57,7 +57,7 @@ public class MyTestCase : IXunitSerializable
     public void Foo() { }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
@@ -77,7 +77,7 @@ public class MyTestCase : IXunitSerializable
     public MyTestCase() { throw new System.DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
@@ -103,7 +103,7 @@ public class MyTestCase : IXunitSerializable
     public MyTestCase() { throw new DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }
@@ -128,7 +128,7 @@ public class MyTestCase : Xunit.Abstractions.IXunitSerializable
     public MyTestCase() { throw new System.DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
         }

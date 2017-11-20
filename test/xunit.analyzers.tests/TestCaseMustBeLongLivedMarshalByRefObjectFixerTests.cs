@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
         {
             var code = "public class MyTestCase : Xunit.Abstractions.ITestCase { }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
 
             Assert.Equal("public class MyTestCase : Xunit.LongLivedMarshalByRefObject, Xunit.Abstractions.ITestCase { }", result);
         }
@@ -23,7 +23,7 @@ namespace Xunit.Analyzers
         {
             var code = "using Xunit; using Xunit.Abstractions; public class MyTestCase : ITestCase { }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
 
             Assert.Equal("using Xunit; using Xunit.Abstractions; public class MyTestCase : LongLivedMarshalByRefObject, ITestCase { }", result);
         }
@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
         {
             var code = "public class Foo { } public class MyTestCase : Foo, Xunit.Abstractions.ITestCase { }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
 
             Assert.Equal("public class Foo { } public class MyTestCase : Xunit.LongLivedMarshalByRefObject, Xunit.Abstractions.ITestCase { }", result);
         }
@@ -43,7 +43,7 @@ namespace Xunit.Analyzers
         {
             var code = "using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : Foo, ITestCase { }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, CompilationReporting.IgnoreErrors, code);
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
 
             Assert.Equal("using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : LongLivedMarshalByRefObject, ITestCase { }", result);
         }

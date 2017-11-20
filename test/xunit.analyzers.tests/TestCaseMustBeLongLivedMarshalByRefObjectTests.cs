@@ -42,7 +42,7 @@ public class MyTestCase: {0} {{ }}
         [Fact]
         public async void XunitTestCase_NoDiagnostics()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class MyTestCase : Xunit.Sdk.XunitTestCase { }");
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, XunitReferences.PkgExecutionExtensibility, "public class MyTestCase : Xunit.Sdk.XunitTestCase { }");
 
             Assert.Empty(diagnostics);
         }
@@ -53,7 +53,7 @@ public class MyTestCase: {0} {{ }}
         {
             var code = string.Format(Template, $"{baseClass}, {@interface}");
 
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, code);
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
 
             Assert.Empty(diagnostics);
         }
@@ -64,7 +64,7 @@ public class MyTestCase: {0} {{ }}
         {
             var code = string.Format(Template, @interface);
 
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, code);
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
 
             Assert.Collection(diagnostics,
                 d =>
@@ -81,7 +81,7 @@ public class MyTestCase: {0} {{ }}
         {
             var code = string.Format(Template, $"Foo, {@interface}");
 
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, code);
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
 
             Assert.Collection(diagnostics,
                 d =>
