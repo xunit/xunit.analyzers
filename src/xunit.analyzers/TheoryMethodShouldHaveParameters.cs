@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
                     return;
 
                 var attributes = symbol.GetAttributes();
-                if (attributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
+                if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
                 {
                     symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1006_TheoryMethodShouldHaveParameters, symbol.Locations.First()));
                 }

@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
                     return;
 
                 var attributes = method.GetAttributes();
-                if (attributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
+                if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
                 {
                     symbolContext.ReportDiagnostic(Diagnostic.Create(
                         Descriptors.X1022_TheoryMethodCannotHaveParameterArray,

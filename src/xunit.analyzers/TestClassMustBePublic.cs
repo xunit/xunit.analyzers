@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
                     return;
 
                 var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
-                if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.FactAttributeType)))
+                if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.Core.FactAttributeType)))
                 {
                     syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                         Descriptors.X1000_TestClassMustBePublic,

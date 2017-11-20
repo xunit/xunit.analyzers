@@ -27,9 +27,9 @@ namespace Xunit.Analyzers
                 foreach (var baseType in classDeclaration.BaseList.Types)
                 {
                     var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
-                    if (xunitContext.ITestCaseType?.IsAssignableFrom(type) == true)
+                    if (xunitContext.Abstractions.ITestCaseType?.IsAssignableFrom(type) == true)
                         isTestCase = true;
-                    if (xunitContext.LongLivedMarshalByRefObjectType?.IsAssignableFrom(type) == true)
+                    if (xunitContext.Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(type) == true)
                         hasMBRO = true;
                 }
 
@@ -42,5 +42,8 @@ namespace Xunit.Analyzers
                 }
             }, SyntaxKind.ClassDeclaration);
         }
+
+        protected override bool ShouldAnalyze(XunitContext xunitContext)
+            => xunitContext.HasAbstractionsReference && xunitContext.HasExecutionReference;
     }
 }

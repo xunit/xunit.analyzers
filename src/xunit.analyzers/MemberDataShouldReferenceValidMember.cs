@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
             {
                 var attribute = symbolContext.Node as AttributeSyntax;
                 var semanticModel = symbolContext.SemanticModel;
-                if (semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type != xunitContext.MemberDataAttributeType)
+                if (semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type != xunitContext.Core.MemberDataAttributeType)
                     return;
 
                 var memberNameArgument = attribute.ArgumentList.Arguments.FirstOrDefault();

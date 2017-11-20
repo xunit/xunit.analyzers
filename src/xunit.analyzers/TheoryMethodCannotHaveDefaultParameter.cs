@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
             {
                 var method = (IMethodSymbol)symbolContext.Symbol;
                 var attributes = method.GetAttributes();
-                if (!attributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
+                if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
                     return;
                 foreach (var parameter in method.Parameters)
                 {

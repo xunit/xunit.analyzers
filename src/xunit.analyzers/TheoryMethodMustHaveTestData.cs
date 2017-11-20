@@ -17,8 +17,8 @@ namespace Xunit.Analyzers
             {
                 var symbol = (IMethodSymbol)symbolContext.Symbol;
                 var attributes = symbol.GetAttributes();
-                if (attributes.ContainsAttributeType(xunitContext.TheoryAttributeType) &&
-                    (attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.DataAttributeType)))
+                if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
+                    (attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType)))
                 {
                     symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1003_TheoryMethodMustHaveTestData, symbol.Locations.First()));
                 }

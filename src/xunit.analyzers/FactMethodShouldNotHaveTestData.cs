@@ -19,9 +19,9 @@ namespace Xunit.Analyzers
                 var symbol = (IMethodSymbol)symbolContext.Symbol;
                 var attributes = symbol.GetAttributes();
                 if (attributes.Length > 1 &&
-                    attributes.ContainsAttributeType(xunitContext.FactAttributeType, exactMatch: true) &&
-                    !attributes.ContainsAttributeType(xunitContext.TheoryAttributeType) &&
-                    attributes.ContainsAttributeType(xunitContext.DataAttributeType))
+                    attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true) &&
+                    !attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
+                    attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
                 {
                     symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData, symbol.Locations.First()));
                 }

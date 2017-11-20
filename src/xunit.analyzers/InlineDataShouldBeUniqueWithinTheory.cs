@@ -24,13 +24,13 @@ namespace Xunit.Analyzers
             var method = (IMethodSymbol)context.Symbol;
 
             var methodAllAttributes = method.GetAttributes();
-            if (!methodAllAttributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
+            if (!methodAllAttributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
                 return;
 
             var objectArrayType = TypeSymbolFactory.GetObjectArrayType(context.Compilation);
 
             var wellFormedInlineDataAttributes = methodAllAttributes
-                .Where(a => a.AttributeClass == xunitContext.InlineDataAttributeType
+                .Where(a => a.AttributeClass == xunitContext.Core.InlineDataAttributeType
                             && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
             AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);
