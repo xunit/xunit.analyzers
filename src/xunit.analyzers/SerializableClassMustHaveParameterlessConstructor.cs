@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
                 foreach (var baseType in classDeclaration.BaseList.Types)
                 {
                     var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
-                    if (xunitContext.IXunitSerializableType?.IsAssignableFrom(type) == true)
+                    if (xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(type) == true)
                     {
                         var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
                         if (parameterlessCtor == null || !parameterlessCtor.Modifiers.Any(m => m.Text == "public"))
@@ -40,5 +40,8 @@ namespace Xunit.Analyzers
                 }
             }, SyntaxKind.ClassDeclaration);
         }
+
+        protected override bool ShouldAnalyze(XunitContext xunitContext)
+            => xunitContext.HasAbstractionsReference;
     }
 }

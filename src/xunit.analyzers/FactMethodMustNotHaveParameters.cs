@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
                 if (methodDeclaration.ParameterList.Parameters.Count == 0)
                     return;
 
-                if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.FactAttributeType, exactMatch: true))
+                if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.Core.FactAttributeType, exactMatch: true))
                 {
                     syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                         Descriptors.X1001_FactMethodMustNotHaveParameters,

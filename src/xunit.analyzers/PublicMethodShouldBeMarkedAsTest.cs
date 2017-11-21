@@ -50,7 +50,7 @@ namespace Xunit.Analyzers
                     if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
                         continue;
 
-                    var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.FactAttributeType);
+                    var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType);
                     hasTestMethods = hasTestMethods || isTestMethod;
 
                     if (isTestMethod)

@@ -27,8 +27,8 @@ namespace Xunit.Analyzers
 
         internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            var xunitSupportsParameterArrays = xunitContext.Capabilities.TheorySupportsParameterArrays;
-            var xunitSupportsDefaultParameterValues = xunitContext.Capabilities.TheorySupportsDefaultParameterValues;
+            var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
+            var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 
             var compilation = compilationStartContext.Compilation;
             var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
@@ -38,14 +38,14 @@ namespace Xunit.Analyzers
                 var method = (IMethodSymbol)symbolContext.Symbol;
 
                 var attributes = method.GetAttributes();
-                if (!attributes.ContainsAttributeType(xunitContext.TheoryAttributeType))
+                if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
                     return;
 
                 foreach (var attribute in attributes)
                 {
                     symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (!attribute.AttributeClass.Equals(xunitContext.InlineDataAttributeType))
+                    if (!attribute.AttributeClass.Equals(xunitContext.Core.InlineDataAttributeType))
                         continue;
 
                     // Check if the semantic model indicates there are no syntax/compilation errors

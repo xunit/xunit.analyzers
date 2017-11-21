@@ -20,9 +20,9 @@ namespace Xunit.Analyzers
                 if (attributes.Length == 0)
                     return;
 
-                    // Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
-                    // we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
-                    if (!attributes.ContainsAttributeType(xunitContext.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.DataAttributeType))
+                // Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
+                // we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
+                if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
                     symbolContext.ReportDiagnostic(Diagnostic.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory, methodSymbol.Locations.First()));
             }, SymbolKind.Method);
         }

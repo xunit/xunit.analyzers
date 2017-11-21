@@ -1,25 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute;
 
 namespace Xunit.Analyzers
 {
     public class TheoryMethodCannotHaveParamsArrayTests
     {
-        readonly XunitCapabilities capabilitiesSub = Substitute.For<XunitCapabilities>();
-        readonly DiagnosticAnalyzer analyzer;
-
-        public TheoryMethodCannotHaveParamsArrayTests()
-        {
-            capabilitiesSub.TheorySupportsParameterArrays.Returns(true);
-            analyzer = new TheoryMethodCannotHaveParamsArray(capabilitiesSub);
-        }
-
         [Fact]
         public async Task FindsErrorForTheoryWithParamsArrayAsync_WhenParamsArrayNotSupported()
         {
-            capabilitiesSub.TheorySupportsParameterArrays.Returns(false);
+            // 2.1.0 does not support params arrays
+            var analyzer = new TheoryMethodCannotHaveParamsArray("2.1.0");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
@@ -38,7 +28,8 @@ namespace Xunit.Analyzers
         [Fact]
         public async Task DoesNotFindErrorForTheoryWithParamsArrayAsync_WhenParamsArraySupported()
         {
-            capabilitiesSub.TheorySupportsParameterArrays.Returns(true);
+            // 2.2.0 does support params arrays
+            var analyzer = new TheoryMethodCannotHaveParamsArray("2.2.0");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
@@ -49,11 +40,11 @@ namespace Xunit.Analyzers
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task DoesNotFindErrorForTheoryWithParamsArrayAsync(bool paramsSupported)
+        [InlineData("2.1.0")]
+        [InlineData("2.2.0")]
+        public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync(string versionString)
         {
-            capabilitiesSub.TheorySupportsParameterArrays.Returns(paramsSupported);
+            var analyzer = new TheoryMethodCannotHaveParamsArray(versionString);
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +

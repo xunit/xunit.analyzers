@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
                     return;
 
                 var attributeType = syntaxNodeContext.SemanticModel.GetTypeInfo(attribute).Type;
-                if (!xunitContext.FactAttributeType.IsAssignableFrom(attributeType))
+                if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
                     return;
 
                 var skipArgument = attribute.ArgumentList.Arguments
