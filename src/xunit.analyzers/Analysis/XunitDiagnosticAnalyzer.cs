@@ -1,19 +1,18 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using System;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
     {
-        readonly XunitCapabilitiesFactory capabilitiesFactory;
+        readonly Version versionOverride;
 
-        protected XunitDiagnosticAnalyzer() : this(null) { }
+        public XunitDiagnosticAnalyzer() { }
 
-        protected XunitDiagnosticAnalyzer(XunitCapabilities capabilities = null)
+        /// <summary>For testing purposes only.</summary>
+        public XunitDiagnosticAnalyzer(Version versionOverride)
         {
-            if (capabilities == null)
-                capabilitiesFactory = XunitCapabilities.Create;
-            else
-                capabilitiesFactory = c => capabilities;
+            this.versionOverride = versionOverride;
         }
 
         public override void Initialize(AnalysisContext context)
@@ -22,7 +21,7 @@ namespace Xunit.Analyzers
 
             context.RegisterCompilationStartAction(compilationStartContext =>
             {
-                var xunitContext = new XunitContext(compilationStartContext.Compilation, capabilitiesFactory);
+                var xunitContext = new XunitContext(compilationStartContext.Compilation, versionOverride);
                 if (ShouldAnalyze(xunitContext))
                     AnalyzeCompilation(compilationStartContext, xunitContext);
             });

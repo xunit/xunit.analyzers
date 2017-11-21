@@ -1,19 +1,58 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers
 {
     public class CoreContext
     {
-        readonly Compilation compilation;
+        static readonly Version Version_2_2_0 = new Version("2.2.0");
 
-        public CoreContext(Compilation compilation)
-            => this.compilation = compilation;
+        readonly Lazy<INamedTypeSymbol> lazyClassDataAttributeType;
+        readonly Lazy<INamedTypeSymbol> lazyDataAttributeType;
+        readonly Lazy<INamedTypeSymbol> lazyFactAttributeType;
+        readonly Lazy<INamedTypeSymbol> lazyInlineDataAttributeType;
+        readonly Lazy<INamedTypeSymbol> lazyMemberDataAttributeType;
+        readonly Lazy<INamedTypeSymbol> lazyTheoryAttributeType;
 
-        public INamedTypeSymbol FactAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute);
-        public INamedTypeSymbol TheoryAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
-        public INamedTypeSymbol DataAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute);
-        public INamedTypeSymbol InlineDataAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);
-        public INamedTypeSymbol ClassDataAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute);
-        public INamedTypeSymbol MemberDataAttributeType => compilation.GetTypeByMetadataName(Constants.Types.XunitMemberDataAttribute);
+        public CoreContext(Compilation compilation, Version versionOverride = null)
+        {
+            Version = versionOverride ?? compilation.ReferencedAssemblyNames
+                                                    .FirstOrDefault(a => a.Name.Equals("xunit.core", StringComparison.OrdinalIgnoreCase))
+                                                   ?.Version;
+
+            lazyClassDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute));
+            lazyDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute));
+            lazyFactAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute));
+            lazyInlineDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute));
+            lazyMemberDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitMemberDataAttribute));
+            lazyTheoryAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute));
+        }
+
+        public INamedTypeSymbol ClassDataAttributeType
+            => lazyClassDataAttributeType?.Value;
+
+        public INamedTypeSymbol DataAttributeType
+            => lazyDataAttributeType?.Value;
+
+        public INamedTypeSymbol FactAttributeType
+            => lazyFactAttributeType?.Value;
+
+        public INamedTypeSymbol InlineDataAttributeType
+            => lazyInlineDataAttributeType?.Value;
+
+        public INamedTypeSymbol MemberDataAttributeType
+            => lazyMemberDataAttributeType?.Value;
+
+        public INamedTypeSymbol TheoryAttributeType
+            => lazyTheoryAttributeType?.Value;
+
+        public virtual bool TheorySupportsParameterArrays
+            => Version >= Version_2_2_0;
+
+        public virtual bool TheorySupportsDefaultParameterValues 
+            => Version >= Version_2_2_0;
+
+        public Version Version { get; set; }
     }
 }

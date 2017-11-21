@@ -1,25 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute;
 
 namespace Xunit.Analyzers
 {
     public class TheoryMethodCannotHaveDefaultParameterTests
     {
-        readonly XunitCapabilities capabilitiesSub = Substitute.For<XunitCapabilities>();
-        readonly DiagnosticAnalyzer analyzer;
-
-        public TheoryMethodCannotHaveDefaultParameterTests()
-        {
-            capabilitiesSub.TheorySupportsParameterArrays.Returns(true);
-            analyzer = new TheoryMethodCannotHaveDefaultParameter(capabilitiesSub);
-        }
-
         [Fact]
         public async Task FindsErrorForTheoryWithDefaultParameter_WhenDefaultValueNotSupported()
         {
-            capabilitiesSub.TheorySupportsDefaultParameterValues.Returns(false);
+            // 2.1.0 does not support default parameter values
+            var analyzer = new TheoryMethodCannotHaveDefaultParameter("2.1.0");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
@@ -38,7 +28,8 @@ namespace Xunit.Analyzers
         [Fact]
         public async Task DoesNotFindErrorForTheoryWithDefaultParameter_WhenDefaultValueSupported()
         {
-            capabilitiesSub.TheorySupportsDefaultParameterValues.Returns(true);
+            // 2.2.0 does support default parameter values
+            var analyzer = new TheoryMethodCannotHaveDefaultParameter("2.2.0");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +

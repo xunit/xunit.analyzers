@@ -1,40 +1,31 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers
 {
     public class XunitContext
     {
-        readonly Lazy<AbstractionsContext> abstractions;
-        readonly Lazy<CoreContext> core;
-        readonly Lazy<ExecutionContext> execution;
-        readonly Lazy<bool> hasAbstractionsReference;
-        readonly Lazy<bool> hasCoreReference;
-        readonly Lazy<bool> hasExecutionReference;
-
-        internal XunitContext(Compilation compilation, XunitCapabilitiesFactory capabilitiesFactory)
+        internal XunitContext(Compilation compilation, Version versionOverride = null)
         {
-            Capabilities = capabilitiesFactory(compilation);
             Compilation = compilation;
 
-            hasAbstractionsReference = new Lazy<bool>(() => Compilation.ReferencedAssemblyNames.FirstOrDefault(x => x.Name == "xunit.abstractions") != null);
-            hasCoreReference = new Lazy<bool>(() => Compilation.ReferencedAssemblyNames.FirstOrDefault(x => x.Name == "xunit.core") != null);
-            hasExecutionReference = new Lazy<bool>(() => Compilation.ReferencedAssemblyNames.FirstOrDefault(x => x.Name.StartsWith("xunit.execution.")) != null);
-
-            abstractions = new Lazy<AbstractionsContext>(() => new AbstractionsContext(compilation));
-            core = new Lazy<CoreContext>(() => new CoreContext(compilation));
-            execution = new Lazy<ExecutionContext>(() => new ExecutionContext(compilation));
+            Abstractions = new AbstractionsContext(compilation, versionOverride);
+            Core = new CoreContext(compilation, versionOverride);
+            Execution = new ExecutionContext(compilation, versionOverride);
         }
 
-        public AbstractionsContext Abstractions => abstractions.Value;
-        public XunitCapabilities Capabilities { get; }
-        public Compilation Compilation { get; }
-        public CoreContext Core => core.Value;
-        public ExecutionContext Execution => execution.Value;
+        public AbstractionsContext Abstractions { get; set; }
 
-        public bool HasAbstractionsReference => hasAbstractionsReference.Value;
-        public bool HasCoreReference => hasCoreReference.Value;
-        public bool HasExecutionReference => hasExecutionReference.Value;
+        public Compilation Compilation { get; set; }
+
+        public CoreContext Core { get; set; }
+
+        public ExecutionContext Execution { get; set; }
+
+        public bool HasAbstractionsReference => Abstractions.Version != null;
+
+        public bool HasCoreReference => Core.Version != null;
+
+        public bool HasExecutionReference => Execution.Version != null;
     }
 }

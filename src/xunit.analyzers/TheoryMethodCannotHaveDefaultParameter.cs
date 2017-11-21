@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,17 +10,17 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class TheoryMethodCannotHaveDefaultParameter : XunitDiagnosticAnalyzer
     {
-        public TheoryMethodCannotHaveDefaultParameter() : base() { }
+        public TheoryMethodCannotHaveDefaultParameter() { }
 
-        // For testing
-        public TheoryMethodCannotHaveDefaultParameter(XunitCapabilities capabilities) : base(capabilities) { }
+        /// <summary>For testing purposes only.</summary>
+        public TheoryMethodCannotHaveDefaultParameter(string assemblyVersion) : base(new Version(assemblyVersion)) { }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
 
         protected override bool ShouldAnalyze(XunitContext xunitContext)
         {
-            return !xunitContext.Capabilities.TheorySupportsDefaultParameterValues;
+            return !xunitContext.Core.TheorySupportsDefaultParameterValues;
         }
 
         internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)

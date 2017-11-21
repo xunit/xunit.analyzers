@@ -27,8 +27,8 @@ namespace Xunit.Analyzers
 
         internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
-            var xunitSupportsParameterArrays = xunitContext.Capabilities.TheorySupportsParameterArrays;
-            var xunitSupportsDefaultParameterValues = xunitContext.Capabilities.TheorySupportsDefaultParameterValues;
+            var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
+            var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 
             var compilation = compilationStartContext.Compilation;
             var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
