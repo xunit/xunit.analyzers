@@ -5,37 +5,49 @@ category: Assertions
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A violation of this rule occurs when using `Assert.True` or `Assert.False` to check for regular expression matches.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+There are specialized assert methods for regular expression matching.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+Replace the uses by `Assert.Matches` or `Assert.DoesNotMatch`.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+[Fact]
+public void ExampleMethod()
+{
+    string result = "foo bar baz";
+
+    Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
+    Assert.False(Regex.IsMatch(result, "hello (.*?)"));
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+[Fact]
+public void ExampleMethod()
+{
+    string result = "foo bar baz";
+
+    Assert.Matches("foo (.*?) baz", result);
+    Assert.DoesNotMatch("hello (.*?)", result);
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit2008 // Do not use boolean check to match on regular expressions
+#pragma warning restore xUnit2008 // Do not use boolean check to match on regular expressions
 ```

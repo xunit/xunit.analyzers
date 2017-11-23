@@ -5,37 +5,47 @@ category: Assertions
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A violation of this rule occurs when the first argument to an assert is not the expected value.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+The expected value in an assert should always be the first argument. This will ensure that generated messages explaining the test failure will correctly match the situation.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, swap the arguments in the assert, so that the expected value is the first.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+[Fact]
+public void AdditionExample()
+{
+    var result = 2 + 3;
+
+    Assert.Equal(result, 5);
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+[Fact]
+public void AdditionExample()
+{
+    var result = 2 + 3;
+
+    Assert.Equal(5, result);
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit2000 // Expected value should be first
+#pragma warning restore xUnit2000 // Expected value should be first
 ```
