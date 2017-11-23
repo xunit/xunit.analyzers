@@ -7,17 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when attempting to use `Assert.Null` or `Assert.NotNull` on a value type.
+A violation of this rule occurs when `Assert.Null` or `Assert.NotNull` are used on a value type.
 
 ## Reason for rule
 
-Value types, by definition, cannot be `null`. As such, it does not make sense to compare them to `null`.
+Value types cannot be `null`. As such, it does not make sense to compare them to `null`.
 
 ## How to fix violations
 
-To fix a violation of this rule, just remove the assert.
-
-Violations of this rule may also be a sign that the value was not actually be supposed to be a value type but a reference type.
+To fix a violation of this rule, either remove the assertion or change the object’s type to a reference type.
 
 ## Examples
 

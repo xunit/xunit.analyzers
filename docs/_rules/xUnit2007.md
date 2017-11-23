@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using the `typeof` operator with a type checking assert.
+A violation of this rule occurs when the `typeof` operator is used with a type checking assert.
 
 ## Reason for rule
 
-When the expected type is known at compile-time, the generic overload should be used to check against types.
+When the expected type is known at compile-time, the generic overload should be used.
 
 ## How to fix violations
 
-Use the generic overload of `Assert.IsType`, `Assert.IsNotType`, and `Assert.IsAssignableFrom`.
+Use the generic overload of `Assert.IsType`, `Assert.IsNotType`, or `Assert.IsAssignableFrom`.
 
 ## Examples
 
@@ -27,7 +27,7 @@ public void ExampleMethod()
 {
     string result = "foo bar baz";
 
-    Assert.IsType(typeof(string), result.GetType());
+    Assert.IsType(typeof(string), result);
 }
 ```
 
@@ -39,7 +39,7 @@ public void ExampleMethod()
 {
     string result = "foo bar baz";
 
-    Assert.IsType<string>(result.GetType());
+    Assert.IsType<string>(result);
 }
 ```
 

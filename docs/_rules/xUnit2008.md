@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using `Assert.True` or `Assert.False` to check for regular expression matches.
+A violation of this rule occurs when `Assert.True` or `Assert.False` are used to check for regular expression matches.
 
 ## Reason for rule
 
-There are specialized assert methods for regular expression matching.
+There are specialized assertions for regular expression matching that give more detailed information upon failure.
 
 ## How to fix violations
 
-Replace the uses by `Assert.Matches` or `Assert.DoesNotMatch`.
+Replace the assertions with `Assert.Matches` or `Assert.DoesNotMatch`.
 
 ## Examples
 

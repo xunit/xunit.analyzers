@@ -7,7 +7,7 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using the generic overload of `Assert.Equal` or `Assert.StrictEqual` with `string`.
+A violation of this rule occurs when the generic overloads of `Assert.Equal` or `Assert.StrictEqual` are used with `string`.
 
 ## Reason for rule
 

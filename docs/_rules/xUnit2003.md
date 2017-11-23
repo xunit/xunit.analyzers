@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using equality asserts like `Assert.Equal()` or `Assert.NotEqual` with `null`.
+A violation of this rule occurs when `Assert.Equal`, `AssertNotEqual`, `Assert.StrictEqual`, or `Assert.NotStrictEqual` are used with `null`.
 
 ## Reason for rule
 
-`Assert.Null` and `Assert.NotNull` are preferred when checking against `null`.
+`Assert.Null` and `Assert.NotNull` should be used when checking against `null`.
 
 ## How to fix violations
 
-To fix a violation of this rule, replace the offending asserts by `Assert.Null` or `Assert.NotNull`.
+To fix a violation of this rule, replace the offending asserts with `Assert.Null` or `Assert.NotNull`.
 
 ## Examples
 
@@ -28,6 +28,7 @@ public void ExampleMethod()
     string result = GetSomeValue();
 
     Assert.NotEqual(null, result);
+    Assert.Equal(null, result);
 }
 ```
 
@@ -40,6 +41,7 @@ public void ExampleMethod()
     string result = GetSomeValue();
 
     Assert.NotNull(result);
+    Assert.Null(result);
 }
 ```
 

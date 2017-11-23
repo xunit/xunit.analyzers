@@ -7,11 +7,11 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when comparing two value type objects using `Assert.Same` or `Assert.NotSame`.
+A violation of this rule occurs when two value type objects are compared using `Assert.Same` or `Assert.NotSame`.
 
 ## Reason for rule
 
-`Assert.Same` and `Assert.NotSame` will use [`Object.ReferenceEquals`](https://msdn.microsoft.com/en-us/library/system.object.referenceequals.aspx) for the comparison. This check will always fail for value types since the compared value type objects will be boxed before they are being passed to the method which will always create two unequal references. As such, comparing value types based on their identity does not make any sense.
+`Assert.Same` and `Assert.NotSame` both use [`Object.ReferenceEquals`](https://msdn.microsoft.com/en-us/library/system.object.referenceequals.aspx) to compare objects. This always fails for value types since the values will be boxed before they are passed to the method, creating two different references.
 
 ## How to fix violations
 

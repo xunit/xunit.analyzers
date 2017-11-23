@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using `Assert.True` or `Assert.False` to check for string equality with `string.Equals`.
+A violation of this rule occurs when `Assert.True` or `Assert.False` are used with `string.Equals` to check if two strings are equal.
 
 ## Reason for rule
 
-There are specialized assert methods for equality checks.
+`Assert.Equal` or `Assert.Equal` should be used because they give more detailed information upon failure.
 
 ## How to fix violations
 
-Use `Assert.Equal` or `Assert.NotEqual` to check for string equality.
+Replace the assertions with `Assert.Equal` or `Assert.NotEqual`.
 
 ## Examples
 

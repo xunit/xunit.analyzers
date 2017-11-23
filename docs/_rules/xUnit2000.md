@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when the first argument to an assert is not the expected value.
+A violation of this rule occurs when the first argument to `Assert.Equal`, `AssertNotEqual`, `Assert.StrictEqual`, or `Assert.NotStrictEqual` is not the expected value.
 
 ## Reason for rule
 
-The expected value in an assert should always be the first argument. This will ensure that generated messages explaining the test failure will correctly match the situation.
+The expected value in equality assertions should always be the first argument. This will ensure that generated messages explaining the test failure will correctly match the situation.
 
 ## How to fix violations
 
-To fix a violation of this rule, swap the arguments in the assert, so that the expected value is the first.
+To fix a violation of this rule, swap the arguments in the assertion, so that the expected value is the first.
 
 ## Examples
 

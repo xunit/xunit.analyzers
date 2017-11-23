@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using `Enumerable.Contains()` to check if a value exists in a collection.
+A violation of this rule occurs when `Enumerable.Contains()` is used to check if a value exists in a collection.
 
 ## Reason for rule
 
-There are specialized assert methods for checking for elements in collections.
+There are specialized assertions for checking for elements in collections.
 
 ## How to fix violations
 
-Use `Assert.Contains` and `Assert.DoesNotContain` instead.
+Use `Assert.Contains` or `Assert.DoesNotContain` instead.
 
 ## Examples
 

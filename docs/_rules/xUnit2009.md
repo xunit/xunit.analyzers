@@ -7,13 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using `Assert.True` or `Assert.False` to check for substrings with string methods like `string.Contains`, `string.StartsWith` and `string.EndsWith`.
+A violation of this rule occurs when `Assert.True` or `Assert.False` are used to check for substrings with string methods like `string.Contains`, `string.StartsWith` and `string.EndsWith`.
 
 ## Reason for rule
 
-There are specialized assert methods for substring checks.
+There are specialized assertions for substring checks.
 
 ## How to fix violations
+
+To fix a violation of this rule, replace the offending assertion according to this:
 
 - `Assert.True(str.Contains(word))` => `Assert.Contains(word, str)`
 - `Assert.False(str.Contains(word))` => `Assert.DoesNotContain(word, str)`

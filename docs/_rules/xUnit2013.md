@@ -7,15 +7,15 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when using `Assert.Equals` to check for the specific collection sizes.
+A violation of this rule occurs when `Assert.Equals` or `Assert.NotEquals` are used to check if a collection has 0 or 1 elements.
 
 ## Reason for rule
 
-There are specialized assert methods for checking collection sizes.
+There are specialized assertions for checking collection sizes.
 
 ## How to fix violations
 
-Use `Assert.Empty`, `Assert.NotEmpty`, and `Assert.Single` instead.
+Use `Assert.Empty`, `Assert.NotEmpty`, or `Assert.Single` instead.
 
 ## Examples
 
