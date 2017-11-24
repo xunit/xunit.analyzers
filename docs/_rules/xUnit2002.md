@@ -27,7 +27,7 @@ public void ExampleTest()
 {
     int result = GetSomeValue();
 
-    Assert.Null(result);
+    Assert.NotNull(result);
     Assert.True(result > 4);
 }
 ```
