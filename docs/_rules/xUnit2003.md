@@ -5,37 +5,49 @@ category: Assertions
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A violation of this rule occurs when `Assert.Equal`, `AssertNotEqual`, `Assert.StrictEqual`, or `Assert.NotStrictEqual` are used with `null`.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+`Assert.Null` and `Assert.NotNull` should be used when checking against `null`.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, replace the offending asserts with `Assert.Null` or `Assert.NotNull`.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+[Fact]
+public void ExampleMethod()
+{
+    string result = GetSomeValue();
+
+    Assert.NotEqual(null, result);
+    Assert.Equal(null, result);
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+[Fact]
+public void ExampleMethod()
+{
+    string result = GetSomeValue();
+
+    Assert.NotNull(result);
+    Assert.Null(result);
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit2003 // Do not use equality check to test for null value
+#pragma warning restore xUnit2003 // Do not use equality check to test for null value
 ```

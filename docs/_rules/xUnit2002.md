@@ -5,37 +5,48 @@ category: Assertions
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A violation of this rule occurs when `Assert.Null` or `Assert.NotNull` are used on a value type.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Value types cannot be `null`. As such, it does not make sense to compare them to `null`.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, either remove the assertion or change the object’s type to a reference type.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+[Fact]
+public void ExampleTest()
+{
+    int result = GetSomeValue();
+
+    Assert.Null(result);
+    Assert.True(result > 4);
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+[Fact]
+public void ExampleTest()
+{
+    int result = GetSomeValue();
+
+    Assert.True(result > 4);
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit2002 // Do not use null check on value type
+#pragma warning restore xUnit2002 // Do not use null check on value type
 ```
