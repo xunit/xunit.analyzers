@@ -11,7 +11,7 @@ A fact method has one or more parameters.
 
 ## Reason for rule
 
-A fact method is a non-parameterized test. xUnit will raise a runtime error if it sees a fact method with a non-empty parameter list.
+A fact method is a non-parameterized test. xUnit.net will raise a runtime error if it sees a fact method with a non-empty parameter list.
 
 ## How to fix violations
 
