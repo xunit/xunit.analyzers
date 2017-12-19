@@ -5,37 +5,50 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A test method has multiple Fact or Theory attributes.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+A test method only needs one Fact or Theory attribute.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, remove all but one of the Fact or Theory attributes.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+public class TestClass
+{
+    [Fact, Theory]
+    public void TestMethod()
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
+```csharp
+public class TestClass
+{
+    [Fact]
+    public void TestMethod()
+    {
+    }
+}
+```
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+public class TestClass
+{
+    [Theory]
+    public void TestMethod()
+    {
+    }
+}
 ```
