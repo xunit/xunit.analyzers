@@ -11,7 +11,7 @@ A class containing test methods is not public.
 
 ## Reason for rule
 
-xUnit will not run the test methods in a class if the class is not public.
+xUnit.net will not run the test methods in a class if the class is not public.
 
 ## How to fix violations
 
