@@ -5,37 +5,34 @@ category: Assertions
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+Asserting on equality of two double or decimal values was declared with precision out of the acceptable range.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+`Assert.Equals` uses `System.Math.Round` internally which imposes limits on the precision parameter of [0..15] for 
+doubles and [0..28] for decimals.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+Keep the precision in [0..15] for doubles and [0..28] for decimals.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+Assert.Equals(expectedDouble, actualDouble, 16);
+Assert.Equals(expectedDouble, actualDouble, int.MaxValue);
+Assert.Equals(expectedDecimal, actualDecimal, 32);
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+Assert.Equals(expectedDouble, actualDouble, 0);
+Assert.Equals(expectedDouble, actualDouble, 15);
+Assert.Equals(expectedDecimal, actualDecimal, 0);
+Assert.Equals(expectedDecimal, actualDecimal, 28);
 ```
