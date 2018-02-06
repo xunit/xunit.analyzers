@@ -1,8 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -13,23 +11,32 @@ namespace Xunit.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic);
 
-        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, 
+            XunitContext xunitContext)
         {
-            compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+            compilationStartContext.RegisterSymbolAction(context =>
             {
-                var classDeclaration = syntaxNodeContext.Node as ClassDeclarationSyntax;
-                if (classDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
                     return;
 
-                var methods = classDeclaration.Members.Where(n => n.IsKind(SyntaxKind.MethodDeclaration)).Cast<MethodDeclarationSyntax>();
-                if (methods.Any(method => method.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.Core.FactAttributeType)))
-                {
-                    syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                        Descriptors.X1000_TestClassMustBePublic,
-                        classDeclaration.Identifier.GetLocation(),
-                        classDeclaration.Identifier.ValueText));
-                }
-            }, SyntaxKind.ClassDeclaration);
+                var classSymbol = (INamedTypeSymbol) context.Symbol; // RegisterSymbolAction guarantees by 2nd arg
+
+                var doesClassContainTests = classSymbol
+                    .GetMembers()
+                    .OfType<IMethodSymbol>()
+                    .Any(m => m.GetAttributes()
+                               .Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+
+                if (!doesClassContainTests)
+                    return;
+
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Descriptors.X1000_TestClassMustBePublic,
+                    classSymbol.Locations.First(),
+                    classSymbol.Locations.Skip(1),
+                    classSymbol.Name));
+
+            }, SymbolKind.NamedType);
         }
     }
 }
