@@ -10,12 +10,51 @@ namespace Xunit.Analyzers
 
         [Theory]
         [InlineData("")]
-        [InlineData("internal ")]
-        public async void MakesClassPublic(string visibility)
+        [InlineData("internal")]
+        public async void MakesClassPublic(string nonPublicAccessModifier)
         {
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, $"{visibility}class TestClass {{ [Xunit.Fact] public void TestMethod() {{ }} }}");
+            var source = $"{nonPublicAccessModifier} class TestClass {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
 
-            Assert.Equal("public class TestClass { [Xunit.Fact] public void TestMethod() { } }", result);
+            var expected = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
+        {
+            var source = @"
+partial class TestClass
+{
+    [Xunit.Fact]
+    public void TestMethod1() {}
+}
+
+partial class TestClass
+{
+    [Xunit.Fact]
+    public void TestMethod2() {}
+}";
+
+            var expected = @"
+public partial class TestClass
+{
+    [Xunit.Fact]
+    public void TestMethod1() {}
+}
+
+partial class TestClass
+{
+    [Xunit.Fact]
+    public void TestMethod2() {}
+}";
+
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
+        }
+
     }
 }
