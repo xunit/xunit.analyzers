@@ -5,37 +5,90 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+Test data provided with `InlineDataAttribute` is duplicated in other `InlineDataAttribute` occurence(s).
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Having test data duplicated leads to duplication of test ID which may result in incorrect or unexpected behavior.
+This usually comes from:
+
+* typos
+* test data copying and not updating
+* not taking into account default values or `params` defined parameters
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+Remove duplicated `InlineDataAttribute` occurences.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+[Theory]
+[InlineData(2)]
+[InlineData(2)]
+public void TestMethod(int x) 
+{ 
+    //... 
+}
+```
+
+```csharp
+[Theory]
+[InlineData(2, 0)]
+[InlineData(2)]
+public void TestMethod(int x, int y = 0) 
+{ 
+    //... 
+}
+```
+
+```csharp
+[Theory]
+[InlineData(1, 2, 3)]
+[InlineData(new object[] {1, 2, 3})]
+public void TestMethod(params int[] args)
+{
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+[Theory]
+[InlineData(2)]
+[InlineData(3)]
+public void TestMethod(int x) 
+{ 
+    //... 
+}
+```
+
+```csharp
+[Theory]
+[InlineData(2, 0)]
+[InlineData(2, 1)]
+public void TestMethod(int x, int y = 0) 
+{ 
+    //... 
+}
+```
+
+```csharp
+[Theory]
+[InlineData(1, 2, 3)]
+[InlineData(new object[] {1, 2, 4})]
+public void TestMethod(params int[] args)
+{
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
+#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
 ```
