@@ -77,7 +77,7 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
             Rule("xUnit1012", "Null should not be used for value type parameters", Usage, Warning,
                 "Null should not be used for value type parameter '{0}' of type '{1}'.",
-            description: "XUnit will execute the theory initializing the parameter to the default value of the type, which might not be the desired behavior");
+            description: "XUnit.net will execute the theory initializing the parameter to the default value of the type, which might not be the desired behavior");
 
         internal static DiagnosticDescriptor X1013_PublicMethodShouldBeMarkedAsTest { get; } =
             Rule("xUnit1013", "Public method should be marked as test", Usage, Warning,
@@ -121,12 +121,12 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X1022_TheoryMethodCannotHaveParameterArray { get; } =
             Rule("xUnit1022", "Theory methods cannot have a parameter array", Usage, Error,
                 "Theory method '{0}' on test class '{1}' cannot have a parameter array '{2}'.",
-            description: "Params array support was added in Xunit 2.2. Remove the parameter or upgrade the Xunit binaries.");
+            description: "Params array support was added in Xunit.net 2.2. Remove the parameter or upgrade the Xunit.net binaries.");
 
         internal static DiagnosticDescriptor X1023_TheoryMethodCannotHaveDefaultParameter { get; } =
             Rule("xUnit1023", "Theory methods cannot have default parameter values", Usage, Error,
                 "Theory method '{0}' on test class '{1}' parameter '{2}' cannot have a default value.",
-            description: "Default parameter values support was added in Xunit 2.2. Remove the default value or upgrade the Xunit binaries.");
+            description: "Default parameter values support was added in Xunit.net 2.2. Remove the default value or upgrade the Xunit.net binaries.");
 
         internal static DiagnosticDescriptor X1024_TestMethodCannotHaveOverloads { get; } =
             Rule("xUnit1024", "Test methods cannot have overloads", Usage, Error,
@@ -159,7 +159,7 @@ namespace Xunit.Analyzers
         internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
             Rule("xUnit2000", "Expected value should be first", Assertions, Warning,
                 "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
-            description: "The xUnit Assertion library produces the best error messages if the expected value is passed in as the first argument.");
+            description: "The xUnit.net Assertion library produces the best error messages if the expected value is passed in as the first argument.");
 
         internal static DiagnosticDescriptor X2001_AssertEqualsShouldNotBeUsed { get; } =
             Rule("xUnit2001", "Do not use invalid equality check", Assertions, Hidden,
