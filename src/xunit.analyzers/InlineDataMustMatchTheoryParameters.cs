@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -16,6 +17,15 @@ namespace Xunit.Analyzers
         internal static readonly string ParameterIndex = "ParameterIndex";
         internal static readonly string ParameterName = "ParameterName";
         internal static readonly string ParameterArrayStyle = "ParameterArrayStyle";
+
+        public InlineDataMustMatchTheoryParameters()
+        {
+        }
+
+        /// <summary>For testing purposes only.</summary>
+        public InlineDataMustMatchTheoryParameters(string assemblyVersion) : base(new Version(assemblyVersion))
+        {
+        }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(
@@ -109,7 +119,7 @@ namespace Xunit.Analyzers
                         var value = values[valueIdx];
                         if (!value.IsNull)
                         {
-                            var isConvertible = DetermineIsConvertible(compilation, value.Type, parameterType);
+                            var isConvertible = ConversionChecker.IsConvertible(compilation, value.Type, parameterType, xunitContext);
                             if (!isConvertible)
                             {
                                 symbolContext.ReportDiagnostic(Diagnostic.Create(
@@ -160,37 +170,6 @@ namespace Xunit.Analyzers
                 && !(parameter.IsParams && supportsParamsArray);
         }
 
-        static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
-        {
-            if (destination.TypeKind == TypeKind.TypeParameter)
-            {
-                var genericDestination = (ITypeParameterSymbol)destination;
-                if (genericDestination.HasValueTypeConstraint && !source.IsValueType)
-                    return false;
-                if (genericDestination.HasReferenceTypeConstraint && source.IsValueType)
-                    return false;
-
-                return genericDestination.ConstraintTypes.All(c => c.IsAssignableFrom(source));
-            }
-            else
-            {
-                var conversion = compilation.ClassifyConversion(source, destination);
-                if (conversion.IsNumeric)
-                {
-                    if (destination == compilation.GetSpecialType(SpecialType.System_Char) &&
-                        (source == compilation.GetSpecialType(SpecialType.System_Double) || source == compilation.GetSpecialType(SpecialType.System_Single)))
-                    {
-                        // Conversions from float to char (though numeric) do not actually work at runtime, so report them
-                        return false;
-                    }
-
-                    return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
-                }
-                var isConvertible = conversion.IsImplicit || conversion.IsUnboxing || (conversion.IsExplicit && conversion.IsNullable);
-                return isConvertible;
-            }
-        }
-
         static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
         {
             if (attribute.ArgumentList?.Arguments.Count != 1)
@@ -228,6 +207,65 @@ namespace Xunit.Analyzers
             /// E.g. InlineData(data: new object[] { 1, 2, 3 }) or InlineData(new object[] { 1, 2, 3 })
             /// </summary>
             Initializer,
+        }
+
+        private static class ConversionChecker
+        {
+            public static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination,
+                XunitContext xunitContext)
+            {
+                if (destination.TypeKind == TypeKind.TypeParameter)
+                    return IsConvertibleTypeParameter(source, (ITypeParameterSymbol) destination);
+
+                var conversion = compilation.ClassifyConversion(source, destination);
+
+                if (conversion.IsNumeric)
+                    return IsConvertibleNumeric(source, destination);
+
+                if (destination.SpecialType == SpecialType.System_DateTime
+                    || (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid
+                        && IsDateTimeOffsetOrGuid(destination)))
+                {
+                    // Allow all conversions from strings. All parsing issues will be reported at runtime.
+                    return source.SpecialType == SpecialType.System_String;
+                }
+
+                // Rules of last resort
+                return conversion.IsImplicit 
+                       || conversion.IsUnboxing 
+                       || (conversion.IsExplicit && conversion.IsNullable);
+            }
+
+            private static bool IsConvertibleTypeParameter(ITypeSymbol source, ITypeParameterSymbol destination)
+            {
+                if (destination.HasValueTypeConstraint && !source.IsValueType)
+                    return false;
+                if (destination.HasReferenceTypeConstraint && source.IsValueType)
+                    return false;
+
+                return destination.ConstraintTypes.All(c => c.IsAssignableFrom(source));
+            }
+
+            private static bool IsConvertibleNumeric(ITypeSymbol source, ITypeSymbol destination)
+            {
+                if (destination.SpecialType == SpecialType.System_Char
+                    && (source.SpecialType == SpecialType.System_Double 
+                        || source.SpecialType == SpecialType.System_Single))
+                {
+                    // Conversions from float to char (though numeric) do not actually work at runtime, so report them
+                    return false;
+                }
+
+                return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
+            }
+
+            private static bool IsDateTimeOffsetOrGuid(ITypeSymbol destination)
+            {
+                if (destination.ContainingNamespace?.Name != "System")
+                    return false;
+
+                return destination.MetadataName == "DateTimeOffset" || destination.MetadataName == "Guid";
+            }
         }
     }
 }

@@ -799,6 +799,189 @@ namespace Xunit.Analyzers
             }
         }
 
+        public class ForConversionToDateTimeAndDateTimeOffset : InlineDataMustMatchTheoryParametersTests
+        {
+            public static readonly string[] AcceptableDateTimeArguments =
+            {
+                "\"\"",
+                "\"2018-01-02\"",
+                "\"2018-01-02 12:34\"",
+                "\"obviously-rubbish-datetime-value\"",
+                "MyConstString"
+            };
+            
+            // combinations of (value type value, date time like types)
+            public static IEnumerable<Tuple<string, string>> ValueTypedArgumentsCombinedWithDateTimeLikeTypes { get; } =
+                ValueTypedValues.SelectMany(v => 
+                    new string[] { "System.DateTime", "System.DateTimeOffset" }.Select(
+                        dateTimeLikeType => Tuple.Create(v.Item1, dateTimeLikeType)));
+
+            public static IEnumerable<Tuple<string, string>> DateTimeValueStringsCombinedWithDateTimeType { get; } =
+                AcceptableDateTimeArguments.Select(v => Tuple.Create(v, "System.DateTime"));
+
+            public static IEnumerable<Tuple<string, string>> DateTimeValueStringsCombinedWithDateTimeOffsetType { get; } =
+                AcceptableDateTimeArguments.Select(v => Tuple.Create(v, "System.DateTimeOffset"));
+
+            [Theory]
+            [TupleMemberData(nameof(ValueTypedArgumentsCombinedWithDateTimeLikeTypes))]
+            [InlineData("MyConstInt", "System.DateTime")]
+            [InlineData("MyConstInt", "System.DateTimeOffset")]
+            public async void FindsError_FromNonString(string inlineData, string parameterType)
+            {
+                var source = @"
+public class TestClass 
+{
+    private const int MyConstInt = 1;
+    
+    [Xunit.Theory, Xunit.InlineData(" + inlineData + @")]
+    public void TestMethod(" + parameterType + @" parameter) 
+    {
+    } 
+}";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     $"of type '{parameterType}'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
+            }
+
+            [Theory]
+            [TupleMemberData(nameof(DateTimeValueStringsCombinedWithDateTimeType))]
+            public async void DoesNotFindError_ForDateTime_FromString(string inlineData, string parameterType)
+            {
+                var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Theory]
+            [TupleMemberData(nameof(DateTimeValueStringsCombinedWithDateTimeOffsetType))]
+            public async void FindsError_ForDateTimeOffsetAndAnalyzerLessThan_2_4_0v_FromString(string inlineData, string parameterType)
+            {
+                var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.3.1");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
+
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     $"of type '{parameterType}'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
+            }
+
+            [Theory]
+            [TupleMemberData(nameof(DateTimeValueStringsCombinedWithDateTimeOffsetType))]
+            public async void DoesNotFindError_ForDateTimeOffsetAndForAnalyzerGreaterThanEqual_2_4_0v_FromString(string inlineData, string parameterType)
+            {
+                var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.4.0");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
+
+                Assert.Empty(diagnostics);
+            }
+
+            private static string CreateSourceWithStringConst(string inlineData, string parameterType)
+            {
+                return @"
+public class TestClass 
+{
+    private const string MyConstString = ""some string"";
+    
+    [Xunit.Theory, Xunit.InlineData(" + inlineData + @")]
+    public void TestMethod(" + parameterType + @" parameter) 
+    {
+    } 
+}";
+            }
+        }
+
+        public class ForConversionToGuid : InlineDataMustMatchTheoryParametersTests
+        {
+            public static IEnumerable<Tuple<string>> AcceptableGuidStrings { get; } =
+                new[]
+                {
+                    "\"\"",
+                    "\"{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}\"",
+                    "\"4EBCD32C-A2B8-4600-9E72-3873347E285C\"",
+                    "\"39A3B4C85FEF43A988EB4BB4AC4D4103\"",
+                    "\"obviously-rubbish-guid-value\""
+                }.Select(x => Tuple.Create(x)).ToArray();
+
+            [Theory]
+            [TupleMemberData(nameof(ValueTypedValues))]
+            [InlineData("MyConstInt")]
+            public async void FindsError_FromNonString(string inlineData)
+            {
+                var source = @"
+public class TestClass 
+{
+    private const int MyConstInt = 1;
+    
+    [Xunit.Theory, Xunit.InlineData(" + inlineData + @")]
+    public void TestMethod(System.Guid parameter) 
+    {
+    } 
+}";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     "of type 'System.Guid'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
+            }
+
+            [Theory]
+            [TupleMemberData(nameof(AcceptableGuidStrings))]
+            public async void FindsError__ForAnalyzerLessThan_2_4_0v_FromString(string inlineData)
+            {
+                var source = CreateSource(inlineData);
+
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     "of type 'System.Guid'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
+            }
+
+            [Theory]
+            [TupleMemberData(nameof(AcceptableGuidStrings))]
+            public async void DoesNotFindError_ForAnalyzerGreaterThanEqual_2_4_0v_FromString(string inlineData)
+            {
+                var source = CreateSource(inlineData);
+
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.5.0");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
+
+                Assert.Empty(diagnostics);
+            }
+
+            private static string CreateSource(string inlineData)
+            {
+                return @"
+public class TestClass 
+{
+    [Xunit.Theory, Xunit.InlineData(" + inlineData + @")]
+    public void TestMethod(System.Guid parameter) 
+    {
+    } 
+}";
+            }
+        }
+
         // Note: decimal literal 42M is not valid as an attribute argument
         public static IEnumerable<Tuple<string>> IntegerValues { get; } = new[] { "42", "42L", "42u", "42ul", "(short)42", "(byte)42", "(ushort)42", "(sbyte)42", }.Select(v => Tuple.Create(v)).ToArray();
 
@@ -807,5 +990,7 @@ namespace Xunit.Analyzers
         public static IEnumerable<Tuple<string>> NumericValues { get; } = IntegerValues.Concat(FloatingPointValues).ToArray();
 
         public static IEnumerable<Tuple<string>> BoolValues { get; } = new[] { "true", "false" }.Select(v => Tuple.Create(v)).ToArray();
+
+        public static IEnumerable<Tuple<string>> ValueTypedValues { get; } = NumericValues.Concat(BoolValues).Concat(new [] {"typeof(int)"}.Select(v => Tuple.Create(v)));
     }
 }

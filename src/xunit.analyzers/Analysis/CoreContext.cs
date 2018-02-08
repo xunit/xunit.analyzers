@@ -7,6 +7,7 @@ namespace Xunit.Analyzers
     public class CoreContext
     {
         static readonly Version Version_2_2_0 = new Version("2.2.0");
+        static readonly Version Version_2_4_0 = new Version("2.4.0");
 
         readonly Lazy<INamedTypeSymbol> lazyClassDataAttributeType;
         readonly Lazy<INamedTypeSymbol> lazyDataAttributeType;
@@ -52,6 +53,14 @@ namespace Xunit.Analyzers
 
         public virtual bool TheorySupportsDefaultParameterValues 
             => Version >= Version_2_2_0;
+
+
+
+        /// <summary>
+        /// See: https://github.com/xunit/xunit/pull/1546
+        /// </summary>
+        public virtual bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid
+            => Version >= Version_2_4_0;
 
         public Version Version { get; set; }
     }
