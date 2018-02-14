@@ -144,6 +144,63 @@ namespace Xunit.Analyzers
 
                 Assert.Empty(diagnostics);
             }
+
+            [Theory]
+            [InlineData("0.0", "double")]
+            [InlineData("0.0f", "float")]
+            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloat(string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "    [Xunit.Theory]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   [Xunit.InlineData(-{value})]" +
+                    $"   public void TestMethod({type} x) {{ }}" +
+                    "}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Theory]
+            [InlineData("0.0", "double")]
+            [InlineData("0.0f", "float")]
+            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatAsSecondTestMethodArguments(
+                string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "    [Xunit.Theory]" +
+                    $"   [Xunit.InlineData(1, {value})]" +
+                    $"   [Xunit.InlineData(1, -{value})]" +
+                    $"   public void TestMethod(int x, {type} y) {{ }}" +
+                    "}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Theory]
+            [InlineData("0.0", "-0.0", "double")]
+            [InlineData("-0.0", "0.0", "double")]
+            [InlineData("-0.0", "default(double)", "double")]
+            [InlineData("0.0f", "-0.0f", "float")]
+            [InlineData("-0.0f", "0.0f", "float")]
+            [InlineData("-0.0f", "default(float)", "float")]
+            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatIncludingParameterDefaults(
+                string value, string paramDefaultValue, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "    [Xunit.Theory]" +
+                    "    [Xunit.InlineData]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   public void TestMethod({type} x = {paramDefaultValue}) {{ }}" +
+                    "}");
+
+                Assert.Empty(diagnostics);
+            }
         }
 
         public class ForDuplicatedInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
@@ -196,6 +253,86 @@ namespace Xunit.Analyzers
                     "   private const int X = 10; " +
                     "   [Xunit.Theory, Xunit.InlineData(10), Xunit.InlineData(X)]" +
                     "   public void TestMethod(int x) { }" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+
+            [Theory]
+            [InlineData("0", "int")]
+            [InlineData("0", "uint")]
+            [InlineData("0", "short")]
+            [InlineData("0", "byte")]
+            [InlineData("0", "sbyte")]
+            [InlineData("0L", "long")]
+            public async void FindsError_WhenZeroAndNegativeZeroInlineDataOfIntegerTypes(string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "   [Xunit.Theory]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   [Xunit.InlineData(-{value})]" +
+                    $"   public void TestMethod({type} x) {{ }}" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+
+            [Theory]
+            [InlineData("0.0")]
+            [InlineData("0.0f")]
+            // this is deliberate as catching such cases would make the analyzer lot more complex
+            public async void FindsError_WhenZeroAndNegativeZeroInlineDataNestedInArray(string value)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "   [Xunit.Theory]" +
+                    $"   [Xunit.InlineData(1, new object[] {{ {value} }})]" +
+                    $"   [Xunit.InlineData(1, new object[] {{ -{value} }})]" +
+                    "   public void TestMethod(int x, object[] y) {{ }}" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+
+            [Theory]
+            [InlineData("0.0", "double")]
+            [InlineData("-0.0", "double")]
+            [InlineData("0.0f", "float")]
+            [InlineData("-0.0f", "float")]
+            public async void FindsError_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloat(string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "   [Xunit.Theory]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   public void TestMethod({type} x) {{ }}" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+
+            [Theory]
+            [InlineData("0.0", "double")]
+            [InlineData("-0.0", "double")]
+            [InlineData("default(double)", "double")]
+            [InlineData("0.0f", "float")]
+            [InlineData("-0.0f", "float")]
+            [InlineData("default(float)", "float")]
+            public async void FindsError_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloatFromParameterDefault(
+                string value, string type)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "   [Xunit.Theory]" +
+                    $"   [Xunit.InlineData({value})]" +
+                    $"   [Xunit.InlineData]" +
+                    $"   public void TestMethod({type} x = {value}) {{ }}" +
                     "}");
 
                 Assert.Collection(diagnostics, VerifyDiagnostic);

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Xunit.Analyzers.Utilities;
 
 namespace Xunit.Analyzers
 {
@@ -85,178 +86,51 @@ namespace Xunit.Analyzers
 
         private class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
         {
-            private ImmutableArray<IParameterSymbol> _methodParametersWithExplicitDefaults;
+            private readonly IMethodSymbol _attributeRelatedMethod;
 
             public InlineDataUniquenessComparer(IMethodSymbol attributeRelatedMethod)
             {
-                _methodParametersWithExplicitDefaults = attributeRelatedMethod.Parameters
-                    .Where(p => p.HasExplicitDefaultValue)
-                    .ToImmutableArray();
+                _attributeRelatedMethod = attributeRelatedMethod;
             }
 
             public bool Equals(AttributeData x, AttributeData y)
             {
-                var xArguments = GetEffectiveTestArguments(x);
-                var yArguments = GetEffectiveTestArguments(y);
+                var xArguments = GetEffectiveTestArgumentsAsArgumentRoot(x);
+                var yArguments = GetEffectiveTestArgumentsAsArgumentRoot(y);
 
-                var areBothNullEntirely = IsSingleNullByInlineDataOrByDefaultParamValue(xArguments)
-                                          && IsSingleNullByInlineDataOrByDefaultParamValue(yArguments);
-
-                return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments);
+                return xArguments.Equals(yArguments);
             }
 
-            /// <summary>
-            /// Since arguments can be object[] at any level we need to compare 2 sequences of trees for equality.
-            /// The algorithm traverses each tree in a sequence and compares with the corresponding tree in the other sequence.
-            /// Any difference at any stage results in inequality proved and <c>false</c> returned.
-            /// </summary>
-            private bool AreArgumentsEqual(ImmutableArray<object> xArguments, ImmutableArray<object> yArguments)
+            public int GetHashCode(AttributeData obj)
             {
-                if (xArguments.Length != yArguments.Length)
-                    return false;
-
-                for (var i = 0; i < xArguments.Length; i++)
-                {
-                    var x = xArguments[i];
-                    var y = yArguments[i];
-
-                    switch (x)
-                    {
-                        case TypedConstant xArgPrimitive when xArgPrimitive.Kind != TypedConstantKind.Array:
-                            switch (y)
-                            {
-                                case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-                                    if (!xArgPrimitive.Equals(yArgPrimitive))
-                                        return false;
-                                    break;
-                                case IParameterSymbol yMethodParamDefault:
-                                    if (xArgPrimitive.Value != yMethodParamDefault.ExplicitDefaultValue)
-                                        return false;
-                                    break;
-                                default:
-                                    return false;
-                            }
-                            break;
-                        case IParameterSymbol xMethodParamDefault:
-                            switch (y)
-                            {
-                                case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-                                    if (xMethodParamDefault.ExplicitDefaultValue != yArgPrimitive.Value)
-                                        return false;
-                                    break;
-                                case IParameterSymbol yMethodParamDefault:
-                                    if (xMethodParamDefault.ExplicitDefaultValue != yMethodParamDefault.ExplicitDefaultValue)
-                                        return false;
-                                    break;
-                                default:
-                                    return false;
-                            }
-                            break;
-                        case TypedConstant xArgArray when xArgArray.Kind == TypedConstantKind.Array && !xArgArray.IsNull:
-                            switch (y)
-                            {
-                                case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
-                                    return AreArgumentsEqual(
-                                        xArgArray.Values.Cast<object>().ToImmutableArray(),
-                                        yArgArray.Values.Cast<object>().ToImmutableArray());
-                                default:
-                                    return false;
-                            }
-                        default:
-                            return false;
-                    }
-                }
-
-                return true;
-            }
-
-            /// <summary>
-            /// A special search for a degenerated case of either:
-            /// 1. InlineData(null) or
-            /// 2. InlineData() and a single param method with default returning null.
-            /// </summary>
-            private static bool IsSingleNullByInlineDataOrByDefaultParamValue(ImmutableArray<object> args)
-            {
-                if (args.Length != 1)
-                    return false;
-
-                switch (args[0])
-                {
-                    case TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull:
-                        return true;
-                    case IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null:
-                        return true;
-                }
-
-                return false;
-            }
-
-            /// <summary>
-            /// Flattens a collection of arguments (ie. new object[] {1, new object[] {2}} becomes a collection of {1, 2}
-            /// and computes accumulative hash code. Exact comparison is carried out in <see cref="Equals"/> impl.
-            /// </summary>
-            public int GetHashCode(AttributeData attributeData)
-            {
-                var arguments = GetEffectiveTestArguments(attributeData);
-                var flattened = GetFlattenedArgumentPrimitives(arguments);
-
-                var hash = 17;
-
-                foreach (var primitive in flattened)
-                {
-                    hash = hash * 31 + (primitive?.GetHashCode() ?? 0);
-                }
-
-                return hash;
-            }
-
-            private ImmutableArray<object> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
-            {
-                var results = new List<object>();
-
-                foreach (var argument in arguments)
-                {
-                    switch (argument)
-                    {
-                        case TypedConstant argPrimitive when argPrimitive.Kind != TypedConstantKind.Array:
-                            results.Add(argPrimitive.Value);
-                            break;
-                        case IParameterSymbol methodParameterWithDefault:
-                            results.Add(methodParameterWithDefault.ExplicitDefaultValue);
-                            break;
-                        case TypedConstant argArray when argArray.Kind == TypedConstantKind.Array && !argArray.IsNull:
-                            results.AddRange(GetFlattenedArgumentPrimitives(argArray.Values.Cast<object>()));
-                            break;
-                        case TypedConstant nullObjectArray when nullObjectArray.Kind == TypedConstantKind.Array && nullObjectArray.IsNull:
-                            results.Add(null);
-                            break;
-                    }
-                }
-
-                return results.ToImmutableArray();
+                return GetEffectiveTestArgumentsAsArgumentRoot(obj).GetHashCode();
             }
 
             /// <summary>
             /// Effective test arguments consist of InlineData argument typed constants concatenated 
-            /// with default parameters of a test method providing such default parameters are not covered by InlineData arguments.
+            /// with default parameters of a test method providing such default parameters are not covered 
+            /// by InlineData arguments. The result is represented as an argument value root to facilitate reqursive
+            /// algorithm use. See the constructor of <see cref="ArgumentValue"/> accepting a collection of argument 
+            /// values.
             /// </summary>
-            private ImmutableArray<object> GetEffectiveTestArguments(AttributeData attributeData)
+            private ArgumentValue GetEffectiveTestArgumentsAsArgumentRoot(AttributeData attributeData)
             {
                 var inlineDataObjectArrayArgument = attributeData.ConstructorArguments.Single();
 
-                // special case InlineData(null): the compiler will treat the whole data array as being initialized to null
+                // special case InlineData(null): the compiler treats the whole data array as being initialized to null
                 var inlineDataArguments = inlineDataObjectArrayArgument.IsNull
-                    ? ImmutableArray.Create(inlineDataObjectArrayArgument)
-                    : inlineDataObjectArrayArgument.Values;
+                    ? ImmutableArray.Create(new ArgumentValue(inlineDataObjectArrayArgument))
+                    : ArgumentValue.CreateMany(inlineDataObjectArrayArgument.Values, attributeData);
 
-                var methodDefaultValuesNonCoveredByInlineData = _methodParametersWithExplicitDefaults
-                     .Where(p => p.Ordinal >= inlineDataArguments.Length);
+                var methodDefaultValuesNonCoveredByInlineData = ArgumentValue.CreateMany(
+                    _attributeRelatedMethod.Parameters
+                        .Where(p => p.HasExplicitDefaultValue && p.Ordinal >= inlineDataArguments.Length));
 
-                var allMethodArguments = inlineDataArguments
-                    .Cast<object>()
-                    .Concat(methodDefaultValuesNonCoveredByInlineData);
+                var argumentValues = inlineDataArguments
+                    .Concat(methodDefaultValuesNonCoveredByInlineData)
+                    .ToImmutableArray();
 
-                return allMethodArguments.ToImmutableArray();
+                return new ArgumentValue(argumentValues);
             }
         }
     }
