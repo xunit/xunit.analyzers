@@ -127,6 +127,20 @@ public class TestClass : IntermediateClass {
             Assert.Empty(diagnostics);
         }
 
+        [Fact]
+        public async void DoesNotFindErrorForPublicMethodMarkedWithAttributeWhichIsMarkedWithIgnoreXunitAnalyzersRule1013()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
+
+[IgnoreXunitAnalyzersRule1013]
+public class CustomTestTypeAttribute : System.Attribute { }
+
+public class TestClass { [Xunit.Fact] public void TestMethod() { } [CustomTestType] public void CustomTestMethod() {} }");
+
+            Assert.Empty(diagnostics);
+        }
+
         [Theory]
         [InlineData("Xunit.Fact")]
         [InlineData("Xunit.Theory")]
