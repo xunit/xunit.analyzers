@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
         public class ForNonRelatedToInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
         {
             [Fact]
-            public async void DoesNotFindError_WhenNoDataAttributes()
+            public async void DoesNotFind_WhenNoDataAttributes()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("MemberData(\"\")")]
             [InlineData("ClassData(typeof(string))")]
-            public async void DoesNotFindError_WhenDataAttributesOtherThanInline(
+            public async void DoesNotFind_WhenDataAttributesOtherThanInline(
                 string dataAttribute)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -38,7 +38,7 @@ namespace Xunit.Analyzers
         public class ForUniqueInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
         {
             [Fact]
-            public async void DoesNotFindError_WhenNonTheorySingleInlineData()
+            public async void DoesNotFind_WhenNonTheorySingleInlineData()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -51,7 +51,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenNonTheoryDoubledInlineData()
+            public async void DoesNotFind_WhenNonTheoryDoubledInlineData()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -64,7 +64,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenSingleInlineDataContainingValue()
+            public async void DoesNotFind_WhenSingleInlineDataContainingValue()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -77,7 +77,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenInlineDataAttributesHaveDifferentParameterValues()
+            public async void DoesNotFind_WhenInlineDataAttributesHaveDifferentParameterValues()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -90,7 +90,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenInlineDataAttributesDifferAtLastParameterValue()
+            public async void DoesNotFind_WhenInlineDataAttributesDifferAtLastParameterValue()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -107,7 +107,7 @@ namespace Xunit.Analyzers
             [InlineData("data: new object[] { 1, 3 }")]
             [InlineData("new object[] {}")]
             [InlineData("data: new object[] { 1 }")]
-            public async void DoesNotFindError_WhenUniquenessProvidedWithParamsInitializerValues(string secondInlineDataParams)
+            public async void DoesNotFind_WhenUniquenessProvidedWithParamsInitializerValues(string secondInlineDataParams)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -120,7 +120,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenUniquenessProvidedWithOverridingDefaultValues()
+            public async void DoesNotFind_WhenUniquenessProvidedWithOverridingDefaultValues()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -133,7 +133,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void DoesNotFindError_WhenNullAndEmptyInlineDataAttributes()
+            public async void DoesNotFind_WhenNullAndEmptyInlineDataAttributes()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -148,7 +148,7 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("0.0", "double")]
             [InlineData("0.0f", "float")]
-            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloat(string value, string type)
+            public async void DoesNotFind_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloat(string value, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -165,7 +165,7 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("0.0", "double")]
             [InlineData("0.0f", "float")]
-            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatAsSecondTestMethodArguments(
+            public async void DoesNotFind_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatAsSecondTestMethodArguments(
                 string value, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -187,7 +187,7 @@ namespace Xunit.Analyzers
             [InlineData("0.0f", "-0.0f", "float")]
             [InlineData("-0.0f", "0.0f", "float")]
             [InlineData("-0.0f", "default(float)", "float")]
-            public async void DoesNotFindError_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatIncludingParameterDefaults(
+            public async void DoesNotFind_WhenZeroAndNegativeZeroInlineDataOfDoubleOrFloatIncludingParameterDefaults(
                 string value, string paramDefaultValue, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -206,7 +206,7 @@ namespace Xunit.Analyzers
         public class ForDuplicatedInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
         {
             [Fact]
-            public async void FindsError_WhenEmptyInlineDataRepeatedTwice()
+            public async void Finds_WhenEmptyInlineDataRepeatedTwice()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -219,7 +219,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenNullInlineDataRepeatedTwice()
+            public async void Finds_WhenNullInlineDataRepeatedTwice()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -232,7 +232,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenInlineDataAttributesHaveExactlySameDeclarations()
+            public async void Finds_WhenInlineDataAttributesHaveExactlySameDeclarations()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -245,7 +245,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenInlineDataAttributesHaveSameCompilationTimeEvaluation()
+            public async void Finds_WhenInlineDataAttributesHaveSameCompilationTimeEvaluation()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -265,7 +265,7 @@ namespace Xunit.Analyzers
             [InlineData("0", "byte")]
             [InlineData("0", "sbyte")]
             [InlineData("0L", "long")]
-            public async void FindsError_WhenZeroAndNegativeZeroInlineDataOfIntegerTypes(string value, string type)
+            public async void Finds_WhenZeroAndNegativeZeroInlineDataOfIntegerTypes(string value, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -283,7 +283,7 @@ namespace Xunit.Analyzers
             [InlineData("0.0")]
             [InlineData("0.0f")]
             // this is deliberate as catching such cases would make the analyzer lot more complex
-            public async void FindsError_WhenZeroAndNegativeZeroInlineDataNestedInArray(string value)
+            public async void Finds_WhenZeroAndNegativeZeroInlineDataNestedInArray(string value)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -302,7 +302,7 @@ namespace Xunit.Analyzers
             [InlineData("-0.0", "double")]
             [InlineData("0.0f", "float")]
             [InlineData("-0.0f", "float")]
-            public async void FindsError_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloat(string value, string type)
+            public async void Finds_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloat(string value, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -323,7 +323,7 @@ namespace Xunit.Analyzers
             [InlineData("0.0f", "float")]
             [InlineData("-0.0f", "float")]
             [InlineData("default(float)", "float")]
-            public async void FindsError_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloatFromParameterDefault(
+            public async void Finds_WhenDoubleNegativeOrPositiveZerosOfDoubleOrFloatFromParameterDefault(
                 string value, string type)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -341,7 +341,7 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("new object[] { 10, 20 }")]
             [InlineData("data: new object[] { 10, 20 }")]
-            public async void FindsError_WhenInlineDataHaveSameParameterValuesButDeclaredArrayCollectionOfArguments(
+            public async void Finds_WhenInlineDataHaveSameParameterValuesButDeclaredArrayCollectionOfArguments(
                 string secondInlineDataArguments)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -357,7 +357,7 @@ namespace Xunit.Analyzers
             [Theory]
             [InlineData("new object[] { 10, 20 }")]
             [InlineData("data: new object[] { 10, 20 }")]
-            public async void FindsError_WhenTestMethodIsDefinedWithParamsArrayOfArguments(string secondInlineDataArguments)
+            public async void Finds_WhenTestMethodIsDefinedWithParamsArrayOfArguments(string secondInlineDataArguments)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -370,7 +370,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenBothInlineDataHaveObjectArrayCollectionOfArguments()
+            public async void Finds_WhenBothInlineDataHaveObjectArrayCollectionOfArguments()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -383,7 +383,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenArgumentsAreArrayOfValues()
+            public async void Finds_WhenArgumentsAreArrayOfValues()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -398,7 +398,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenArgumentsAreArrayOfValuesAndTestMethodOffersDefaultParameterValues()
+            public async void Finds_WhenArgumentsAreArrayOfValuesAndTestMethodOffersDefaultParameterValues()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -416,7 +416,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenDuplicatedByDefaultValueOfParameter()
+            public async void Finds_WhenDuplicatedByDefaultValueOfParameter()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -433,7 +433,7 @@ namespace Xunit.Analyzers
             [InlineData("null", "")]
             [InlineData("", "null")]
             [InlineData("", "")]
-            public async void FindsError_WhenBothNullEntirelyOrBySingleDefaultParameterNullValue(string firstArg, string secondArg)
+            public async void Finds_WhenBothNullEntirelyOrBySingleDefaultParameterNullValue(string firstArg, string secondArg)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass " +
@@ -446,7 +446,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenDuplicateContainsNulls()
+            public async void Finds_WhenDuplicateContainsNulls()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -463,7 +463,7 @@ namespace Xunit.Analyzers
             [InlineData("", ", null")]
             [InlineData(", null", "")]
             [InlineData(", null", ", null")]
-            public async void FindsError_WhenDuplicateContainsDefaultOfStruct(string firstDefaultOverride,
+            public async void Finds_WhenDuplicateContainsDefaultOfStruct(string firstDefaultOverride,
                 string secondDefaultOverride)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -483,7 +483,7 @@ namespace Xunit.Analyzers
             [InlineData("", ", null")]
             [InlineData(", null", "")]
             [InlineData(", null", ", null")]
-            public async void FindsError_WhenDuplicateContainsDefaultOfString(string firstDefaultOverride,
+            public async void Finds_WhenDuplicateContainsDefaultOfString(string firstDefaultOverride,
                 string secondDefaultOverride)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
@@ -499,7 +499,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsError_WhenInlineDataDuplicateAndOriginalAreItemsOfDistinctAttributesLists()
+            public async void Finds_WhenInlineDataDuplicateAndOriginalAreItemsOfDistinctAttributesLists()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -514,7 +514,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsErrorsTwiceOnCorrectLinesReferringToInitialOccurence_WhenThreeInlineDataAttributesConstituteDuplication()
+            public async void FindsTwiceOnCorrectLinesReferringToInitialOccurence_WhenThreeInlineDataAttributesConstituteDuplication()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -533,7 +533,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsErrorOnCorrectLineReferringToInitialOccurence_WhenDuplicateIsSeparatedByOtherNonDuplicateData()
+            public async void FindsOnCorrectLineReferringToInitialOccurence_WhenDuplicateIsSeparatedByOtherNonDuplicateData()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
@@ -550,7 +550,7 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
-            public async void FindsErrorOnCorrectLineReferringToInitialOccurence_WhenTwoDuplicationEquivalenceSetsExistWithinTheory()
+            public async void FindsOnCorrectLineReferringToInitialOccurence_WhenTwoDuplicationEquivalenceSetsExistWithinTheory()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
