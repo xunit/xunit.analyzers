@@ -31,6 +31,8 @@ namespace Xunit.Analyzers
             var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 
             var compilation = compilationStartContext.Compilation;
+            var systemRuntimeInteropServicesOptionalAttribute =
+                compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
             var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
             compilationStartContext.RegisterSymbolAction(symbolContext =>
@@ -66,7 +68,10 @@ namespace Xunit.Analyzers
                     var dataArrayArgument = attribute.ConstructorArguments.Single();
                     // Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
                     var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
-                    if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues)))
+                    if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, 
+                                                                        xunitSupportsParameterArrays, 
+                                                                        xunitSupportsDefaultParameterValues, 
+                                                                        systemRuntimeInteropServicesOptionalAttribute)))
                     {
                         var builder = ImmutableDictionary.CreateBuilder<string, string>();
                         builder[ParameterArrayStyle] = arrayStyle.ToString();
@@ -154,10 +159,12 @@ namespace Xunit.Analyzers
             }, SymbolKind.Method);
         }
 
-        private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray, bool supportsDefaultValue)
+        private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray,
+            bool supportsDefaultValue, INamedTypeSymbol optionalAttribute)
         {
             return !(parameter.HasExplicitDefaultValue && supportsDefaultValue)
-                && !(parameter.IsParams && supportsParamsArray);
+                && !(parameter.IsParams && supportsParamsArray)
+                && !parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute));
         }
 
         static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)

@@ -106,6 +106,34 @@ namespace Xunit.Analyzers
             }
 
             [Fact]
+            public async void DoesNotFindErrorFor_UsingParameterWithOptionalAttribute()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass {" +
+                    "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
+                    "   public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }" +
+                    "}");
+
+                Assert.Empty(diagnostics);
+            }
+            
+            [Fact]
+            public async void DoesNotFindErrorFor_UsingMultipleParametersWithOptionalAttributes()
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass {" +
+                    "   [Xunit.Theory]" +
+                    "   [Xunit.InlineData]" +
+                    "   [Xunit.InlineData(\"abc\")]" +
+                    "   [Xunit.InlineData(\"abc\", \"def\")]" +
+                    "   public void TestMethod([System.Runtime.InteropServices.Optional] string a," +
+                    "                          [System.Runtime.InteropServices.Optional] string b) { }" +
+                    "}");
+
+                Assert.Empty(diagnostics);
+            }
+
+            [Fact]
             public async void DoesNotFindError_UsingExplicitArray()
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
