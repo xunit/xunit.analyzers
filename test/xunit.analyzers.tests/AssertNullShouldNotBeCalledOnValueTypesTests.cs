@@ -52,5 +52,61 @@ namespace Xunit.Analyzers
 
             Assert.Empty(diagnostics);
         }
+
+        [Theory]
+        [MemberData(nameof(Methods))]
+        public async void DoesNotFindWarning_ForClassConstrainedGenericTypes(string method)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"
+class Class<T> where T : class
+{
+  public void Method(T arg)
+  {
+    Xunit.Assert." + method + @"(arg);
+  }
+}");
+            Assert.Empty(diagnostics);
+        }
+        
+        [Theory]
+        [MemberData(nameof(Methods))]
+        public async void DoesNotFindWarning_ForInterfaceConstrainedGenericTypes(string method)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"
+interface IDo {}
+
+class Class<T> where T : IDo
+{
+  public void Method(System.Collections.Generic.IEnumerable<T> collection)
+  {
+    foreach (T item in collection)
+    {
+      Xunit.Assert." + method + @"(item);
+    }
+  }
+}");
+            Assert.Empty(diagnostics);
+        }
+        
+        [Theory]
+        [MemberData(nameof(Methods))]
+        public async void DoesNotFindWarning_ForUnconstrainedGenericTypes(string method)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                @"
+class Class<T>
+{
+  public void Method(System.Collections.Generic.IEnumerable<T> collection)
+  {
+    foreach (T item in collection)
+    {
+      Xunit.Assert." + method + @"(item);
+    }
+  }
+}");
+            Assert.Empty(diagnostics);
+        }
     }
 }
