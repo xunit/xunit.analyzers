@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿﻿using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,7 +26,8 @@ namespace Xunit.Analyzers
             var argumentType = context.SemanticModel.GetTypeInfo(invocation.ArgumentList.Arguments.Single().Expression, context.CancellationToken).Type;
             if (argumentType == null ||
                argumentType.IsReferenceType ||
-               (argumentType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
+               (argumentType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ||
+                (!argumentType.IsReferenceType && !argumentType.IsValueType)) // unconstrained generic type case
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
