@@ -5,37 +5,78 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A test class (i.e. a class that has methods annotated with `Fact` or `Theory` attributes) has a public method that is not marked as a test.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Test classes do not typically need to expose public methods that are not tests. A violation indicates that a possible test method is not properly annotated and will therefore not be executed by the test runner.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, annotate the method with `Fact` or `Theory` attributes.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```
+public class Tests {
+  [Xunit.Fact]
+  public void Test1() {
+    Helper();
+  }
+
+  public void Test2() {
+    Helper();
+  }
+
+  public void Helper() {}
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```
+public class Tests {
+  [Xunit.Fact]
+  public void Test1() {
+    Helper();
+  }
+
+  [Xunit.Fact]
+  public void Test2() {
+    Helper();
+  }
+
+  private void Helper() {}
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1013 // Public method should be marked as test
+#pragma warning restore xUnit1013 // Public method should be marked as test
+```
+
+## Opt-out for extension authors
+
+Some xUnit.net extensions provide alternative attributes for annotating tests. Such attributes should be annotated with a marker attribute to prevent this rule from firing for valid usages of the extension. The marker attribute has to be called `IgnoreXunitAnalyzersRule1013` (in any or no namespace).
+
+```
+public sealed class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
+
+[IgnoreXunitAnalyzersRule1013]
+public class CustomTestTypeAttribute : System.Attribute { }
+
+public class TestClass {
+  [Xunit.Fact]
+  public void TestMethod() { }
+  
+  [CustomTestType]
+  public void CustomTestMethod() {}
+}
+```
 ```
