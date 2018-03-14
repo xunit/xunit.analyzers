@@ -10,6 +10,8 @@ namespace Xunit.Analyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
     {
+        private const string DiscardedParameterPrefix = "_";
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
 
@@ -47,6 +49,9 @@ namespace Xunit.Analyzers
             for (var i = 0; i < methodSymbol.Parameters.Length; i++)
             {
                 var parameterSymbol = methodSymbol.Parameters[i];
+                if (parameterSymbol.Name.StartsWith(DiscardedParameterPrefix))
+                    continue;
+
                 if (!usedParameters.Contains(parameterSymbol))
                 {
                     var parameterSyntax = methodSyntax.ParameterList.Parameters[i];
