@@ -127,6 +127,42 @@ public class TestClass : IntermediateClass {
             Assert.Empty(diagnostics);
         }
 
+        [Fact]
+        public async void DoesNotFindErrorForPublicMethodMarkedWithAttributeWhichIsMarkedWithIgnoreXunitAnalyzersRule1013()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
+
+[IgnoreXunitAnalyzersRule1013]
+public class CustomTestTypeAttribute : System.Attribute { }
+
+public class TestClass { [Xunit.Fact] public void TestMethod() { } [CustomTestType] public void CustomTestMethod() {} }");
+
+            Assert.Empty(diagnostics);
+        }
+
+        [Fact]
+        public async void FindsWarningForPublicMethodMarkedWithAttributeWhichInheritsFromAttributeMarkedWithIgnoreXunitAnalyzersRule1013()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+@"public class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
+
+[IgnoreXunitAnalyzersRule1013]
+public class BaseCustomTestTypeAttribute : System.Attribute { }
+
+public class DerivedCustomTestTypeAttribute : BaseCustomTestTypeAttribute { }
+
+public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCustomTestType] public void CustomTestMethod() {} }");
+
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Public method 'CustomTestMethod' on test class 'TestClass' should be marked as a Fact.", d.GetMessage());
+                    Assert.Equal("xUnit1013", d.Id);
+                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                });
+        }
+
         [Theory]
         [InlineData("Xunit.Fact")]
         [InlineData("Xunit.Theory")]

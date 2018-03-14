@@ -50,10 +50,13 @@ namespace Xunit.Analyzers
                     if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
                         continue;
 
-                    var isTestMethod = method.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType);
+                    var attributes = method.GetAttributes();
+                    var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
                     hasTestMethods = hasTestMethods || isTestMethod;
 
-                    if (isTestMethod)
+                    if (isTestMethod ||
+                        attributes.Any(attribute => attribute.AttributeClass.GetAttributes()
+                            .Any(att => att.AttributeClass.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute"))))
                         continue;
 
                     if (method.DeclaredAccessibility == Accessibility.Public &&
