@@ -39,6 +39,7 @@ namespace Xunit.Analyzers
         {
             var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
             var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
+            var xuniSupportsOptionalAttributes = xunitContext.Core.TheorySupportsOptionalAttributes;
 
             var compilation = compilationStartContext.Compilation;
             var systemRuntimeInteropServicesOptionalAttribute =
@@ -80,7 +81,8 @@ namespace Xunit.Analyzers
                     var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
                     if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, 
                                                                         xunitSupportsParameterArrays, 
-                                                                        xunitSupportsDefaultParameterValues, 
+                                                                        xunitSupportsDefaultParameterValues,
+                                                                        xuniSupportsOptionalAttributes,
                                                                         systemRuntimeInteropServicesOptionalAttribute)))
                     {
                         var builder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -170,11 +172,11 @@ namespace Xunit.Analyzers
         }
 
         private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray,
-            bool supportsDefaultValue, INamedTypeSymbol optionalAttribute)
+            bool supportsDefaultValue, bool supportsOptionalAttributes, INamedTypeSymbol optionalAttribute)
         {
             return !(parameter.HasExplicitDefaultValue && supportsDefaultValue)
                 && !(parameter.IsParams && supportsParamsArray)
-                && !parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute));
+                && !(supportsOptionalAttributes && parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute)));
         }
 
         static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)

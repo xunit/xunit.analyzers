@@ -54,7 +54,8 @@ namespace Xunit.Analyzers
         public virtual bool TheorySupportsDefaultParameterValues 
             => Version >= Version_2_2_0;
 
-
+        public virtual bool TheorySupportsOptionalAttributes
+            => Version >= Version_2_2_0;
 
         /// <summary>
         /// See: https://github.com/xunit/xunit/pull/1546

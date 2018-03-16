@@ -104,11 +104,15 @@ namespace Xunit.Analyzers
 
                 Assert.Empty(diagnostics);
             }
-
-            [Fact]
-            public async void DoesNotFindErrorFor_UsingParameterWithOptionalAttribute()
+            
+            [Theory]
+            [InlineData("2.2.0.0")]
+            [InlineData("2.2.1.0")]
+            public async void DoesNotFindErrorFor_UsingParameterWithOptionalAttribute_WhenVersionGreaterThanEqual2p2(
+                string version)
             {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                var analyzerAtLeast2P2 = new InlineDataMustMatchTheoryParameters(version);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzerAtLeast2P2,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
                     "   public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }" +
@@ -117,10 +121,14 @@ namespace Xunit.Analyzers
                 Assert.Empty(diagnostics);
             }
             
-            [Fact]
-            public async void DoesNotFindErrorFor_UsingMultipleParametersWithOptionalAttributes()
+            [Theory]
+            [InlineData("2.2.0.0")]
+            [InlineData("2.2.1.0")]
+            public async void DoesNotFindErrorFor_UsingMultipleParametersWithOptionalAttributes_WhenVersionGreaterThanEqual2p2_(
+                string version)
             {
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                var analyzerAtLeast2P2 = new InlineDataMustMatchTheoryParameters(version);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzerAtLeast2P2, 
                     "public class TestClass {" +
                     "   [Xunit.Theory]" +
                     "   [Xunit.InlineData]" +
@@ -244,6 +252,56 @@ namespace Xunit.Analyzers
                       Assert.Equal("xUnit1009", d.Descriptor.Id);
                       Assert.Equal(DiagnosticSeverity.Error, d.Severity);
                   });
+            }
+            
+            [Theory]
+            [InlineData("2.0.0.0")]
+            [InlineData("2.1.1.1234")]
+            public async void FindsErrorFor_UsingParameterWithOptionalAttribute_WhenVersionBelow2p2(
+                string version)
+            {
+                var analyzerAtLeast2P2 = new InlineDataMustMatchTheoryParameters(version);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzerAtLeast2P2,
+                    "public class TestClass {" +
+                    "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
+                    "   public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }" +
+                    "}");
+
+                ;
+
+                Assert.Collection(diagnostics, d =>
+                {
+                    Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                    Assert.Equal("xUnit1009", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
+            }
+            
+            [Theory]
+            [InlineData("2.0.0.0")]
+            [InlineData("2.1.1.1234")]
+            public async void FindsErrorFor_UsingMultipleParametersWithOptionalAttributes_WhenVersionBelow2p2_(
+                string version)
+            {
+                var analyzerAtLeast2P2 = new InlineDataMustMatchTheoryParameters(version);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzerAtLeast2P2, 
+                    "public class TestClass {" +
+                    "   [Xunit.Theory]" +
+                    "   [Xunit.InlineData]" +
+                    "   [Xunit.InlineData(\"abc\")]" +
+                    "   [Xunit.InlineData(\"abc\", \"def\")]" +
+                    "   public void TestMethod([System.Runtime.InteropServices.Optional] string a," +
+                    "                          [System.Runtime.InteropServices.Optional] string b) { }" +
+                    "}");
+
+                void AssertDiagnostic(Diagnostic d)
+                {
+                    Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                    Assert.Equal("xUnit1009", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                };
+
+                Assert.Collection(diagnostics, AssertDiagnostic, AssertDiagnostic);
             }
         }
 
