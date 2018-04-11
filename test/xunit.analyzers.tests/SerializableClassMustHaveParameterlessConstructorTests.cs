@@ -21,19 +21,13 @@ public class Foo : {0}
 
         [Theory]
         [MemberData(nameof(Interfaces))]
-        public async void NoConstructors_ReturnsError(string @interface)
+        public async void ImplicitConstructors_NoDiagnostics(string @interface)
         {
             var code = string.Format(Template, @interface, "");
 
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, code);
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Class Foo must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable", d.GetMessage());
-                    Assert.Equal("xUnit3001", d.Descriptor.Id);
-                }
-            );
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
