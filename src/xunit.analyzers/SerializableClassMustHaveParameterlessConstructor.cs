@@ -28,6 +28,9 @@ namespace Xunit.Analyzers
                     var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
                     if (xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(type) == true)
                     {
+                        if (!classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().Any())
+                            return;
+
                         var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
                         if (parameterlessCtor == null || !parameterlessCtor.Modifiers.Any(m => m.Text == "public"))
                             syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
