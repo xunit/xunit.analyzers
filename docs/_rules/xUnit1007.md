@@ -5,37 +5,61 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+The type referenced by the `[ClassData]` attribute does not implement `IEnumerable<object[]>` or does not have a public parameterless constructor.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+xUnit.net will attempt to instantiate and enumerate the type specified in `[ClassData]` in order to retrieve test data for the theory. In order for instantiation to succeed, there must be a public parameterless constructor. In order for enumeration to work, the type must implement `IEnumerable<object[]>`.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, make sure that the type specified in the `[ClassData]` attribute meets all of these requirements:
+
+* Is a `class` or a `struct` type.
+* Implements `IEnumerable<object[]>`.
+* Defines a public parameterless constructor. (The C# and VB.NET compilers will implicitly provide a suitable default constructor if you do not define any constructors at all.)
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+class TestData
+{
+}
+
+class Tests
+{
+    [Theory]
+    [ClassData(typeof(TestData))]
+    public void TestMethod(int amount, string productType)
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+class TestData : IEnumerable<object[]>
+{
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        yield return new object[] { 1, "book" };
+        yield return new object[] { 1, "magnifying glass" };
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+}
+
+class Tests
+{
+    [Theory]
+    [ClassData(typeof(TestData))]
+    public void TestMethod(int amount, string productType)
+    {
+    }
+}
 ```
