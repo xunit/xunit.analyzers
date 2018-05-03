@@ -5,37 +5,49 @@ category: Usage
 severity: Warning
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+A theory method does not have any parameters.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Theories are tests which are only true for a particular set of data. As such, they need to be provided with that data. xUnit.net does this by passing test data to a theory method via its parameters. Therefore, if the test method does not declare any parameters, there is no way for xUnit.net to pass the test data to the theory.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, add parameters to the test method. The parameter count and types should match the provided test data.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+class Tests
+{
+    [Theory]
+    [InlineData(12, "book")]
+    public void Test()
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
+```csharp
+class Tests
+{
+    [Theory]
+    [InlineData(12, "book")]
+    public void Test(int amount, string productType)
+    {
+    }
+}
+```
 
 ## How to suppress violations
 
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit1006 // Theory methods should have parameters
+#pragma warning restore xUnit1006 // Theory methods should have parameters
 ```
