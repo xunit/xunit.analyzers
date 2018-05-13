@@ -5,37 +5,46 @@ category: Usage
 severity: Error
 ---
 
-# This is a documentation stub
-
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
-
 ## Cause
 
-A concise-as-possible description of when this rule is violated. If there's a lot to explain, begin with "A violation of this rule occurs when..."
+One or more parameters of a theory method have default values, and you are using a version of xUnit.net &lt; 2.2.0.
 
 ## Reason for rule
 
-Explain why the user should care about the violation.
+Theory methods receive their test data from data attributes such as `[InlineData]`. xUnit.net versions &lt; 2.2.0 require that data attributes provide values for *all* parameters of a theory method; any fallback default parameter values you provide would never be used. Providing default values indicates that you are making an assumption that will never be met in practice.
 
 ## How to fix violations
 
-To fix a violation of this rule, [describe how to fix a violation].
+To fix a violation of this rule, either:
+
+* Upgrade xUnit.net to version 2.2.0 or later. These versions have support for optional parameters with theory methods.
+
+* Remove all default values from the theory method's parameter list.
 
 ## Examples
 
 ### Violates
 
-Example(s) of code that violates the rule.
+```csharp
+class TestClass
+{
+    [Theory]
+    [InlineData(1)]
+    public void TestMethod(int arg = 0)
+    {
+    }
+}
+```
 
 ### Does not violate
 
-Example(s) of code that does not violate the rule.
-
-## How to suppress violations
-
-**If the severity of your analyzer isn't _Warning_, delete this section.**
-
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+class TestClass
+{
+    [Theory]
+    [InlineData(1)]
+    public void TestMethod(int arg)
+    {
+    }
+}
 ```
