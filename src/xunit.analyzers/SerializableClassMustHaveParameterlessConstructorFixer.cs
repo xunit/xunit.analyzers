@@ -48,7 +48,6 @@ namespace Xunit.Analyzers
             var generator = editor.Generator;
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
-            var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
 
             var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
@@ -56,7 +55,10 @@ namespace Xunit.Analyzers
                                                .SelectMany(al => al.Attributes)
                                                .Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
             if (!hasObsolete)
+            {
+                var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
                 updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
+            }
 
             editor.ReplaceNode(parameterlessCtor, updatedCtor);
 
