@@ -50,25 +50,15 @@ namespace Xunit.Analyzers
             var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
             var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
 
-            if (parameterlessCtor == null)
-            {
-                var constructor = generator.ConstructorDeclaration(accessibility: Accessibility.Public);
-                var constructorWithAttributes = generator.AddAttributes(constructor, obsoleteAttribute);
-                var updatedDeclaration = editor.Generator.InsertMembers(declaration, 0, constructorWithAttributes);
-                editor.ReplaceNode(declaration, updatedDeclaration);
-            }
-            else
-            {
-                var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
+            var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
-                var hasObsolete = parameterlessCtor.AttributeLists
-                                                   .SelectMany(al => al.Attributes)
-                                                   .Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
-                if (!hasObsolete)
-                    updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
+            var hasObsolete = parameterlessCtor.AttributeLists
+                                               .SelectMany(al => al.Attributes)
+                                               .Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
+            if (!hasObsolete)
+                updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
 
-                editor.ReplaceNode(parameterlessCtor, updatedCtor);
-            }
+            editor.ReplaceNode(parameterlessCtor, updatedCtor);
 
             return editor.GetChangedDocument();
         }
