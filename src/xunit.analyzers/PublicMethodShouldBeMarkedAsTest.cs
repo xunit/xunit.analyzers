@@ -71,6 +71,11 @@ namespace Xunit.Analyzers
                             }
                             if (!method.IsOverride) break;
                             method = method.OverriddenMethod;
+                            if (method == null)
+                            {
+                                shouldIgnore = true;
+                                break;
+                            }
                         }
                         if (!shouldIgnore)
                             violations.Add(method);

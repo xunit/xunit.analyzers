@@ -198,5 +198,17 @@ public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCusto
                     Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
                 });
         }
+
+        [Theory]
+        [InlineData("Xunit.Fact")]
+        [InlineData("Xunit.Theory")]
+
+        public async void DoesNotFindErrorForOverridenMethod(string attribute)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public override void Method() {} }");
+
+            Assert.Empty(diagnostics);
+        }
     }
 }
