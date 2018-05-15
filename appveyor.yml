@@ -48,6 +48,7 @@ deploy: off
 artifacts:
 - path: artifacts/packages
 - path: artifacts/test
+- path: artifacts/build
 
 notifications:
 - provider: Slack
