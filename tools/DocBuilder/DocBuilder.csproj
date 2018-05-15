@@ -7,6 +7,8 @@
     <RootNamespace>Xunit.Analyzers.DocBuilder</RootNamespace>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8;netcore50</PackageTargetFallback>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <AssemblyOriginatorKeyFile>..\..\src\signing.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

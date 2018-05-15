@@ -1,6 +1,8 @@
 <Project>
 
   <PropertyGroup>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
