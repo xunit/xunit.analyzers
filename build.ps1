@@ -48,7 +48,7 @@ function __target_build() {
     __target_packagerestore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.analyzers.sln" /restore $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
+        _msbuild "xunit.analyzers.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
 
     _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.0\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
 }
@@ -63,7 +63,8 @@ function __target_packagerestore() {
     _download_nuget
 
     _build_step "Restoring NuGet packages"
-        _mkdir packages        
+        _mkdir packages
+        _exec ('& "' + $nugetExe + '" restore xunit.analyzers.sln -NonInteractive')       
         _exec ('& "' + $nugetExe + '" install xunit.runner.console -OutputDirectory "' + (Join-Path $PSScriptRoot "packages") + '" -NonInteractive -pre -ExcludeVersion')
 }
 
