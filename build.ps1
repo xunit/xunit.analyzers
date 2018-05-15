@@ -23,6 +23,12 @@ Set-Location $PSScriptRoot
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
+$binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
+$solutionFolder = Get-Location
+
+$signClientVersion = "0.9.1"
+$signClientFolder = (join-path (Get-Location) "packages\SignClient.$signClientVersion")
+$signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings.json")
 
 # Helper functions
 
@@ -34,6 +40,7 @@ function _xunit_console([string] $command) {
 
 function __target_appveyor() {
     __target_ci
+    __target__signpackages
     __target__pushmyget
 }
 
@@ -41,7 +48,7 @@ function __target_build() {
     __target_packagerestore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.analyzers.sln" $configuration
+        _msbuild "xunit.analyzers.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
 
     _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.0\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
 }
@@ -57,7 +64,7 @@ function __target_packagerestore() {
 
     _build_step "Restoring NuGet packages"
         _mkdir packages
-        _exec ('& "' + $nugetExe + '" restore xunit.analyzers.sln -NonInteractive')
+        _exec ('& "' + $nugetExe + '" restore xunit.analyzers.sln -NonInteractive')       
         _exec ('& "' + $nugetExe + '" install xunit.runner.console -OutputDirectory "' + (Join-Path $PSScriptRoot "packages") + '" -NonInteractive -pre -ExcludeVersion')
 }
 
@@ -103,6 +110,25 @@ function __target__setversion() {
     }
 }
 
+function __target__signpackages() {
+        if ($env:SignClientSecret -ne $null) {
+            if ((test-path $signClientFolder) -eq $false) {
+                _build_step ("Downloading SignClient " + $signClientVersion)
+                    _exec ('& "' + $nugetExe + '" install SignClient -version ' + $signClientVersion + ' -SolutionDir "' + $solutionFolder + '" -Verbosity quiet -NonInteractive')
+            }
+
+            _build_step "Signing NuGet packages"
+                $appPath = (join-path $signClientFolder "tools\netcoreapp2.0\SignClient.dll")
+                $nupgks = Get-ChildItem (join-path $packageOutputFolder "*.nupkg") | ForEach-Object { $_.FullName }
+                foreach ($nupkg in $nupgks) {
+                    $cmd = '& dotnet "' + $appPath + '" sign -c "' + $signClientAppSettings + '" -r ' + $env:SignClientUser + ' -s ' + $env:SignClientSecret + ' -n "xUnit.net" -d "xUnit.net" -u "https://github.com/xunit/xunit.analyzers" -i "' + $nupkg + '"'
+                    $msg = $cmd.Replace($env:SignClientSecret, '[Redacted]')
+                    $msg = $msg.Replace($env:SignClientUser, '[Redacted]')
+                    _exec $cmd $msg
+                }
+        }
+}
+
 function __target__test() {
     _build_step "Running unit tests"
         _xunit_console ("test\xunit.analyzers.tests\bin\" + $configuration + "\net452\xunit.analyzers.tests.dll -xml artifacts\test\TestResults.xml -diagnostics")
@@ -122,4 +148,5 @@ _build_step "Performing pre-build verifications"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder
+_mkdir $binlogOutputFolder
 & $targetFunction

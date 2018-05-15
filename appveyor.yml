@@ -3,6 +3,10 @@ image: Visual Studio 2017
 environment:
   MyGetApiKey:
     secure: +jVb98hbYCifINyQDeQwpv69p+ZiPm6ArzYM4J+fMYUlDeNiB+UKK5a1XnUzEMpY
+  SignClientSecret:
+    secure: JuZIfeRY/XF5i/9oZFH5cbUIiIuliazF8TaNB5HvRKU=
+  SignClientUser:
+    secure: uyweGSwxexnLy4dBNleW8tYcXTA291faj34PQV0ePxOTFSa5Cvf50jyICVP9mLGS
 
 clone_script:
 - ps: >-
@@ -44,6 +48,7 @@ deploy: off
 artifacts:
 - path: artifacts/packages
 - path: artifacts/test
+- path: artifacts/build
 
 notifications:
 - provider: Slack
