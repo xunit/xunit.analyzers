@@ -1,3 +1,8 @@
+[![Build Status](https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true)](https://ci.appveyor.com/project/xunit/xunit-analyzers)
+[![Nuget Package](https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)](https://www.nuget.org/packages/xunit.analyzers/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/xunit.analyzers.svg)](https://www.nuget.org/packages/xunit.analyzers/)
+[![MyGet Preview Package](https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat&label=myget)](https://www.myget.org/feed/xunit/package/nuget/xunit.analyzers)
+
 ## About the project
 
 This project contains source code analysis and cleanup rules for xUnit.net.
@@ -23,14 +28,6 @@ If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers 
 ## Analysis and Code Fix in Action
 
 ![Analyzer in action animation](https://cloud.githubusercontent.com/assets/607223/25752060/fb4af444-316b-11e7-9e7c-fc69ade132fb.gif)
-
-## Build Status
-
-Channel  | Status
--------- | :-------:
-CI |  <a href="https://ci.appveyor.com/project/xunit/xunit-analyzers"><img src="https://ci.appveyor.com/api/projects/status/qvurc9j02j8a8qy4/branch/master?svg=true" /></a>
-NuGet | <a href="https://www.nuget.org/packages/xunit.analyzers/"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat)" /></a>
-MyGet<br>([gallery](https://www.myget.org/gallery/xunit/)) | <a href="https://www.myget.org/feed/xunit/package/nuget/xunit.analyzers"><img src="https://img.shields.io/myget/xunit/vpre/xunit.analyzers.svg?style=flat)"/></a>
 
 ## About xUnit.net
 
