@@ -92,9 +92,22 @@ namespace Xunit.Analyzers
             });
         }
 
-        // TODO: handle case where expected or actual is not present on argument list
-        // where expected or actual is multiple times on the list
-        // fix documentation
+        [Theory]
+        [InlineData("act", "exp")]
+        [InlineData("expected", "expected")]
+        [InlineData("actual", "actual")]
+        [InlineData("foo", "bar")]
+        public async void DoesNotFindWarningWhenArgumentsAreNotNamedCorrectly(string firstArgumentName, string secondArgumentName)
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+@"class TestClass { void TestMethod() {
+    var v = default(int);
+    Xunit.Assert.Equal(" + firstArgumentName + @": 1, " + secondArgumentName + @": v);
+} }");
 
+            Assert.Empty(diagnostics);
+        }
+
+        // fix documentation
     }
 }
