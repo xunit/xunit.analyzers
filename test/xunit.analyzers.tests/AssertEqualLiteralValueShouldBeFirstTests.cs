@@ -55,7 +55,7 @@ namespace Xunit.Analyzers
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal($"The literal or constant value {value} should be the first argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
+                Assert.Equal($"The literal or constant value {value} should be passed as the 'expected' argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
                 Assert.Equal("xUnit2000", d.Id);
                 Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
             });
@@ -86,7 +86,7 @@ namespace Xunit.Analyzers
 
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal($"The literal or constant value {value} should be the first argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
+                Assert.Equal($"The literal or constant value {value} should be passed as the 'expected' argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
                 Assert.Equal("xUnit2000", d.Id);
                 Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
             });
@@ -107,7 +107,5 @@ namespace Xunit.Analyzers
 
             Assert.Empty(diagnostics);
         }
-
-        // fix documentation
     }
 }
