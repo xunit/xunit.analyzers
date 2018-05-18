@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -34,10 +35,23 @@ namespace Xunit.Analyzers
         private async Task<Document> SwapArgumentsAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            var firstArg = invocation.ArgumentList.Arguments[0];
-            var secondArg = invocation.ArgumentList.Arguments[1];
-            editor.RemoveNode(firstArg);
-            editor.InsertAfter(secondArg, firstArg);
+
+            var arguments = invocation.ArgumentList.Arguments;
+            if (arguments.All(x => x.NameColon != null))
+            {
+                var firstArg = arguments[0];
+                var secondArg = arguments[1];
+
+                editor.ReplaceNode(firstArg, firstArg.WithExpression(secondArg.Expression));
+                editor.ReplaceNode(secondArg, secondArg.WithExpression(firstArg.Expression));
+            }
+            else
+            {
+                var firstArg = arguments[0];
+                var secondArg = arguments[1];
+                editor.RemoveNode(firstArg);
+                editor.InsertAfter(secondArg, firstArg);
+            }
             return editor.GetChangedDocument();
         }
     }
