@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,21 +19,31 @@ namespace Xunit.Analyzers
 
         protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
         {
-            if (invocation.ArgumentList.Arguments.Count < 2)
+            var arguments = invocation.ArgumentList.Arguments;
+            if (arguments.Count < 2)
                 return;
 
-            var firstArg = invocation.ArgumentList.Arguments[0];
-            var secondArg = invocation.ArgumentList.Arguments[1];
+            ArgumentSyntax expectedArg, actualArg;
+            if (arguments.All(x => x.NameColon != null))
+            {
+                expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.Text == "expected");
+                actualArg = arguments.Single(x => x.NameColon.Name.Identifier.Text == "actual");
+            }
+            else
+            {
+                expectedArg = arguments[0];
+                actualArg = arguments[1];
+            }
 
-            if (IsLiteralOrConstant(secondArg.Expression, context.SemanticModel, context.CancellationToken) &&
-                !IsLiteralOrConstant(firstArg.Expression, context.SemanticModel, context.CancellationToken))
+            if (IsLiteralOrConstant(actualArg.Expression, context.SemanticModel, context.CancellationToken) &&
+                !IsLiteralOrConstant(expectedArg.Expression, context.SemanticModel, context.CancellationToken))
             {
                 var parentMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
                 var parentType = parentMethod.FirstAncestorOrSelf<ClassDeclarationSyntax>();
                 context.ReportDiagnostic(Diagnostic.Create(
                     Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
                     invocation.GetLocation(),
-                    secondArg.Expression.ToString(),
+                    actualArg.Expression.ToString(),
                     SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None).WithParameterOptions(SymbolDisplayParameterOptions.IncludeName)),
                     parentMethod.Identifier.ValueText,
                     parentType.Identifier.ValueText));

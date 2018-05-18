@@ -157,9 +157,9 @@ namespace Xunit.Analyzers
         // Placeholder for rule X1032
 
         internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
-            Rule("xUnit2000", "Expected value should be first", Assertions, Warning,
-                "The literal or constant value {0} should be the first argument in the call to '{1}' in method '{2}' on type '{3}'.",
-            description: "The xUnit.net Assertion library produces the best error messages if the expected value is passed in as the first argument.");
+            Rule("xUnit2000", "Constants and literals should be the expected argument", Assertions, Warning,
+                "The literal or constant value {0} should be passed as the 'expected' argument in the call to '{1}' in method '{2}' on type '{3}'.",
+            description: "The xUnit.net Assertion library produces the best error messages if the expected value is passed in as the expected argument.");
 
         internal static DiagnosticDescriptor X2001_AssertEqualsShouldNotBeUsed { get; } =
             Rule("xUnit2001", "Do not use invalid equality check", Assertions, Hidden,

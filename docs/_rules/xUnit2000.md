@@ -1,17 +1,17 @@
 ---
 title: xUnit2000
-description: Expected value should be first
+description: Constants and literals should be the expected argument
 category: Assertions
 severity: Warning
 ---
 
 ## Cause
 
-A violation of this rule occurs when the first argument to `Assert.Equal`, `AssertNotEqual`, `Assert.StrictEqual`, or `Assert.NotStrictEqual` is not the expected value.
+A violation of this rule occurs when the expected argument to `Assert.Equal`, `AssertNotEqual`, `Assert.StrictEqual`, or `Assert.NotStrictEqual` is not the expected value (such as a constant or literal).
 
 ## Reason for rule
 
-The expected value in equality assertions should always be the first argument. This will ensure that generated messages explaining the test failure will correctly match the situation.
+The expected value in equality assertions should always be the expected argument. This will ensure that generated messages explaining the test failure will correctly match the situation.
 
 ## How to fix violations
 
@@ -46,6 +46,6 @@ public void AdditionExample()
 ## How to suppress violations
 
 ```csharp
-#pragma warning disable xUnit2000 // Expected value should be first
-#pragma warning restore xUnit2000 // Expected value should be first
+#pragma warning disable xUnit2000 // Constants and literals should be the expected argument
+#pragma warning restore xUnit2000 // Constants and literals should be the expected argument
 ```
