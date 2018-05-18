@@ -40,5 +40,16 @@ public class TestClass
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public async void NamedArgumentsTakePossibleThirdParameterIntoAccount()
+        {
+            var source = string.Format(Template, "Assert.Equal(comparer: null, actual: 0, expected: i)");
+            var expected = string.Format(Template, "Assert.Equal(comparer: null, actual: i, expected: 0)");
+
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
+        }
     }
 }
