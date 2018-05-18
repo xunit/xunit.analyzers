@@ -26,8 +26,8 @@ namespace Xunit.Analyzers
             ArgumentSyntax expectedArg, actualArg;
             if (arguments.All(x => x.NameColon != null))
             {
-                expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.Text == "expected");
-                actualArg = arguments.Single(x => x.NameColon.Name.Identifier.Text == "actual");
+                expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "expected");
+                actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "actual");
             }
             else
             {
