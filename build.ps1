@@ -23,7 +23,6 @@ Set-Location $PSScriptRoot
 $packageOutputFolder = (join-path (Get-Location) "artifacts\packages")
 $parallelFlags = "-parallel all -maxthreads 16"
 $testOutputFolder = (join-path (Get-Location) "artifacts\test")
-$binlogOutputFolder = (join-path (Get-Location) "artifacts\build")
 $solutionFolder = Get-Location
 
 $signClientVersion = "0.9.1"
@@ -48,7 +47,7 @@ function __target_build() {
     __target_packagerestore
 
     _build_step "Compiling binaries"
-        _msbuild "xunit.analyzers.sln" $configuration -binlogFile (join-path $binlogOutputFolder "build.binlog")
+        _msbuild "xunit.analyzers.sln" $configuration
 
     _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.0\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
 }
@@ -148,5 +147,4 @@ _build_step "Performing pre-build verifications"
 
 _mkdir $packageOutputFolder
 _mkdir $testOutputFolder
-_mkdir $binlogOutputFolder
 & $targetFunction
