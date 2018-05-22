@@ -42,6 +42,17 @@ public class TestClass
         }
 
         [Fact]
+        public async void NamedArgumentsInCorrectPositionOnlySwapsArgumentValues()
+        {
+            var source = string.Format(Template, "Assert.Equal(expected: i, actual: 0)");
+            var expected = string.Format(Template, "Assert.Equal(expected: 0, actual: i)");
+
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
         public async void NamedArgumentsTakePossibleThirdParameterIntoAccount()
         {
             var source = string.Format(Template, "Assert.Equal(comparer: null, actual: 0, expected: i)");
