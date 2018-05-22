@@ -37,13 +37,24 @@ namespace Xunit.Analyzers
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
             var arguments = invocation.ArgumentList.Arguments;
-            if (arguments.All(x => x.NameColon != null))
+            if (arguments.Any(x => x.NameColon != null))
             {
-                var expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "expected");
-                var actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "actual");
+                if (arguments.All(x => x.NameColon != null))
+                {
+                    var expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "expected");
+                    var actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "actual");
 
-                editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
-                editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+                    editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
+                    editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+                }
+                else
+                {
+                    var firstArg = arguments[0];
+                    var secondArg = arguments[1];
+
+                    editor.ReplaceNode(firstArg, firstArg.WithExpression(secondArg.Expression));
+                    editor.ReplaceNode(secondArg, secondArg.WithExpression(firstArg.Expression));
+                }
             }
             else
             {

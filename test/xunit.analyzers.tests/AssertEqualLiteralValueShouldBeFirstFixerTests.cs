@@ -62,5 +62,18 @@ public class TestClass
 
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public async void PartiallyNamedArgumentsInCorrectPositionOnlySwapsArgumentValues()
+        {
+            // C# 7.2 supports this new supported "non-trailing named arguments"
+
+            var source = string.Format(Template, "Assert.Equal(expected: i, 0)");
+            var expected = string.Format(Template, "Assert.Equal(expected: 0, i)");
+
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source, CompilationReporting.IgnoreErrors);
+
+            Assert.Equal(expected, actual);
+        }
     }
 }
