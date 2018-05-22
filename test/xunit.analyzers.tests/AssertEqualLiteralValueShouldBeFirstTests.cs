@@ -62,13 +62,15 @@ namespace Xunit.Analyzers
         }
 
         [Theory]
-        [MemberData(nameof(TypesAndValues))]
-        public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(string type, string value)
+        [InlineData(true)]
+        [InlineData(false)]
+        public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(bool useAlternateForm)
         {
+            var s = useAlternateForm ? "@" : "";
             var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() { 
-    var v = default(" + type + @");
-    Xunit.Assert.Equal(actual: v, expected: " + value + @");
+    var v = default(int);
+    Xunit.Assert.Equal(" + s + "actual: v, " + s + @"expected: 0);
 } }");
 
             Assert.Empty(diagnostics);
