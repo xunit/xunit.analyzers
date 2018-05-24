@@ -130,7 +130,7 @@ namespace Xunit.Analyzers
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
 
-        static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
+        static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, XunitReferences references, LanguageVersion languageVersion, string source, params string[] additionalSources)
         {
             const string fileNamePrefix = "Source";
             const string projectName = "Project";
@@ -157,10 +157,12 @@ namespace Xunit.Analyzers
 
             var compileWarningLevel = Math.Max(0, (int)compilationReporting);
             var project = solution.GetProject(projectId);
+            var parseOptions = ((CSharpParseOptions)project.ParseOptions)
+                .WithLanguageVersion(languageVersion);
             var compilationOptions = ((CSharpCompilationOptions)project.CompilationOptions)
                 .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
                 .WithWarningLevel(compileWarningLevel);
-            project = project.WithCompilationOptions(compilationOptions);
+            project = project.WithParseOptions(parseOptions).WithCompilationOptions(compilationOptions);
 
             var compilation = await project.GetCompilationAsync();
             if (compilationReporting != CompilationReporting.IgnoreErrors)
@@ -186,9 +188,12 @@ namespace Xunit.Analyzers
         public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, XunitReferences references, string source, params string[] additionalSources)
             => GetDiagnosticsAsync(analyzer, CompilationReporting.FailOnErrors, references, source, additionalSources);
 
-        public static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
+        public static Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
+            => GetDiagnosticsAsync(analyzer, compilationReporting, references, LanguageVersion.CSharp6, source, additionalSources);
+
+        private static async Task<ImmutableArray<Diagnostic>> GetDiagnosticsAsync(DiagnosticAnalyzer analyzer, CompilationReporting compilationReporting, XunitReferences references, LanguageVersion languageVersion, string source, params string[] additionalSources)
         {
-            var (compilation, _, workspace) = await GetCompilationAsync(compilationReporting, references, source, additionalSources);
+            var (compilation, _, workspace) = await GetCompilationAsync(compilationReporting, references, languageVersion, source, additionalSources);
 
             using (workspace)
                 return await ApplyAnalyzers(compilation, analyzer);
@@ -199,9 +204,10 @@ namespace Xunit.Analyzers
                                                            string source,
                                                            CompilationReporting compilationReporting = CompilationReporting.FailOnErrors,
                                                            XunitReferences references = XunitReferences.PkgXunit,
+                                                           LanguageVersion languageVersion = LanguageVersion.CSharp6,
                                                            int actionIndex = 0)
         {
-            var (compilation, document, workspace) = await GetCompilationAsync(compilationReporting, references, source);
+            var (compilation, document, workspace) = await GetCompilationAsync(compilationReporting, references, languageVersion, source);
 
             using (workspace)
             {
