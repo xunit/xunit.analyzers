@@ -1,6 +1,6 @@
 ---
 title: xUnit2013
-description: Do not use equality check to check for collection size.
+description: Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.
 category: Assertions
 severity: Warning
 ---

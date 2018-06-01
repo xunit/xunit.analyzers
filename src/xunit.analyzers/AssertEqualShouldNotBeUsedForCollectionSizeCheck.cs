@@ -68,11 +68,12 @@ namespace Xunit.Analyzers
             builder[MethodName] = method.Name;
             builder[SizeValue] = size.Value.ToString();
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            var diagnostic = Diagnostic.Create(
                 Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck,
                 invocation.GetLocation(),
-                builder.ToImmutable(),
-                SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+                builder.ToImmutable());
+
+            context.ReportDiagnostic(diagnostic);
         }
 
         private static bool IsWellKnownSizeMethod(SymbolInfo symbolInfo)

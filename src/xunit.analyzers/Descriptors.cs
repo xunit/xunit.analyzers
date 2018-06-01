@@ -211,8 +211,8 @@ namespace Xunit.Analyzers
                 "Do not use Enumerable.Any() to check if a value exists in a collection.");
 
         internal static DiagnosticDescriptor X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck { get; } =
-            Rule("xUnit2013", "Do not use equality check to check for collection size.", Assertions, Warning,
-                "Do not use {0} to check for collection size.");
+            Rule("xUnit2013", "Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.", Assertions, Warning,
+                "Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.");
 
         internal static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
             Rule("xUnit2014", "Do not use throws check to check for asynchronously thrown exception", Assertions, Error,

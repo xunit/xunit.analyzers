@@ -32,11 +32,11 @@ namespace Xunit.Analyzers
             { "System.Linq.Enumerable.Empty<int>().Count()", 354 },
         };
 
-        private static void CheckDiagnostics(IEnumerable<Diagnostic> diagnostics, string method)
+        private static void CheckDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
             Assert.Collection(diagnostics, d =>
             {
-                Assert.Equal($"Do not use Assert.{method}() to check for collection size.", d.GetMessage());
+                Assert.Equal("Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.", d.GetMessage());
                 Assert.Equal("xUnit2013", d.Id);
                 Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
             });
@@ -52,7 +52,7 @@ class TestClass { void TestMethod() {
     Xunit.Assert.Equal(0, " + collection + @");
 } }");
 
-            CheckDiagnostics(diagnostics, "Equal");
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -65,7 +65,7 @@ class TestClass { void TestMethod() {
             Xunit.Assert.NotEqual(0, " + collection + @");
         } }");
 
-            CheckDiagnostics(diagnostics, "NotEqual");
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
@@ -78,7 +78,7 @@ class TestClass { void TestMethod() {
             Xunit.Assert.Equal(1, " + collection + @");
         } }");
 
-            CheckDiagnostics(diagnostics, "Equal");
+            CheckDiagnostics(diagnostics);
         }
 
         [Fact]
@@ -110,7 +110,7 @@ class TestClass
     }
 }");
 
-            CheckDiagnostics(diagnostics, "Equal");
+            CheckDiagnostics(diagnostics);
         }
 
         [Theory]
