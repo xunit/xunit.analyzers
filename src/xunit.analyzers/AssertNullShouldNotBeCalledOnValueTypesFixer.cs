@@ -1,10 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
@@ -34,7 +36,15 @@ namespace Xunit.Analyzers
         private async Task<Document> RemoveCall(Document document, ExpressionStatementSyntax call, CancellationToken cancellationToken)
         {
             var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-            editor.RemoveNode(call);
+
+            var containsLeadingComment = call.GetLeadingTrivia()
+                .Any(t => t.IsKind(SyntaxKind.MultiLineCommentTrivia) || t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+            var removeOptions = containsLeadingComment 
+                ? SyntaxRemoveOptions.KeepLeadingTrivia | SyntaxRemoveOptions.AddElasticMarker
+                : SyntaxRemoveOptions.KeepNoTrivia;
+
+            editor.RemoveNode(call, removeOptions);
+
             return editor.GetChangedDocument();
         }
     }
