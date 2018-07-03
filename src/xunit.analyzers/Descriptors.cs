@@ -144,7 +144,9 @@ namespace Xunit.Analyzers
             Rule("xUnit1026", "Theory methods should use all of their parameters", Usage, Warning,
                 "Theory method '{0}' on test class '{1}' does not use parameter '{2}'.");
 
-        // Placeholder for rule X1027
+        internal static DiagnosticDescriptor X1027_CollectionDefinitionClassMustBePublic { get; } =
+            Rule("xUnit1027", "Collection definition classes must be public", Usage, Error,
+                "Collection definition classes must be public");
 
         // Placeholder for rule X1028
 

@@ -10,6 +10,7 @@
             internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
             internal static readonly string XunitLongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
             internal static readonly string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
+            internal static readonly string XunitCollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
             internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
             internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
