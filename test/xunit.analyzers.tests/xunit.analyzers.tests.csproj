@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
     <PackageReference Include="NSubstitute" Version="2.0.3" />
     <PackageReference Include="System.ValueTuple" Version="4.3.1" />
     <PackageReference Include="xunit.assert" Version="2.3.1" />

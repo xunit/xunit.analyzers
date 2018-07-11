@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Xunit.Analyzers
 {
@@ -71,7 +72,7 @@ public class TestClass
             var source = string.Format(Template, "Assert.Equal(expected: i, 0)");
             var expected = string.Format(Template, "Assert.Equal(expected: 0, i)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source, CompilationReporting.IgnoreErrors);
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source, languageVersion: LanguageVersion.CSharp7_2);
 
             Assert.Equal(expected, actual);
         }
