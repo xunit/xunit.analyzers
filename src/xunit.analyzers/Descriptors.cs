@@ -210,10 +210,6 @@ namespace Xunit.Analyzers
             Rule("xUnit2012", "Do not use Enumerable.Any() to check if a value exists in a collection", Assertions, Warning,
                 "Do not use Enumerable.Any() to check if a value exists in a collection.");
 
-        internal static DiagnosticDescriptor X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck { get; } =
-            Rule("xUnit2013", "Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.", Assertions, Warning,
-                "Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.");
-
         internal static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
             Rule("xUnit2014", "Do not use throws check to check for asynchronously thrown exception", Assertions, Error,
                 "Do not use {0} to check for asynchronously thrown exceptions.");
@@ -238,9 +234,13 @@ namespace Xunit.Analyzers
             Rule("xUnit2019", "Do not use obsolete throws check to check for asynchronously thrown exception", Assertions, Hidden,
             "Do not use obsolete {0} to check for asynchronously thrown exceptions.");
 
-        // Placeholder for rule X2020
+        internal static DiagnosticDescriptor X2020_AssertEqualShouldNotBeUsedForCollectionEmptyCheck { get; } =
+            Rule("xUnit2020", "Assert.Empty should be used to test if a collection is empty.", Assertions, Warning,
+                "Assert.Empty should be used to test if a collection is empty.");
 
-        // Placeholder for rule X2021
+        internal static DiagnosticDescriptor X2021_AssertEqualShouldNotBeUsedForCollectionSingleItemCheck { get; } =
+            Rule("xUnit2021", "Assert.Single should be used to test if a collection has a single item.", Assertions, Warning,
+                "Assert.Single should be used to test if a collection has a single item.");
 
         // Placeholder for rule X2022
 

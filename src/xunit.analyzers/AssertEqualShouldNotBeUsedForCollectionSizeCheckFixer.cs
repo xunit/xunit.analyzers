@@ -17,7 +17,9 @@ namespace Xunit.Analyzers
     {
         const string TitleTemplate = "Use Assert.{0}";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck.Id);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+            ImmutableArray.Create(Descriptors.X2020_AssertEqualShouldNotBeUsedForCollectionEmptyCheck.Id,
+                Descriptors.X2021_AssertEqualShouldNotBeUsedForCollectionSingleItemCheck.Id);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

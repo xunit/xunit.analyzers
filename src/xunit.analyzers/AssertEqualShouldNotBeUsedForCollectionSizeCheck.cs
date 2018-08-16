@@ -8,10 +8,39 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
+    public class AssertEqualShouldNotBeUsedForCollectionEmptyCheck : AssertEqualShouldNotBeUsedForCollectionSizeCheck
+    {
+        public AssertEqualShouldNotBeUsedForCollectionEmptyCheck() :
+            base(Descriptors.X2020_AssertEqualShouldNotBeUsedForCollectionEmptyCheck)
+        {
+        }
+
+        protected override bool IsAppropriateSizeCheckAndMethod(int size, string method)
+        {
+            return size == 0 && (method == "Equal" || method == "NotEqual");
+        }
+    }
+
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public class AssertEqualShouldNotBeUsedForCollectionSingleItemCheck : AssertEqualShouldNotBeUsedForCollectionSizeCheck
+    {
+        public AssertEqualShouldNotBeUsedForCollectionSingleItemCheck() :
+            base(Descriptors.X2021_AssertEqualShouldNotBeUsedForCollectionSingleItemCheck)
+        {
+        }
+
+        protected override bool IsAppropriateSizeCheckAndMethod(int size, string method)
+        {
+            return size == 1 && method == "Equal";
+        }
+    }
+
+    public abstract class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
     {
         internal static string MethodName = "MethodName";
         internal static string SizeValue = "SizeValue";
+
+        protected abstract bool IsAppropriateSizeCheckAndMethod(int size, string method);
 
         private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "NotEqual" });
 
@@ -22,9 +51,12 @@ namespace Xunit.Analyzers
             "System.Collections.Immutable.ImmutableArray<T>.Length",
         };
 
-        public AssertEqualShouldNotBeUsedForCollectionSizeCheck() :
-            base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck, EqualMethods)
+        private DiagnosticDescriptor Descriptor { get; set; }
+
+        public AssertEqualShouldNotBeUsedForCollectionSizeCheck(DiagnosticDescriptor descriptor) :
+            base(descriptor, EqualMethods)
         {
+            Descriptor = descriptor;
         }
 
         protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
@@ -46,8 +78,10 @@ namespace Xunit.Analyzers
                 return;
             }
 
-            if ((int)size.Value < 0 || (int)size.Value > 1 || (int)size.Value == 1 && method.Name != "Equal")
+            if(!IsAppropriateSizeCheckAndMethod((int)size.Value, method.Name))
+            {
                 return;
+            }
 
             var expression =
                 (ExpressionSyntax)(invocation.ArgumentList.Arguments[1].Expression as InvocationExpressionSyntax) ??
@@ -69,7 +103,7 @@ namespace Xunit.Analyzers
             builder[SizeValue] = size.Value.ToString();
 
             var diagnostic = Diagnostic.Create(
-                Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck,
+                Descriptor,
                 invocation.GetLocation(),
                 builder.ToImmutable());
 

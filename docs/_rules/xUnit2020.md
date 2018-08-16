@@ -1,13 +1,13 @@
 ---
-title: xUnit2013
-description: Assert.Single and Assert.Empty should be used to test if collections contain a single element or are empty.
+title: xUnit2020
+description: Assert.Empty should be used to test if a collection is empty.
 category: Assertions
 severity: Warning
 ---
 
 ## Cause
 
-A violation of this rule occurs when `Assert.Equals` or `Assert.NotEquals` are used to check if a collection has 0 or 1 elements.
+A violation of this rule occurs when `Assert.Equals` or `Assert.NotEquals` are used to check if a collection is empty.
 
 ## Reason for rule
 
@@ -15,7 +15,7 @@ There are specialized assertions for checking collection sizes.
 
 ## How to fix violations
 
-Use `Assert.Empty`, `Assert.NotEmpty`, or `Assert.Single` instead.
+Use `Assert.Empty` or `Assert.NotEmpty` instead.
 
 ## Examples
 
@@ -27,7 +27,6 @@ public void ExampleMethod()
 {
     IEnumerable<string> result = GetItems();
 
-    Assert.Equal(1, result.Count());
     Assert.Equal(0, result.Count());
     Assert.NotEqual(0, result.Count());
 }
@@ -41,7 +40,6 @@ public void ExampleMethod()
 {
     IEnumerable<string> result = GetItems();
 
-    Assert.Single(result);
     Assert.Empty(result);
     Assert.NotEmpty(result);
 }
@@ -50,6 +48,6 @@ public void ExampleMethod()
 ## How to suppress violations
 
 ```csharp
-#pragma warning disable xUnit2013 // Do not use equality check to check for collection size.
-#pragma warning restore xUnit2013 // Do not use equality check to check for collection size.
+#pragma warning disable xUnit2020 // Do not use equality check to check for collection empty check.
+#pragma warning restore xUnit2020 // Do not use equality check to check for collection empty check.
 ```
