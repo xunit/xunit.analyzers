@@ -27,6 +27,10 @@ To fix a violation of this rule, [describe how to fix a violation].
 
 Example(s) of code that violates the rule.
 
+```csharp
+Assert.Throws(typeof(RuntimeException), () => manager.InvokeProfile());
+```
+
 ### Does not violate
 
 Example(s) of code that does not violate the rule.
