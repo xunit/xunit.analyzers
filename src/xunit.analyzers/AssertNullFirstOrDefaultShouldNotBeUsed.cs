@@ -15,6 +15,12 @@ namespace Xunit.Analyzers
         {
             compilationStartContext.RegisterSyntaxNodeAction(context =>
             {
+                // Expected behavior
+                // Assert.Null({expr}.FirstOrDefault()) -> Assert.Empty({expr})
+                // Assert.NotNull({expr}.FirstOrDefault()) -> Assert.NotEmpty({expr})
+                // Assert.Null({expr}.FirstOrDefault({expr1})) -> Assert.DoesNotContain({expr}, {expr1})
+                // Assert.NotNull({expr}.FirstOrDefault({expr1})) -> Assert.Contains({expr}, {expr1}) 
+
                 var invocationExpression = (InvocationExpressionSyntax)context.Node;
                 var memberAccessExpression = invocationExpression.Expression as MemberAccessExpressionSyntax;
 
@@ -38,8 +44,8 @@ namespace Xunit.Analyzers
                     argumentMemberAccessExpression.Name.ToString() == "FirstOrDefault")
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X2020_AssertNullFirstOrDefaultShouldNotBeUsed,
-                            invocationExpression.GetLocation()));
+                        Descriptors.X2020_AssertNullFirstOrDefaultShouldNotBeUsed,
+                        invocationExpression.GetLocation()));
 
                     if (argumentInvocationExpression.ArgumentList.Arguments.Count == 0)
                     {

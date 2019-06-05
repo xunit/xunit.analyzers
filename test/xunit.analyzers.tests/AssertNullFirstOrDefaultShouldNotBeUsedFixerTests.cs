@@ -37,5 +37,17 @@ class TestClass
 
             Assert.Equal(expected, result);
         }
+
+        [Fact]
+        public async Task ShouldConvertNullFirstOrDefaultToDoesNotContain()
+        {
+            var initial = Template("Assert.Null(collection.FirstOrDefault(x => x == \"test\"))");
+
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, initial);
+
+            var expected = Template("Assert.DoesNotContain(collection, x => x == \"test\")");
+
+            Assert.Equal(expected, result);
+        }
     }
 }

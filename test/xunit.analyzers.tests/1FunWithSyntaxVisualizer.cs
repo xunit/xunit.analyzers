@@ -10,8 +10,13 @@ namespace Xunit.Analyzers
         {
             var collection = new List<string>();
 
-            Assert.Null(collection.Concat(collection).FirstOrDefault());
-            Assert.Empty(collection.Concat(collection));
+            // Expected behavior
+            // Assert.Null({expr}.FirstOrDefault()) -> Assert.Empty({expr})
+            // Assert.NotNull({expr}.FirstOrDefault()) -> Assert.NotEmpty({expr})
+            // Assert.Null({expr}.FirstOrDefault({expr1})) -> Assert.DoesNotContain({expr}, {expr1})
+            // Assert.NotNull({expr}.FirstOrDefault({expr1})) -> Assert.Contains({expr}, {expr1}) 
+
+            Assert.Null(collection.Concat(collection).FirstOrDefault(x => x == "asd"));
         }
     }
 }

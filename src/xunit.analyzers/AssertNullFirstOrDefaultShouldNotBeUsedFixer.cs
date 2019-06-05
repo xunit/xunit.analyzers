@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class AssertNullFirstOrDefaultShouldNotBeUsedFixer : CodeFixProvider
     {
-        private const string Title = "Switch to Empty/Contains";
+        private const string Title = "Convert to Empty/Contains";
 
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Descriptors.X2020_AssertNullFirstOrDefaultShouldNotBeUsed.Id);
 
@@ -45,31 +45,51 @@ namespace Xunit.Analyzers
         {
             InvocationExpressionSyntax newAssertExpression = null;
 
-            // TODO: Later you'll need to check whether it's a call to Null or NotNull, with/without arguments etc.
+            // Expected behavior
+            // Assert.Null({expr}.FirstOrDefault()) -> Assert.Empty({expr}) - DONE
+            // Assert.NotNull({expr}.FirstOrDefault()) -> Assert.NotEmpty({expr})
+            // Assert.Null({expr}.FirstOrDefault({expr1})) -> Assert.DoesNotContain({expr}, {expr1}) - DONE
+            // Assert.NotNull({expr}.FirstOrDefault({expr1})) -> Assert.Contains({expr}, {expr1})
 
-            // Is empty FirstOrDefault
-            if (invocationExpression.ArgumentList.Arguments[0].Expression is InvocationExpressionSyntax argumentInvocationExpression &&
-                argumentInvocationExpression.Expression is MemberAccessExpressionSyntax argumentMemberAccessExpression &&
-                argumentMemberAccessExpression.Name.ToString() == "FirstOrDefault")
+            var argumentInvocationExpression = invocationExpression.ArgumentList.Arguments[0].Expression as InvocationExpressionSyntax;
+            var argumentMemberAccessExpression = argumentInvocationExpression?.Expression as MemberAccessExpressionSyntax;
+
+            if (argumentMemberAccessExpression?.Name.ToString() == "FirstOrDefault")
             {
-                var assert = SyntaxFactory.IdentifierName("Assert");
-                var empty = SyntaxFactory.IdentifierName("Empty");
-                var memberaccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, assert, empty);
+                var expressionInFirstOrDefault = argumentInvocationExpression
+                    .ArgumentList
+                    .Arguments
+                    .FirstOrDefault()?
+                    .Expression;
 
-                var argument = SyntaxFactory.Argument(argumentMemberAccessExpression.Expression);
-                var argumentList = SyntaxFactory.SeparatedList(new[] { argument });
-
-                newAssertExpression =
-                    SyntaxFactory.InvocationExpression(memberaccess,
-                    SyntaxFactory.ArgumentList(argumentList));
+                newAssertExpression = expressionInFirstOrDefault == null ?
+                    BuildAssertExpression("Empty", argumentMemberAccessExpression.Expression) :
+                    BuildAssertExpression("DoesNotContain", argumentMemberAccessExpression.Expression, expressionInFirstOrDefault);
             }
 
             var root = await document.GetSyntaxRootAsync();
 
-            var newRoot = root.ReplaceNode(invocationExpression, newAssertExpression).NormalizeWhitespace();
-            var newDocument = document.WithSyntaxRoot(newRoot);
+            var newRoot = root
+                .ReplaceNode(invocationExpression, newAssertExpression)
+                .NormalizeWhitespace();
 
-            return newDocument;
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        private static InvocationExpressionSyntax BuildAssertExpression(string identifier, params ExpressionSyntax[] argumentExpressions)
+        {
+            var assert = SyntaxFactory.IdentifierName("Assert");
+            var identifierName = SyntaxFactory.IdentifierName(identifier);
+            var memberAccess = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, assert, identifierName);
+
+            var arguments = argumentExpressions
+                .Select(SyntaxFactory.Argument)
+                .ToArray();
+
+            var argumentList = SyntaxFactory.SeparatedList(arguments);
+
+            return SyntaxFactory.InvocationExpression(memberAccess,
+                   SyntaxFactory.ArgumentList(argumentList));
         }
     }
 }
