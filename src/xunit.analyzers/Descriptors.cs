@@ -238,7 +238,9 @@ namespace Xunit.Analyzers
             Rule("xUnit2019", "Do not use obsolete throws check to check for asynchronously thrown exception", Assertions, Hidden,
             "Do not use obsolete {0} to check for asynchronously thrown exceptions.");
 
-        // Placeholder for rule X2020
+        internal static DiagnosticDescriptor X2020_AssertNullFirstOrDefaultShouldNotBeUsed { get; } =
+            Rule("xUnit2020", "Do not use FirstOrDefault within Assert.Null or Assert.NotNull", Assertions, Info,
+            "Do not use FirstOrDefault within Assert.Null or Assert.NotNull. Use Empty/Contains instead.");
 
         // Placeholder for rule X2021
 
