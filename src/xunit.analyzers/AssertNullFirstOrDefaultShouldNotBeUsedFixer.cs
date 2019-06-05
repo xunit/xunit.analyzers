@@ -43,31 +43,42 @@ namespace Xunit.Analyzers
 
         private async Task<Document> FixAssertionAsync(Document document, InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
-            InvocationExpressionSyntax newAssertExpression = null;
+            var memberAccessExpression = invocationExpression.Expression as MemberAccessExpressionSyntax;
 
-            // Expected behavior
-            // Assert.Null({expr}.FirstOrDefault()) -> Assert.Empty({expr}) - DONE
-            // Assert.NotNull({expr}.FirstOrDefault()) -> Assert.NotEmpty({expr})
-            // Assert.Null({expr}.FirstOrDefault({expr1})) -> Assert.DoesNotContain({expr}, {expr1}) - DONE
-            // Assert.NotNull({expr}.FirstOrDefault({expr1})) -> Assert.Contains({expr}, {expr1})
+            var calledAssertMethodName = memberAccessExpression?.Name.ToString();
+
+            InvocationExpressionSyntax newAssertExpression = null;
 
             var argumentInvocationExpression = invocationExpression.ArgumentList.Arguments[0].Expression as InvocationExpressionSyntax;
             var argumentMemberAccessExpression = argumentInvocationExpression?.Expression as MemberAccessExpressionSyntax;
 
             if (argumentMemberAccessExpression?.Name.ToString() == "FirstOrDefault")
             {
-                var expressionInFirstOrDefault = argumentInvocationExpression
+                var expressionInsideFirstOrDefault = argumentInvocationExpression
                     .ArgumentList
                     .Arguments
                     .FirstOrDefault()?
                     .Expression;
 
-                newAssertExpression = expressionInFirstOrDefault == null ?
-                    BuildAssertExpression("Empty", argumentMemberAccessExpression.Expression) :
-                    BuildAssertExpression("DoesNotContain", argumentMemberAccessExpression.Expression, expressionInFirstOrDefault);
+                var firstOrDefaultHasAnArgument = expressionInsideFirstOrDefault != null;
+
+                var expressionBeforeFirstOrDefault = argumentMemberAccessExpression.Expression;
+
+                if (calledAssertMethodName == "Null")
+                {
+                    newAssertExpression = !firstOrDefaultHasAnArgument ?
+                        BuildAssertExpression("Empty", expressionBeforeFirstOrDefault) :
+                        BuildAssertExpression("DoesNotContain", expressionBeforeFirstOrDefault, expressionInsideFirstOrDefault);
+                }
+                else if (calledAssertMethodName == "NotNull")
+                {
+                    newAssertExpression = !firstOrDefaultHasAnArgument ?
+                        BuildAssertExpression("NotEmpty", expressionBeforeFirstOrDefault) :
+                        BuildAssertExpression("Contains", expressionBeforeFirstOrDefault, expressionInsideFirstOrDefault);
+                }
             }
 
-            var root = await document.GetSyntaxRootAsync();
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
 
             var newRoot = root
                 .ReplaceNode(invocationExpression, newAssertExpression)

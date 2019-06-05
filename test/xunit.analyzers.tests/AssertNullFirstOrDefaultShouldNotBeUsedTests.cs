@@ -7,23 +7,62 @@ namespace Xunit.Analyzers
     {
         private readonly DiagnosticAnalyzer analyzer = new AssertNullFirstOrDefaultShouldNotBeUsed();
 
-        [Fact]
-        public async void FindsWarningForFirstOrDefaultInsideAssertNullWithoutArguments()
-        {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                          @"
-using System.Linq;
+        private static string Template(string expression) => $@"using System.Linq;
 using System.Collections.Generic;
 using Xunit;
 
 class TestClass
-{
-	void TestMethod()
-	{ 
+{{
+    void TestMethod()
+    {{
         var collection = new List<string>();
-    	Assert.Null(collection.FirstOrDefault());
-	}
-}");
+        {expression};
+    }}
+}}";
+
+        [Fact]
+        public async void FindsWarningForFirstOrDefaultInsideAssertNullWithoutArguments()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, Template("Assert.Null(collection.FirstOrDefault())"));
+
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal("Do not use FirstOrDefault within Assert.Null or Assert.NotNull. Use Empty/Contains instead.", d.GetMessage());
+                Assert.Equal("xUnit2020", d.Id);
+                Assert.Equal(DiagnosticSeverity.Info, d.Severity);
+            });
+        }
+
+        [Fact]
+        public async void FindsWarningForFirstOrDefaultInsideAssertNullWithArguments()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, Template("Assert.Null(collection.FirstOrDefault(x => x == \"test\"))"));
+
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal("Do not use FirstOrDefault within Assert.Null or Assert.NotNull. Use Empty/Contains instead.", d.GetMessage());
+                Assert.Equal("xUnit2020", d.Id);
+                Assert.Equal(DiagnosticSeverity.Info, d.Severity);
+            });
+        }
+
+        [Fact]
+        public async void FindsWarningForFirstOrDefaultInsideAssertNotNullWithoutArguments()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, Template("Assert.NotNull(collection.FirstOrDefault())"));
+
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal("Do not use FirstOrDefault within Assert.Null or Assert.NotNull. Use Empty/Contains instead.", d.GetMessage());
+                Assert.Equal("xUnit2020", d.Id);
+                Assert.Equal(DiagnosticSeverity.Info, d.Severity);
+            });
+        }
+
+        [Fact]
+        public async void FindsWarningForFirstOrDefaultInsideAssertNotNullWithArguments()
+        {
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, Template("Assert.NotNull(collection.FirstOrDefault(x => x == \"test\"))"));
 
             Assert.Collection(diagnostics, d =>
             {

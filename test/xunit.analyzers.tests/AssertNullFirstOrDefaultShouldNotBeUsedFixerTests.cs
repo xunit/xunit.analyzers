@@ -39,6 +39,18 @@ class TestClass
         }
 
         [Fact]
+        public async Task ShouldConvertAssertNotNullEmptyFirstOrDefaultToAssertNotEmpty()
+        {
+            var initial = Template("Assert.NotNull(collection.FirstOrDefault())");
+
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, initial);
+
+            var expected = Template("Assert.NotEmpty(collection)");
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
         public async Task ShouldConvertNullFirstOrDefaultToDoesNotContain()
         {
             var initial = Template("Assert.Null(collection.FirstOrDefault(x => x == \"test\"))");
@@ -46,6 +58,18 @@ class TestClass
             var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, initial);
 
             var expected = Template("Assert.DoesNotContain(collection, x => x == \"test\")");
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public async Task ShouldConvertAssertNotNullFirstOrDefaultWithArgumentToContains()
+        {
+            var initial = Template("Assert.NotNull(collection.FirstOrDefault(x => x == \"test\"))");
+
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, initial);
+
+            var expected = Template("Assert.Contains(collection, x => x == \"test\")");
 
             Assert.Equal(expected, result);
         }
