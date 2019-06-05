@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -15,8 +14,6 @@ namespace Xunit.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
     public class AssertNullFirstOrDefaultShouldNotBeUsedFixer : CodeFixProvider
     {
-        private const string Title = "Convert to Empty/Contains";
-
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(Descriptors.X2020_AssertNullFirstOrDefaultShouldNotBeUsed.Id);
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -36,55 +33,11 @@ namespace Xunit.Analyzers
                 .OfType<InvocationExpressionSyntax>()
                 .First();
 
+            (var methodToConvertTo, var newAssertExpression) = ConvertInvocation(invocationExpression);
+
             context.RegisterCodeFix(
-                CodeAction.Create(Title, c =>
-                FixAssertionAsync(context.Document, invocationExpression, c)), diagnostic);
-        }
-
-        private async Task<Document> FixAssertionAsync(Document document, InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
-        {
-            var memberAccessExpression = invocationExpression.Expression as MemberAccessExpressionSyntax;
-
-            var calledAssertMethodName = memberAccessExpression?.Name.ToString();
-
-            InvocationExpressionSyntax newAssertExpression = null;
-
-            var argumentInvocationExpression = invocationExpression.ArgumentList.Arguments[0].Expression as InvocationExpressionSyntax;
-            var argumentMemberAccessExpression = argumentInvocationExpression?.Expression as MemberAccessExpressionSyntax;
-
-            if (argumentMemberAccessExpression?.Name.ToString() == "FirstOrDefault")
-            {
-                var expressionInsideFirstOrDefault = argumentInvocationExpression
-                    .ArgumentList
-                    .Arguments
-                    .FirstOrDefault()?
-                    .Expression;
-
-                var firstOrDefaultHasAnArgument = expressionInsideFirstOrDefault != null;
-
-                var expressionBeforeFirstOrDefault = argumentMemberAccessExpression.Expression;
-
-                if (calledAssertMethodName == "Null")
-                {
-                    newAssertExpression = !firstOrDefaultHasAnArgument ?
-                        BuildAssertExpression("Empty", expressionBeforeFirstOrDefault) :
-                        BuildAssertExpression("DoesNotContain", expressionBeforeFirstOrDefault, expressionInsideFirstOrDefault);
-                }
-                else if (calledAssertMethodName == "NotNull")
-                {
-                    newAssertExpression = !firstOrDefaultHasAnArgument ?
-                        BuildAssertExpression("NotEmpty", expressionBeforeFirstOrDefault) :
-                        BuildAssertExpression("Contains", expressionBeforeFirstOrDefault, expressionInsideFirstOrDefault);
-                }
-            }
-
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-
-            var newRoot = root
-                .ReplaceNode(invocationExpression, newAssertExpression)
-                .NormalizeWhitespace();
-
-            return document.WithSyntaxRoot(newRoot);
+                CodeAction.Create(TitleTemplate(methodToConvertTo), c =>
+                FixAssertionAsync(context.Document, invocationExpression, newAssertExpression, c)), diagnostic);
         }
 
         private static InvocationExpressionSyntax BuildAssertExpression(string identifier, params ExpressionSyntax[] argumentExpressions)
@@ -102,5 +55,76 @@ namespace Xunit.Analyzers
             return SyntaxFactory.InvocationExpression(memberAccess,
                    SyntaxFactory.ArgumentList(argumentList));
         }
+
+        private static (string newAssertMethod, InvocationExpressionSyntax newAssertInvocation) ConvertInvocation(InvocationExpressionSyntax currentInvocationExpression)
+        {
+            var memberAccessExpression = currentInvocationExpression.Expression as MemberAccessExpressionSyntax;
+
+            var calledAssertMethodName = memberAccessExpression?.Name.ToString();
+
+            InvocationExpressionSyntax newAssertExpression = null;
+            string methodToConvertTo = string.Empty;
+
+            var argumentInvocationExpression = currentInvocationExpression.ArgumentList.Arguments[0].Expression as InvocationExpressionSyntax;
+            var argumentMemberAccessExpression = argumentInvocationExpression?.Expression as MemberAccessExpressionSyntax;
+
+            if (argumentMemberAccessExpression?.Name.ToString() == "FirstOrDefault")
+            {
+                var expressionInsideFirstOrDefault = argumentInvocationExpression
+                    .ArgumentList
+                    .Arguments
+                    .FirstOrDefault()?
+                    .Expression;
+
+                var firstOrDefaultHasAnArgument = expressionInsideFirstOrDefault != null;
+
+                var expressionBeforeFirstOrDefault = argumentMemberAccessExpression.Expression;
+
+                methodToConvertTo = GetMethodToConvertTo(calledAssertMethodName, firstOrDefaultHasAnArgument);
+
+                var argumentsList = !firstOrDefaultHasAnArgument ?
+                    new[] { expressionBeforeFirstOrDefault } :
+                    new[] { expressionBeforeFirstOrDefault, expressionInsideFirstOrDefault };
+
+                newAssertExpression = BuildAssertExpression(methodToConvertTo, argumentsList);
+            }
+
+            return (methodToConvertTo, newAssertExpression);
+        }
+
+        private static string GetMethodToConvertTo(string calledAssertMethodName, bool firstOrDefaultHasAnArgument)
+        {
+            if (calledAssertMethodName == "Null")
+            {
+                return !firstOrDefaultHasAnArgument ?
+                    "Empty" :
+                    "DoesNotContain";
+            }
+            else if (calledAssertMethodName == "NotNull")
+            {
+                return !firstOrDefaultHasAnArgument ?
+                    "NotEmpty" :
+                    "Contains";
+            }
+
+            return string.Empty;
+        }
+
+        private async Task<Document> FixAssertionAsync(
+            Document document,
+            InvocationExpressionSyntax invocationExpression,
+            InvocationExpressionSyntax newAssertExpression,
+            CancellationToken cancellationToken)
+        {
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+
+            var newRoot = root
+                .ReplaceNode(invocationExpression, newAssertExpression)
+                .NormalizeWhitespace();
+
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        private string TitleTemplate(string newMethod) => $"Convert to {newMethod}";
     }
 }
