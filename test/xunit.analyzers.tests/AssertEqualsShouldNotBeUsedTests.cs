@@ -1,28 +1,27 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-
-namespace Xunit.Analyzers
+﻿namespace Xunit.Analyzers
 {
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.Testing;
+    using Verify = CSharpVerifier<AssertEqualsShouldNotBeUsed>;
+
     public class AssertEqualsShouldNotBeUsedTests
     {
-        readonly DiagnosticAnalyzer analyzer = new AssertEqualsShouldNotBeUsed();
-
         [Theory]
-        [InlineData("Equals")]
-        [InlineData("ReferenceEquals")]
-        public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(string method)
+        [InlineData("Equals", "Equal")]
+        [InlineData("ReferenceEquals", "Same")]
+        public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(string method, string replacement)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(null, null);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
+            DiagnosticResult[] expected =
             {
-                Assert.Equal($"Do not use Assert.{method}().", d.GetMessage());
-                Assert.Equal("xUnit2001", d.Id);
-                Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
-            });
+                Verify.CompilerError("CS0619").WithSpan(2, 5, 2, 30 + method.Length).WithMessage($"'Assert.{method}(object, object)' is obsolete: 'This is an override of Object.{method}(). Call Assert.{replacement}() instead.'"),
+                Verify.Diagnostic().WithSpan(2, 5, 2, 30 + method.Length).WithSeverity(DiagnosticSeverity.Hidden).WithArguments($"Assert.{method}()"),
+            };
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

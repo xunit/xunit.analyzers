@@ -1,49 +1,48 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
-
-namespace Xunit.Analyzers
+﻿namespace Xunit.Analyzers
 {
+    using Verify = CSharpVerifier<TestMethodMustNotHaveMultipleFactAttributes>;
+
     public class TestMethodMustNotHaveMultipleFactAttributesTests
     {
-        readonly DiagnosticAnalyzer analyzer = new TestMethodMustNotHaveMultipleFactAttributes();
-
         [Theory]
         [InlineData("Fact")]
         [InlineData("Theory")]
         public async void DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }");
+            var source =
+                "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void FindsErrorForMethodWithTheoryAndFact()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Fact, Xunit.Theory] public void TestMethod() { } }");
+            var source =
+                "public class TestClass { [Xunit.Fact, Xunit.Theory] public void TestMethod() { } }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Test methods cannot have multiple Fact or Theory attributes", d.GetMessage());
-                    Assert.Equal("xUnit1002", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 65, 1, 75);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
         public async void FindsErrorForMethodWithCustomFactAttribute()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Fact, CustomFact] public void TestMethod() { } }",
-                "public class CustomFactAttribute : Xunit.FactAttribute { }");
-
-            Assert.Collection(diagnostics,
-                d =>
+            await new Verify.Test
+            {
+                TestState =
                 {
-                    Assert.Equal("Test methods cannot have multiple Fact or Theory attributes", d.GetMessage());
-                    Assert.Equal("xUnit1002", d.Descriptor.Id);
-                });
+                    Sources =
+                    {
+                        "public class TestClass { [Xunit.Fact, CustomFact] public void TestMethod() { } }",
+                        "public class CustomFactAttribute : Xunit.FactAttribute { }",
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        Verify.Diagnostic().WithSpan(1, 63, 1, 73),
+                    },
+                },
+            }.RunAsync();
         }
     }
 }

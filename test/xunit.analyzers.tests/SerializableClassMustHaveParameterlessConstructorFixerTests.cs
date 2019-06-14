@@ -1,31 +1,25 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-
-namespace Xunit.Analyzers
+﻿namespace Xunit.Analyzers
 {
+    using Verify = CSharpVerifier<SerializableClassMustHaveParameterlessConstructor>;
+
     public class SerializableClassMustHaveParameterlessConstructorFixerTests
     {
-        readonly DiagnosticAnalyzer analyzer = new SerializableClassMustHaveParameterlessConstructor();
-        readonly CodeFixProvider fixer = new SerializableClassMustHaveParameterlessConstructorFixer();
-
         [Fact]
         public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
         {
             var code =
-@"public class MyTestCase : Xunit.Abstractions.IXunitSerializable
+@"public class [|MyTestCase|] : {|CS0535:{|CS0535:Xunit.Abstractions.IXunitSerializable|}|}
 {
     protected MyTestCase() { throw new System.DivideByZeroException(); }
 }";
             var expected =
-@"public class MyTestCase : Xunit.Abstractions.IXunitSerializable
+@"public class MyTestCase : {|CS0535:{|CS0535:Xunit.Abstractions.IXunitSerializable|}|}
 {
     [System.Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
     public MyTestCase() { throw new System.DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
-
-            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+            await Verify.VerifyCodeFixAsync(code, expected);
         }
 
         [Fact]
@@ -35,7 +29,7 @@ namespace Xunit.Analyzers
 @"using System;
 using Xunit.Abstractions;
 
-public class MyTestCase : IXunitSerializable
+public class [|MyTestCase|] : {|CS0535:{|CS0535:IXunitSerializable|}|}
 {
     protected MyTestCase() { throw new DivideByZeroException(); }
 }";
@@ -43,15 +37,13 @@ public class MyTestCase : IXunitSerializable
 @"using System;
 using Xunit.Abstractions;
 
-public class MyTestCase : IXunitSerializable
+public class MyTestCase : {|CS0535:{|CS0535:IXunitSerializable|}|}
 {
     [Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
     public MyTestCase() { throw new DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
-
-            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+            await Verify.VerifyCodeFixAsync(code, expected);
         }
 
         [Fact]
@@ -60,7 +52,7 @@ public class MyTestCase : IXunitSerializable
             var code =
 @"using obo = System.ObsoleteAttribute;
 
-public class MyTestCase : Xunit.Abstractions.IXunitSerializable
+public class [|MyTestCase|] : {|CS0535:{|CS0535:Xunit.Abstractions.IXunitSerializable|}|}
 {
     [obo(""This is my custom obsolete message"")]
     protected MyTestCase() { throw new System.DivideByZeroException(); }
@@ -68,15 +60,13 @@ public class MyTestCase : Xunit.Abstractions.IXunitSerializable
             var expected =
 @"using obo = System.ObsoleteAttribute;
 
-public class MyTestCase : Xunit.Abstractions.IXunitSerializable
+public class MyTestCase : {|CS0535:{|CS0535:Xunit.Abstractions.IXunitSerializable|}|}
 {
     [obo(""This is my custom obsolete message"")]
     public MyTestCase() { throw new System.DivideByZeroException(); }
 }";
 
-            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors);
-
-            Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+            await Verify.VerifyCodeFixAsync(code, expected);
         }
     }
 }

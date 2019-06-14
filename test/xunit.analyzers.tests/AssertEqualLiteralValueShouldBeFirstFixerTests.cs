@@ -1,13 +1,10 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-
-namespace Xunit.Analyzers
+﻿namespace Xunit.Analyzers
 {
+    using Microsoft.CodeAnalysis.Testing;
+    using Verify = CSharpVerifier<AssertEqualLiteralValueShouldBeFirst>;
+
     public class AssertEqualLiteralValueShouldBeFirstFixerTests
     {
-        readonly DiagnosticAnalyzer analyzer = new AssertEqualLiteralValueShouldBeFirst();
-        readonly CodeFixProvider fixer = new AssertEqualLiteralValueShouldBeFirstFixer();
-
         static readonly string Template = @"
 public class TestClass
 {{
@@ -23,44 +20,40 @@ public class TestClass
         public async void SwapArguments()
         {
             var source = string.Format(Template, "Assert.Equal(i, 0)");
-            var expected = string.Format(Template, "Assert.Equal(0, i)");
+            var fixedSource = string.Format(Template, "Assert.Equal(0, i)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
-
-            Assert.Equal(expected, actual);
+            var expected = Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
+            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
         }
 
         [Fact]
         public async void NamedArgumentsOnlySwapsArgumentValues()
         {
             var source = string.Format(Template, "Assert.Equal(actual: 0, expected: i)");
-            var expected = string.Format(Template, "Assert.Equal(actual: i, expected: 0)");
+            var fixedSource = string.Format(Template, "Assert.Equal(actual: i, expected: 0)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
-
-            Assert.Equal(expected, actual);
+            var expected = Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
+            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
         }
 
         [Fact]
         public async void NamedArgumentsInCorrectPositionOnlySwapsArgumentValues()
         {
             var source = string.Format(Template, "Assert.Equal(expected: i, actual: 0)");
-            var expected = string.Format(Template, "Assert.Equal(expected: 0, actual: i)");
+            var fixedSource = string.Format(Template, "Assert.Equal(expected: 0, actual: i)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
-
-            Assert.Equal(expected, actual);
+            var expected = Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
+            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
         }
 
         [Fact]
         public async void NamedArgumentsTakePossibleThirdParameterIntoAccount()
         {
             var source = string.Format(Template, "Assert.Equal(comparer: null, actual: 0, expected: i)");
-            var expected = string.Format(Template, "Assert.Equal(comparer: null, actual: i, expected: 0)");
+            var fixedSource = string.Format(Template, "Assert.Equal(comparer: null, actual: i, expected: 0)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
-
-            Assert.Equal(expected, actual);
+            var expected = Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual, comparer)", "TestMethod", "TestClass");
+            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
         }
 
         [Fact]
@@ -69,11 +62,14 @@ public class TestClass
             // C# 7.2 supports this new supported "non-trailing named arguments"
 
             var source = string.Format(Template, "Assert.Equal(expected: i, 0)");
-            var expected = string.Format(Template, "Assert.Equal(expected: 0, i)");
+            var fixedSource = string.Format(Template, "Assert.Equal(expected: 0, i)");
 
-            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source, CompilationReporting.IgnoreErrors);
-
-            Assert.Equal(expected, actual);
+            DiagnosticResult[] expected =
+            {
+                Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass"),
+                Verify.CompilerError("CS1738").WithLocation(8, 41).WithMessage("Named argument specifications must appear after all fixed arguments have been specified"),
+            };
+            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
         }
     }
 }
