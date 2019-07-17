@@ -130,7 +130,7 @@ namespace Xunit.Analyzers
                                         return false;
                                     break;
                                 case IParameterSymbol yMethodParamDefault:
-                                    if (xArgPrimitive.Value != yMethodParamDefault.ExplicitDefaultValue)
+                                    if (!object.Equals(xArgPrimitive.Value, yMethodParamDefault.ExplicitDefaultValue))
                                         return false;
                                     break;
                                 default:
@@ -141,11 +141,11 @@ namespace Xunit.Analyzers
                             switch (y)
                             {
                                 case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-                                    if (xMethodParamDefault.ExplicitDefaultValue != yArgPrimitive.Value)
+                                    if (!object.Equals(xMethodParamDefault.ExplicitDefaultValue, yArgPrimitive.Value))
                                         return false;
                                     break;
                                 case IParameterSymbol yMethodParamDefault:
-                                    if (xMethodParamDefault.ExplicitDefaultValue != yMethodParamDefault.ExplicitDefaultValue)
+                                    if (!object.Equals(xMethodParamDefault.ExplicitDefaultValue, yMethodParamDefault.ExplicitDefaultValue))
                                         return false;
                                     break;
                                 default:
@@ -156,12 +156,16 @@ namespace Xunit.Analyzers
                             switch (y)
                             {
                                 case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
-                                    return AreArgumentsEqual(
+                                    if (!AreArgumentsEqual(
                                         xArgArray.Values.Cast<object>().ToImmutableArray(),
-                                        yArgArray.Values.Cast<object>().ToImmutableArray());
+                                        yArgArray.Values.Cast<object>().ToImmutableArray()))
+                                        return false;
+                                    break;
                                 default:
                                     return false;
                             }
+
+                            break;
                         default:
                             return false;
                     }

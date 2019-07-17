@@ -144,6 +144,27 @@ namespace Xunit.Analyzers
 
                 Assert.Empty(diagnostics);
             }
+            
+            [Fact]
+            public async void DoesNotFindError_WhenFirstArrayIsEqualAndEmptyArraysAreUsed()
+            {
+                //Specially crafted InlineData values that will cause the InlineDataUniquenessComparer
+                //to return same hashcodes, because GetFlattenedArgumentPrimitives ignores empty arrays.
+                //This will trigger the actual bug, where the first parameter object array being equal
+                //would cause the other parameters to not be evaluated for equality at all.
+                var code = 
+                    @"public class TestClass { 
+        [Xunit.Theory]
+        [Xunit.InlineData(new int[] { 1 }, new int[0], new int[] { 1 })]
+        [Xunit.InlineData(new int[] { 1 }, new int[] { 1 }, new int[0])]
+        public static void Test(int[] x, int[] y, int[] z) { }
+}";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    code);
+
+                Assert.Empty(diagnostics);
+                
+            }
         }
 
         public class ForDuplicatedInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
@@ -278,14 +299,49 @@ namespace Xunit.Analyzers
                 Assert.Collection(diagnostics, d => Assert.Equal(1, d.Location.GetLineSpan().StartLinePosition.Line));
             }
 
-            [Fact]
-            public async void FindsError_WhenDuplicatedByDefaultValueOfParameter()
+            public static TheoryData<int> DefaultValueData {get;} = new TheoryData<int>() 
+            {
+                //the value 1 doesn't seem to trigger bugs related to comparing boxed values, but 2 does
+                1,
+                2
+            };
+            [Theory]
+            [MemberData(nameof(DefaultValueData))]
+            public async void FindsError_WhenFirstDuplicatedByDefaultValueOfParameter_DefaultInlineDataFirst(int defaultValue)
             {
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass" +
                     "{" +
-                    "   [Xunit.Theory, Xunit.InlineData(10, 1), Xunit.InlineData(10)]" +
-                    "   public void TestMethod(int x, int y = 1) { }" +
+                    $"   [Xunit.Theory, Xunit.InlineData(), Xunit.InlineData({defaultValue})]" +
+                    $"   public void TestMethod(int y = {defaultValue}) {{ }}" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+
+            [Theory]
+            [MemberData(nameof(DefaultValueData))]
+            public async void FindsError_WhenSecondDuplicatedByDefaultValueOfParameter(int defaultValue)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    $"   [Xunit.Theory, Xunit.InlineData({defaultValue}), Xunit.InlineData()]" +
+                    $"   public void TestMethod(int y = {defaultValue}) {{ }}" +
+                    "}");
+
+                Assert.Collection(diagnostics, VerifyDiagnostic);
+            }
+            
+            [Theory]
+            [MemberData(nameof(DefaultValueData))]
+            public async void FindsError_WhenTwoDuplicatedByDefaultValueOfParameter(int defaultValue)
+            {
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass" +
+                    "{" +
+                    "    [Xunit.Theory, Xunit.InlineData(), Xunit.InlineData()]" +
+                    $"   public void TestMethod(int y = {defaultValue}) {{ }}" +
                     "}");
 
                 Assert.Collection(diagnostics, VerifyDiagnostic);
