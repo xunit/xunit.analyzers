@@ -32,7 +32,7 @@ $signClientAppSettings = (join-path (Get-Location) "tools\SignClient\appsettings
 # Helper functions
 
 function _xunit_console([string] $command) {
-    _exec ('& "' + $PSScriptRoot + '\packages\xunit.runner.console\tools\net452\xunit.console.x86.exe" ' + $command)
+    _exec ('& "' + $PSScriptRoot + '\packages\xunit.runner.console\tools\net472\xunit.console.x86.exe" ' + $command)
 }
 
 # Top-level targets
