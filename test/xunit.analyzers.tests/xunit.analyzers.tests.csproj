@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
+    <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" />
   </ItemGroup>
 
   <ItemGroup>
