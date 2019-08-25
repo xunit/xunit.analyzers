@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
             {
                 var attribute = syntaxNodeContext.Node as AttributeSyntax;
                 var semanticModel = syntaxNodeContext.SemanticModel;
-                if (semanticModel.GetTypeInfo(attribute).Type != xunitContext.Core.ClassDataAttributeType)
+                if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
                     return;
 
                 var argumentExpression = attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression as TypeOfExpressionSyntax;

@@ -12,7 +12,6 @@ namespace Xunit.Analyzers
 
         public class ForFactMethod : InlineDataMustMatchTheoryParametersTests
         {
-
             [Fact]
             public async void DoesNotFindError_WhenNoDataAttributes()
             {
@@ -974,7 +973,8 @@ public class TestClass
             {
                 var source = CreateSource(inlineData);
 
-                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.3.99");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
 
                 Assert.Collection(diagnostics,
                     d =>
@@ -991,7 +991,7 @@ public class TestClass
             {
                 var source = CreateSource(inlineData);
 
-                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.5.0");
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.4.0");
                 var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
 
                 Assert.Empty(diagnostics);

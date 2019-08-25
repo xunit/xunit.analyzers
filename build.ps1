@@ -49,7 +49,7 @@ function __target_build() {
     _build_step "Compiling binaries"
         _msbuild "xunit.analyzers.sln" $configuration
 
-    _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.0\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
+    _dotnet ("tools\DocBuilder\bin\Release\netcoreapp2.1\Xunit.Analyzers.DocBuilder.dll " + (Join-Path $PSScriptRoot "docs")) # "Verifying documentation files"
 }
 
 function __target_ci() {
@@ -64,7 +64,7 @@ function __target_packagerestore() {
     _build_step "Restoring NuGet packages"
         _mkdir packages
         _exec ('& "' + $nugetExe + '" restore xunit.analyzers.sln -NonInteractive')       
-        _exec ('& "' + $nugetExe + '" install xunit.runner.console -OutputDirectory "' + (Join-Path $PSScriptRoot "packages") + '" -NonInteractive -pre -ExcludeVersion')
+        _exec ('& "' + $nugetExe + '" install xunit.runner.console -OutputDirectory "' + (Join-Path $PSScriptRoot "packages") + '" -NonInteractive -ExcludeVersion')
 }
 
 function __target_packages() {
@@ -130,7 +130,7 @@ function __target__signpackages() {
 
 function __target__test() {
     _build_step "Running unit tests"
-        _xunit_console ("test\xunit.analyzers.tests\bin\" + $configuration + "\net452\xunit.analyzers.tests.dll -xml artifacts\test\TestResults.xml -diagnostics")
+        _xunit_console ("test\xunit.analyzers.tests\bin\" + $configuration + "\net472\xunit.analyzers.tests.dll -xml artifacts\test\TestResults.xml -diagnostics")
 }
 
 # Dispatch

@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             var objectArrayType = TypeSymbolFactory.GetObjectArrayType(context.Compilation);
 
             var wellFormedInlineDataAttributes = methodAllAttributes
-                .Where(a => a.AttributeClass == xunitContext.Core.InlineDataAttributeType
+                .Where(a => Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType)
                             && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
             AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);

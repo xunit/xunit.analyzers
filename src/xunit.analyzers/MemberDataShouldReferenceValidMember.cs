@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
             {
                 var attribute = symbolContext.Node as AttributeSyntax;
                 var semanticModel = symbolContext.SemanticModel;
-                if (semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type != xunitContext.Core.MemberDataAttributeType)
+                if (!Equals(semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
                     return;
 
                 var memberNameArgument = attribute.ArgumentList.Arguments.FirstOrDefault();
@@ -83,7 +83,7 @@ namespace Xunit.Analyzers
                         if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
                         {
                             var builder = ImmutableDictionary.CreateBuilder<string, string>();
-                            if (memberSymbol.ContainingType != testClassTypeSymbol)
+                            if (!Equals(memberSymbol.ContainingType, testClassTypeSymbol))
                             {
                                 builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
                             }

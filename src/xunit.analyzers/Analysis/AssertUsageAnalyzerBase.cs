@@ -27,6 +27,7 @@ namespace Xunit.Analyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.EnableConcurrentExecution();
 
             context.RegisterCompilationStartAction(compilationContext =>
@@ -45,7 +46,7 @@ namespace Xunit.Analyzers
 
                     var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
                     if (methodSymbol.MethodKind != MethodKind.Ordinary ||
-                        methodSymbol.ContainingType != assertType ||
+                        !Equals(methodSymbol.ContainingType, assertType) ||
                         !methodNames.Contains(methodSymbol.Name))
                         return;
 

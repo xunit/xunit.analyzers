@@ -60,7 +60,7 @@ namespace Xunit.Analyzers
                         continue;
 
                     if (method.DeclaredAccessibility == Accessibility.Public &&
-                        (method.ReturnsVoid || (taskType != null && method.ReturnType == taskType)))
+                        (method.ReturnsVoid || (taskType != null && Equals(method.ReturnType, taskType))))
                     {
                         var shouldIgnore = false;
                         while (!shouldIgnore || method.IsOverride)

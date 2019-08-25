@@ -101,7 +101,7 @@ namespace Xunit.Analyzers
                         ? arrayParam.ElementType
                         : parameter.Type;
 
-                        if (parameterType == compilation.ObjectType)
+                        if (Equals(parameterType, compilation.ObjectType))
                         {
                             // Everything is assignable to object and 'params object[]' so move on
                             if (xunitSupportsParameterArrays && parameter.IsParams)

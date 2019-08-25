@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
 
         internal static INamedTypeSymbol GetGenericInterfaceImplementation(this ITypeSymbol implementingType, INamedTypeSymbol openInterfaceType)
         {
-            return implementingType.AllInterfaces.FirstOrDefault(i => i.OriginalDefinition == openInterfaceType);
+            return implementingType.AllInterfaces.FirstOrDefault(i => Equals(i.OriginalDefinition, openInterfaceType));
         }
 
         internal static ISymbol GetMember(this INamespaceOrTypeSymbol namespaceOrType, string name)

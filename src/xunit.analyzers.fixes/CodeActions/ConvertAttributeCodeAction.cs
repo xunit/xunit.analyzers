@@ -40,7 +40,7 @@ namespace Xunit.Analyzers.CodeActions
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var currentType = semanticModel.GetTypeInfo(attribute).Type;
-                    if (currentType == fromTypeSymbol)
+                    if (Equals(currentType, fromTypeSymbol))
                         editor.SetName(attribute, toTypeName);
                 }
             }
