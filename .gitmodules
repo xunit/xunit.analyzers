@@ -1,3 +1,0 @@
-[submodule "build/tools"]
-	path = build/tools
-	url = https://github.com/xunit/build-tools
