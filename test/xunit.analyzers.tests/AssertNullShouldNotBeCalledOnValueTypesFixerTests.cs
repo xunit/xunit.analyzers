@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
+﻿using System;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -85,6 +86,10 @@ namespace XUnitTestProject1
     }
 }";
             var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, original);
+
+            // Code fixer always inserts \r\n even on Linux, so fix up the actual result
+            if (Environment.NewLine != "\r\n")
+                actual = actual.Replace("\r\n", Environment.NewLine);
 
             Assert.Equal(expected, actual);
         }

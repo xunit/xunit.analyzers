@@ -81,16 +81,20 @@ namespace Xunit.Analyzers
 
     class CodeAnalyzerHelper
     {
-        static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemCollectionsImmutable = MetadataReference.CreateFromFile(typeof(ImmutableArray).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference SystemTextReference = MetadataReference.CreateFromFile(typeof(System.Text.RegularExpressions.Regex).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference CorlibReference = GetAssemblyReference(typeof(object));
+        static readonly MetadataReference NetStandardReference = GetAssemblyReference("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51");
+        static readonly MetadataReference SystemCollectionsImmutableReference = GetAssemblyReference(typeof(ImmutableArray));
+        static readonly MetadataReference SystemCollectionsReference = GetAssemblyReference("System.Collections");
+        static readonly MetadataReference SystemConsoleReference = GetAssemblyReference("System.Console");
+        static readonly MetadataReference SystemCoreReference = GetAssemblyReference(typeof(Enumerable));
+        static readonly MetadataReference SystemTextReference = GetAssemblyReference(typeof(System.Text.RegularExpressions.Regex));
+        static readonly MetadataReference SystemRuntimeExtensionsReference = GetAssemblyReference("System.Runtime.Extensions");
         static readonly MetadataReference SystemRuntimeReference;
         static readonly MetadataReference SystemThreadingTasksReference;
-        static readonly MetadataReference XunitAbstractionsReference = MetadataReference.CreateFromFile(typeof(ITest).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference XunitAssertReference = MetadataReference.CreateFromFile(typeof(Assert).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference XunitCoreReference = MetadataReference.CreateFromFile(typeof(FactAttribute).GetTypeInfo().Assembly.Location);
-        static readonly MetadataReference XunitExecutionReference = MetadataReference.CreateFromFile(typeof(XunitTestCase).GetTypeInfo().Assembly.Location);
+        static readonly MetadataReference XunitAbstractionsReference = GetAssemblyReference(typeof(ITest));
+        static readonly MetadataReference XunitAssertReference = GetAssemblyReference(typeof(Assert));
+        static readonly MetadataReference XunitCoreReference = GetAssemblyReference(typeof(FactAttribute));
+        static readonly MetadataReference XunitExecutionReference = GetAssemblyReference(typeof(XunitTestCase));
 
         static readonly IEnumerable<MetadataReference> SystemReferences;
 
@@ -106,9 +110,21 @@ namespace Xunit.Analyzers
             // Xunit is a PCL linked against System.Runtime, however on the Desktop framework all types in that assembly have been forwarded to
             // System.Core, so we need to find the assembly by name to compile without errors.
             var referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
+
             SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
-            SystemReferences = new[] { CorlibReference, SystemCollectionsImmutable, SystemCoreReference, SystemTextReference, SystemRuntimeReference, SystemThreadingTasksReference };
+            SystemReferences = new[] {
+                CorlibReference,
+                NetStandardReference,
+                SystemCollectionsImmutableReference,
+                SystemCollectionsReference,
+                SystemConsoleReference,
+                SystemCoreReference,
+                SystemRuntimeReference,
+                SystemRuntimeExtensionsReference,
+                SystemTextReference,
+                SystemThreadingTasksReference,
+            }.Where(x => x != null).ToArray();
         }
 
         static async Task<ImmutableArray<Diagnostic>> ApplyAnalyzers(Compilation compilation, params DiagnosticAnalyzer[] analyzers)
@@ -125,10 +141,23 @@ namespace Xunit.Analyzers
             return await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
         }
 
-        static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        static MetadataReference GetAssemblyReference(Type type)
+            => MetadataReference.CreateFromFile(type.GetTypeInfo().Assembly.Location);
+
+        static MetadataReference GetAssemblyReference(string name)
         {
-            return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
+            try
+            {
+                return MetadataReference.CreateFromFile(Assembly.Load(name).Location);
+            }
+            catch
+            {
+                return null;
+            }
         }
+
+        static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+            => MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
 
         static async Task<(Compilation, Document, Workspace)> GetCompilationAsync(CompilationReporting compilationReporting, XunitReferences references, string source, params string[] additionalSources)
         {
