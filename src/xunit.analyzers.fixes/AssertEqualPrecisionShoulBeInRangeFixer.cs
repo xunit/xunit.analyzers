@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers
 {
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class AssertEqualPrecisionShoulBeInRangeFixer : CodeFixProvider
+    public class AssertEqualPrecisionShouldBeInRangeFixer : CodeFixProvider
     {
         private const string title = "Use precision 0";
 
