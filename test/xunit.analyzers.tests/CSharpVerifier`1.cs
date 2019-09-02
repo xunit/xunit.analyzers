@@ -56,11 +56,23 @@ namespace Xunit.Analyzers
             {
                 SolutionTransforms.Add((solution, projectId) =>
                 {
-                    return solution
+                    solution = solution
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.XunitAbstractionsReference)
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.XunitAssertReference)
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.XunitCoreReference)
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemThreadingTasksReference);
+
+#if NETCOREAPP2_2
+                    solution = solution
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemCollectionsReference)
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemCollectionsNonGenericReference)
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemConsoleReference)
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemRuntimeReference)
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemRuntimeExtensionsReference)
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemTextRegularExpressionsReference);
+#endif
+
+                    return solution;
                 });
 
                 // xunit diagnostics are reported in both normal and generated code
