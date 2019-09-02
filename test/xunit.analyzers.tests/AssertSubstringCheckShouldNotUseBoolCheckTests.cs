@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertSubstringCheckShouldNotUseBoolCheck>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBoolCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertSubstringCheckShouldNotUseBoolCheckTests
     {
         public static TheoryData<string> BooleanMethods = new TheoryData<string> { "True", "False" };

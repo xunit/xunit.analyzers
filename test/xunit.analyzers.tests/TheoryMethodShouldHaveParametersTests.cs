@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<TheoryMethodShouldHaveParameters>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
 
+namespace Xunit.Analyzers
+{
     public class TheoryMethodShouldHaveParametersTests
     {
         [Fact]

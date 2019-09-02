@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<FactMethodMustNotHaveParameters>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 
+namespace Xunit.Analyzers
+{
     public class FactMethodMustNotHaveParametersTests
     {
         [Fact]

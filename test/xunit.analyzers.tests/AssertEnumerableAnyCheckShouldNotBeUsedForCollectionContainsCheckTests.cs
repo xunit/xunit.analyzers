@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTests
     {
         public static TheoryData<string> BooleanMethods = new TheoryData<string> { "True", "False" };

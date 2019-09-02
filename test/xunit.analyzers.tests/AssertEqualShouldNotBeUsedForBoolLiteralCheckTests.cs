@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertEqualShouldNotBeUsedForBoolLiteralCheck>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForBoolLiteralCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "Equal", "NotEqual", "StrictEqual", "NotStrictEqual", };

@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<ClassDataAttributeMustPointAtValidClass>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
 
+namespace Xunit.Analyzers
+{
     public class ClassDataAttributeMustPointAtValidClassTests
     {
         private static readonly string TestMethodSource = "public class TestClass { [Xunit.Theory][Xunit.ClassData(typeof(DataClass))] public void TestMethod() { } }";

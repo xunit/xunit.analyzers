@@ -1,14 +1,14 @@
-﻿namespace Xunit.Analyzers
+﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+
+// 2.1.0 does not support default parameter values
+using Verify_2_1 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_1_0>;
+
+// 2.2.0 does support default parameter values
+using Verify_2_2 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_2_0>;
+
+namespace Xunit.Analyzers
 {
-    using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis;
-
-    // 2.1.0 does not support default parameter values
-    using Verify_2_1 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_1_0>;
-
-    // 2.2.0 does support default parameter values
-    using Verify_2_2 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_2_0>;
-
     public class TheoryMethodCannotHaveDefaultParameterTests
     {
         [Fact]

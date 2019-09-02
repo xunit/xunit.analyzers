@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertThrowsShouldUseGenericOverloadCheck>;
+﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGenericOverloadCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertThrowsShouldUseGenericOverloadTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "Throws", "ThrowsAsync" };

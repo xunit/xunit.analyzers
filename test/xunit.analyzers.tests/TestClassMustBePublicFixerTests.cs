@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<TestClassMustBePublic>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
+namespace Xunit.Analyzers
+{
     public class TestClassMustBePublicFixerTests
     {
         [Theory]

@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<AssertEmptyCollectionCheckShouldNotBeUsed>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNotBeUsed>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEmptyCollectionCheckShouldNotBeUsedTests
     {
         public static TheoryData<string> Collections { get; } = new TheoryData<string>

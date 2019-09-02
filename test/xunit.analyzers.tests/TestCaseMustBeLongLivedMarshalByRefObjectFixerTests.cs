@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObject>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
 
+namespace Xunit.Analyzers
+{
     public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
     {
         [Fact]

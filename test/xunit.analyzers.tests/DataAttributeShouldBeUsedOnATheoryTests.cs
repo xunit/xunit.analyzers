@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<DataAttributeShouldBeUsedOnATheory>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
 
+namespace Xunit.Analyzers
+{
     public class DataAttributeShouldBeUsedOnATheoryTests
     {
         [Fact]

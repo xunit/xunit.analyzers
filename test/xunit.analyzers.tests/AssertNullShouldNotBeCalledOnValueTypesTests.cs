@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertNullShouldNotBeCalledOnValueTypes>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
 
+namespace Xunit.Analyzers
+{
     public class AssertNullShouldNotBeCalledOnValueTypesTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "Null", "NotNull" };

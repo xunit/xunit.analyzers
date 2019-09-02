@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertEqualShouldNotBeUsedForNullCheck>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualShouldNotBeUsedForNullCheckTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "Equal", "NotEqual", "StrictEqual", "NotStrictEqual", "Same", "NotSame" };

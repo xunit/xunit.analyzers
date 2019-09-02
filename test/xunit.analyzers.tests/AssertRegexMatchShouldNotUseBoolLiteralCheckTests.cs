@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertRegexMatchShouldNotUseBoolLiteralCheck>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLiteralCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "True", "False" };

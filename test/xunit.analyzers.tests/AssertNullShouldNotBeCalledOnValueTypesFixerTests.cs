@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<AssertNullShouldNotBeCalledOnValueTypes>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
 
+namespace Xunit.Analyzers
+{
     public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
     {
         [Fact]

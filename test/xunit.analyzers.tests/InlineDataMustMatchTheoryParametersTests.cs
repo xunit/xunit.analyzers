@@ -1,15 +1,15 @@
-﻿namespace Xunit.Analyzers
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<InlineDataMustMatchTheoryParameters>;
-    using Verify_2_3_1 = CSharpVerifier<InlineDataMustMatchTheoryParametersTests.Analyzer_2_3_1>;
-    using Verify_2_4 = CSharpVerifier<InlineDataMustMatchTheoryParametersTests.Analyzer_2_4_0>;
-    using Verify_2_5 = CSharpVerifier<InlineDataMustMatchTheoryParametersTests.Analyzer_2_5_0>;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
+using Verify_2_3_1 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_3_1>;
+using Verify_2_4 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_4_0>;
+using Verify_2_5 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_5_0>;
 
+namespace Xunit.Analyzers
+{
     public abstract class InlineDataMustMatchTheoryParametersTests
     {
         public class ForFactMethod : InlineDataMustMatchTheoryParametersTests

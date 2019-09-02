@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using System.Collections.Generic;
-    using Verify = CSharpVerifier<TestClassMustBePublic>;
+﻿using System.Collections.Generic;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
+namespace Xunit.Analyzers
+{
     public class TestClassMustBePublicTests
     {
         private static IEnumerable<object[]> CreateFactsInNonPublicClassCases()

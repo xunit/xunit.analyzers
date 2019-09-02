@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertSameShouldNotBeCalledOnValueTypes>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValueTypes>;
 
+namespace Xunit.Analyzers
+{
     public class AssertSameShouldNotBeCalledOnValueTypesTests
     {
         [Theory]

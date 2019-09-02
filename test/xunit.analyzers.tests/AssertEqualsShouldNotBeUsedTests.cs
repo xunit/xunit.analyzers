@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<AssertEqualsShouldNotBeUsed>;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualsShouldNotBeUsed>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualsShouldNotBeUsedTests
     {
         [Theory]

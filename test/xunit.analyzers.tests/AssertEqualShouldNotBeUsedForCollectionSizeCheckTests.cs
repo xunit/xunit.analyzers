@@ -1,8 +1,8 @@
+using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
+
 namespace Xunit.Analyzers
 {
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
-
     public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
     {
         public static TheoryData<string> Collections { get; } = new TheoryData<string>

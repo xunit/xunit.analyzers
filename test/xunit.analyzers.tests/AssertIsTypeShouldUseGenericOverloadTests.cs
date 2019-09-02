@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertIsTypeShouldUseGenericOverloadType>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 
+namespace Xunit.Analyzers
+{
     public class AssertIsTypeShouldUseGenericOverloadTests
     {
         public static TheoryData<string> Methods = new TheoryData<string> { "IsType", "IsNotType", "IsAssignableFrom" };

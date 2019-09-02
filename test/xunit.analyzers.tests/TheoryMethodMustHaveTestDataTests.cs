@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<TheoryMethodMustHaveTestData>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 
+namespace Xunit.Analyzers
+{
     public class TheoryMethodMustHaveTestDataTests
     {
         [Fact]

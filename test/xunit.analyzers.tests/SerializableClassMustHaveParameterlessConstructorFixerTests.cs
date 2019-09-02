@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<SerializableClassMustHaveParameterlessConstructor>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameterlessConstructor>;
 
+namespace Xunit.Analyzers
+{
     public class SerializableClassMustHaveParameterlessConstructorFixerTests
     {
         [Fact]

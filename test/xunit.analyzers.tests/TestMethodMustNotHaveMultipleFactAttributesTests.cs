@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<TestMethodMustNotHaveMultipleFactAttributes>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
 
+namespace Xunit.Analyzers
+{
     public class TestMethodMustNotHaveMultipleFactAttributesTests
     {
         [Theory]

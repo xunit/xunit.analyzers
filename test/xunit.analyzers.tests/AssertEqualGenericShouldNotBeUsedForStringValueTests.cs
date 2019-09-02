@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<AssertEqualGenericShouldNotBeUsedForStringValue>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedForStringValue>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualGenericShouldNotBeUsedForStringValueTests
     {
         public static TheoryData<string, string> Data { get; } = new TheoryData<string, string>

@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertIsTypeShouldNotBeUsedForAbstractType>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbstractType>;
 
+namespace Xunit.Analyzers
+{
     public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
     {
         public static TheoryData<string> Methods { get; } = new TheoryData<string> { "IsType", "IsNotType" };

@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<PublicMethodShouldBeMarkedAsTest>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 
+namespace Xunit.Analyzers
+{
     public class PublicMethodShouldBeMarkedAsTestTests
     {
         [Fact]

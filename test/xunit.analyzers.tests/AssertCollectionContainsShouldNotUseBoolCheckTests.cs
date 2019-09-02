@@ -1,7 +1,7 @@
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertCollectionContainsShouldNotUseBoolCheck>;
+
 namespace Xunit.Analyzers
 {
-    using Verify = CSharpVerifier<AssertCollectionContainsShouldNotUseBoolCheck>;
-
     public class AssertCollectionContainsShouldNotUseBoolCheckTests
     {
         public static TheoryData<string> Collections { get; } = new TheoryData<string>

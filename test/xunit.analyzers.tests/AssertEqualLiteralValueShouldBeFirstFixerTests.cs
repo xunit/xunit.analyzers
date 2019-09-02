@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<AssertEqualLiteralValueShouldBeFirst>;
+﻿using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFirst>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualLiteralValueShouldBeFirstFixerTests
     {
         static readonly string Template = @"

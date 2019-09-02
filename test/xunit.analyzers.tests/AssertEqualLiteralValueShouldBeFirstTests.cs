@@ -1,7 +1,7 @@
-﻿namespace Xunit.Analyzers
-{
-    using Verify = CSharpVerifier<AssertEqualLiteralValueShouldBeFirst>;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFirst>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualLiteralValueShouldBeFirstTests
     {
         [Fact]

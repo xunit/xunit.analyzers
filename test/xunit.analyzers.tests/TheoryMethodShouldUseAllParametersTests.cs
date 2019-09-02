@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<TheoryMethodShouldUseAllParameters>;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldUseAllParameters>;
 
+namespace Xunit.Analyzers
+{
     public class TheoryMethodShouldUseAllParametersTests
     {
         [Fact]

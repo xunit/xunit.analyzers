@@ -1,10 +1,10 @@
-﻿namespace Xunit.Analyzers
-{
-    using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<AssertThrowsShouldNotBeUsedForAsyncThrowsCheck>;
+﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyncThrowsCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
     {
         [Fact]

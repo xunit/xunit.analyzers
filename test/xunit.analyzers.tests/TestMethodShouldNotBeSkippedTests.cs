@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<TestMethodShouldNotBeSkipped>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 
+namespace Xunit.Analyzers
+{
     public class TestMethodShouldNotBeSkippedTests
     {
         [Theory]

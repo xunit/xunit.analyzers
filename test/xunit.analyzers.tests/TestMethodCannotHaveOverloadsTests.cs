@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<TestMethodCannotHaveOverloads>;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodCannotHaveOverloads>;
 
+namespace Xunit.Analyzers
+{
     public class TestMethodCannotHaveOverloadsTests
     {
         [Fact]

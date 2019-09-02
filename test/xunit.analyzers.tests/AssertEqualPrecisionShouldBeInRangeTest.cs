@@ -1,8 +1,8 @@
-﻿namespace Xunit.Analyzers
-{
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertEqualPrecisionShouldBeInRange>;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualPrecisionShouldBeInRange>;
 
+namespace Xunit.Analyzers
+{
     public class AssertEqualPrecisionShouldBeInRangeTest
     {
         static readonly string Template = "class TestClass {{ void TestMethod() {{{0}}}}}";

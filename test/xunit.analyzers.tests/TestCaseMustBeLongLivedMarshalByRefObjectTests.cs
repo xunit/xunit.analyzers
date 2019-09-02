@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using System.Linq;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObject>;
+﻿using System.Linq;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
 
+namespace Xunit.Analyzers
+{
     public class TestCaseMustBeLongLivedMarshalByRefObjectTests
     {
         readonly static string Template = @"

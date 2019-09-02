@@ -1,10 +1,10 @@
-﻿namespace Xunit.Analyzers
-{
-    using System;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Testing;
-    using Verify = CSharpVerifier<InlineDataShouldBeUniqueWithinTheory>;
+﻿using System;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataShouldBeUniqueWithinTheory>;
 
+namespace Xunit.Analyzers
+{
     public abstract class InlineDataShouldBeUniqueWithinTheoryTests
     {
         public class ForNonRelatedToInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests

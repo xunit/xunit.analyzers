@@ -1,9 +1,9 @@
-﻿namespace Xunit.Analyzers
-{
-    using System;
-    using Microsoft.CodeAnalysis;
-    using Verify = CSharpVerifier<AssertStringEqualityCheckShouldNotUseBoolCheck>;
+﻿using System;
+using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertStringEqualityCheckShouldNotUseBoolCheck>;
 
+namespace Xunit.Analyzers
+{
     public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
     {
         public static TheoryData<string> AssertMethods = new TheoryData<string> { "True", "False" };
