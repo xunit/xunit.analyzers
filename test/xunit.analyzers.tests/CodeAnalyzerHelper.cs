@@ -11,6 +11,9 @@ namespace Xunit.Analyzers
 {
     class CodeAnalyzerHelper
     {
+#if NET472
+        internal static readonly MetadataReference NetstandardReference;
+#endif
 #if NETCOREAPP2_2
         internal static readonly PortableExecutableReference SystemCollectionsReference;
         internal static readonly MetadataReference SystemCollectionsNonGenericReference;
@@ -38,6 +41,9 @@ namespace Xunit.Analyzers
 
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
 
+#if NET472
+            NetstandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51").Location);
+#endif
 #if NETCOREAPP2_2
             // Xunit doesn't directly reference System.Collections.NonGeneric, so we locate it relative to
             // System.Collections.

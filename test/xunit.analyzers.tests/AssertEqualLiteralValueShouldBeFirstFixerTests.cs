@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.Testing;
+﻿using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Testing;
 using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFirst>;
 
 namespace Xunit.Analyzers
@@ -59,17 +60,30 @@ public class TestClass
         [Fact]
         public async void PartiallyNamedArgumentsInCorrectPositionOnlySwapsArgumentValues()
         {
-            // C# 7.2 supports this new supported "non-trailing named arguments"
-
             var source = string.Format(Template, "Assert.Equal(expected: i, 0)");
             var fixedSource = string.Format(Template, "Assert.Equal(expected: 0, i)");
 
-            DiagnosticResult[] expected =
+            await new Verify.Test
             {
-                Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass"),
-                Verify.CompilerError("CS1738").WithLocation(8, 41).WithMessage("Named argument specifications must appear after all fixed arguments have been specified"),
-            };
-            await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
+                TestState =
+                {
+                    Sources = { source },
+                    ExpectedDiagnostics =
+                    {
+                        Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass"),
+                    },
+                },
+                FixedState = { Sources = { fixedSource } },
+                SolutionTransforms =
+                {
+                    (solution, projectId) =>
+                    {
+                        return solution.WithProjectParseOptions(
+                            projectId,
+                            ((CSharpParseOptions)solution.GetProject(projectId).ParseOptions).WithLanguageVersion(LanguageVersion.CSharp7_2));
+                    },
+                },
+            }.RunAsync();
         }
     }
 }

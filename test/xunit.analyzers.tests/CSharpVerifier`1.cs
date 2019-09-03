@@ -73,6 +73,11 @@ namespace Xunit.Analyzers
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.XunitCoreReference)
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemThreadingTasksReference);
 
+#if NET472
+                    solution = solution
+                        .AddMetadataReference(projectId, CodeAnalyzerHelper.NetstandardReference);
+#endif
+
 #if NETCOREAPP2_2
                     solution = solution
                         .AddMetadataReference(projectId, CodeAnalyzerHelper.SystemCollectionsReference)
