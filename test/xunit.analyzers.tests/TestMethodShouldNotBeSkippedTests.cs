@@ -1,18 +1,20 @@
 ﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class TestMethodShouldNotBeSkippedTests
     {
+        readonly DiagnosticAnalyzer analyzer = new TestMethodShouldNotBeSkipped();
+
         [Theory]
         [InlineData("Fact")]
         [InlineData("Theory")]
         public async void DoesNotFindErrorForNotSkippedTest(string attribute)
         {
-            var source = "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -20,10 +22,15 @@ namespace Xunit.Analyzers
         [InlineData("Theory")]
         public async void FindsErrorForSkippedTests(string attribute)
         {
-            var source = "class TestClass { [Xunit." + attribute + "(Skip=\"Lazy\")] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "class TestClass { [Xunit." + attribute + "(Skip=\"Lazy\")] public void TestMethod() { } }");
 
-            var expected = Verify.Diagnostic().WithSpan(1, 27 + attribute.Length, 1, 38 + attribute.Length).WithSeverity(DiagnosticSeverity.Info);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Test methods should not be skipped", d.GetMessage());
+                    Assert.Equal("xUnit1004", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Info, d.Severity);
+                });
         }
     }
 }

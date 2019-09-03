@@ -1,12 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
-// 2.1.0 does not support default parameter values
-using Verify_2_1 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_1_0>;
-
-// 2.2.0 does support default parameter values
-using Verify_2_2 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveDefaultParameterTests.Analyzer_2_2_0>;
-
 namespace Xunit.Analyzers
 {
     public class TheoryMethodCannotHaveDefaultParameterTests
@@ -14,42 +8,35 @@ namespace Xunit.Analyzers
         [Fact]
         public async Task FindsErrorForTheoryWithDefaultParameter_WhenDefaultValueNotSupported()
         {
-            var source =
+            // 2.1.0 does not support default parameter values
+            var analyzer = new TheoryMethodCannotHaveDefaultParameter("2.1.0");
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
                 "   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
-                "}";
+                "}");
 
-            var expected = Verify_2_1.Diagnostic().WithSpan(1, 85, 1, 89).WithSeverity(DiagnosticSeverity.Error).WithArguments("TestMethod", "TestClass", "c");
-            await Verify_2_1.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Theory method 'TestMethod' on test class 'TestClass' parameter 'c' cannot have a default value.", d.GetMessage());
+                    Assert.Equal("xUnit1023", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async Task DoesNotFindErrorForTheoryWithDefaultParameter_WhenDefaultValueSupported()
         {
-            var source =
+            // 2.2.0 does support default parameter values
+            var analyzer = new TheoryMethodCannotHaveDefaultParameter("2.2.0");
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
                 "   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
-                "}";
+                "}");
 
-            await Verify_2_2.VerifyAnalyzerAsync(source);
-        }
-
-        internal class Analyzer_2_1_0
-            : TheoryMethodCannotHaveDefaultParameter
-        {
-            public Analyzer_2_1_0()
-                : base("2.1.0")
-            {
-            }
-        }
-
-        internal class Analyzer_2_2_0
-            : TheoryMethodCannotHaveDefaultParameter
-        {
-            public Analyzer_2_2_0()
-                : base("2.2.0")
-            {
-            }
+            Assert.Empty(diagnostics);
         }
     }
 }

@@ -2,33 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Testing;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
-using Verify_2_3_1 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_3_1>;
-using Verify_2_4 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_4_0>;
-using Verify_2_5 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParametersTests.Analyzer_2_5_0>;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public abstract class InlineDataMustMatchTheoryParametersTests
     {
+        readonly DiagnosticAnalyzer analyzer = new InlineDataMustMatchTheoryParameters();
+
         public class ForFactMethod : InlineDataMustMatchTheoryParametersTests
         {
             [Fact]
             public async void DoesNotFindError_WhenNoDataAttributes()
             {
-                var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_WithAttribute()
             {
-                var source =
-                    "public class TestClass { [Xunit.Fact, Xunit.InlineData] public void TestMethod(string a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Fact, Xunit.InlineData] public void TestMethod(string a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
         }
 
@@ -37,91 +35,91 @@ namespace Xunit.Analyzers
             [Fact]
             public async void DoesNotFindErrorFor_MethodUsingParamsArgument()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")]" +
                     "   public void TestMethod(params string[] args) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_MethodUsingNormalAndParamsArgument()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\", \"xyz\")]" +
                     "   public void TestMethod(string first, params string[] theRest) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_MethodUsingNormalAndUnusedParamsArgument()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
                     "   public void TestMethod(string first, params string[] theRest) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_UsingParameters()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\", 1, null)]" +
                     "   public void TestMethod(string a, int b, object c) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_UsingParametersWithDefaultValues()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
                     "   public void TestMethod(string a, string b = \"default\", string c = null) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_UsingParametersWithDefaultValuesAndParamsArgument()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
                     "   public void TestMethod(string a, string b = \"default\", string c = null, params string[] d) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindErrorFor_UsingParameterWithOptionalAttribute()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(\"abc\")]" +
                     "   public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
-
+            
             [Fact]
             public async void DoesNotFindErrorFor_UsingMultipleParametersWithOptionalAttributes()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory]" +
                     "   [Xunit.InlineData]" +
@@ -129,69 +127,69 @@ namespace Xunit.Analyzers
                     "   [Xunit.InlineData(\"abc\", \"def\")]" +
                     "   public void TestMethod([System.Runtime.InteropServices.Optional] string a," +
                     "                          [System.Runtime.InteropServices.Optional] string b) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_UsingExplicitArray()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(new object[] {\"abc\", 1, null})]" +
                     "   public void TestMethod(string a, int b, object c) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_UsingExplicitNamedArray()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(data: new object[] {\"abc\", 1, null})]" +
                     "   public void TestMethod(string a, int b, object c) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_UsingImplicitArray()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(new [] {(object)\"abc\", 1, null})]" +
                     "   public void TestMethod(string a, int b, object c) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_UsingImplicitNamedArray()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(data: new [] {(object)\"abc\", 1, null})]" +
                     "   public void TestMethod(string a, int b, object c) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_EmptyArray()
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     "   [Xunit.Theory, Xunit.InlineData(new byte[0])]" +
                     "   public void TestMethod(byte[] input) { }" +
-                    "}";
+                    "}");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
         }
 
@@ -200,11 +198,16 @@ namespace Xunit.Analyzers
             [Fact]
             public async void FindsError()
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1)] public void TestMethod(int a, int b, string c) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1)] public void TestMethod(int a, int b, string c) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1009").WithSpan(1, 41, 1, 60).WithSeverity(DiagnosticSeverity.Error);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                      Assert.Equal("xUnit1009", d.Descriptor.Id);
+                      Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                  });
             }
 
             [Theory]
@@ -212,24 +215,34 @@ namespace Xunit.Analyzers
             [InlineData("Xunit.InlineData")]
             public async void FindsError_ForAttributeWithNoArguments(string attribute)
             {
-                var source =
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                     "public class TestClass {" +
                     $"  [Xunit.Theory, {attribute}]" +
                     "  public void TestMethod(int a) { }" +
-                    "}";
+                    "}");
 
-                var expected = Verify.Diagnostic("xUnit1009").WithSpan(1, 42, 1, 42 + attribute.Length).WithSeverity(DiagnosticSeverity.Error);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                      Assert.Equal("xUnit1009", d.Descriptor.Id);
+                      Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                  });
             }
 
             [Fact]
             public async void FindsError_UsingParams()
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1)] public void TestMethod(int a, int b, params string[] value) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1)] public void TestMethod(int a, int b, params string[] value) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1009").WithSpan(1, 41, 1, 60).WithSeverity(DiagnosticSeverity.Error);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("InlineData values must match the number of method parameters", d.GetMessage());
+                      Assert.Equal("xUnit1009", d.Descriptor.Id);
+                      Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                  });
             }
         }
 
@@ -238,15 +251,22 @@ namespace Xunit.Analyzers
             [Fact]
             public async void FindsError()
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, 2, \"abc\")] public void TestMethod(int a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, 2, \"abc\")] public void TestMethod(int a) { } }");
 
-                DiagnosticResult[] expected =
-                {
-                    Verify.Diagnostic("xUnit1011").WithSpan(1, 61, 1, 62).WithSeverity(DiagnosticSeverity.Error).WithArguments("2"),
-                    Verify.Diagnostic("xUnit1011").WithSpan(1, 64, 1, 69).WithSeverity(DiagnosticSeverity.Error).WithArguments("\"abc\""),
-                };
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("There is no matching method parameter for value: 2.", d.GetMessage());
+                        Assert.Equal("xUnit1011", d.Descriptor.Id);
+                        Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("There is no matching method parameter for value: \"abc\".", d.GetMessage());
+                        Assert.Equal("xUnit1011", d.Descriptor.Id);
+                        Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                    });
             }
         }
 
@@ -276,36 +296,48 @@ namespace Xunit.Analyzers
             [InlineData("params int[]")]
             public async void FindsWarning_ForSingleNullValue(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(null)] public void TestMethod(" + type + " a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(null)] public void TestMethod(" + type + " a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1012").WithSpan(1, 58, 1, 62).WithSeverity(DiagnosticSeverity.Warning).WithArguments("a", "int");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                   d =>
+                   {
+                       Assert.Equal("Null should not be used for value type parameter 'a' of type 'int'.", d.GetMessage());
+                       Assert.Equal("xUnit1012", d.Descriptor.Id);
+                       Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                   });
             }
 
             [Theory]
             [MemberData(nameof(ValueTypes))]
             public async void FindsWarning_ForValueTypeParameter(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null, null)] public void TestMethod(int a, " + type + " b, params " + type + "[] c) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null, null)] public void TestMethod(int a, " + type + " b, params " + type + "[] c) { } }");
 
-                DiagnosticResult[] expected =
-                {
-                    Verify.Diagnostic("xUnit1012").WithSpan(1, 61, 1, 65).WithSeverity(DiagnosticSeverity.Warning).WithArguments("b", type),
-                    Verify.Diagnostic("xUnit1012").WithSpan(1, 67, 1, 71).WithSeverity(DiagnosticSeverity.Warning).WithArguments("c", type),
-                };
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                   d =>
+                   {
+                       Assert.Equal("Null should not be used for value type parameter 'b' of type '" + type + "'.", d.GetMessage());
+                       Assert.Equal("xUnit1012", d.Descriptor.Id);
+                       Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                   },
+                   d =>
+                   {
+                       Assert.Equal("Null should not be used for value type parameter 'c' of type '" + type + "'.", d.GetMessage());
+                       Assert.Equal("xUnit1012", d.Descriptor.Id);
+                       Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                   });
             }
 
             [Theory]
             [MemberData(nameof(ValueTypes))]
             public async void DoesNotFindWarning_ForNullableValueType(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null)] public void TestMethod(int a, " + type + "? b) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null)] public void TestMethod(int a, " + type + "? b) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -314,10 +346,10 @@ namespace Xunit.Analyzers
             [InlineData("System.Exception")]
             public async void DoesNotFindWarning_ForReferenceParameterType(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null)] public void TestMethod(int a, " + type + " b) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(1, null)] public void TestMethod(int a, " + type + " b) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
         }
 
@@ -337,52 +369,61 @@ namespace Xunit.Analyzers
             [TupleMemberData(nameof(NumericValuesAndNumericTypes))]
             public async void DoesNotFindError_FromAnyOtherNumericType(string value, string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + " a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + " a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
             [TupleMemberData(nameof(NumericValuesAndNumericTypes))]
             public async void DoesNotFindError_FromAnyOtherNumericType_ToNullable(string value, string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + "? a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + "? a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
             [TupleMemberData(nameof(BoolValuesAndNumericTypes))]
             public async void FindsError_ForBoolArgument(string value, string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + " a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(" + type + " a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", type);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type '" + type + "'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
 
             [Theory]
             [TupleMemberData(nameof(NumericTypes))]
             public async void DoesNotFindError_ForCharArgument(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData('a')] public void TestMethod(" + type + " a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData('a')] public void TestMethod(" + type + " a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
             [TupleMemberData(nameof(NumericTypes))]
             public async void FindsError_ForEnumArgument(string type)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.InvariantCulture)] public void TestMethod(" + type + " a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.InvariantCulture)] public void TestMethod(" + type + " a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 98).WithArguments("a", type);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type '" + type + "'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -392,20 +433,20 @@ namespace Xunit.Analyzers
             [TupleMemberData(nameof(BoolValues))]
             public async void DoesNotFindError_FromBoolType(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
             [TupleMemberData(nameof(BoolValues))]
             public async void DoesNotFindError_FromBoolType_ToNullable(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool? a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool? a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -416,11 +457,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(bool a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "bool");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'bool'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -431,10 +476,10 @@ namespace Xunit.Analyzers
             [TupleMemberData(nameof(IntegerValues))]
             public async void DoesNotFindError_FromCharOrIntegerType(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -442,10 +487,10 @@ namespace Xunit.Analyzers
             [TupleMemberData(nameof(IntegerValues))]
             public async void DoesNotFindError_FromCharType_ToNullable(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char? a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char? a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -456,11 +501,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(char a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "char");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'char'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -469,19 +518,19 @@ namespace Xunit.Analyzers
             [Fact]
             public async void DoesNotFindError_FromEnum()
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.Ordinal)] public void TestMethod(System.StringComparison a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.Ordinal)] public void TestMethod(System.StringComparison a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Fact]
             public async void DoesNotFindError_FromEnum_ToNullable()
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.Ordinal)] public void TestMethod(System.StringComparison? a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(System.StringComparison.Ordinal)] public void TestMethod(System.StringComparison? a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -492,11 +541,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.StringComparison a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.StringComparison a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "System.StringComparison");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'System.StringComparison'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -507,10 +560,10 @@ namespace Xunit.Analyzers
             [InlineData("null")]
             public async void DoesNotFindError_FromType(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.Type a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.Type a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -518,10 +571,10 @@ namespace Xunit.Analyzers
             [InlineData("null")]
             public async void DoesNotFindError_FromType_UsingParams(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params System.Type[] a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params System.Type[] a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -532,11 +585,15 @@ namespace Xunit.Analyzers
             [InlineData("System.StringComparison.Ordinal")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.Type a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.Type a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "System.Type");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'System.Type'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
 
             [Theory]
@@ -547,11 +604,15 @@ namespace Xunit.Analyzers
             [InlineData("System.StringComparison.Ordinal")]
             public async void FindsError_ForOtherArguments_UsingParams(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params System.Type[] a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params System.Type[] a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "System.Type");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'System.Type'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -562,10 +623,10 @@ namespace Xunit.Analyzers
             [InlineData("null")]
             public async void DoesNotFindError_FromBoolType(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(string a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(string a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -576,11 +637,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(string a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(string a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "string");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'string'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -592,10 +657,10 @@ namespace Xunit.Analyzers
             [InlineData("null")]
             public async void DoesNotFindError_FromTypesImplementingInterface(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.IFormattable a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.IFormattable a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -605,11 +670,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_ForOtherArguments(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.IFormattable a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(System.IFormattable a) { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "System.IFormattable");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'System.IFormattable'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -625,10 +694,10 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void DoesNotFindError_FromAnyValue(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(object a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(object a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -641,10 +710,10 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void DoesNotFindError_FromAnyValues_UsingParams(string value)
             {
-                var source =
-                   "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params object[] a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                   "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod(params object[] a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
         }
 
@@ -660,10 +729,10 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void DoesNotFindError_FromAnyValue_WithNoConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -673,10 +742,10 @@ namespace Xunit.Analyzers
             [InlineData("'a'")]
             public async void DoesNotFindError_FromAnyValueType_WithStructConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -684,11 +753,15 @@ namespace Xunit.Analyzers
             [InlineData("typeof(string)")]
             public async void FindsError_FromAnyReferenceType_WithStructConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: struct { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "T");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
 
             [Theory]
@@ -697,10 +770,10 @@ namespace Xunit.Analyzers
             [InlineData("null")]
             public async void DoesNotFindError_FromAnyReferenceType_WithClassConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -710,11 +783,15 @@ namespace Xunit.Analyzers
             [InlineData("'a'")]
             public async void FindsError_FromAnyValueType_WithClassConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: class { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "T");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
 
             [Theory]
@@ -723,34 +800,29 @@ namespace Xunit.Analyzers
             [TupleMemberData(nameof(NumericValues))]
             public async void DoesNotFindError_FromAnyMatchingType_WithTypeConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }");
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
             [InlineData("typeof(string)")]
+            [InlineData("new int[] { 1, 2, 3 }")]
             [InlineData("'a'")]
             [InlineData("\"abc\"")]
             [TupleMemberData(nameof(BoolValues))]
             public async void FindsError_FromNonMatchingType_WithTypeConstraint(string value)
             {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(" + value + ")] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }");
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 58, 1, 58 + value.Length).WithArguments("a", "T");
-                await Verify.VerifyAnalyzerAsync(source, expected);
-            }
-
-            [Fact]
-            public async void FindsError_FromNonMatchingArrayType_WithTypeConstraint()
-            {
-                var source =
-                    "public class TestClass { [Xunit.Theory, Xunit.InlineData(new int[] { 1, 2, 3 })] public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { } }";
-
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 70, 1, 71).WithArguments("a", "T");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                  d =>
+                  {
+                      Assert.Equal("The value is not convertible to the method parameter 'a' of type 'T'.", d.GetMessage());
+                      Assert.Equal("xUnit1010", d.Descriptor.Id);
+                  });
             }
         }
 
@@ -793,9 +865,15 @@ public class TestClass
     {
     } 
 }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(6, 37, 6, 37 + inlineData.Length).WithArguments("parameter", parameterType);
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     $"of type '{parameterType}'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
             }
 
             [Theory]
@@ -803,8 +881,9 @@ public class TestClass
             public async void DoesNotFindError_ForDateTime_FromString(string inlineData, string parameterType)
             {
                 var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-                await Verify.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             [Theory]
@@ -812,9 +891,16 @@ public class TestClass
             public async void FindsError_ForDateTimeOffsetAndAnalyzerLessThan_2_4_0v_FromString(string inlineData, string parameterType)
             {
                 var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.3.1");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
 
-                var expected = Verify_2_3_1.Diagnostic("xUnit1010").WithSpan(6, 37, 6, 37 + inlineData.Length).WithArguments("parameter", parameterType);
-                await Verify_2_3_1.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     $"of type '{parameterType}'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
             }
 
             [Theory]
@@ -822,8 +908,10 @@ public class TestClass
             public async void DoesNotFindError_ForDateTimeOffsetAndForAnalyzerGreaterThanEqual_2_4_0v_FromString(string inlineData, string parameterType)
             {
                 var source = CreateSourceWithStringConst(inlineData, parameterType);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.4.0");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
 
-                await Verify_2_4.VerifyAnalyzerAsync(source);
+                Assert.Empty(diagnostics);
             }
 
             private static string CreateSourceWithStringConst(string inlineData, string parameterType)
@@ -868,9 +956,15 @@ public class TestClass
     {
     } 
 }";
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-                var expected = Verify.Diagnostic("xUnit1010").WithSpan(6, 37, 6, 37 + inlineData.Length).WithArguments("parameter", "System.Guid");
-                await Verify.VerifyAnalyzerAsync(source, expected);
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     "of type 'System.Guid'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
             }
 
             [Theory]
@@ -879,8 +973,16 @@ public class TestClass
             {
                 var source = CreateSource(inlineData);
 
-                var expected = Verify_2_3_1.Diagnostic("xUnit1010").WithSpan(4, 37, 4, 37 + inlineData.Length).WithArguments("parameter", "System.Guid");
-                await Verify_2_3_1.VerifyAnalyzerAsync(source, expected);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.3.99");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
+
+                Assert.Collection(diagnostics,
+                    d =>
+                    {
+                        Assert.Equal("The value is not convertible to the method parameter 'parameter' " +
+                                     "of type 'System.Guid'.", d.GetMessage());
+                        Assert.Equal("xUnit1010", d.Descriptor.Id);
+                    });
             }
 
             [Theory]
@@ -889,7 +991,10 @@ public class TestClass
             {
                 var source = CreateSource(inlineData);
 
-                await Verify_2_5.VerifyAnalyzerAsync(source);
+                var diagnosticAnalyzer = new InlineDataMustMatchTheoryParameters("2.4.0");
+                var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(diagnosticAnalyzer, source);
+
+                Assert.Empty(diagnostics);
             }
 
             private static string CreateSource(string inlineData)
@@ -915,29 +1020,5 @@ public class TestClass
         public static IEnumerable<Tuple<string>> BoolValues { get; } = new[] { "true", "false" }.Select(v => Tuple.Create(v)).ToArray();
 
         public static IEnumerable<Tuple<string>> ValueTypedValues { get; } = NumericValues.Concat(BoolValues).Concat(new [] {"typeof(int)"}.Select(v => Tuple.Create(v)));
-
-        internal class Analyzer_2_3_1 : InlineDataMustMatchTheoryParameters
-        {
-            public Analyzer_2_3_1()
-                : base("2.3.1")
-            {
-            }
-        }
-
-        internal class Analyzer_2_4_0 : InlineDataMustMatchTheoryParameters
-        {
-            public Analyzer_2_4_0()
-                : base("2.4.0")
-            {
-            }
-        }
-
-        internal class Analyzer_2_5_0 : InlineDataMustMatchTheoryParameters
-        {
-            public Analyzer_2_5_0()
-                : base("2.5.0")
-            {
-            }
-        }
     }
 }

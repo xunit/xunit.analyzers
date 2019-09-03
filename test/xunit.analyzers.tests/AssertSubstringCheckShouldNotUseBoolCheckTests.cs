@@ -1,223 +1,231 @@
-﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBoolCheck>;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class AssertSubstringCheckShouldNotUseBoolCheckTests
     {
+        readonly DiagnosticAnalyzer analyzer = new AssertSubstringCheckShouldNotUseBoolCheck();
+
         public static TheoryData<string> BooleanMethods = new TheoryData<string> { "True", "False" };
+
+        private static void AssertHasDiagnostic(IEnumerable<Diagnostic> diagnostics, string method)
+        {
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"Do not use Assert.{method}() to check for substrings.", d.GetMessage());
+                Assert.Equal("xUnit2009", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
+        }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void FindsWarning_ForBooleanContainsCheck(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".Contains(""a""));
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 39 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, method);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanContainsCheck_WithUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".Contains(""a""), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsWarning_ForBooleanTrueStartsWithCheck()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.True(""abc"".StartsWith(""a""));
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 45).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Assert.True()");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, "True");
         }
 
         [Fact]
         public async void FindsWarning_ForBooleanTrueStartsWithCheck_WithStringComparison()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.True(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture));
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 85).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Assert.True()");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, "True");
         }
 
         [Fact]
         public async void DoesNotFindWarning_ForBooleanFalseStartsWithCheck()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.False(""abc"".StartsWith(""a""));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void DoesNotFindWarning_ForBooleanFalseStartsWithCheck_WithStringComparison()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.False(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".StartsWith(""a""), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithStringComparison_AndUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".StartsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".StartsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsWarning_ForBooleanTrueEndsWithCheck()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.True(""abc"".EndsWith(""a""));
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 43).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Assert.True()");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, "True");
         }
 
         [Fact]
         public async void FindsWarning_ForBooleanTrueEndsWithCheck_WithStringComparison()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.True(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture));
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 83).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Assert.True()");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, "True");
         }
 
         [Fact]
         public async void DoesNotFindWarning_ForBooleanFalseEndsWithCheck()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.False(""abc"".EndsWith(""a""));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void DoesNotFindWarning_ForBooleanFalseEndsWithCheck_WithStringComparison()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.False(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".EndsWith(""a""), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithStringComparison_AndUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".EndsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(BooleanMethods))]
         public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(""abc"".EndsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture), ""message"");
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
     }
 }
