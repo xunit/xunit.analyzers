@@ -1,9 +1,14 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
+﻿using System;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
     {
+        readonly DiagnosticAnalyzer analyzer = new AssertNullShouldNotBeCalledOnValueTypes();
+        readonly CodeFixProvider fixer = new AssertNullShouldNotBeCalledOnValueTypesFixer();
+
         [Fact]
         public async void ForValueTypeNullAssert_RemovesAssertion()
         {
@@ -17,7 +22,7 @@ public class Tests
     {
         int i = 1;
 
-        [|Assert.NotNull(i)|];
+        Assert.NotNull(i);
     }
 }";
 
@@ -32,8 +37,9 @@ public class Tests
         int i = 1;
     }
 }";
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, original);
 
-            await Verify.VerifyCodeFixAsync(original, expected);
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
@@ -55,7 +61,7 @@ namespace XUnitTestProject1
 
             // I am a comment which gets deleted by the quick fix
             // Assert
-            [|Assert.NotNull(i)|];
+            Assert.NotNull(i);
             Assert.Null(null);
         }
     }
@@ -79,8 +85,13 @@ namespace XUnitTestProject1
         }
     }
 }";
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, original);
 
-            await Verify.VerifyCodeFixAsync(original, expected);
+            // Code fixer always inserts \r\n even on Linux, so fix up the actual result
+            if (Environment.NewLine != "\r\n")
+                actual = actual.Replace("\r\n", Environment.NewLine);
+
+            Assert.Equal(expected, actual);
         }
     }
 }

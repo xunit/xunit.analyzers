@@ -10,7 +10,6 @@ insert_final_newline = true
 
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true
-csharp_using_directive_placement = outside_namespace:warning
 
 # Avoid "this." and "Me." if not necessary
 dotnet_style_qualification_for_field = false:suggestion

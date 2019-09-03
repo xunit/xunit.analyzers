@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class TestClassMustBePublicTests
     {
+        private readonly DiagnosticAnalyzer analyzer = new TestClassMustBePublic();
+
         private static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
         {
             foreach (var factAttribute in new[] {"Xunit.Fact", "Xunit.Theory"})
@@ -21,7 +23,9 @@ namespace Xunit.Analyzers
         {
             var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -36,8 +40,14 @@ namespace Xunit.Analyzers
     [" + factRelatedAttribute + @"] public void TestMethod() { } 
 }";
 
-            var expected = Verify.Diagnostic().WithSpan(2, 8 + classAccessModifier.Length, 2, 17 + classAccessModifier.Length);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Test classes must be public", d.GetMessage());
+                    Assert.Equal("xUnit1000", d.Descriptor.Id);
+                });
         }
 
         [Theory]
@@ -56,8 +66,9 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -76,14 +87,9 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source1, source2);
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source1, source2 },
-                },
-            }.RunAsync();
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -105,9 +111,14 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-            var expected = Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan(7, 16 + part2AccessModifier.Length, 7, 25 + part2AccessModifier.Length);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Test classes must be public", d.GetMessage());
+                    Assert.Equal("xUnit1000", d.Descriptor.Id);
+                });
         }
 
         [Theory]
@@ -129,18 +140,14 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source1, source2);
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { source1, source2 },
-                    ExpectedDiagnostics =
-                    {
-                        Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan("Test1.cs", 2, 16 + part2AccessModifier.Length, 2, 25 + part2AccessModifier.Length),
-                    },
-                },
-            }.RunAsync();
+                    Assert.Equal("Test classes must be public", d.GetMessage());
+                    Assert.Equal("xUnit1000", d.Descriptor.Id);
+                });
         }
     }
 }

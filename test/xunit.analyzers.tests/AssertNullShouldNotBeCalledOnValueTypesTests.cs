@@ -1,57 +1,63 @@
 ﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class AssertNullShouldNotBeCalledOnValueTypesTests
     {
+        readonly DiagnosticAnalyzer analyzer = new AssertNullShouldNotBeCalledOnValueTypes();
+
         public static TheoryData<string> Methods = new TheoryData<string> { "Null", "NotNull" };
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsWarning_ForValueType(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     int val = 1;
     Xunit.Assert." + method + @"(val);
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 23 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()", "int");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"Do not use Assert.{method}() on value type 'int'.", d.GetMessage());
+                Assert.Equal("xUnit2002", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForNullableValueType(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     int? val = 1;
     Xunit.Assert." + method + @"(val);
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForNullableReferenceType(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     string val = null;
     Xunit.Assert." + method + @"(val);
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForClassConstrainedGenericTypes(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"
 class Class<T> where T : class
 {
@@ -59,15 +65,15 @@ class Class<T> where T : class
   {
     Xunit.Assert." + method + @"(arg);
   }
-}";
-            await Verify.VerifyAnalyzerAsync(source);
+}");
+            Assert.Empty(diagnostics);
         }
-
+        
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForInterfaceConstrainedGenericTypes(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"
 interface IDo {}
 
@@ -80,15 +86,15 @@ class Class<T> where T : IDo
       Xunit.Assert." + method + @"(item);
     }
   }
-}";
-            await Verify.VerifyAnalyzerAsync(source);
+}");
+            Assert.Empty(diagnostics);
         }
-
+        
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForUnconstrainedGenericTypes(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"
 class Class<T>
 {
@@ -99,8 +105,8 @@ class Class<T>
       Xunit.Assert." + method + @"(item);
     }
   }
-}";
-            await Verify.VerifyAnalyzerAsync(source);
+}");
+            Assert.Empty(diagnostics);
         }
     }
 }

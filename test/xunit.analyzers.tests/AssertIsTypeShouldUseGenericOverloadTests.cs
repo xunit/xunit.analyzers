@@ -1,35 +1,47 @@
-﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class AssertIsTypeShouldUseGenericOverloadTests
     {
+        readonly DiagnosticAnalyzer analyzer = new AssertIsTypeShouldUseGenericOverloadType();
+
         public static TheoryData<string> Methods = new TheoryData<string> { "IsType", "IsNotType", "IsAssignableFrom" };
+
+        private static void AssertHasDiagnostic(IEnumerable<Diagnostic> diagnostics, string type)
+        {
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"Do not use typeof({type}) expression to check the type.", d.GetMessage());
+                Assert.Equal("xUnit2007", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
+        }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsWarning_ForNonGenericCall(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"(typeof(int), 1);
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 34 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("int");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            AssertHasDiagnostic(diagnostics, "int");
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForGenericCall(string method)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 @"class TestClass { void TestMethod() {
     Xunit.Assert." + method + @"<int>(1);
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
     }
 }

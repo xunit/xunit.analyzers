@@ -1,75 +1,51 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
+﻿using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
     {
+        readonly DiagnosticAnalyzer analyzer = new TestCaseMustBeLongLivedMarshalByRefObject();
+        readonly CodeFixProvider fixer = new TestCaseMustBeLongLivedMarshalByRefObjectFixer();
+
         [Fact]
         public async void WithNoBaseClass_WithoutUsing_AddsBaseClass()
         {
-            var source = "public class [|MyTestCase|] : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-            var fixedSource = "public class MyTestCase : Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+            var code = "public class MyTestCase : Xunit.Abstractions.ITestCase { }";
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-                FixedState = { Sources = { fixedSource } },
-            }.RunAsync();
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
+
+            Assert.Equal("public class MyTestCase : Xunit.LongLivedMarshalByRefObject, Xunit.Abstractions.ITestCase { }", result);
         }
 
         [Fact]
         public async void WithNoBaseClass_WithUsing_AddsBaseClass()
         {
-            var source = "using Xunit; using Xunit.Abstractions; public class [|MyTestCase|] : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-            var fixedSource = "using Xunit; using Xunit.Abstractions; public class MyTestCase : LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+            var code = "using Xunit; using Xunit.Abstractions; public class MyTestCase : ITestCase { }";
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-                FixedState = { Sources = { fixedSource } },
-            }.RunAsync();
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
+
+            Assert.Equal("using Xunit; using Xunit.Abstractions; public class MyTestCase : LongLivedMarshalByRefObject, ITestCase { }", result);
         }
 
         [Fact]
         public async void WithBadBaseClass_WithoutUsing_ReplacesBaseClass()
         {
-            var source = "public class Foo { } public class [|MyTestCase|] : Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-            var fixedSource = "public class Foo { } public class MyTestCase : Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+            var code = "public class Foo { } public class MyTestCase : Foo, Xunit.Abstractions.ITestCase { }";
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-                FixedState = { Sources = { fixedSource } },
-            }.RunAsync();
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
+
+            Assert.Equal("public class Foo { } public class MyTestCase : Xunit.LongLivedMarshalByRefObject, Xunit.Abstractions.ITestCase { }", result);
         }
 
         [Fact]
         public async void WithBadBaseClass_WithUsing_ReplacesBaseClass()
         {
-            var source = "using Xunit; using Xunit.Abstractions; public class Foo { } public class [|MyTestCase|] : Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-            var fixedSource = "using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+            var code = "using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : Foo, ITestCase { }";
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-                FixedState = { Sources = { fixedSource } },
-            }.RunAsync();
+            var result = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, code, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility);
+
+            Assert.Equal("using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : LongLivedMarshalByRefObject, ITestCase { }", result);
         }
     }
 }

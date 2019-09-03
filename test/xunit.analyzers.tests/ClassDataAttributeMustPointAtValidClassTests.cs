@@ -1,83 +1,75 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
+﻿using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class ClassDataAttributeMustPointAtValidClassTests
     {
         private static readonly string TestMethodSource = "public class TestClass { [Xunit.Theory][Xunit.ClassData(typeof(DataClass))] public void TestMethod() { } }";
+        readonly DiagnosticAnalyzer analyzer = new ClassDataAttributeMustPointAtValidClass();
 
         [Fact]
         public async void DoesNotFindErrorForFactMethod()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, TestMethodSource,
 @"class DataClass : System.Collections.Generic.IEnumerable<object[]> {
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+}");
 
-            await new Verify.Test
-            {
-                TestState = { Sources = { TestMethodSource, source } },
-            }.RunAsync();
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsErrorForDataClassNotImplementingInterface()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, TestMethodSource,
 @"class DataClass : System.Collections.Generic.IEnumerable<object> {
     public System.Collections.Generic.IEnumerator<object> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+}");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { TestMethodSource, source },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-                },
-            }.RunAsync();
+                    Assert.Equal("ClassData must point at a valid class", d.GetMessage());
+                    Assert.Equal("xUnit1007", d.Descriptor.Id);
+                });
         }
 
         [Fact]
         public async void FindsErrorForAbstractDataClass()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, TestMethodSource,
 @"abstract class DataClass : System.Collections.Generic.IEnumerable<object[]> {
     public DataClass() {}
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+}");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { TestMethodSource, source },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-                },
-            }.RunAsync();
+                    Assert.Equal("ClassData must point at a valid class", d.GetMessage());
+                    Assert.Equal("xUnit1007", d.Descriptor.Id);
+                });
         }
 
         [Fact]
         public async void FindsErrorForDataClassWithImplicitPrivateConstructor()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, TestMethodSource,
 @"class DataClass : System.Collections.Generic.IEnumerable<object[]> {
     public DataClass(string parameter) {}
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+}");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { TestMethodSource, source },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-                },
-            }.RunAsync();
+                    Assert.Equal("ClassData must point at a valid class", d.GetMessage());
+                    Assert.Equal("xUnit1007", d.Descriptor.Id);
+                });
         }
 
         [Theory]
@@ -85,21 +77,19 @@ namespace Xunit.Analyzers
         [InlineData("internal")]
         public async void FindsErrorForDataClassWithExplicitNonPublicConstructor(string accessiblity)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, TestMethodSource,
 string.Format(@"class DataClass : System.Collections.Generic.IEnumerable<object[]> {{
     {0} DataClass() {{}}
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}}", accessiblity);
+}}", accessiblity));
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { TestMethodSource, source },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-                },
-            }.RunAsync();
+                    Assert.Equal("ClassData must point at a valid class", d.GetMessage());
+                    Assert.Equal("xUnit1007", d.Descriptor.Id);
+                });
         }
     }
 }

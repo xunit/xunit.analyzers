@@ -1,26 +1,32 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
+﻿using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class TestClassMustBePublicFixerTests
     {
+        readonly DiagnosticAnalyzer analyzer = new TestClassMustBePublic();
+        readonly CodeFixProvider fixer = new TestClassMustBePublicFixer();
+
         [Theory]
         [InlineData("")]
         [InlineData("internal")]
         public async void MakesClassPublic(string nonPublicAccessModifier)
         {
-            var source = $"{nonPublicAccessModifier} class [|TestClass|] {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
+            var source = $"{nonPublicAccessModifier} class TestClass {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
 
-            var fixedSource = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+            var expected = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
         public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
         {
             var source = @"
-partial class [|TestClass|]
+partial class TestClass
 {
     [Xunit.Fact]
     public void TestMethod1() {}
@@ -32,7 +38,7 @@ partial class TestClass
     public void TestMethod2() {}
 }";
 
-            var fixedSource = @"
+            var expected = @"
 public partial class TestClass
 {
     [Xunit.Fact]
@@ -45,7 +51,10 @@ partial class TestClass
     public void TestMethod2() {}
 }";
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
+            var actual = await CodeAnalyzerHelper.GetFixedCodeAsync(analyzer, fixer, source);
+
+            Assert.Equal(expected, actual);
         }
+
     }
 }

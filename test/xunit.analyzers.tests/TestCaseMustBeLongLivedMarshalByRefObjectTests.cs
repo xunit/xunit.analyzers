@@ -1,23 +1,19 @@
 ﻿using System.Linq;
-using Microsoft.CodeAnalysis.Testing;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class TestCaseMustBeLongLivedMarshalByRefObjectTests
     {
+        readonly DiagnosticAnalyzer analyzer = new TestCaseMustBeLongLivedMarshalByRefObject();
+
         readonly static string Template = @"
 public class Foo {{ }}
 public class MyLLMBRO: Xunit.LongLivedMarshalByRefObject {{ }}
 public class MyTestCase: {0} {{ }}
 ";
 
-        public static TheoryData<string> Interfaces =
-            new TheoryData<string>
-            {
-                "{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|}",
-                "{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Sdk.IXunitTestCase|}|}|}|}|}|}|}|}|}|}|}|}|}",
-            };
+        public static TheoryData<string> Interfaces = new TheoryData<string> { "Xunit.Abstractions.ITestCase", "Xunit.Sdk.IXunitTestCase" };
 
         public static TheoryData<string, string> InterfacesWithBaseClasses
         {
@@ -38,73 +34,62 @@ public class MyTestCase: {0} {{ }}
         [Fact]
         public async void NonTestCase_NoDiagnostics()
         {
-            var source = "public class Foo { }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class Foo { }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void XunitTestCase_NoDiagnostics()
         {
-            var source = "public class MyTestCase : Xunit.Sdk.XunitTestCase { }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, XunitReferences.PkgExecutionExtensibility, "public class MyTestCase : Xunit.Sdk.XunitTestCase { }");
 
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-            }.RunAsync();
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(InterfacesWithBaseClasses))]
         public async void InterfaceWithProperBaseClass_NoDiagnostics(string @interface, string baseClass)
         {
-            var source = string.Format(Template, $"{baseClass}, {@interface}");
-            await new Verify.Test
-            {
-                TestState =
-                {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                },
-            }.RunAsync();
+            var code = string.Format(Template, $"{baseClass}, {@interface}");
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
+
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(Interfaces))]
         public async void InterfaceWithoutBaseClass_ReturnsError(string @interface)
         {
-            var source = string.Format(Template, @interface);
+            var code = string.Format(Template, @interface);
 
-            await new Verify.Test
-            {
-                TestState =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
+
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase") },
-                },
-            }.RunAsync();
+                    Assert.Equal("Test case class MyTestCase must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject", d.GetMessage());
+                    Assert.Equal("xUnit3000", d.Descriptor.Id);
+                }
+            );
         }
 
         [Theory]
         [MemberData(nameof(Interfaces))]
         public async void InterfaceWithBadBaseClass_ReturnsError(string @interface)
         {
-            var source = string.Format(Template, $"Foo, {@interface}");
+            var code = string.Format(Template, $"Foo, {@interface}");
 
-            await new Verify.Test
-            {
-                TestState =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors, XunitReferences.PkgExecutionExtensibility, code);
+
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = { source },
-                    AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-                    ExpectedDiagnostics = { Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase") },
-                },
-            }.RunAsync();
+                    Assert.Equal("Test case class MyTestCase must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject", d.GetMessage());
+                    Assert.Equal("xUnit3000", d.Descriptor.Id);
+                }
+            );
         }
     }
 }

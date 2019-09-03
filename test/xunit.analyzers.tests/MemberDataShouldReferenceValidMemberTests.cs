@@ -1,11 +1,12 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Testing;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
+﻿using Microsoft.CodeAnalysis.Diagnostics;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers
 {
     public class MemberDataShouldReferenceValidMemberTests
     {
+        readonly DiagnosticAnalyzer analyzer = new MemberDataShouldReferenceValidMember();
         static readonly string sharedCode =
         @"public partial class TestClass { public static System.Collections.Generic.IEnumerable<object[]> Data { get;set; } }
 public class OtherClass { public static System.Collections.Generic.IEnumerable<object[]> OtherData { get;set; } }
@@ -14,125 +15,121 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [Fact]
         public async void DoesNotFindError_ForNameofOnSameClass()
         {
-            var source =
-                "public partial class TestClass { [Xunit.MemberData(nameof(Data))] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                sharedCode,
+                "public partial class TestClass { [Xunit.MemberData(nameof(Data))] public void TestMethod() { } }");
 
-            await new Verify.Test
-            {
-                TestState = { Sources = { sharedCode, source } }
-            }.RunAsync();
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void DoesNotFindError_ForNameofOnOtherClass()
         {
-            var source =
-                "public partial class TestClass { [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                sharedCode,
+                "public partial class TestClass { [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))] public void TestMethod() { } }");
 
-            await new Verify.Test
-            {
-                TestState = { Sources = { sharedCode, source } }
-            }.RunAsync();
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsError_ForStringReferenceOnSameClass()
         {
-            var source =
-                "public partial class TestClass { [Xunit.MemberData(\"Data\")] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                sharedCode,
+                "public partial class TestClass { [Xunit.MemberData(\"Data\")] public void TestMethod() { } }");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = {  source, sharedCode },
-                    ExpectedDiagnostics = { Verify.Diagnostic("xUnit1014").WithSpan(1, 52, 1, 58).WithArguments("Data", "TestClass") },
-                },
-            }.RunAsync();
+                    Assert.Equal("MemberData should use nameof operator to reference member 'Data' on type 'TestClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1014", d.Descriptor.Id);
+                });
         }
 
         [Fact]
         public async void FindsError_ForStringReferenceOnOtherClass()
         {
-            var source =
-                "public partial class TestClass { [Xunit.MemberData(\"OtherData\", MemberType = typeof(OtherClass))] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                sharedCode,
+                "public partial class TestClass { [Xunit.MemberData(\"OtherData\", MemberType = typeof(OtherClass))] public void TestMethod() { } }");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources = {  source, sharedCode },
-                    ExpectedDiagnostics = { Verify.Diagnostic("xUnit1014").WithSpan(1, 52, 1, 63).WithArguments("OtherData", "OtherClass") },
-                },
-            }.RunAsync();
+                    Assert.Equal("MemberData should use nameof operator to reference member 'OtherData' on type 'OtherClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1014", d.Descriptor.Id);
+                });
         }
 
         [Fact]
         public async void FindsError_ForInvalidNameString()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   [Xunit.MemberData(\"BogusName\")] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1015").WithSpan(1, 29, 1, 58).WithSeverity(DiagnosticSeverity.Error).WithArguments("BogusName", "TestClass");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("MemberData must reference an existing member 'BogusName' on type 'TestClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1015", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void FindsError_ForInvalidNameString_UsingMemberType()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   [Xunit.MemberData(\"BogusName\", MemberType = typeof(TestClass))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1015").WithSpan(1, 29, 1, 90).WithSeverity(DiagnosticSeverity.Error).WithArguments("BogusName", "TestClass");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("MemberData must reference an existing member 'BogusName' on type 'TestClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1015", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void FindsError_ForInvalidNameString_UsingMemberTypeWithOtherType()
         {
-            await new Verify.Test
-            {
-                TestState =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public class OtherClass {}",
+                "public class TestClass {" +
+                "   [Xunit.MemberData(\"BogusName\", MemberType = typeof(OtherClass))] public void TestMethod() { }" +
+                "}");
+
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources =
-                    {
-                        "public class TestClass {" +
-                        "   [Xunit.MemberData(\"BogusName\", MemberType = typeof(OtherClass))] public void TestMethod() { }" +
-                        "}",
-                        "public class OtherClass {}",
-                    },
-                },
-                ExpectedDiagnostics =
-                {
-                    Verify.Diagnostic("xUnit1015").WithSpan(1, 29, 1, 91).WithSeverity(DiagnosticSeverity.Error).WithArguments("BogusName", "OtherClass"),
-                },
-            }.RunAsync();
+                    Assert.Equal("MemberData must reference an existing member 'BogusName' on type 'OtherClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1015", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void FindsError_ForValidNameofExpression_UsingMemberTypeSpecifyingOtherType()
         {
-            await new Verify.Test
-            {
-                TestState =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public class OtherClass {}",
+                "public class TestClass {" +
+                "   [Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))] public void TestMethod() { }" +
+                "}");
+
+            Assert.Collection(diagnostics,
+                d =>
                 {
-                    Sources =
-                    {
-                        "public class TestClass {" +
-                        "   [Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))] public void TestMethod() { }" +
-                        "}",
-                        "public class OtherClass {}",
-                    },
-                },
-                ExpectedDiagnostics =
-                {
-                    Verify.Diagnostic("xUnit1015").WithSpan(1, 29, 1, 108).WithSeverity(DiagnosticSeverity.Error).WithArguments("TestMethod", "OtherClass"),
-                },
-            }.RunAsync();
+                    Assert.Equal("MemberData must reference an existing member 'TestMethod' on type 'OtherClass'.", d.GetMessage());
+                    Assert.Equal("xUnit1015", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Theory]
@@ -143,30 +140,35 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("protected internal")]
         public async void FindsError_ForNonPublicMember(string accessModifier)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 $"  {accessModifier} static System.Collections.Generic.IEnumerable<object[]> Data = null;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1016").WithSpan(1, 100 + accessModifier.Length, 1, 130 + accessModifier.Length).WithSeverity(DiagnosticSeverity.Error);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("MemberData must reference a public member", d.GetMessage());
+                    Assert.Equal("xUnit1016", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void DoesNotFindError_ForPublicMember()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data = null;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
-        [InlineData("{|xUnit1014:\"Data\"|}")]
+        [InlineData("\"Data\"")]
         [InlineData("DataNameConst")]
         [InlineData("DataNameofConst")]
         [InlineData("nameof(Data)")]
@@ -175,54 +177,52 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("nameof(OtherClass.Data)")]
         public async void FindsError_ForNameExpressions(string dataNameExpression)
         {
-            TestFileMarkupParser.GetPositionsAndSpans(dataNameExpression, out var parsedDataNameExpression, out _, out _);
-            var dataNameExpressionLength = parsedDataNameExpression.Length;
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+                "public static class OtherClass { public const string Data = \"Data\"; }",
+                "public class TestClass {" +
+                "   const string DataNameConst = \"Data\";" +
+                "   const string DataNameofConst = nameof(Data);" +
+                $"  private static System.Collections.Generic.IEnumerable<object[]> Data = null;" +
+                "   [Xunit.MemberData(" + dataNameExpression + ")] public void TestMethod() { }" +
+                "}");
 
-            await new Verify.Test
-            {
-                TestState =
+            Assert.Collection(diagnostics.Where(d => d.Id != "xUnit1014"),
+                d =>
                 {
-                    Sources =
-                    {
-                        "public class TestClass {" +
-                        "   const string DataNameConst = \"Data\";" +
-                        "   const string DataNameofConst = nameof(Data);" +
-                        "  private static System.Collections.Generic.IEnumerable<object[]> Data = null;" +
-                        "   [Xunit.MemberData(" + dataNameExpression + ")] public void TestMethod() { }" +
-                        "}",
-                        "public static class OtherClass { public const string Data = \"Data\"; }",
-                    },
-                },
-                ExpectedDiagnostics =
-                {
-                    Verify.Diagnostic("xUnit1016").WithSpan(1, 193, 1, 211 + dataNameExpressionLength).WithSeverity(DiagnosticSeverity.Error),
-                },
-            }.RunAsync();
+                    Assert.Equal("MemberData must reference a public member", d.GetMessage());
+                    Assert.Equal("xUnit1016", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void FindsError_ForInstanceMember()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public System.Collections.Generic.IEnumerable<object[]> Data = null;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1017").WithSpan(1, 100, 1, 130).WithSeverity(DiagnosticSeverity.Error);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("MemberData must reference a static member", d.GetMessage());
+                    Assert.Equal("xUnit1017", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async void DoesNotFindError_ForStaticMember()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data = null;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -231,14 +231,19 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("public static event System.EventHandler Data;")]
         public async void FindsError_ForInvalidMemberKind(string member)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 member +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1018").WithSpan(1, 29 + member.Length, 1, 59 + member.Length).WithSeverity(DiagnosticSeverity.Error);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("xUnit1018", d.Descriptor.Id);
+                    Assert.Equal("MemberData must reference a property, field, or method", d.GetMessage());
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Theory]
@@ -247,13 +252,13 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("public static System.Collections.Generic.IEnumerable<object[]> Data() { return null; }")]
         public async void DoesNotFindError_ForValidMemberKind(string member)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 member +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
@@ -264,14 +269,19 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("System.Tuple<string, int>[]")]
         public async void FindsError_ForInvalidMemberType(string memberType)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 $"public static {memberType} Data;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1019").WithSpan(1, 49 + memberType.Length, 1, 79 + memberType.Length).WithSeverity(DiagnosticSeverity.Error).WithArguments("System.Collections.Generic.IEnumerable<object[]>", memberType);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("xUnit1019", d.Descriptor.Id);
+                    Assert.Equal("MemberData must reference a data type assignable to 'System.Collections.Generic.IEnumerable<object[]>'. The referenced type '" + memberType + "' is not valid.", d.GetMessage());
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Theory]
@@ -280,26 +290,31 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("Xunit.TheoryData<int>")]
         public async void DoesNotFindError_ForCompatibleMemberType(string memberType)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 $"public static {memberType} Data;" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsError_ForMemberPropertyWithoutGetter()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data { set { } }" +
                 "   [Xunit.MemberData(nameof(Data))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1020").WithSpan(1, 111, 1, 141).WithSeverity(DiagnosticSeverity.Error);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("xUnit1020", d.Descriptor.Id);
+                    Assert.Equal("MemberData must reference a property with a getter", d.GetMessage());
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Theory]
@@ -308,14 +323,19 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("parameters: new object[] { 'a', 123 }")]
         public async void FindsWarning_ForMemberDataParametersForFieldMember(string paramsArgument)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data;" +
                 "   [Xunit.MemberData(nameof(Data), " + paramsArgument + ", MemberType = typeof(TestClass))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1021").WithSpan(1, 131, 1, 131 + paramsArgument.Length).WithSeverity(DiagnosticSeverity.Warning);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("xUnit1021", d.Descriptor.Id);
+                    Assert.Equal("MemberData should not have parameters if the referenced member is not a method", d.GetMessage());
+                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                });
         }
 
         [Theory]
@@ -324,26 +344,31 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
         [InlineData("parameters: new object[] { 'a', 123 }")]
         public async void FindsWarning_ForMemberDataParametersForPropertyMember(string paramsArgument)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data { get; set; }" +
                 "   [Xunit.MemberData(nameof(Data), " + paramsArgument + ", MemberType = typeof(TestClass))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            var expected = Verify.Diagnostic("xUnit1021").WithSpan(1, 144, 1, 144 + paramsArgument.Length).WithSeverity(DiagnosticSeverity.Warning);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("xUnit1021", d.Descriptor.Id);
+                    Assert.Equal("MemberData should not have parameters if the referenced member is not a method", d.GetMessage());
+                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+                });
         }
 
         [Fact]
         public async void DoesNotFindWarning_ForMemberDataAttributeWithNamedParameter()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "public class TestClass {" +
                 "   public static System.Collections.Generic.IEnumerable<object[]> Data;" +
                 "   [Xunit.MemberData(nameof(Data), MemberType = typeof(TestClass))] public void TestMethod() { }" +
-                "}";
+                "}");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
     }
 }

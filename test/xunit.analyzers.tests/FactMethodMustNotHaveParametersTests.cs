@@ -1,32 +1,38 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
+﻿using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class FactMethodMustNotHaveParametersTests
     {
+        readonly DiagnosticAnalyzer analyzer = new FactMethodMustNotHaveParameters();
+
         [Fact]
         public async void DoesNotFindErrorForFactWithNoParameters()
         {
-            var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void DoesNotFindErrorForTheoryWithParameters()
         {
-            var source = "public class TestClass { [Xunit.Theory] public void TestMethod(string p) { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Theory] public void TestMethod(string p) { } }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Fact]
         public async void FindsErrorForPrivateClass()
         {
-            var source = "public class TestClass { [Xunit.Fact] public void TestMethod(string p) { } }";
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod(string p) { } }");
 
-            var expected = Verify.Diagnostic().WithSpan(1, 51, 1, 61);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Fact methods cannot have parameters", d.GetMessage());
+                    Assert.Equal("xUnit1001", d.Descriptor.Id);
+                });
         }
     }
 }

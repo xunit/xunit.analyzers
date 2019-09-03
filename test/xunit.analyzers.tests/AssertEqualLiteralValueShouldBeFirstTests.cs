@@ -1,18 +1,21 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFirst>;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
     public class AssertEqualLiteralValueShouldBeFirstTests
     {
+        readonly DiagnosticAnalyzer analyzer = new AssertEqualLiteralValueShouldBeFirst();
+
         [Fact]
         public async void DoesNotFindWarningWhenConstantOrLiteralUsedForBothArguments()
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() {
     Xunit.Assert.Equal(""TestMethod"", nameof(TestMethod));
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         public static TheoryData<string, string> TypesAndValues { get; } = new TheoryData<string, string>
@@ -32,26 +35,30 @@ namespace Xunit.Analyzers
         [MemberData(nameof(TypesAndValues))]
         public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsFirstArgument(string type, string value)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() { 
     var v = default(" + type + @");
     Xunit.Assert.Equal(" + value + @", v);
-} }";
-            await Verify.VerifyAnalyzerAsync(source);
+} }");
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(TypesAndValues))]
         public async void FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(string type, string value)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() { 
     var v = default(" + type + @");
     Xunit.Assert.Equal(v, " + value + @");
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithLocation(3, 5).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"The literal or constant value {value} should be passed as the 'expected' argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
+                Assert.Equal("xUnit2000", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
         }
 
         [Theory]
@@ -60,43 +67,47 @@ namespace Xunit.Analyzers
         public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(bool useAlternateForm)
         {
             var s = useAlternateForm ? "@" : "";
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() { 
     var v = default(int);
     Xunit.Assert.Equal(" + s + "actual: v, " + s + @"expected: 0);
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
         [Theory]
         [MemberData(nameof(TypesAndValues))]
         public async void FindsWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(string type, string value)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
 @"class TestClass { void TestMethod() { 
     var v = default(" + type + @");
     Xunit.Assert.Equal(actual: " + value + @",expected: v);
-} }";
+} }");
 
-            var expected = Verify.Diagnostic().WithLocation(3, 5).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics, d =>
+            {
+                Assert.Equal($"The literal or constant value {value} should be passed as the 'expected' argument in the call to 'Assert.Equal(expected, actual)' in method 'TestMethod' on type 'TestClass'.", d.GetMessage());
+                Assert.Equal("xUnit2000", d.Id);
+                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
+            });
         }
 
         [Theory]
-        [InlineData("{|CS1739:act|}", "exp")]
-        [InlineData("expected", "{|CS1740:expected|}")]
-        [InlineData("actual", "{|CS1740:actual|}")]
-        [InlineData("{|CS1739:foo|}", "bar")]
+        [InlineData("act", "exp")]
+        [InlineData("expected", "expected")]
+        [InlineData("actual", "actual")]
+        [InlineData("foo", "bar")]
         public async void DoesNotFindWarningWhenArgumentsAreNotNamedCorrectly(string firstArgumentName, string secondArgumentName)
         {
-            var source =
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
 @"class TestClass { void TestMethod() {
     var v = default(int);
     Xunit.Assert.Equal(" + firstArgumentName + @": 1, " + secondArgumentName + @": v);
-} }";
+} }");
 
-            await Verify.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Xunit.Analyzers
         }
 
         /// <summary>For testing purposes only.</summary>
-        protected InlineDataMustMatchTheoryParameters(string assemblyVersion) : base(new Version(assemblyVersion))
+        public InlineDataMustMatchTheoryParameters(string assemblyVersion) : base(new Version(assemblyVersion))
         {
         }
 

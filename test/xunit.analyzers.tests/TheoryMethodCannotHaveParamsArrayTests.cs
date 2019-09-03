@@ -1,12 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
-// 2.1.0 does not support params arrays
-using Verify_2_1 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveParamsArrayTests.Analyzer_2_1_0>;
-
-// 2.2.0 does support params arrays
-using Verify_2_2 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveParamsArrayTests.Analyzer_2_2_0>;
-
 namespace Xunit.Analyzers
 {
     public class TheoryMethodCannotHaveParamsArrayTests
@@ -14,64 +8,50 @@ namespace Xunit.Analyzers
         [Fact]
         public async Task FindsErrorForTheoryWithParamsArrayAsync_WhenParamsArrayNotSupported()
         {
-            var source =
+            // 2.1.0 does not support params arrays
+            var analyzer = new TheoryMethodCannotHaveParamsArray("2.1.0");
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
                 "   [Xunit.Theory] public void TestMethod(int a, string b, params string[] c) { }" +
-                "}";
+                "}");
 
-            var expected = Verify_2_1.Diagnostic().WithSpan(1, 76, 1, 93).WithSeverity(DiagnosticSeverity.Error).WithArguments("TestMethod", "TestClass", "c");
-            await Verify_2_1.VerifyAnalyzerAsync(source, expected);
+            Assert.Collection(diagnostics,
+                d =>
+                {
+                    Assert.Equal("Theory method 'TestMethod' on test class 'TestClass' cannot have a parameter array 'c'.", d.GetMessage());
+                    Assert.Equal("xUnit1022", d.Descriptor.Id);
+                    Assert.Equal(DiagnosticSeverity.Error, d.Severity);
+                });
         }
 
         [Fact]
         public async Task DoesNotFindErrorForTheoryWithParamsArrayAsync_WhenParamsArraySupported()
         {
-            var source =
+            // 2.2.0 does support params arrays
+            var analyzer = new TheoryMethodCannotHaveParamsArray("2.2.0");
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
                 "   [Xunit.Theory] public void TestMethod(int a, string b, params string[] c) { }" +
-                "}";
+                "}");
 
-            await Verify_2_2.VerifyAnalyzerAsync(source);
+            Assert.Empty(diagnostics);
         }
 
-        [Fact]
-        public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync_WhenParamsArrayNotSupported()
+        [Theory]
+        [InlineData("2.1.0")]
+        [InlineData("2.2.0")]
+        public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync(string versionString)
         {
-            var source =
+            var analyzer = new TheoryMethodCannotHaveParamsArray(versionString);
+
+            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
                 "class TestClass {" +
                 "   [Xunit.Theory] public void TestMethod(int a, string b, string[] c) { }" +
-                "}";
+                "}");
 
-            await Verify_2_1.VerifyAnalyzerAsync(source);
-        }
-
-        [Fact]
-        public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync_WhenParamsArraySupported()
-        {
-            var source =
-                "class TestClass {" +
-                "   [Xunit.Theory] public void TestMethod(int a, string b, string[] c) { }" +
-                "}";
-
-            await Verify_2_2.VerifyAnalyzerAsync(source);
-        }
-
-        internal class Analyzer_2_1_0
-            : TheoryMethodCannotHaveParamsArray
-        {
-            public Analyzer_2_1_0()
-                : base("2.1.0")
-            {
-            }
-        }
-
-        internal class Analyzer_2_2_0
-            : TheoryMethodCannotHaveParamsArray
-        {
-            public Analyzer_2_2_0()
-                : base("2.2.0")
-            {
-            }
+            Assert.Empty(diagnostics);
         }
     }
 }
