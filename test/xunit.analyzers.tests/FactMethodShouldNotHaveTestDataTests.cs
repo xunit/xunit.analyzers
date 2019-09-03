@@ -1,17 +1,15 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
 namespace Xunit.Analyzers
 {
     public class FactMethodShouldNotHaveTestDataTests
     {
-        readonly DiagnosticAnalyzer analyzer = new FactMethodShouldNotHaveTestData();
-
         [Fact]
         public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
+            var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -20,10 +18,10 @@ namespace Xunit.Analyzers
         [InlineData("ClassData(typeof(string))")]
         public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }");
+            var source =
+                "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -32,11 +30,17 @@ namespace Xunit.Analyzers
         [InlineData("ClassData(typeof(string))")]
         public async void DoesNotFindErrorForDerviedFactMethodWithDataAttributes(string dataAttribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class DerivedFactAttribute: Xunit.FactAttribute {}",
-                "public class TestClass { [DerivedFactAttribute, Xunit." + dataAttribute + "] public void TestMethod() { } }");
-
-            Assert.Empty(diagnostics);
+            await new Verify.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        "public class DerivedFactAttribute: Xunit.FactAttribute {}",
+                        "public class TestClass { [DerivedFactAttribute, Xunit." + dataAttribute + "] public void TestMethod() { } }",
+                    },
+                },
+            }.RunAsync();
         }
 
         [Theory]
@@ -45,15 +49,11 @@ namespace Xunit.Analyzers
         [InlineData("ClassData(typeof(string))")]
         public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }");
+            var source =
+                "public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Fact methods should not have test data", d.GetMessage());
-                    Assert.Equal("xUnit1005", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 59 + dataAttribute.Length, 1, 69 + dataAttribute.Length);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

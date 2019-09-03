@@ -1,30 +1,17 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbstractType>;
 
 namespace Xunit.Analyzers
 {
     public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
     {
-        private static DiagnosticAnalyzer Analyzer { get; } = new AssertIsTypeShouldNotBeUsedForAbstractType();
-
         public static TheoryData<string> Methods { get; } = new TheoryData<string> { "IsType", "IsNotType" };
-
-        private static void AssertHasDiagnostic(IEnumerable<Diagnostic> diagnostics, string typeKind, string type)
-        {
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not compare an object's exact type to the {typeKind} '{type}'.", d.GetMessage());
-                Assert.Equal("xUnit2018", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
-        }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsError_Interface(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+            var source = @"
 using System;
 using Xunit;
 
@@ -34,16 +21,17 @@ class TestClass
     {
         Assert." + method + @"<IDisposable>(new object());
     }
-}");
+}";
 
-            AssertHasDiagnostic(diagnostics, "interface", "System.IDisposable");
+            var expected = Verify.Diagnostic().WithSpan(9, 9, 9, 43 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("interface", "System.IDisposable");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsError_AbstractClass(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+            var source = @"
 using System.IO;
 using Xunit;
 
@@ -53,16 +41,17 @@ class TestClass
     {
         Assert." + method + @"<Stream>(new object());
     }
-}");
+}";
 
-            AssertHasDiagnostic(diagnostics, "abstract class", "System.IO.Stream");
+            var expected = Verify.Diagnostic().WithSpan(9, 9, 9, 38 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("abstract class", "System.IO.Stream");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsError_UsingStatic(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+            var source = @"
 using System;
 using static Xunit.Assert;
 
@@ -72,16 +61,17 @@ class TestClass
     {
         " + method + @"<IDisposable>(new object());
     }
-}");
+}";
 
-            AssertHasDiagnostic(diagnostics, "interface", "System.IDisposable");
+            var expected = Verify.Diagnostic().WithSpan(9, 9, 9, 36 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("interface", "System.IDisposable");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindError_NonAbstractClass(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+            var source = @"
 using Xunit;
 
 class TestClass
@@ -90,16 +80,16 @@ class TestClass
     {
         Assert." + method + @"<string>(new object());
     }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [InlineData("IsAssignableFrom")]
         public async void DoesNotFindError_OtherMethods(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(Analyzer, @"
+            var source = @"
 using System;
 using Xunit;
 
@@ -109,9 +99,9 @@ class TestClass
     {
         Assert." + method + @"<IDisposable>(new object());
     }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
     }
 }
