@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
         public TheoryMethodCannotHaveParamsArray() { }
 
         /// <summary>For testing purposes only.</summary>
-        public TheoryMethodCannotHaveParamsArray(string assemblyVersion) : base(new Version(assemblyVersion)) { }
+        protected TheoryMethodCannotHaveParamsArray(string assemblyVersion) : base(new Version(assemblyVersion)) { }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);

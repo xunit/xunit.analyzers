@@ -1,12 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullCheck>;
 
 namespace Xunit.Analyzers
 {
     public class AssertEqualShouldNotBeUsedForNullCheckTests
     {
-        readonly DiagnosticAnalyzer analyzer = new AssertEqualShouldNotBeUsedForNullCheck();
-
         public static TheoryData<string> Methods = new TheoryData<string> { "Equal", "NotEqual", "StrictEqual", "NotStrictEqual", "Same", "NotSame" };
 
         [Theory]
@@ -14,18 +12,14 @@ namespace Xunit.Analyzers
         [InlineData("NotEqual")]
         public async void FindsWarning_ForFirstNullLiteral_StringOverload(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     string val = null;
     Xunit.Assert." + method + @"(null, val);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 29 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -33,36 +27,28 @@ namespace Xunit.Analyzers
         [InlineData("NotEqual")]
         public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     string val = null;
     Xunit.Assert." + method + @"(null, val, System.StringComparer.Ordinal);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 60 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     object val = null;
     Xunit.Assert." + method + @"(null, val);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 29 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -70,18 +56,14 @@ namespace Xunit.Analyzers
         [InlineData("NotEqual")]
         public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     object val = null;
     Xunit.Assert." + method + @"(null, val, System.Collections.Generic.EqualityComparer<object>.Default);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 90 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -91,18 +73,14 @@ namespace Xunit.Analyzers
         [InlineData("NotStrictEqual")]
         public async void FindsWarning_ForFirstNullLiteral_GenericOverload(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     TestClass val = null;
     Xunit.Assert." + method + @"<TestClass>(null, val);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 40 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -110,44 +88,40 @@ namespace Xunit.Analyzers
         [InlineData("NotEqual")]
         public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     TestClass val = null;
     Xunit.Assert." + method + @"<TestClass>(null, val, System.Collections.Generic.EqualityComparer<TestClass>.Default);
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal($"Do not use Assert.{method}() to check for null value.", d.GetMessage());
-                Assert.Equal("xUnit2003", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 104 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForOtherLiteral(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     int val = 1;
     Xunit.Assert." + method + @"(1, val);
-} }");
+} }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [MemberData(nameof(Methods))]
         public async void DoesNotFindWarning_ForSecondNullLiteral(string method)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"class TestClass { void TestMethod() {
     string val = null;
     Xunit.Assert." + method + @"(val, null);
-} }");
+} }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
     }
 }

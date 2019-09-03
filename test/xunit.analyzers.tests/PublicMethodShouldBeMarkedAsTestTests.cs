@@ -1,19 +1,16 @@
-﻿using System;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 
 namespace Xunit.Analyzers
 {
     public class PublicMethodShouldBeMarkedAsTestTests
     {
-        readonly DiagnosticAnalyzer analyzer = new PublicMethodShouldBeMarkedAsTest();
-
         [Fact]
         public async void DoesNotFindErrorForPublicMethodInNonTestClass()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { public void TestMethod() { } }");
+            var source = "public class TestClass { public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -21,80 +18,80 @@ namespace Xunit.Analyzers
         [InlineData("Xunit.Theory")]
         public async void DoesNotFindErrorForTestMethods(string attribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [" + attribute + "] public void TestMethod() { } }");
+            var source = "public class TestClass { [" + attribute + "] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class TestClass : System.IDisposable {
     [Xunit.Fact] public void TestMethod() { }
     public void Dispose() { }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForPublicAbstractMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public abstract class TestClass {
     [Xunit.Fact] public void TestMethod() { }
     public abstract void AbstractMethod();
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForPublicAbstractMethodMarkedWithFact()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public abstract class TestClass {
     [Xunit.Fact] public void TestMethod() { }
     [Xunit.Fact] public abstract void AbstractMethod();
-}");
-            Assert.Empty(diagnostics);
+}";
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class BaseClass : System.IDisposable {
     public virtual void Dispose() { }
 }
 public class TestClass : BaseClass {
     [Xunit.Fact] public void TestMethod() { }
     public override void Dispose() { }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClassWithRepeatedInterfaceDeclaration()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class BaseClass : System.IDisposable {
     public virtual void Dispose() { }
 }
 public class TestClass : BaseClass, System.IDisposable {
     [Xunit.Fact] public void TestMethod() { }
     public override void Dispose() { }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public abstract class BaseClass : System.IDisposable {
     public abstract void Dispose();
 }
@@ -103,15 +100,15 @@ public abstract class IntermediateClass : BaseClass {
 public class TestClass : IntermediateClass {
     [Xunit.Fact] public void TestMethod() { }
     public override void Dispose() { }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForIAsyncLifetimeMethods()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class TestClass : Xunit.IAsyncLifetime {
     [Xunit.Fact] public void TestMethod() { }
     public System.Threading.Tasks.Task DisposeAsync()
@@ -122,29 +119,29 @@ public class TestClass : IntermediateClass {
     {
         throw new System.NotImplementedException();
     }
-}");
+}";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForPublicMethodMarkedWithAttributeWhichIsMarkedWithIgnoreXunitAnalyzersRule1013()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
 
 [IgnoreXunitAnalyzersRule1013]
 public class CustomTestTypeAttribute : System.Attribute { }
 
-public class TestClass { [Xunit.Fact] public void TestMethod() { } [CustomTestType] public void CustomTestMethod() {} }");
+public class TestClass { [Xunit.Fact] public void TestMethod() { } [CustomTestType] public void CustomTestMethod() {} }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void FindsWarningForPublicMethodMarkedWithAttributeWhichInheritsFromAttributeMarkedWithIgnoreXunitAnalyzersRule1013()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
 @"public class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
 
 [IgnoreXunitAnalyzersRule1013]
@@ -152,15 +149,10 @@ public class BaseCustomTestTypeAttribute : System.Attribute { }
 
 public class DerivedCustomTestTypeAttribute : BaseCustomTestTypeAttribute { }
 
-public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCustomTestType] public void CustomTestMethod() {} }");
+public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCustomTestType] public void CustomTestMethod() {} }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Public method 'CustomTestMethod' on test class 'TestClass' should be marked as a Fact.", d.GetMessage());
-                    Assert.Equal("xUnit1013", d.Id);
-                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                });
+            var expected = Verify.Diagnostic().WithSpan(8, 104, 8, 120).WithSeverity(DiagnosticSeverity.Warning).WithArguments("CustomTestMethod", "TestClass", "Fact");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -169,16 +161,11 @@ public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCusto
 
         public async void FindsWarningForPublicMethodWithoutParametersInTestClass(string attribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method() {} }");
+            var source =
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method() {} }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Fact.", d.GetMessage());
-                    Assert.Equal("xUnit1013", d.Id);
-                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 70 + attribute.Length, 1, 76 + attribute.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Method", "TestClass", "Fact");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -187,16 +174,11 @@ public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCusto
 
         public async void FindsWarningForPublicMethodWithParametersInTestClass(string attribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method(int a) {} }");
+            var source =
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public void Method(int a) {} }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Public method 'Method' on test class 'TestClass' should be marked as a Theory.", d.GetMessage());
-                    Assert.Equal("xUnit1013", d.Id);
-                    Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 70 + attribute.Length, 1, 76 + attribute.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("Method", "TestClass", "Theory");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -205,10 +187,11 @@ public class TestClass { [Xunit.Fact] public void TestMethod() { } [DerivedCusto
 
         public async void DoesNotFindErrorForOverridenMethod(string attribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
-                "public class TestClass { [" + attribute + "] public void TestMethod() { } public override void Method() {} }");
+            var source =
+                "public class TestClass { [" + attribute + "] public void TestMethod() { } public override void Method() {} }";
 
-            Assert.Empty(diagnostics);
+            var expected = Verify.CompilerError("CS0115").WithSpan(1, 79 + attribute.Length, 1, 85 + attribute.Length).WithMessage("'TestClass.Method()': no suitable method found to override");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }
