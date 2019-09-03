@@ -1,9 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Warnings from old Microsoft.CodeAnalysis and friends not properly supporting .NET Core -->
+    <NoWarn>NU1701</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="4.2.1" />
@@ -20,12 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
     <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
