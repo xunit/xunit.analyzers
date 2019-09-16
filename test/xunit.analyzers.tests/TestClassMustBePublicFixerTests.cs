@@ -1,4 +1,4 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
+﻿using VerifyCS = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
 namespace Xunit.Analyzers
 {
@@ -7,17 +7,17 @@ namespace Xunit.Analyzers
         [Theory]
         [InlineData("")]
         [InlineData("internal")]
-        public async void MakesClassPublic(string nonPublicAccessModifier)
+        public async void MakesClassPublic_CSharp(string nonPublicAccessModifier)
         {
             var source = $"{nonPublicAccessModifier} class [|TestClass|] {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
 
             var fixedSource = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
+            await VerifyCS.VerifyCodeFixAsync(source, fixedSource);
         }
 
         [Fact]
-        public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
+        public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic_CSharp()
         {
             var source = @"
 partial class [|TestClass|]
@@ -45,7 +45,7 @@ partial class TestClass
     public void TestMethod2() {}
 }";
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
+            await VerifyCS.VerifyCodeFixAsync(source, fixedSource);
         }
     }
 }

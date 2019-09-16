@@ -1,36 +1,36 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
+﻿using VerifyCS = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
 namespace Xunit.Analyzers
 {
     public class FactMethodShouldNotHaveTestDataTests
     {
         [Fact]
-        public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
+        public async void DoesNotFindErrorForFactMethodWithNoDataAttributes_CSharp()
         {
             var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [InlineData("InlineData")]
         [InlineData("MemberData(\"\")")]
         [InlineData("ClassData(typeof(string))")]
-        public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+        public async void DoesNotFindErrorForTheoryMethodWithDataAttributes_CSharp(string dataAttribute)
         {
             var source =
                 "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [InlineData("InlineData")]
         [InlineData("MemberData(\"\")")]
         [InlineData("ClassData(typeof(string))")]
-        public async void DoesNotFindErrorForDerviedFactMethodWithDataAttributes(string dataAttribute)
+        public async void DoesNotFindErrorForDerviedFactMethodWithDataAttributes_CSharp(string dataAttribute)
         {
-            await new Verify.Test
+            await new VerifyCS.Test
             {
                 TestState =
                 {
@@ -47,13 +47,13 @@ namespace Xunit.Analyzers
         [InlineData("InlineData")]
         [InlineData("MemberData(\"\")")]
         [InlineData("ClassData(typeof(string))")]
-        public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
+        public async void FindsErrorForFactMethodsWithDataAttributes_CSharp(string dataAttribute)
         {
             var source =
                 "public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
-            var expected = Verify.Diagnostic().WithSpan(1, 59 + dataAttribute.Length, 1, 69 + dataAttribute.Length);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            var expected = VerifyCS.Diagnostic().WithSpan(1, 59 + dataAttribute.Length, 1, 69 + dataAttribute.Length);
+            await VerifyCS.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

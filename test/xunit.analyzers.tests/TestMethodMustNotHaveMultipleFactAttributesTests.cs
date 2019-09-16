@@ -1,4 +1,4 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
+﻿using VerifyCS = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
 
 namespace Xunit.Analyzers
 {
@@ -7,28 +7,28 @@ namespace Xunit.Analyzers
         [Theory]
         [InlineData("Fact")]
         [InlineData("Theory")]
-        public async void DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
+        public async void DoesNotFindErrorForMethodWithSingleAttribute_CSharp(string attribute)
         {
             var source =
                 "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
-        public async void FindsErrorForMethodWithTheoryAndFact()
+        public async void FindsErrorForMethodWithTheoryAndFact_CSharp()
         {
             var source =
                 "public class TestClass { [Xunit.Fact, Xunit.Theory] public void TestMethod() { } }";
 
-            var expected = Verify.Diagnostic().WithSpan(1, 65, 1, 75);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            var expected = VerifyCS.Diagnostic().WithSpan(1, 65, 1, 75);
+            await VerifyCS.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
-        public async void FindsErrorForMethodWithCustomFactAttribute()
+        public async void FindsErrorForMethodWithCustomFactAttribute_CSharp()
         {
-            await new Verify.Test
+            await new VerifyCS.Test
             {
                 TestState =
                 {
@@ -39,7 +39,7 @@ namespace Xunit.Analyzers
                     },
                     ExpectedDiagnostics =
                     {
-                        Verify.Diagnostic().WithSpan(1, 63, 1, 73),
+                        VerifyCS.Diagnostic().WithSpan(1, 63, 1, 73),
                     },
                 },
             }.RunAsync();

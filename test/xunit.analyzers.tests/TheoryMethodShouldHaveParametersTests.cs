@@ -1,33 +1,33 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
+﻿using VerifyCS = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
 
 namespace Xunit.Analyzers
 {
     public class TheoryMethodShouldHaveParametersTests
     {
         [Fact]
-        public async void DoesNotFindErrorForFactMethod()
+        public async void DoesNotFindErrorForFactMethod_CSharp()
         {
             var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
-        public async void DoesNotFindErrorForTheoryMethodWithParameters()
+        public async void DoesNotFindErrorForTheoryMethodWithParameters_CSharp()
         {
             var source =
                 "public class TestClass { [Xunit.Theory] public void TestMethod(string s) { } }";
 
-            await Verify.VerifyAnalyzerAsync(source);
+            await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
-        public async void FindsErrorForTheoryMethodWithoutParameters()
+        public async void FindsErrorForTheoryMethodWithoutParameters_CSharp()
         {
             var source = "class TestClass { [Xunit.Theory] public void TestMethod() { } }";
 
-            var expected = Verify.Diagnostic().WithSpan(1, 46, 1, 56);
-            await Verify.VerifyAnalyzerAsync(source, expected);
+            var expected = VerifyCS.Diagnostic().WithSpan(1, 46, 1, 56);
+            await VerifyCS.VerifyAnalyzerAsync(source, expected);
         }
     }
 }
