@@ -1,12 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNotBeUsed>;
 
 namespace Xunit.Analyzers
 {
     public class AssertEmptyCollectionCheckShouldNotBeUsedTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new AssertEmptyCollectionCheckShouldNotBeUsed();
-
         public static TheoryData<string> Collections { get; } = new TheoryData<string>
             {
                 "new int[0]",
@@ -20,28 +17,23 @@ namespace Xunit.Analyzers
         [MemberData(nameof(Collections))]
         public async void FindsWarningForCollectionCheckWithoutAction(string collection)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
                 @"class TestClass { void TestMethod() { 
-    Xunit.Assert.Collection(" + collection + @");
-} }");
+    [|Xunit.Assert.Collection(" + collection + @")|];
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Assert.Collection() to check for empty collections.", d.GetMessage());
-                Assert.Equal("xUnit2011", d.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, d.Severity);
-            });
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [MemberData(nameof(Collections))]
         public async void DoesNotFindWarningForCollectionCheckWithAction(string collection)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
                 @"class TestClass { void TestMethod() { 
     Xunit.Assert.Collection(" + collection + @", i => Xunit.Assert.True(true));
-} }");
-            Assert.Empty(diagnostics);
+} }";
+            await Verify.VerifyAnalyzerAsync(source);
         }
     }
 }

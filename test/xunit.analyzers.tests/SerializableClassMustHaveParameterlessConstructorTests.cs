@@ -1,11 +1,9 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameterlessConstructor>;
 
 namespace Xunit.Analyzers
 {
     public class SerializableClassMustHaveParameterlessConstructorTests
     {
-        readonly DiagnosticAnalyzer analyzer = new SerializableClassMustHaveParameterlessConstructor();
-
         static readonly string Template = @"
 using Xunit.Abstractions;
 
@@ -23,56 +21,34 @@ public class Foo : {0}
         [MemberData(nameof(Interfaces))]
         public async void ImplicitConstructors_NoDiagnostics(string @interface)
         {
-            var code = string.Format(Template, @interface, "");
-
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, code);
-
-            Assert.Empty(diagnostics);
+            var source = string.Format(Template, @interface, "");
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
         [MemberData(nameof(Interfaces))]
         public async void WrongConstructor_ReturnsError(string @interface)
         {
-            var code = string.Format(Template, @interface, "public Foo(int x) { }");
-
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, code);
-
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Class Foo must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable", d.GetMessage());
-                    Assert.Equal("xUnit3001", d.Descriptor.Id);
-                }
-            );
+            var source = string.Format(Template, @interface, "public Foo(int x) { }");
+            var expected = Verify.Diagnostic().WithSpan(5, 14, 5, 17).WithArguments("Foo");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Interfaces))]
         public async void NonPublicConstructor_ReturnsError(string @interface)
         {
-            var code = string.Format(Template, @interface, "protected Foo() { }");
-
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, code);
-
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Class Foo must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable", d.GetMessage());
-                    Assert.Equal("xUnit3001", d.Descriptor.Id);
-                }
-            );
+            var source = string.Format(Template, @interface, "protected Foo() { }");
+            var expected = Verify.Diagnostic().WithSpan(5, 14, 5, 17).WithArguments("Foo");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
         [MemberData(nameof(Interfaces))]
         public async void PublicParameterlessConstructor_NoDiagnostics(string @interface)
         {
-            var code = string.Format(Template, @interface, "public Foo() { }");
-
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, code);
-
-            Assert.Empty(diagnostics);
+            var source = string.Format(Template, @interface, "public Foo() { }");
+            await Verify.VerifyAnalyzerAsync(source);
         }
     }
 }

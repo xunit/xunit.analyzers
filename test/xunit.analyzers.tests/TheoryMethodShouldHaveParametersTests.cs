@@ -1,39 +1,33 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
 
 namespace Xunit.Analyzers
 {
     public class TheoryMethodShouldHaveParametersTests
     {
-        readonly DiagnosticAnalyzer analyzer = new TheoryMethodShouldHaveParameters();
-
         [Fact]
         public async void DoesNotFindErrorForFactMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
+            var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void DoesNotFindErrorForTheoryMethodWithParameters()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Theory] public void TestMethod(string s) { } }");
+            var source =
+                "public class TestClass { [Xunit.Theory] public void TestMethod(string s) { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void FindsErrorForTheoryMethodWithoutParameters()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "class TestClass { [Xunit.Theory] public void TestMethod() { } }");
+            var source = "class TestClass { [Xunit.Theory] public void TestMethod() { } }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Theory methods should have parameters", d.GetMessage());
-                    Assert.Equal("xUnit1006", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 46, 1, 56);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

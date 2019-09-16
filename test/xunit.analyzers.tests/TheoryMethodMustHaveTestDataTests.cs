@@ -1,17 +1,15 @@
-﻿using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 
 namespace Xunit.Analyzers
 {
     public class TheoryMethodMustHaveTestDataTests
     {
-        readonly DiagnosticAnalyzer analyzer = new TheoryMethodMustHaveTestData();
-
         [Fact]
         public async void DoesNotFindErrorForFactMethod()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "public class TestClass { [Xunit.Fact] public void TestMethod() { } }");
+            var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -20,23 +18,19 @@ namespace Xunit.Analyzers
         [InlineData("ClassData(typeof(string))")]
         public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
-                "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }");
+            var source =
+                "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Fact]
         public async void FindsErrorForTheoryMethodMissingData()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, "class TestClass { [Xunit.Theory] public void TestMethod() { } }");
+            var source = "class TestClass { [Xunit.Theory] public void TestMethod() { } }";
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Theory methods must have test data", d.GetMessage());
-                    Assert.Equal("xUnit1003", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(1, 46, 1, 56);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

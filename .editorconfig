@@ -3,13 +3,13 @@ root = true
 
 [*]
 indent_style = space
-
-[*.cs]
 indent_size = 4
 insert_final_newline = true
 
+[*.cs]
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
 
 # Avoid "this." and "Me." if not necessary
 dotnet_style_qualification_for_field = false:suggestion
