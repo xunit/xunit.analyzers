@@ -11,10 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\xunit.analyzers.csharp\xunit.analyzers.csharp.csproj" />
+    <ProjectReference Include="..\..\src\xunit.analyzers.visualbasic\xunit.analyzers.visualbasic.csproj" />
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
     <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" />
     <None Include="..\..\docs\**\*.*" LinkBase="docs" />

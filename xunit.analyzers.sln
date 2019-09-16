@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.136
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.61
 MinimumVisualStudioVersion = 15.0.26228.4
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{F513916A-00AD-499A-9B76-E52D9FBFCED5}"
 EndProject
@@ -17,6 +17,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocBuilder", "tools\DocBuilder\DocBuilder.csproj", "{FD9C12EA-2A4B-49A8-AC8B-4AFFE1C1E9F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.fixes", "src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj", "{F563B984-0E18-4479-A42C-DF2BA970A4C2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.csharp", "src\xunit.analyzers.csharp\xunit.analyzers.csharp.csproj", "{62810BC7-C963-4119-94E2-7FACEE0AB7B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.visualbasic", "src\xunit.analyzers.visualbasic\xunit.analyzers.visualbasic.csproj", "{F2130457-8F63-4593-AE62-42D1EB86F76A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +44,14 @@ Global
 		{F563B984-0E18-4479-A42C-DF2BA970A4C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F563B984-0E18-4479-A42C-DF2BA970A4C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F563B984-0E18-4479-A42C-DF2BA970A4C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62810BC7-C963-4119-94E2-7FACEE0AB7B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62810BC7-C963-4119-94E2-7FACEE0AB7B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62810BC7-C963-4119-94E2-7FACEE0AB7B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62810BC7-C963-4119-94E2-7FACEE0AB7B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2130457-8F63-4593-AE62-42D1EB86F76A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2130457-8F63-4593-AE62-42D1EB86F76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2130457-8F63-4593-AE62-42D1EB86F76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2130457-8F63-4593-AE62-42D1EB86F76A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

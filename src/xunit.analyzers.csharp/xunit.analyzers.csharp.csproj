@@ -17,12 +17,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.2.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\xunit.analyzers.csharp\xunit.analyzers.csharp.csproj" />
-    <ProjectReference Include="..\xunit.analyzers.visualbasic\xunit.analyzers.visualbasic.csproj" />
     <ProjectReference Include="..\xunit.analyzers\xunit.analyzers.csproj" />
   </ItemGroup>
 

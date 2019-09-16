@@ -15,7 +15,9 @@
     <tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
   </metadata>
   <files>
-    <file src="xunit.analyzers.fixes\bin\$Configuration$\netstandard1.1\xunit.analyzers.dll" target="analyzers\dotnet\cs\" />
+    <file src="xunit.analyzers.fixes\bin\$Configuration$\netstandard1.1\xunit.analyzers.dll" target="analyzers\dotnet\" />
+    <file src="xunit.analyzers.fixes\bin\$Configuration$\netstandard1.1\xunit.analyzers.csharp.dll" target="analyzers\dotnet\cs\" />
+    <file src="xunit.analyzers.fixes\bin\$Configuration$\netstandard1.1\xunit.analyzers.visualbasic.dll" target="analyzers\dotnet\vb\" />
     <file src="xunit.analyzers.fixes\bin\$Configuration$\netstandard1.1\xunit.analyzers.fixes.dll" target="analyzers\dotnet\cs\" />
     <file src="xunit.analyzers.fixes\tools\*.ps1" target="tools\" />
   </files>
