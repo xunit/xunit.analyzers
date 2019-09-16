@@ -1,4 +1,5 @@
 ﻿using VerifyCS = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
+using VerifyVB = Xunit.Analyzers.VisualBasicVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
 
 namespace Xunit.Analyzers
 {
@@ -15,6 +16,21 @@ namespace Xunit.Analyzers
             await VerifyCS.VerifyAnalyzerAsync(source);
         }
 
+        [Theory]
+        [InlineData("Fact")]
+        [InlineData("Theory")]
+        public async void DoesNotFindErrorForMethodWithSingleAttribute_VisualBasic(string attribute)
+        {
+            var source = $@"
+Public Class TestClass
+    <Xunit.{attribute}>
+    Public Sub TestMethod()
+    End Sub
+End Class";
+
+            await VerifyVB.VerifyAnalyzerAsync(source);
+        }
+
         [Fact]
         public async void FindsErrorForMethodWithTheoryAndFact_CSharp()
         {
@@ -23,6 +39,20 @@ namespace Xunit.Analyzers
 
             var expected = VerifyCS.Diagnostic().WithSpan(1, 65, 1, 75);
             await VerifyCS.VerifyAnalyzerAsync(source, expected);
+        }
+
+        [Fact]
+        public async void FindsErrorForMethodWithTheoryAndFact_VisualBasic()
+        {
+            var source = @"
+Public Class TestClass
+    <Xunit.Fact, Xunit.Theory>
+    Public Sub TestMethod()
+    End Sub
+End Class";
+
+            var expected = VerifyVB.Diagnostic().WithSpan(4, 16, 4, 26);
+            await VerifyVB.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -40,6 +70,34 @@ namespace Xunit.Analyzers
                     ExpectedDiagnostics =
                     {
                         VerifyCS.Diagnostic().WithSpan(1, 63, 1, 73),
+                    },
+                },
+            }.RunAsync();
+        }
+
+        [Fact]
+        public async void FindsErrorForMethodWithCustomFactAttribute_VisualBasic()
+        {
+            await new VerifyVB.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        @"
+Public Class TestClass
+    <Xunit.Fact, CustomFact>
+    Public Sub TestMethod()
+    End Sub
+End Class",
+                        @"
+Public Class CustomFactAttribute
+    Inherits Xunit.FactAttribute
+End Class",
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        VerifyVB.Diagnostic().WithSpan(4, 16, 4, 26),
                     },
                 },
             }.RunAsync();
