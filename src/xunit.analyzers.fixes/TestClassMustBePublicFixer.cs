@@ -1,17 +1,15 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+    [ExportCodeFixProvider(LanguageNames.CSharp, LanguageNames.VisualBasic), Shared]
     public class TestClassMustBePublicFixer : CodeFixProvider
     {
         const string title = "Make Public";
@@ -20,17 +18,22 @@ namespace Xunit.Analyzers
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct),
+                    createChangedDocument: async ct =>
+                    {
+                        var root = await context.Document.GetSyntaxRootAsync(ct).ConfigureAwait(false);
+                        var generator = SyntaxGenerator.GetGenerator(context.Document);
+                        var classDeclaration = root.FindNode(context.Span).GetContainingDeclaration(generator, DeclarationKind.Class);
+                        return await Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct).ConfigureAwait(false);
+                    },
                     equivalenceKey: title),
                 context.Diagnostics);
+
+            return Task.FromResult(true);
         }
     }
 }
