@@ -27,15 +27,23 @@ To fix a violation of this rule, [describe how to fix a violation].
 
 Example(s) of code that violates the rule.
 
+```csharp
+Assert.Throws(typeof(InvalidOperationException), () => FunctionThatThrows());
+```
+
 ### Does not violate
 
 Example(s) of code that does not violate the rule.
+
+```csharp
+Assert.Throws<InvalidOperationException>(() => FunctionThatThrows());
+```
 
 ## How to suppress violations
 
 **If the severity of your analyzer isn't _Warning_, delete this section.**
 
 ```csharp
-#pragma warning disable xUnit0000 // <Rule name>
-#pragma warning restore xUnit0000 // <Rule name>
+#pragma warning disable xUnit2015 // <Rule name>
+#pragma warning restore xUnit2015 // <Rule name>
 ```
