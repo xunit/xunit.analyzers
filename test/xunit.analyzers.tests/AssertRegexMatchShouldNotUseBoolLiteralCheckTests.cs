@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
 
         [Theory]
         [MemberData(nameof(Methods))]
-        public async void FindsWarning_ForInstaceRegexIsMatchWithInlineConstructedRegex(string method)
+        public async void FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(string method)
         {
             var source =
                 @"class TestClass { void TestMethod() {
@@ -35,7 +35,7 @@ namespace Xunit.Analyzers
 
         [Theory]
         [MemberData(nameof(Methods))]
-        public async void FindsWarning_ForInstaceRegexIsMatchWithConstructedRegexVariable(string method)
+        public async void FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(string method)
         {
             var source =
                 @"class TestClass { void TestMethod() {

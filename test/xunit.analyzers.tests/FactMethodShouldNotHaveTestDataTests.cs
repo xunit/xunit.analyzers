@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
         [InlineData("InlineData")]
         [InlineData("MemberData(\"\")")]
         [InlineData("ClassData(typeof(string))")]
-        public async void DoesNotFindErrorForDerviedFactMethodWithDataAttributes(string dataAttribute)
+        public async void DoesNotFindErrorForDerivedFactMethodWithDataAttributes(string dataAttribute)
         {
             await new Verify.Test
             {

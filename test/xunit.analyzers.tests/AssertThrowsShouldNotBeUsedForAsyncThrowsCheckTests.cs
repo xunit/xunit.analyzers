@@ -213,7 +213,7 @@ void TestMethod() {
         }
 
         [Fact]
-        public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionParameter_OnNonAsyncThrowingLamba()
+        public async void DoesNotFindWarning_ForThrowsCheck_WithExceptionParameter_OnNonAsyncThrowingLambda()
         {
             var source =
                 @"class TestClass { void TestMethod() {

@@ -144,10 +144,11 @@ namespace Xunit.Analyzers
                                     Location.Create(attribute.SyntaxTree, span)));
                             }
                         }
+
                         if (memberSymbol.Kind == SymbolKind.Method)
                         {
-                                // TODO: handle method paramater type matching, model after InlineDataMustMatchTheoryParameter
-                            }
+                            // TODO: handle method parameter type matching, model after InlineDataMustMatchTheoryParameter
+                        }
                     }
                 }
             }, SyntaxKind.Attribute);

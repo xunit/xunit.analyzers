@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
@@ -16,7 +15,7 @@ namespace Xunit.Analyzers.CodeActions
             return editor.GetChangedDocument();
         }
 
-        public static async Task<Solution> ChangeMemberAccessiblity(Solution solution, ISymbol memberSymbol, Accessibility accessibility, CancellationToken cancellationToken)
+        public static async Task<Solution> ChangeMemberAccessibility(Solution solution, ISymbol memberSymbol, Accessibility accessibility, CancellationToken cancellationToken)
         {
             var editor = SymbolEditor.Create(solution);
             await editor.EditAllDeclarationsAsync(memberSymbol, (docEditor, syntaxNode) =>

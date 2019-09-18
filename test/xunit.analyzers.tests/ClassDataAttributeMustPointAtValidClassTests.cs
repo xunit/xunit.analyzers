@@ -83,15 +83,14 @@ namespace Xunit.Analyzers
         [Theory]
         [InlineData("private")]
         [InlineData("internal")]
-        public async void FindsErrorForDataClassWithExplicitNonPublicConstructor(string accessiblity)
+        public async void FindsErrorForDataClassWithExplicitNonPublicConstructor(string accessibility)
         {
             var source =
 string.Format(@"class DataClass : System.Collections.Generic.IEnumerable<object[]> {{
     {0} DataClass() {{}}
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}}", accessiblity);
-
+}}", accessibility));
             await new Verify.Test
             {
                 TestState =

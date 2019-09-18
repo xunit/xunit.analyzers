@@ -21,7 +21,7 @@ namespace Xunit.Analyzers.Utilities
             if (x.IsAssignableFrom(y)) return -1;
             if (y.IsAssignableFrom(x)) return 1;
 
-            throw new InvalidOperationException("Encounted types not in a hierarchy");
+            throw new InvalidOperationException("Encountered types not in a hierarchy");
         }
     }
 }
