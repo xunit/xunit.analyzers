@@ -5,7 +5,7 @@ namespace Xunit.Analyzers
 {
     public class TestClassMustBePublicTests
     {
-        private static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
+        public static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
         {
             foreach (var factAttribute in new[] {"Xunit.Fact", "Xunit.Theory"})
             {
@@ -31,9 +31,9 @@ namespace Xunit.Analyzers
             string classAccessModifier)
         {
             var source =   @"
-" + classAccessModifier + @" class TestClass 
-{ 
-    [" + factRelatedAttribute + @"] public void TestMethod() { } 
+" + classAccessModifier + @" class TestClass
+{
+    [" + factRelatedAttribute + @"] public void TestMethod() { }
 }";
 
             var expected = Verify.Diagnostic().WithSpan(2, 8 + classAccessModifier.Length, 2, 17 + classAccessModifier.Length);
