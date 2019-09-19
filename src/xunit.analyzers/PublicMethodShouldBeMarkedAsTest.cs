@@ -15,6 +15,7 @@ namespace Xunit.Analyzers
         internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
         {
             var taskType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
+            var configuredTaskAwaitableType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
             var interfacesToIgnore = new List<INamedTypeSymbol>
                 {
                     compilationStartContext.Compilation.GetSpecialType(SpecialType.System_IDisposable),
@@ -60,7 +61,10 @@ namespace Xunit.Analyzers
                         continue;
 
                     if (method.DeclaredAccessibility == Accessibility.Public &&
-                        (method.ReturnsVoid || (taskType != null && Equals(method.ReturnType, taskType))))
+                        (method.ReturnsVoid ||
+                         (taskType != null && Equals(method.ReturnType, taskType)) ||
+                         (configuredTaskAwaitableType != null && Equals(method.ReturnType, configuredTaskAwaitableType))
+                         ))
                     {
                         var shouldIgnore = false;
                         while (!shouldIgnore || method.IsOverride)

@@ -71,7 +71,15 @@ namespace Xunit.Analyzers
                 return false;
 
             var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-            return taskType.IsAssignableFrom(((IMethodSymbol)symbol.Symbol).ReturnType);
+            var returnType = ((IMethodSymbol) symbol.Symbol).ReturnType;
+            if (taskType.IsAssignableFrom(returnType))
+                return true;
+
+            var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
+            if (configuredTaskAwaitableType.IsAssignableFrom(returnType))
+                return true;
+
+            return false;
         }
     }
 }

@@ -90,7 +90,7 @@ string.Format(@"class DataClass : System.Collections.Generic.IEnumerable<object[
     {0} DataClass() {{}}
     public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}}", accessibility));
+}}", accessibility);
             await new Verify.Test
             {
                 TestState =

@@ -21,6 +21,7 @@
             internal static readonly string SystemObsoleteAttribute = "System.ObsoleteAttribute";
             internal static readonly string SystemCollectionsICollection = "System.Collections.ICollection";
             internal static readonly string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
+            internal static readonly string SystemRuntimeCompilerServicesConfiguredTaskAwaitable = "System.Runtime.CompilerServices.ConfiguredTaskAwaitable";
             internal static readonly string SystemRuntimeInteropServicesOptionalAttribute = "System.Runtime.InteropServices.OptionalAttribute";
         }
     }
