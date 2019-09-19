@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.ThreadBlockingCodeInTestContext>;
 
 namespace Xunit.Analyzers
 {
     public class ThreadBlockingCodeInTestContextTests
     {
-        readonly DiagnosticAnalyzer analyzer = new ThreadBlockingCodeInTestContext();
-        
         [Fact]
         public async Task WaitInvocation_InSyncTest_Reports()
         {
@@ -22,17 +21,15 @@ public class C
         new Task(() => {}).Wait();
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-            
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'new Task(() => {}).Wait' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 9, 10, 32)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("new Task(() => {}).Wait", "T");
+
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
-        [Fact]        
+        [Fact]
         public async Task ResultInvocation_InSyncTest_Reports()
         {
             var source = @"
@@ -42,22 +39,20 @@ using Xunit;
 public class C
 {
     [Fact]
-    public int T()
+    public void T()
     {
-        return new Task<int>(() => 1).Result;
+        var unused = new Task<int>(() => 1).Result;
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 22, 10, 51)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("new Task<int>(() => 1).Result", "T");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'new Task<int>(() => 1).Result' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
-        
-        [Fact]        
+
+        [Fact]
         public async Task ResultGenericInvocation_InSyncTest_Reports()
         {
             var source = @"
@@ -67,9 +62,9 @@ using Xunit;
 public class C
 {
     [Fact]
-    public int T()
+    public void T()
     {
-        return Helper<int>();
+        var unused = Helper<int>();
     }
 
     private T Helper<T>()
@@ -77,16 +72,14 @@ public class C
         return new Task<T>(() => default(T)).Result;
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(15, 16, 15, 52)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("new Task<T>(() => default(T)).Result", "Helper");
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'new Task<T>(() => default(T)).Result' invocation in method 'Helper' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
-        
+
         [Fact]
         public async Task GetAwaiterInvocation_InSyncTest_Reports()
         {
@@ -102,16 +95,14 @@ public class C
         new Task(() => {}).GetAwaiter();
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-            
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'new Task(() => {}).GetAwaiter' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 9, 10, 38)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("new Task(() => {}).GetAwaiter", "T");
+
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
-        
+
         [Fact]
         public async Task GetAwaiterGenericInvocation_InSyncTest_Reports()
         {
@@ -122,21 +113,19 @@ using Xunit;
 public class C
 {
     [Fact]
-    public int T()
+    public void T()
     {
-        return new Task<int>(() => 1).GetAwaiter().GetResult();
+        var unused = new Task<int>(() => 1).GetAwaiter().GetResult();
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-            
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'new Task<int>(() => 1).GetAwaiter' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 22, 10, 55)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("new Task<int>(() => 1).GetAwaiter", "T");
+
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
-        
+
         [Fact]
         public async Task TaskWaitAllInvocation_InSyncTest_Reports()
         {
@@ -152,16 +141,14 @@ public class C
         Task.WaitAll(new Task(() => {}));
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-            
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'Task.WaitAll' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 9, 10, 21)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("Task.WaitAll", "T");
+
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
-        
+
         [Fact]
         public async Task TaskWaitAnyInvocation_InSyncTest_Reports()
         {
@@ -177,14 +164,12 @@ public class C
         Task.WaitAny(new Task(() => {}));
     }
 }";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-            
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("xUnit1027", d.Id);
-                Assert.Equal("'Task.WaitAny' invocation in method 'T' may " +
-                             "lead to a deadlock. Consider using an async test method.", d.GetMessage());
-            });
+            var expected = Verify.Diagnostic("xUnit1027")
+                                 .WithSpan(10, 9, 10, 21)
+                                 .WithSeverity(DiagnosticSeverity.Warning)
+                                 .WithArguments("Task.WaitAny", "T");
+
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
     }
 }

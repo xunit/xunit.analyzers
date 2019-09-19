@@ -13,12 +13,12 @@ namespace Xunit.Analyzers
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
             ImmutableArray.Create(Descriptors.X1027_ThreadBlockingCodeInTest);
-       
-        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, 
+
+        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext,
             XunitContext xunitContext)
-        {           
+        {
             compilationStartContext.RegisterSyntaxNodeAction(
-                new SyncTaskInvocationAnalysis(compilationStartContext.Compilation).Analyze, 
+                new SyncTaskInvocationAnalysis(compilationStartContext.Compilation).Analyze,
                 SyntaxKind.SimpleMemberAccessExpression);
         }
 
@@ -36,14 +36,12 @@ namespace Xunit.Analyzers
 
                 if (taskSymbol == null || taskWithResultSymbol == null)
                     return;
-                
+
                 syncTaskMemberSymbols = CollectMembers(taskSymbol).Union(CollectMembers(taskWithResultSymbol))
                     .ToImmutableHashSet();
 
                 IEnumerable<ISymbol> CollectMembers(INamedTypeSymbol symbol)
-                {
-                    return symbol.GetMembers().Where(m => SyncTaskMemberNames.Contains(m.Name));
-                }
+                    => symbol.GetMembers().Where(m => SyncTaskMemberNames.Contains(m.Name));
             }
 
             public void Analyze(SyntaxNodeAnalysisContext context)
@@ -53,16 +51,16 @@ namespace Xunit.Analyzers
 
                 if (symbol == null)
                     return;
-                
+
                 if (!syncTaskMemberSymbols.Contains(symbol)
-                    && symbol.OriginalDefinition != null 
+                    && symbol.OriginalDefinition != null
                     && !syncTaskMemberSymbols.Contains(symbol.OriginalDefinition))
                     return;
 
                 var invocationDescriptiveString = memberAccess.ToString();
                 var testMethodName = memberAccess.AncestorsAndSelf().OfType<MethodDeclarationSyntax>()
                     .Single().Identifier;
-                
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     Descriptors.X1027_ThreadBlockingCodeInTest,
                     memberAccess.GetLocation(),
