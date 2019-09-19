@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
 namespace Xunit.Analyzers
 {
     public class TestClassMustBePublicTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new TestClassMustBePublic();
-
-        private static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
+        public static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
         {
             foreach (var factAttribute in new[] {"Xunit.Fact", "Xunit.Theory"})
             {
@@ -23,9 +21,7 @@ namespace Xunit.Analyzers
         {
             var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -35,19 +31,13 @@ namespace Xunit.Analyzers
             string classAccessModifier)
         {
             var source =   @"
-" + classAccessModifier + @" class TestClass 
-{ 
-    [" + factRelatedAttribute + @"] public void TestMethod() { } 
+" + classAccessModifier + @" class TestClass
+{
+    [" + factRelatedAttribute + @"] public void TestMethod() { }
 }";
 
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
-
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Test classes must be public", d.GetMessage());
-                    Assert.Equal("xUnit1000", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(2, 8 + classAccessModifier.Length, 2, 17 + classAccessModifier.Length);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -66,9 +56,8 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-            Assert.Empty(diagnostics);
+            await Verify.VerifyAnalyzerAsync(source);
         }
 
         [Theory]
@@ -87,9 +76,14 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source1, source2);
 
-            Assert.Empty(diagnostics);
+            await new Verify.Test
+            {
+                TestState =
+                {
+                    Sources = { source1, source2 },
+                },
+            }.RunAsync();
         }
 
         [Theory]
@@ -111,14 +105,9 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source);
 
-            Assert.Collection(diagnostics,
-                d =>
-                {
-                    Assert.Equal("Test classes must be public", d.GetMessage());
-                    Assert.Equal("xUnit1000", d.Descriptor.Id);
-                });
+            var expected = Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan(7, 16 + part2AccessModifier.Length, 7, 25 + part2AccessModifier.Length);
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Theory]
@@ -140,14 +129,18 @@ public partial class TestClass
     [Xunit.Fact] public void Test2() {}
 }
 ";
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, source1, source2);
 
-            Assert.Collection(diagnostics,
-                d =>
+            await new Verify.Test
+            {
+                TestState =
                 {
-                    Assert.Equal("Test classes must be public", d.GetMessage());
-                    Assert.Equal("xUnit1000", d.Descriptor.Id);
-                });
+                    Sources = { source1, source2 },
+                    ExpectedDiagnostics =
+                    {
+                        Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan("Test1.cs", 2, 16 + part2AccessModifier.Length, 2, 25 + part2AccessModifier.Length),
+                    },
+                },
+            }.RunAsync();
         }
     }
 }

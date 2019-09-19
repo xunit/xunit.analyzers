@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
             if (arguments.Count != 2 && arguments.Count != 3)
                 return;
 
-            // Match Asser.Equal<bool>(true, expression) but not e.g. Assert.Equal<object>(true, expression).
+            // Match Assert.Equal<bool>(true, expression) but not e.g. Assert.Equal<object>(true, expression).
             if (!method.IsGenericMethod ||
                 !method.TypeArguments[0].SpecialType.Equals(SpecialType.System_Boolean))
                 return;

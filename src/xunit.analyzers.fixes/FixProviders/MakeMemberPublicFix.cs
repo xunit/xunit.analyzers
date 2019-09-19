@@ -22,7 +22,7 @@ namespace Xunit.Analyzers.FixProviders
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedSolution: ct => Actions.ChangeMemberAccessiblity(context.Document.Project.Solution, member, Accessibility.Public, ct),
+                    createChangedSolution: ct => Actions.ChangeMemberAccessibility(context.Document.Project.Solution, member, Accessibility.Public, ct),
                     equivalenceKey: title),
                 context.Diagnostics);
             return Task.FromResult(0);

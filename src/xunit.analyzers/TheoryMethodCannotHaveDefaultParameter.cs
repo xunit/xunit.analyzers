@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
         public TheoryMethodCannotHaveDefaultParameter() { }
 
         /// <summary>For testing purposes only.</summary>
-        public TheoryMethodCannotHaveDefaultParameter(string assemblyVersion) : base(new Version(assemblyVersion)) { }
+        protected TheoryMethodCannotHaveDefaultParameter(string assemblyVersion) : base(new Version(assemblyVersion)) { }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
            ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
