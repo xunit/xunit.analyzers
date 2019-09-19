@@ -51,17 +51,13 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnAsyncThrowingLambda_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws(typeof(System.NotImplementedException), async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
-                Assert.Equal(DiagnosticSeverity.Error, d.Severity);
-            });
+            var expected = Verify.Diagnostic("xUnit2014").WithSpan(2, 5, 2, 142).WithSeverity(DiagnosticSeverity.Error).WithArguments("Assert.Throws()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -120,17 +116,17 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnAsyncThrowingLambda_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.NotImplementedException>(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
+            DiagnosticResult[] expected =
             {
-                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2019", d.Id);
-                Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
-            });
+                Verify.CompilerError("CS0619").WithSpan(2, 5, 2, 134).WithMessage("'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
+                Verify.Diagnostic("xUnit2019").WithSpan(2, 5, 2, 134).WithSeverity(DiagnosticSeverity.Hidden).WithArguments("Assert.Throws()"),
+            };
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -173,17 +169,13 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambdaWithParamName_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.ArgumentException>(""param1"", () => System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
-                Assert.Equal(DiagnosticSeverity.Error, d.Severity);
-            });
+            var expected = Verify.Diagnostic("xUnit2014").WithSpan(2, 5, 2, 126).WithSeverity(DiagnosticSeverity.Error).WithArguments("Assert.Throws()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -205,17 +197,17 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsCheck_WithExceptionTypeArgument_OnAsyncThrowingLambdaWithParamName_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.Throws<System.ArgumentException>(""param1"", async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
+            DiagnosticResult[] expected =
             {
-                Assert.Equal("Do not use obsolete Assert.Throws() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2019", d.Id);
-                Assert.Equal(DiagnosticSeverity.Hidden, d.Severity);
-            });
+                Verify.CompilerError("CS0619").WithSpan(2, 5, 2, 138).WithMessage("'Assert.Throws<T>(string, Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
+                Verify.Diagnostic("xUnit2019").WithSpan(2, 5, 2, 138).WithSeverity(DiagnosticSeverity.Hidden).WithArguments("Assert.Throws()"),
+            };
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -250,17 +242,13 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsAnyCheck_WithExceptionTypeArgument_OnThrowingLambda_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.ThrowsAny<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Assert.ThrowsAny() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
-                Assert.Equal(DiagnosticSeverity.Error, d.Severity);
-            });
+            var expected = Verify.Diagnostic("xUnit2014").WithSpan(2, 5, 2, 125).WithSeverity(DiagnosticSeverity.Error).WithArguments("Assert.ThrowsAny()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
@@ -278,17 +266,13 @@ void TestMethod() {
         [Fact]
         public async Task FindsWarning_ForThrowsAnyCheck_WithExceptionTypeArgument_OnAsyncThrowingLambda_ConfiguredTaskAwaitable()
         {
-            var diagnostics = await CodeAnalyzerHelper.GetDiagnosticsAsync(analyzer, CompilationReporting.IgnoreErrors,
+            var source =
                 @"class TestClass { void TestMethod() {
     Xunit.Assert.ThrowsAny<System.NotImplementedException>(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false));
-} }");
+} }";
 
-            Assert.Collection(diagnostics, d =>
-            {
-                Assert.Equal("Do not use Assert.ThrowsAny() to check for asynchronously thrown exceptions.", d.GetMessage());
-                Assert.Equal("xUnit2014", d.Id);
-                Assert.Equal(DiagnosticSeverity.Error, d.Severity);
-            });
+            var expected = Verify.Diagnostic("xUnit2014").WithSpan(2, 5, 2, 137).WithSeverity(DiagnosticSeverity.Error).WithArguments("Assert.ThrowsAny()");
+            await Verify.VerifyAnalyzerAsync(source, expected);
         }
 
         [Fact]
