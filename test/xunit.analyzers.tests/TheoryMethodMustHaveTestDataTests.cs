@@ -32,5 +32,13 @@ namespace Xunit.Analyzers
             var expected = Verify.Diagnostic().WithSpan(1, 46, 1, 56);
             await Verify.VerifyAnalyzerAsync(source, expected);
         }
+
+        [Fact]
+        public async void DoesNotFindErrorForMethodUsingInheritedTheoryAttribute()
+        {
+            var source = "public class CustomTheory : Xunit.TheoryAttribute { } public class TestClass { [CustomTheory] [Xunit.InlineData(1)] public void TestMethod(int x) { } }";
+
+            await Verify.VerifyAnalyzerAsync(source);
+        }
     }
 }
