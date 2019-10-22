@@ -16,7 +16,7 @@ namespace Xunit.Analyzers
         {
             compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var classDeclaration = syntaxNodeContext.Node as ClassDeclarationSyntax;
+                var classDeclaration = (ClassDeclarationSyntax)syntaxNodeContext.Node;
                 if (classDeclaration.BaseList == null)
                     return;
 

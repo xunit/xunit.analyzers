@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
         {
             compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var methodDeclaration = syntaxNodeContext.Node as MethodDeclarationSyntax;
+                var methodDeclaration = (MethodDeclarationSyntax)syntaxNodeContext.Node;
                 if (methodDeclaration.ParameterList.Parameters.Count == 0)
                     return;
 
