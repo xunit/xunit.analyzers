@@ -1,4 +1,3 @@
-using System;
 using Microsoft.CodeAnalysis;
 using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
 
