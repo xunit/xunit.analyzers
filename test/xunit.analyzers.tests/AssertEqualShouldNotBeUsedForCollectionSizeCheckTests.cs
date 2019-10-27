@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
 
@@ -5,6 +6,11 @@ namespace Xunit.Analyzers
 {
     public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
     {
+        public static TheoryData<string> CollectionsWithExceptionThrowingGetEnumeratorMethod { get; } = new TheoryData<string>
+        {
+            "new System.ArraySegment<int>().Count",
+        };
+
         public static TheoryData<string> Collections { get; } = new TheoryData<string>
         {
             "new int[0].Length",
@@ -28,6 +34,19 @@ namespace Xunit.Analyzers
             { "new System.Collections.Generic.List<int>().AsReadOnly().Count", 2 },
             { "System.Linq.Enumerable.Empty<int>().Count()", 354 },
         };
+
+        [Theory]
+        [MemberData(nameof(CollectionsWithExceptionThrowingGetEnumeratorMethod))]
+        public async void DoesNotFindWarningForCollectionsWithExceptionThrowingGetEnumeratorMethod(string collection)
+        {
+            var source =
+                @"using System.Linq;
+        class TestClass { void TestMethod() { 
+            Xunit.Assert.NotEqual(0, " + collection + @");
+        } }";
+
+            await Verify.VerifyAnalyzerAsync(source);
+        }
 
         [Theory]
         [MemberData(nameof(Collections))]

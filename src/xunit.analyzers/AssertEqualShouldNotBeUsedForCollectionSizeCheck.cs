@@ -13,6 +13,11 @@ namespace Xunit.Analyzers
         internal static string MethodName = "MethodName";
         internal static string SizeValue = "SizeValue";
 
+        private static readonly HashSet<string> CollectionTypesWithExceptionThrowingGetEnumeratorMethod = new HashSet<string>
+        {
+            "System.ArraySegment<T>"
+        };
+
         private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "NotEqual" });
 
         private static readonly HashSet<string> SizeMethods = new HashSet<string>
@@ -58,7 +63,8 @@ namespace Xunit.Analyzers
 
             var symbolInfo = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken);
 
-            if (!IsWellKnownSizeMethod(symbolInfo) &&
+            if (IsCollectionsWithExceptionThrowingGetEnumeratorMethod(symbolInfo) ||
+                !IsWellKnownSizeMethod(symbolInfo) &&
                 !IsICollectionCountProperty(context, symbolInfo) &&
                 !IsICollectionOfTCountProperty(context, symbolInfo) &&
                 !IsIReadOnlyCollectionOfTCountProperty(context, symbolInfo))
@@ -73,6 +79,11 @@ namespace Xunit.Analyzers
                 invocation.GetLocation(),
                 builder.ToImmutable(),
                 SymbolDisplay.ToDisplayString(method, SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+        }
+
+        private static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(SymbolInfo symbolInfo)
+        {
+            return CollectionTypesWithExceptionThrowingGetEnumeratorMethod.Contains(symbolInfo.Symbol.ContainingType.ConstructedFrom.ToDisplayString());
         }
 
         private static bool IsWellKnownSizeMethod(SymbolInfo symbolInfo)
