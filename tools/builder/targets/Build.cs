@@ -8,6 +8,6 @@ public static class Build
     {
         context.BuildStep("Compiling binaries");
 
-        await context.Exec("dotnet", $"msbuild -p:Configuration={context.ConfigurationText}");
+        await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText}");
     }
 }
