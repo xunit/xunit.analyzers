@@ -11,7 +11,7 @@ namespace Xunit.Analyzers
 {
     class CodeAnalyzerHelper
     {
-#if NETCOREAPP2_2
+#if NETCOREAPP
         internal static readonly PortableExecutableReference SystemCollectionsReference;
         internal static readonly MetadataReference SystemCollectionsNonGenericReference;
         internal static readonly MetadataReference SystemConsoleReference;
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
             // Xunit is a PCL linked against System.Runtime, however on the Desktop framework all types in that assembly have been forwarded to
             // System.Core, so we need to find the assembly by name to compile without errors.
             var referencedAssemblies = typeof(FactAttribute).Assembly.GetReferencedAssemblies();
-#if NETCOREAPP2_2
+#if NETCOREAPP
             SystemCollectionsReference = GetAssemblyReference(referencedAssemblies, "System.Collections");
             SystemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             SystemRuntimeExtensionsReference = GetAssemblyReference(referencedAssemblies, "System.Runtime.Extensions");
@@ -38,7 +38,7 @@ namespace Xunit.Analyzers
 
             SystemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
 
-#if NETCOREAPP2_2
+#if NETCOREAPP
             // Xunit doesn't directly reference System.Collections.NonGeneric, so we locate it relative to
             // System.Collections.
             SystemCollectionsNonGenericReference = MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(SystemCollectionsReference.FilePath), "System.Collections.NonGeneric.dll"));
