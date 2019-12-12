@@ -1,8 +1,6 @@
-using System.IO;
 using System.Threading.Tasks;
 
-[Target(nameof(Restore),
-        nameof(DownloadNuGet))]
+[Target(BuildTarget.Restore)]
 public static class Restore
 {
     public static async Task OnExecute(BuildContext context)

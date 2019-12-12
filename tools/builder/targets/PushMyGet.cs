@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(nameof(PushMyGet),
-        nameof(DownloadNuGet))]
+[Target(BuildTarget.PushMyGet,
+        BuildTarget.DownloadNuGet)]
 public static class PushMyGet
 {
     public static async Task OnExecute(BuildContext context)

@@ -2,7 +2,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-[Target(nameof(DownloadNuGet))]
+[Target(BuildTarget.DownloadNuGet)]
 public static class DownloadNuGet
 {
     public static async Task OnExecute(BuildContext context)

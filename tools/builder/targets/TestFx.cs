@@ -1,8 +1,8 @@
 using System.IO;
 using System.Threading.Tasks;
 
-[Target(nameof(TestFx),
-        nameof(Build))]
+[Target(BuildTarget.TestFx,
+        BuildTarget.Build)]
 public static class TestFx
 {
     public static Task OnExecute(BuildContext context)

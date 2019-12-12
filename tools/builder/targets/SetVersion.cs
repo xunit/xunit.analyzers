@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(nameof(SetVersion))]
+[Target(BuildTarget.SetVersion)]
 public static class SetVersion
 {
     public static async Task OnExecute(BuildContext context)

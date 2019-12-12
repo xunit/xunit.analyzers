@@ -1,8 +1,8 @@
 using System.IO;
 using System.Threading.Tasks;
 
-[Target(nameof(TestCore),
-        nameof(Build))]
+[Target(BuildTarget.TestCore,
+        BuildTarget.Build)]
 public static class TestCore
 {
     public static Task OnExecute(BuildContext context)

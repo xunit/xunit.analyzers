@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 
-[Target(nameof(Build),
-        nameof(Restore))]
+[Target(BuildTarget.Build,
+        BuildTarget.Restore)]
 public static class Build
 {
     public static async Task OnExecute(BuildContext context)

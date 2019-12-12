@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Target(nameof(SignPackages),
-        nameof(Packages))]
+[Target(BuildTarget.SignPackages,
+        BuildTarget.Packages)]
 public static class SignPackages
 {
     public static async Task OnExecute(BuildContext context)
