@@ -30,7 +30,7 @@ jobs:
 
       - name: "Build target: CI"
         env:
-          PublishToken: ${{ secrets.GITHUB_TOKEN }}
+          PublishToken: ${{ secrets.PublishToken }}
           SignClientUser: ${{ secrets.SignClientUser }}
           SignClientSecret: ${{ secrets.SignClientSecret }}
         run: bash ./build CI
