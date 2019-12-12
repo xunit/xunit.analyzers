@@ -6,6 +6,9 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 
+[*.yaml]
+indent_size = 2
+
 [*.cs]
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true

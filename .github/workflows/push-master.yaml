@@ -1,0 +1,37 @@
+name: xUnit.net Analyzers CI Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-unix:
+    name: "CI Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v1
+
+      - name: Install .NET Core SDK 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.802
+
+      - name: Install .NET Core SDK 3.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.0.101
+
+      - name: Enable .NET Core SxS
+        run: rsync -a ${DOTNET_ROOT/3.0.101/2.1.802}/* $DOTNET_ROOT/
+
+      - name: Get build information
+        run: dotnet tool restore && dotnet nbgv cloud --all-vars
+
+      - name: "Build target: CI"
+        env:
+          PublishSource: "https://nuget.pkg.github.com/xunit/index.json"
+          PublishApiKey: ${{ secrets.GITHUB_TOKEN }}
+          SignClientUser: ${{ secrets.SignClientUser }}
+          SignClientSecret: ${{ secrets.SignClientSecret }}
+        run: bash ./build CI

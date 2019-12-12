@@ -1,0 +1,48 @@
+name: xUnit.net Analyzers PR Build
+on: pull_request
+
+jobs:
+  build-windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Get .NET Core information
+        run: dotnet --info
+
+      - name: "Build target: Test"
+        run: powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ./build.ps1 Test"
+
+  build-unix:
+    name: "*nix"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Install .NET Core SDK 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.802
+
+      - name: Install .NET Core SDK 3.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.0.101
+
+      - name: Enable .NET Core SxS
+        run: |
+          rsync -a ${DOTNET_ROOT/3.0.101/2.1.802}/* $DOTNET_ROOT/
+
+      - name: "Build target: Test"
+        run: bash ./build Test

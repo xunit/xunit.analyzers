@@ -13,7 +13,7 @@ public static class SignPackages
 
         var signClientUser = Environment.GetEnvironmentVariable("SignClientUser");
         var signClientSecret = Environment.GetEnvironmentVariable("SignClientSecret");
-        if (signClientUser == null || signClientSecret == null)
+        if (string.IsNullOrWhiteSpace(signClientUser) || string.IsNullOrWhiteSpace(signClientSecret))
         {
             context.WriteLineColor(ConsoleColor.Yellow, $"Skipping packing signing because environment variables 'SignClientUser' and/or 'SignClientSecret' are not set.{Environment.NewLine}");
             return;

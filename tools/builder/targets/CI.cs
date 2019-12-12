@@ -1,3 +1,3 @@
 [Target(BuildTarget.CI,
-        BuildTarget.SetVersion, BuildTarget.Test, BuildTarget.Packages, BuildTarget.SignPackages, BuildTarget.PushMyGet)]
+        BuildTarget.Test, BuildTarget.Packages, BuildTarget.SignPackages, BuildTarget.PublishPackages)]
 public class CI { }
