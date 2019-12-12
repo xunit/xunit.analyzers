@@ -30,8 +30,7 @@ jobs:
 
       - name: "Build target: CI"
         env:
-          PublishSource: "https://nuget.pkg.github.com/xunit/index.json"
-          PublishApiKey: ${{ secrets.GITHUB_TOKEN }}
+          PublishToken: ${{ secrets.GITHUB_TOKEN }}
           SignClientUser: ${{ secrets.SignClientUser }}
           SignClientSecret: ${{ secrets.SignClientSecret }}
         run: bash ./build CI

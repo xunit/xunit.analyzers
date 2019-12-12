@@ -11,23 +11,23 @@ public static class PublishPackages
     {
         context.BuildStep("Publishing NuGet packages");
 
-        var publishSource = Environment.GetEnvironmentVariable("PublishSource");
-        var publishApiKey = Environment.GetEnvironmentVariable("PublishApiKey");
-        if (string.IsNullOrWhiteSpace(publishSource) || string.IsNullOrWhiteSpace(publishApiKey))
+        var publishToken = Environment.GetEnvironmentVariable("PublishToken");
+        if (string.IsNullOrWhiteSpace(publishToken))
         {
-            context.WriteLineColor(ConsoleColor.Yellow, $"Skipping package publishing because environment variables 'PublishSource' and/or 'PublishApiKey' are not set.{Environment.NewLine}");
+            context.WriteLineColor(ConsoleColor.Yellow, $"Skipping package publishing because environment variable 'PublishToken' is not set.{Environment.NewLine}");
             return;
         }
+
+        var randomName = Guid.NewGuid().ToString("n");
+        var args = $"nuget source add -Name {randomName} -Source https://nuget.pkg.github.com/xunit/index.json -UserName xunit -Password {publishToken}";
+        var redactedArgs = args.Replace(publishToken, "[redacted]");
+        await context.Exec(context.NuGetExe, args, redactedArgs);
 
         var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
                                     .OrderBy(x => x)
                                     .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
         foreach (var packageFile in packageFiles)
-        {
-            var args = $"push -source {publishSource} -apiKey {publishApiKey} {packageFile}";
-            var redactedArgs = args.Replace(publishApiKey, "[redacted]");
-            await context.Exec(context.NuGetExe, args, redactedArgs);
-        }
+            await context.Exec(context.NuGetExe, $"push -source {randomName} {packageFile}");
     }
 }
