@@ -8,5 +8,9 @@ public static class Restore
         context.BuildStep("Restoring NuGet packages");
 
         await context.Exec("dotnet", "restore");
+
+        context.BuildStep("Restoring .NET Core command-line tools");
+
+        await context.Exec("dotnet", "tool restore");
     }
 }

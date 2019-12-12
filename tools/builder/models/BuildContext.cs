@@ -16,8 +16,6 @@ public class BuildContext
 
     public string NuGetVersion => "5.3.1";
 
-    public string SignClientVersion => "0.9.1";
-
     // Calculated properties
 
     public string BaseFolder { get; private set; }
