@@ -18,16 +18,15 @@ public static class PublishPackages
             return;
         }
 
-        var randomName = Guid.NewGuid().ToString("n");
-        var args = $"source add -Name gh-{randomName} -Source https://nuget.pkg.github.com/xunit/index.json -UserName xunit -Password \"{publishToken}\"";
-        var redactedArgs = args.Replace(publishToken, "[redacted]");
-        await context.Exec(context.NuGetExe, args, redactedArgs);
-
         var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
                                     .OrderBy(x => x)
                                     .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
         foreach (var packageFile in packageFiles)
-            await context.Exec(context.NuGetExe, $"push -Source gh-{randomName} -SkipDuplicate {packageFile}");
+        {
+            var args = $"push -source https://www.myget.org/F/xunit/api/v2/package -apiKey {publishToken} {packageFile}";
+            var redactedArgs = args.Replace(publishToken, "[redacted]");
+            await context.Exec(context.NuGetExe, args, redactedArgs);
+        }
     }
 }
