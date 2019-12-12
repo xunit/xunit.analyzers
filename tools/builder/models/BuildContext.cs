@@ -14,7 +14,7 @@ public class BuildContext
 {
     // Versions of downloaded dependent software
 
-    public string NuGetVersion => "5.0.2";
+    public string NuGetVersion => "5.3.1";
 
     public string SignClientVersion => "0.9.1";
 
