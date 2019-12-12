@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 
             compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var attribute = syntaxNodeContext.Node as AttributeSyntax;
+                var attribute = (AttributeSyntax)syntaxNodeContext.Node;
                 var semanticModel = syntaxNodeContext.SemanticModel;
                 if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
                     return;

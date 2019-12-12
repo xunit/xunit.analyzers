@@ -34,7 +34,7 @@ namespace Xunit.Analyzers
 
             compilationStartContext.RegisterSyntaxNodeAction(symbolContext =>
             {
-                var attribute = symbolContext.Node as AttributeSyntax;
+                var attribute = (AttributeSyntax)symbolContext.Node;
                 var semanticModel = symbolContext.SemanticModel;
                 if (!Equals(semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
                     return;

@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
         {
             compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
             {
-                var attribute = syntaxNodeContext.Node as AttributeSyntax;
+                var attribute = (AttributeSyntax)syntaxNodeContext.Node;
                 if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
                     return;
 
