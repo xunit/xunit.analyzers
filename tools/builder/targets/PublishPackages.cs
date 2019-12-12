@@ -19,7 +19,7 @@ public static class PublishPackages
         }
 
         var randomName = Guid.NewGuid().ToString("n");
-        var args = $"source add -Name gh-{randomName} -Source https://nuget.pkg.github.com/xunit/index.json -UserName xunit -Password {publishToken}";
+        var args = $"source add -Name gh-{randomName} -Source https://nuget.pkg.github.com/xunit/index.json -UserName xunit -Password \"{publishToken}\"";
         var redactedArgs = args.Replace(publishToken, "[redacted]");
         await context.Exec(context.NuGetExe, args, redactedArgs);
 
@@ -28,6 +28,6 @@ public static class PublishPackages
                                     .Select(x => x.Substring(context.BaseFolder.Length + 1));
 
         foreach (var packageFile in packageFiles)
-            await context.Exec(context.NuGetExe, $"push -source gh-{randomName} {packageFile}");
+            await context.Exec(context.NuGetExe, $"push -Source gh-{randomName} -SkipDuplicate {packageFile}");
     }
 }
