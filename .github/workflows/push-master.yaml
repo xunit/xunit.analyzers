@@ -35,6 +35,12 @@ jobs:
           SignClientSecret: ${{ secrets.SignClientSecret }}
         run: bash ./build CI
 
+      - uses: actions/upload-artifact@v1
+        with:
+          name: test
+          path: artifacts/test
+        if: always()
+
       - name: Slack notification
         uses: 8398a7/action-slack@v2
         with:
