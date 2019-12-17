@@ -47,7 +47,8 @@ jobs:
       - name: "Build target: Test"
         run: bash ./build Test
 
-      - uses: actions/upload-artifact@v1
+      - name: "Upload artifact: test"
+        uses: actions/upload-artifact@v1
         with:
           name: test
           path: artifacts/test
