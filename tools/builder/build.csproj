@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Bullseye" Version="2.3.0" />
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.4.4" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="SimpleExec" Version="6.1.0" />
+    <PackageReference Include="SimpleExec" Version="6.2.0" />
   </ItemGroup>
 
 </Project>

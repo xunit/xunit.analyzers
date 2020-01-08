@@ -24,10 +24,10 @@ To fix a violation of this rule, remove the parameters from the fact method. Alt
 ```csharp
 public class TestClass
 {
-    [Fact]
-    public void TestMethod(int p1)
-    {
-    }
+	[Fact]
+	public void TestMethod(int p1)
+	{
+	}
 }
 ```
 
@@ -36,19 +36,19 @@ public class TestClass
 ```csharp
 public class TestClass
 {
-    [Fact]
-    public void TestMethod()
-    {
-    }
+	[Fact]
+	public void TestMethod()
+	{
+	}
 }
 ```
 
 ```csharp
 public class TestClass
 {
-    [Theory]
-    public void TestMethod(int p1)
-    {
-    }
+	[Theory]
+	public void TestMethod(int p1)
+	{
+	}
 }
 ```

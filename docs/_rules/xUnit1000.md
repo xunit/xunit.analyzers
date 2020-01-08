@@ -24,10 +24,10 @@ To fix a violation of this rule, make the test class public.
 ```csharp
 class TestClass
 {
-    [Fact]
-    public void TestMethod()
-    {
-    }
+	[Fact]
+	public void TestMethod()
+	{
+	}
 }
 ```
 
@@ -36,9 +36,9 @@ class TestClass
 ```csharp
 public class TestClass
 {
-    [Fact]
-    public void TestMethod()
-    {
-    }
+	[Fact]
+	public void TestMethod()
+	{
+	}
 }
 ```

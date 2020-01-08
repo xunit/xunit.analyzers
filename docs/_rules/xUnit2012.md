@@ -25,10 +25,10 @@ Use `Assert.Contains` or `Assert.DoesNotContain` instead.
 [Fact]
 public void ExampleMethod()
 {
-    IEnumerable<string> result = GetItems();
+	IEnumerable<string> result = GetItems();
 
-    Assert.True(result.Any(x => x == "foo"));
-    Assert.False(result.Any(x => x == "bar"));
+	Assert.True(result.Any(x => x == "foo"));
+	Assert.False(result.Any(x => x == "bar"));
 }
 ```
 
@@ -38,10 +38,10 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    IEnumerable<string> result = GetItems();
+	IEnumerable<string> result = GetItems();
 
-    Assert.Contains(result, x => x == "foo");
-    Assert.DoesNotContain(result, x => x == "bar");
+	Assert.Contains(result, x => x == "foo");
+	Assert.DoesNotContain(result, x => x == "bar");
 }
 ```
 

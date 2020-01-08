@@ -5,22 +5,22 @@ using System.Threading.Tasks;
 [Target(BuildTarget.DownloadNuGet)]
 public static class DownloadNuGet
 {
-    public static async Task OnExecute(BuildContext context)
-    {
-        if (File.Exists(context.NuGetExe))
-            return;
+	public static async Task OnExecute(BuildContext context)
+	{
+		if (File.Exists(context.NuGetExe))
+			return;
 
-        using (var httpClient = new HttpClient())
-        using (var stream = File.OpenWrite(context.NuGetExe))
-        {
-            context.BuildStep($"Downloading {context.NuGetUrl} to {context.NuGetExe}");
+		using (var httpClient = new HttpClient())
+		using (var stream = File.OpenWrite(context.NuGetExe))
+		{
+			context.BuildStep($"Downloading {context.NuGetUrl} to {context.NuGetExe}");
 
-            using (var response = await httpClient.GetAsync(context.NuGetUrl))
-            {
-                response.EnsureSuccessStatusCode();
+			using (var response = await httpClient.GetAsync(context.NuGetUrl))
+			{
+				response.EnsureSuccessStatusCode();
 
-                await response.Content.CopyToAsync(stream);
-            }
-        }
-    }
+				await response.Content.CopyToAsync(stream);
+			}
+		}
+	}
 }

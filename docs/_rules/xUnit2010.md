@@ -25,10 +25,10 @@ Replace the assertions with `Assert.Equal` or `Assert.NotEqual`.
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.True(string.Equals("foo bar baz", result));
-    Assert.False(string.Equals("hello world", result));
+	Assert.True(string.Equals("foo bar baz", result));
+	Assert.False(string.Equals("hello world", result));
 }
 ```
 
@@ -38,10 +38,10 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.Equal("foo bar baz", result);
-    Assert.NotEqual("hello world", result);
+	Assert.Equal("foo bar baz", result);
+	Assert.NotEqual("hello world", result);
 }
 ```
 

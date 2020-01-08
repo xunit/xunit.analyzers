@@ -9,26 +9,28 @@ using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : CodeFixProvider
-    {
-        const string title = "Set Base Type";
+	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+	public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : CodeFixProvider
+	{
+		const string title = "Set Base Type";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
+			= ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider()
+			=> WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		{
+			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
 
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: title,
-                    createChangedDocument: ct => Actions.SetBaseClass(context.Document, classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
-                    equivalenceKey: title),
-                context.Diagnostics);
-        }
-    }
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title: title,
+					createChangedDocument: ct => Actions.SetBaseClass(context.Document, classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
+					equivalenceKey: title),
+				context.Diagnostics);
+		}
+	}
 }

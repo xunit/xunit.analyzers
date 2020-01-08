@@ -28,10 +28,10 @@ To fix a violation of this rule, either:
 ```csharp
 public class TestClass
 {
-    [Fact, InlineData(1)]
-    public void TestMethod()
-    {
-    }
+	[Fact, InlineData(1)]
+	public void TestMethod()
+	{
+	}
 }
 ```
 
@@ -40,15 +40,15 @@ public class TestClass
 ```csharp
 public class TestClass
 {
-    [Fact]
-    public void TestMethod()
-    {
-    }
+	[Fact]
+	public void TestMethod()
+	{
+	}
 
-    [Theory, InlineData(1)]
-    public void ParameterizedTestMethod(int arg)
-    {
-    }
+	[Theory, InlineData(1)]
+	public void ParameterizedTestMethod(int arg)
+	{
+	}
 }
 ```
 

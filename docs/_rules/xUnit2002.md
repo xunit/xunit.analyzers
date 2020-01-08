@@ -25,10 +25,10 @@ To fix a violation of this rule, either remove the assertion or change the objec
 [Fact]
 public void ExampleTest()
 {
-    int result = GetSomeValue();
+	int result = GetSomeValue();
 
-    Assert.NotNull(result);
-    Assert.True(result > 4);
+	Assert.NotNull(result);
+	Assert.True(result > 4);
 }
 ```
 
@@ -38,9 +38,9 @@ public void ExampleTest()
 [Fact]
 public void ExampleTest()
 {
-    int result = GetSomeValue();
+	int result = GetSomeValue();
 
-    Assert.True(result > 4);
+	Assert.True(result > 4);
 }
 ```
 

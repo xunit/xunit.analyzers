@@ -28,7 +28,7 @@ using Xunit.Abstractions;
 
 public class MyTestCase : ITestCase
 {
-    // ...implementation of test case...
+	// ...implementation of test case...
 }
 ```
 
@@ -40,6 +40,6 @@ using Xunit.Abstractions;
 
 public class MyTestCase : LongLivedMarshalByRefObject, ITestCase
 {
-    // ...implementation of test case...
+	// ...implementation of test case...
 }
 ```

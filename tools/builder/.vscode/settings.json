@@ -1,12 +1,12 @@
 {
-    "cSpell.words": [
-        "msbuild",
-        "nuget"
-    ],
-    "files.exclude": {
-        "**/.git": true,
-        "**/.DS_Store": true,
-        "**/bin": true,
-        "**/obj": true
-    }
+	"cSpell.words": [
+		"msbuild",
+		"nuget"
+	],
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/bin": true,
+		"**/obj": true
+	}
 }

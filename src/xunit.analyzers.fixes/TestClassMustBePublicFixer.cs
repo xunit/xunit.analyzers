@@ -11,26 +11,28 @@ using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class TestClassMustBePublicFixer : CodeFixProvider
-    {
-        const string title = "Make Public";
+	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+	public class TestClassMustBePublicFixer : CodeFixProvider
+	{
+		const string title = "Make Public";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
+			= ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic.Id);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider()
+			=> WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		{
+			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
 
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: title,
-                    createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct),
-                    equivalenceKey: title),
-                context.Diagnostics);
-        }
-    }
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title: title,
+					createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct),
+					equivalenceKey: title),
+				context.Diagnostics);
+		}
+	}
 }

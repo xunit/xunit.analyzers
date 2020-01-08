@@ -25,9 +25,9 @@ To fix a violation of this rule, swap the arguments in the assertion, so that th
 [Fact]
 public void AdditionExample()
 {
-    var result = 2 + 3;
+	var result = 2 + 3;
 
-    Assert.Equal(result, 5);
+	Assert.Equal(result, 5);
 }
 ```
 
@@ -37,9 +37,9 @@ public void AdditionExample()
 [Fact]
 public void AdditionExample()
 {
-    var result = 2 + 3;
+	var result = 2 + 3;
 
-    Assert.Equal(5, result);
+	Assert.Equal(5, result);
 }
 ```
 

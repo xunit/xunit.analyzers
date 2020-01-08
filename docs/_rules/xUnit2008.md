@@ -25,10 +25,10 @@ Replace the assertions with `Assert.Matches` or `Assert.DoesNotMatch`.
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
-    Assert.False(Regex.IsMatch(result, "hello (.*?)"));
+	Assert.True(Regex.IsMatch(result, "foo (.*?) baz"));
+	Assert.False(Regex.IsMatch(result, "hello (.*?)"));
 }
 ```
 
@@ -38,10 +38,10 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.Matches("foo (.*?) baz", result);
-    Assert.DoesNotMatch("hello (.*?)", result);
+	Assert.Matches("foo (.*?) baz", result);
+	Assert.DoesNotMatch("hello (.*?)", result);
 }
 ```
 

@@ -25,9 +25,9 @@ To fix a violation of this rule, remove the generic argument to use the `string`
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo";
+	string result = "foo";
 
-    Assert.Equal<string>("foo", result);
+	Assert.Equal<string>("foo", result);
 }
 ```
 
@@ -37,9 +37,9 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo";
+	string result = "foo";
 
-    Assert.Equal("foo", result);
+	Assert.Equal("foo", result);
 }
 ```
 

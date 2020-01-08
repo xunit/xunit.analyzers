@@ -28,11 +28,11 @@ To fix a violation of this rule, either:
 ```csharp
 class TestClass
 {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod(int arg = 0)
-    {
-    }
+	[Theory]
+	[InlineData(1)]
+	public void TestMethod(int arg = 0)
+	{
+	}
 }
 ```
 
@@ -41,10 +41,10 @@ class TestClass
 ```csharp
 class TestClass
 {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod(int arg)
-    {
-    }
+	[Theory]
+	[InlineData(1)]
+	public void TestMethod(int arg)
+	{
+	}
 }
 ```

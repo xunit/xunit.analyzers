@@ -27,15 +27,15 @@ using Xunit.Abstractions;
 
 public class MySerializableObject : IXunitSerializable
 {
-    public void Deserialize(IXunitSerializationInfo info)
-    {
-        // ...implementation...
-    }
+	public void Deserialize(IXunitSerializationInfo info)
+	{
+		// ...implementation...
+	}
 
-    public void Serialize(IXunitSerializationInfo info)
-    {
-        // ...implementation...
-    }
+	public void Serialize(IXunitSerializationInfo info)
+	{
+		// ...implementation...
+	}
 }
 ```
 
@@ -47,17 +47,17 @@ using Xunit.Abstractions;
 
 public class MySerializableObject : IXunitSerializable
 {
-    [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-    public MySerializableObject() { }
+	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+	public MySerializableObject() { }
 
-    public void Deserialize(IXunitSerializationInfo info)
-    {
-        // ...implementation...
-    }
+	public void Deserialize(IXunitSerializationInfo info)
+	{
+		// ...implementation...
+	}
 
-    public void Serialize(IXunitSerializationInfo info)
-    {
-        // ...implementation...
-    }
+	public void Serialize(IXunitSerializationInfo info)
+	{
+		// ...implementation...
+	}
 }
 ```

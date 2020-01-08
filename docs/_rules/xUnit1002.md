@@ -24,10 +24,10 @@ To fix a violation of this rule, remove all but one of the Fact or Theory attrib
 ```csharp
 public class TestClass
 {
-    [Fact, Theory]
-    public void TestMethod()
-    {
-    }
+	[Fact, Theory]
+	public void TestMethod()
+	{
+	}
 }
 ```
 
@@ -36,19 +36,19 @@ public class TestClass
 ```csharp
 public class TestClass
 {
-    [Fact]
-    public void TestMethod()
-    {
-    }
+	[Fact]
+	public void TestMethod()
+	{
+	}
 }
 ```
 
 ```csharp
 public class TestClass
 {
-    [Theory]
-    public void TestMethod()
-    {
-    }
+	[Theory]
+	public void TestMethod()
+	{
+	}
 }
 ```

@@ -4,12 +4,12 @@ using Bullseye.Internal;
 
 class NullConsole : IConsole
 {
-    public TextWriter Out { get; } = new NullTextWriter();
+	public TextWriter Out { get; } = new NullTextWriter();
 
-    public void Clear() {}
+	public void Clear() {}
 
-    class NullTextWriter : TextWriter
-    {
-        public override Encoding Encoding => Encoding.UTF8;
-    }
+	class NullTextWriter : TextWriter
+	{
+		public override Encoding Encoding => Encoding.UTF8;
+	}
 }

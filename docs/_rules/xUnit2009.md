@@ -30,10 +30,10 @@ To fix a violation of this rule, replace the offending assertion according to th
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.True(result.Contains("bar"));
-    Assert.True(result.StartsWith("foo"));
+	Assert.True(result.Contains("bar"));
+	Assert.True(result.StartsWith("foo"));
 }
 ```
 
@@ -43,10 +43,10 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.Contains("bar", result);
-    Assert.StartsWith("foo", result);
+	Assert.Contains("bar", result);
+	Assert.StartsWith("foo", result);
 }
 ```
 
