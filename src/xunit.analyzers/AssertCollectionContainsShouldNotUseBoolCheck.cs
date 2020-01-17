@@ -32,8 +32,7 @@ namespace Xunit.Analyzers
 			if (method.Parameters.Length > 1 && method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_String))
 				return;
 
-			var invocationExpression = arguments.First().Expression as InvocationExpressionSyntax;
-			if (invocationExpression == null)
+			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
 				return;
 
 			var symbolInfo = context.SemanticModel.GetSymbolInfo(invocationExpression);

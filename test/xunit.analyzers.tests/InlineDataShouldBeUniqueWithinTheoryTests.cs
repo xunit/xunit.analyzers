@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
 			[Fact]
 			public async void DoesNotFindError_WhenNoDataAttributes()
 			{
-				var source =					"public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+				var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
 				await Verify.VerifyAnalyzerAsync(source);
 			}

@@ -33,8 +33,7 @@ namespace Xunit.Analyzers
 			if (arguments.Count != 1)
 				return;
 
-			var invocationExpression = arguments.First().Expression as InvocationExpressionSyntax;
-			if (invocationExpression == null)
+			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
 				return;
 
 			var symbolInfo = context.SemanticModel.GetSymbolInfo(invocationExpression);

@@ -50,13 +50,11 @@ namespace Xunit.Analyzers
 		private static SymbolInfo GetThrowExpressionSymbol(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation)
 		{
 			var argumentExpression = invocation.ArgumentList.Arguments.Last().Expression;
-			var lambdaExpression = argumentExpression as LambdaExpressionSyntax;
 
-			if (lambdaExpression == null)
+			if (!(argumentExpression is LambdaExpressionSyntax lambdaExpression))
 				return context.SemanticModel.GetSymbolInfo(argumentExpression);
 
-			var awaitExpression = lambdaExpression.Body as AwaitExpressionSyntax;
-			if (awaitExpression == null)
+			if (!(lambdaExpression.Body is AwaitExpressionSyntax awaitExpression))
 				return context.SemanticModel.GetSymbolInfo(lambdaExpression.Body);
 
 			return context.SemanticModel.GetSymbolInfo(awaitExpression.Expression);

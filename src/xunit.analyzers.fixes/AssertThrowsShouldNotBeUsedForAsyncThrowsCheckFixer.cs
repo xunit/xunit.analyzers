@@ -111,13 +111,11 @@ namespace Xunit.Analyzers
 		{
 			var arguments = invocation.ArgumentList;
 			var argumentSyntax = invocation.ArgumentList.Arguments.Last();
-			var lambdaExpression = argumentSyntax.Expression as LambdaExpressionSyntax;
 
-			if (lambdaExpression == null)
+			if (!(argumentSyntax.Expression is LambdaExpressionSyntax lambdaExpression))
 				return arguments;
 
-			var awaitExpression = lambdaExpression.Body as AwaitExpressionSyntax;
-			if (awaitExpression == null)
+			if (!(lambdaExpression.Body is AwaitExpressionSyntax awaitExpression))
 				return arguments;
 
 			var lambdaExpressionWithoutAsyncKeyword = RemoveAsyncKeywordFromLambdaExpression(lambdaExpression, awaitExpression);
@@ -132,12 +130,12 @@ namespace Xunit.Analyzers
 		{
 			if (lambdaExpression is SimpleLambdaExpressionSyntax simpleLambdaExpression)
 				return simpleLambdaExpression.ReplaceNode(awaitExpression, awaitExpression.Expression)
-					.WithAsyncKeyword(default(SyntaxToken))
+					.WithAsyncKeyword(default)
 					.WithLeadingTrivia(simpleLambdaExpression.AsyncKeyword.LeadingTrivia);
 
 			if (lambdaExpression is ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression)
 				return parenthesizedLambdaExpression.ReplaceNode(awaitExpression, awaitExpression.Expression)
-					.WithAsyncKeyword(default(SyntaxToken))
+					.WithAsyncKeyword(default)
 					.WithLeadingTrivia(parenthesizedLambdaExpression.AsyncKeyword.LeadingTrivia);
 
 			return lambdaExpression;

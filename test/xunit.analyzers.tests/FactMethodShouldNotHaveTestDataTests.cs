@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
 		[InlineData("ClassData(typeof(string))")]
 		public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
 		{
-			var source =				"public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
+			var source = "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
 			await Verify.VerifyAnalyzerAsync(source);
 		}
@@ -48,7 +48,7 @@ namespace Xunit.Analyzers
 		[InlineData("ClassData(typeof(string))")]
 		public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
 		{
-			var source =				"public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }";
+			var source = "public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }";
 
 			var expected = Verify.Diagnostic().WithSpan(1, 59 + dataAttribute.Length, 1, 69 + dataAttribute.Length);
 			await Verify.VerifyAnalyzerAsync(source, expected);

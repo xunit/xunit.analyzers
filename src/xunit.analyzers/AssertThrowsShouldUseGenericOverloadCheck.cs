@@ -22,8 +22,7 @@ namespace Xunit.Analyzers
 			if (arguments.Count != 2)
 				return;
 
-			var typeOfExpression = arguments[0].Expression as TypeOfExpressionSyntax;
-			if (typeOfExpression == null)
+			if (!(arguments[0].Expression is TypeOfExpressionSyntax typeOfExpression))
 				return;
 
 			var typeInfo = context.SemanticModel.GetTypeInfo(typeOfExpression.Type);

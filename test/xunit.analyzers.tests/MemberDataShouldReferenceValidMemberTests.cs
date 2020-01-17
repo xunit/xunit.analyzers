@@ -14,7 +14,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
 		[Fact]
 		public async void DoesNotFindError_ForNameofOnSameClass()
 		{
-			var source =				"public partial class TestClass { [Xunit.MemberData(nameof(Data))] public void TestMethod() { } }";
+			var source = "public partial class TestClass { [Xunit.MemberData(nameof(Data))] public void TestMethod() { } }";
 
 			await new Verify.Test
 			{
@@ -25,7 +25,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
 		[Fact]
 		public async void DoesNotFindError_ForNameofOnOtherClass()
 		{
-			var source =				"public partial class TestClass { [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))] public void TestMethod() { } }";
+			var source = "public partial class TestClass { [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))] public void TestMethod() { } }";
 
 			await new Verify.Test
 			{
@@ -36,7 +36,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
 		[Fact]
 		public async void FindsError_ForStringReferenceOnSameClass()
 		{
-			var source =				"public partial class TestClass { [Xunit.MemberData(\"Data\")] public void TestMethod() { } }";
+			var source = "public partial class TestClass { [Xunit.MemberData(\"Data\")] public void TestMethod() { } }";
 
 			await new Verify.Test
 			{
@@ -51,7 +51,7 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
 		[Fact]
 		public async void FindsError_ForStringReferenceOnOtherClass()
 		{
-			var source =				"public partial class TestClass { [Xunit.MemberData(\"OtherData\", MemberType = typeof(OtherClass))] public void TestMethod() { } }";
+			var source = "public partial class TestClass { [Xunit.MemberData(\"OtherData\", MemberType = typeof(OtherClass))] public void TestMethod() { } }";
 
 			await new Verify.Test
 			{

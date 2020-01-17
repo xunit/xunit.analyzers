@@ -29,12 +29,10 @@ namespace Xunit.Analyzers.FixProviders
 			var syntaxNode = root.FindNode(context.Span);
 			var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>();
 
-			var typeOfExpression = invocation.ArgumentList.Arguments[0].Expression as TypeOfExpressionSyntax;
-			if (typeOfExpression == null)
+			if (!(invocation.ArgumentList.Arguments[0].Expression is TypeOfExpressionSyntax typeOfExpression))
 				return;
 
-			var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
-			if (memberAccess == null)
+			if (!(invocation.Expression is MemberAccessExpressionSyntax memberAccess))
 				return;
 
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);

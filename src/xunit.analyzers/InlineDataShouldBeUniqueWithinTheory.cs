@@ -145,17 +145,11 @@ namespace Xunit.Analyzers
 							break;
 
 						case TypedConstant xArgArray when xArgArray.Kind == TypedConstantKind.Array && !xArgArray.IsNull:
-							switch (y)
+							return y switch
 							{
-								case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
-									return AreArgumentsEqual(
-										xArgArray.Values.Cast<object>().ToImmutableArray(),
-										yArgArray.Values.Cast<object>().ToImmutableArray());
-
-								default:
-									return false;
-							}
-
+								TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array => AreArgumentsEqual(xArgArray.Values.Cast<object>().ToImmutableArray(), yArgArray.Values.Cast<object>().ToImmutableArray()),
+								_ => false,
+							};
 						default:
 							return false;
 					}
@@ -174,16 +168,12 @@ namespace Xunit.Analyzers
 				if (args.Length != 1)
 					return false;
 
-				switch (args[0])
+				return (args[0]) switch
 				{
-					case TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull:
-						return true;
-
-					case IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null:
-						return true;
-				}
-
-				return false;
+					TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull => true,
+					IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null => true,
+					_ => false,
+				};
 			}
 
 			/// <summary>

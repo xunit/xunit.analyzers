@@ -21,8 +21,7 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var genericName = invocation.GetSimpleName() as GenericNameSyntax;
-			if (genericName == null)
+			if (!(invocation.GetSimpleName() is GenericNameSyntax genericName))
 				return;
 
 			var typeSyntax = genericName.TypeArgumentList.Arguments[0];

@@ -31,8 +31,7 @@ namespace Xunit.Analyzers
 				!method.TypeArguments[0].SpecialType.Equals(SpecialType.System_Boolean))
 				return;
 
-			var literalFirstArgument = arguments.First().Expression as LiteralExpressionSyntax;
-			if (literalFirstArgument == null)
+			if (!(arguments.First().Expression is LiteralExpressionSyntax literalFirstArgument))
 				return;
 
 			var isTrue = literalFirstArgument.IsKind(SyntaxKind.TrueLiteralExpression);

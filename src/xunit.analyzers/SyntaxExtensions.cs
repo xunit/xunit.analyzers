@@ -24,16 +24,12 @@ namespace Xunit.Analyzers
 
 		internal static SimpleNameSyntax GetSimpleName(this InvocationExpressionSyntax invocation)
 		{
-			switch (invocation.Expression)
+			return invocation.Expression switch
 			{
-				case MemberAccessExpressionSyntax memberAccess:
-					return memberAccess.Name;
-
-				case SimpleNameSyntax simpleName:
-					return simpleName;
-			}
-
-			return null;
+				MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
+				SimpleNameSyntax simpleName => simpleName,
+				_ => null,
+			};
 		}
 
 		internal static bool IsEnumValueExpression(this ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken = default(CancellationToken))

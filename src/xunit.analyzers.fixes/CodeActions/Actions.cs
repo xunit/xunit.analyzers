@@ -69,8 +69,8 @@ namespace Xunit.Analyzers.CodeActions
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var baseTypeNode = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName(baseType));
 			var baseTypes = generator.GetBaseAndInterfaceTypes(declaration);
-			var updatedDeclaration = default(SyntaxNode);
 
+			SyntaxNode updatedDeclaration;
 			if (baseTypes?.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class)
 				updatedDeclaration = generator.AddBaseType(declaration, baseTypeNode);
 			else

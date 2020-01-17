@@ -45,8 +45,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, symbolContext.CancellationToken);
-				var memberName = constantValue.Value as string;
-				if (memberName == null)
+				if (!(constantValue.Value is string memberName))
 					return;
 
 				var memberTypeArgument = attribute.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == "MemberType");
@@ -162,13 +161,13 @@ namespace Xunit.Analyzers
 
 		static ITypeSymbol GetMemberType(ISymbol memberSymbol)
 		{
-			switch (memberSymbol)
+			return memberSymbol switch
 			{
-				case IPropertySymbol prop: return prop.Type;
-				case IFieldSymbol field: return field.Type;
-				case IMethodSymbol method: return method.ReturnType;
-				default: return null;
-			}
+				IPropertySymbol prop => prop.Type,
+				IFieldSymbol field => field.Type,
+				IMethodSymbol method => method.ReturnType,
+				_ => null,
+			};
 		}
 
 		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type)
