@@ -46,8 +46,21 @@ public class BuildContext
 	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
 	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
-	[Option("-v|--verbose", Description = "Enable verbose output")]
-	public bool Verbose { get; }
+	[Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]
+	public BuildVerbosity Verbosity { get; } = BuildVerbosity.minimal;
+
+	internal BuildVerbosity VerbosityNuGet
+	{
+		get
+		{
+			switch (Verbosity)
+			{
+				case BuildVerbosity.diagnostic: return BuildVerbosity.detailed;
+				case BuildVerbosity.minimal: return BuildVerbosity.normal;
+				default: return Verbosity;
+			}
+		}
+	}
 
 	// Helper methods for build target consumption
 

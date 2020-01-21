@@ -10,6 +10,6 @@ public static class Build
 	{
 		context.BuildStep("Compiling binaries");
 
-		await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText}");
+		await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
 	}
 }

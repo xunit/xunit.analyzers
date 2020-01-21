@@ -20,9 +20,10 @@ public static class PublishPackages
 			return;
 		}
 
-		var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
-									.OrderBy(x => x)
-									.Select(x => x.Substring(context.BaseFolder.Length + 1));
+		var packageFiles =
+			Directory.GetFiles(context.PackageOutputFolder, "*.nupkg", SearchOption.AllDirectories)
+				.OrderBy(x => x)
+				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
 		foreach (var packageFile in packageFiles)
 		{
