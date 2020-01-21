@@ -14,8 +14,8 @@ jobs:
       - name: Get .NET Core information
         run: dotnet --info
 
-      - name: "Build target: Test"
-        run: powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ./build.ps1 Test"
+      - name: "Build target: PR"
+        run: powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ./build.ps1 PR"
 
   build-unix:
     name: "*nix"
@@ -44,8 +44,8 @@ jobs:
         run: |
           rsync -a ${DOTNET_ROOT/3.0.101/2.1.802}/* $DOTNET_ROOT/
 
-      - name: "Build target: Test"
-        run: bash ./build Test
+      - name: "Build target: PR"
+        run: bash ./build PR
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v1

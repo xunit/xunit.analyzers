@@ -4,6 +4,7 @@ public enum BuildTarget
 	CI,
 	DownloadNuGet,
 	Packages,
+	PR,
 	PublishPackages,
 	Restore,
 	SignPackages,

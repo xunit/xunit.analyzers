@@ -40,7 +40,7 @@ public class BuildContext
 	[Option("--buildSemanticVersion", Description = "Set the build semantic version (default: '99.99.99-dev')")]
 	public string BuildSemanticVersion { get; }
 
-	[Option("-c|--configuration", Description = "The target configuration (values: 'Debug', 'Release'; default: 'Release')")]
+	[Option("-c|--configuration", Description = "The target configuration (default: 'Release'; values: 'Debug', 'Release')")]
 	public Configuration Configuration { get; } = Configuration.Release;
 
 	[Option("-N|--no-color", Description = "Disable colored output")]
@@ -49,8 +49,8 @@ public class BuildContext
 	[Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
 	public bool SkipDependencies { get; }
 
-	[Argument(0, "targets", Description = "The target(s) to run (common values: 'Build', 'Restore', 'Test', 'TestCore', 'TestFx'; default: 'Test')")]
-	public BuildTarget[] Targets { get; } = new[] { BuildTarget.Test };
+	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
 	[Option("-v|--verbose", Description = "Enable verbose output")]
 	public bool Verbose { get; }
