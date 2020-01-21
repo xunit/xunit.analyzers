@@ -34,12 +34,6 @@ public class BuildContext
 
 	// User-controllable command-line options
 
-	[Option("--buildAssemblyVersion", Description = "Set the build assembly version (default: '99.99.99.0')")]
-	public string BuildAssemblyVersion { get; }
-
-	[Option("--buildSemanticVersion", Description = "Set the build semantic version (default: '99.99.99-dev')")]
-	public string BuildSemanticVersion { get; }
-
 	[Option("-c|--configuration", Description = "The target configuration (default: 'Release'; values: 'Debug', 'Release')")]
 	public Configuration Configuration { get; } = Configuration.Release;
 
