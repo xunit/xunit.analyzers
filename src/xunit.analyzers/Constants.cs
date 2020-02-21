@@ -12,6 +12,7 @@
 			internal static readonly string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
 			internal static readonly string XunitFactAttribute = "Xunit.FactAttribute";
 			internal static readonly string XunitTheoryAttribute = "Xunit.TheoryAttribute";
+			internal static readonly string XunitIClassFixture = "Xunit.IClassFixture`1";
 
 			internal static readonly string XunitAbstractionsITestCase = "Xunit.Abstractions.ITestCase";
 			internal static readonly string XunitAbstractionsIXunitSerializableType = "Xunit.Abstractions.IXunitSerializable";

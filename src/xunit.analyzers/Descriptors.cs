@@ -264,6 +264,14 @@ namespace Xunit.Analyzers
 
 		// Placeholder for rule X1032
 
+		internal static DiagnosticDescriptor X1033_TestClassShouldHaveTFixtureArgument { get; } =
+			Rule(
+				"xUnit1033",
+				"Test classes decorated with Xunit.IClassFixture<TFixture> should add a constructor argument of type TFixture",
+				Usage,
+				Info,
+				"Test class '{0}' does not contain constructor argument of type '{1}'.");
+
 		internal static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
 			Rule(
 				"xUnit2000",
