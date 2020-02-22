@@ -61,7 +61,6 @@ namespace Xunit.Analyzers.CodeActions
 
 			editor.InsertMembers(declaration, 0, new SyntaxNode[] { fieldDeclaration, constructor });
 
-			var newdoc = await editor.GetChangedDocument().GetTextAsync();
 			return editor.GetChangedDocument();
 		}
 
