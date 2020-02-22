@@ -33,10 +33,11 @@ namespace Xunit.Analyzers
 					createChangedDocument: ct => Actions.AddConstructor(
 						context.Document,
 						classDeclaration,
-						first.Properties[TestClassShouldHaveTFixtureArgument.TFixturePropertyKey],
+						typeDisplayName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureDisplayNamePropertyKey],
+						typeName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey],
 						ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+						equivalenceKey: null),
+					context.Diagnostics);
 		}
 	}
 }

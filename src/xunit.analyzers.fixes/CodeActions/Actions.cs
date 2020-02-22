@@ -17,16 +17,21 @@ namespace Xunit.Analyzers.CodeActions
 			return editor.GetChangedDocument();
 		}
 
-		public static async Task<Document> AddConstructor(Document document, ClassDeclarationSyntax declaration, string tFixtureTypeName, CancellationToken cancellationToken)
+		public static async Task<Document> AddConstructor(
+			Document document,
+			ClassDeclarationSyntax declaration,
+			string typeDisplayName,
+			string typeName,
+			CancellationToken cancellationToken)
 		{
 			// todo make this respect the user's preferences on identiifer name style
-			var fieldName = "_" + tFixtureTypeName.Substring(0, 1).ToLower() + tFixtureTypeName.Substring(1, tFixtureTypeName.Length - 1);
-			var constructorArgName = tFixtureTypeName.Substring(0, 1).ToLower() + tFixtureTypeName.Substring(1, tFixtureTypeName.Length - 1);
+			var fieldName = "_" + typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
+			var constructorArgName = typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 			var fieldDeclaration = FieldDeclaration(
 						VariableDeclaration(
-							IdentifierName(tFixtureTypeName))
+							ParseTypeName(typeDisplayName))
 						.WithVariables(
 							SingletonSeparatedList(
 								VariableDeclarator(
@@ -44,7 +49,7 @@ namespace Xunit.Analyzers.CodeActions
 								Parameter(
 									Identifier(constructorArgName))
 								.WithType(
-									IdentifierName(tFixtureTypeName)))))
+									ParseTypeName(typeDisplayName)))))
 					.WithBody(
 						Block(
 							SingletonList<StatementSyntax>(
