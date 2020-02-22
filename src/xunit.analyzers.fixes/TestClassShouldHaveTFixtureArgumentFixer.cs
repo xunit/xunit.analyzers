@@ -13,7 +13,7 @@ namespace Xunit.Analyzers
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class TestClassShouldHaveTFixtureArgumentFixer : CodeFixProvider
 	{
-		const string title = "Generate constructor {0}";
+		const string title = "Generate constructor {0}({1})";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
 			= ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument.Id);
@@ -29,14 +29,16 @@ namespace Xunit.Analyzers
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: title,
+					title: string.Format(title,
+						first.Properties[TestClassShouldHaveTFixtureArgument.TestClassNamePropertyKey],
+						first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey]),
 					createChangedDocument: ct => Actions.AddConstructor(
 						context.Document,
 						classDeclaration,
 						typeDisplayName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureDisplayNamePropertyKey],
 						typeName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey],
 						ct),
-						equivalenceKey: null),
+						equivalenceKey: title),
 					context.Diagnostics);
 		}
 	}

@@ -8,16 +8,17 @@ namespace Xunit.Analyzers
 		public static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
 		{
 			foreach (var factAttribute in new[] { "Xunit.Fact", "Xunit.Theory" })
-				yield return new object[] { factAttribute };
+				foreach (var fixtureInterface in new[] { "Xunit.IClassFixture", "Xunit.ICollectionFixture" })
+					yield return new object[] { factAttribute, fixtureInterface };
 		}
 
 		[Theory]
 		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-		public async void ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(string factRelatedAttribute)
+		public async void ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(string factRelatedAttribute, string fixtureInterface)
 		{
 			var source = @"
 public class FixtureData { }
-public class TestClass : Xunit.IClassFixture<FixtureData> { " + $"[{factRelatedAttribute}]" + @"public void TestMethod() { } }";
+public class TestClass : " + fixtureInterface + @"<FixtureData> { " + $"[{factRelatedAttribute}]" + @"public void TestMethod() { } }";
 
 			var expected = Verify.Diagnostic()
 				.WithLocation(3, 14)
@@ -25,15 +26,17 @@ public class TestClass : Xunit.IClassFixture<FixtureData> { " + $"[{factRelatedA
 			await Verify.VerifyAnalyzerAsync(source, expected);
 		}
 
-		[Fact]
-		public async void ForClassWithIClassFixtureWithConstructorArg_FindsInfo()
+		[Theory]
+		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
+		public async void ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(string factRelatedAttribute, string fixtureInterface)
 		{
 			var source = @"
 public class FixtureData { }
-public class TestClass : Xunit.IClassFixture<FixtureData> 
+public class TestClass : " + fixtureInterface + @"<FixtureData> 
 {
-    public TestClass(FixtureData fixtureData) { }
-    [Xunit.Fact] public void TestMethod() { } 
+	public TestClass(FixtureData fixtureData) { }
+
+	[" + factRelatedAttribute + @"] public void TestMethod() { }
 }";
 
 			await Verify.VerifyAnalyzerAsync(source);

@@ -267,7 +267,7 @@ namespace Xunit.Analyzers
 		internal static DiagnosticDescriptor X1033_TestClassShouldHaveTFixtureArgument { get; } =
 			Rule(
 				"xUnit1033",
-				"Test classes decorated with Xunit.IClassFixture<TFixture> should add a constructor argument of type TFixture",
+				"Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture",
 				Usage,
 				Info,
 				"Test class '{0}' does not contain constructor argument of type '{1}'.");

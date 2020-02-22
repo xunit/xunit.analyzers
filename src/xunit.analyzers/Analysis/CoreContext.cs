@@ -16,6 +16,7 @@ namespace Xunit.Analyzers
 		readonly Lazy<INamedTypeSymbol> lazyMemberDataAttributeType;
 		readonly Lazy<INamedTypeSymbol> lazyTheoryAttributeType;
 		readonly Lazy<INamedTypeSymbol> lazyIClassFixtureType;
+		readonly Lazy<INamedTypeSymbol> lazyICollectionFixtureType;
 
 		public CoreContext(Compilation compilation, Version versionOverride = null)
 		{
@@ -31,7 +32,8 @@ namespace Xunit.Analyzers
 			lazyInlineDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute));
 			lazyMemberDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitMemberDataAttribute));
 			lazyTheoryAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute));
-			lazyIClassFixtureType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitIClassFixture));
+			lazyIClassFixtureType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitIClassFixtureFixture));
+			lazyICollectionFixtureType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitICollectionFixtureFixture));
 		}
 
 		public INamedTypeSymbol ClassDataAttributeType
@@ -54,6 +56,9 @@ namespace Xunit.Analyzers
 
 		public INamedTypeSymbol IClassFixtureType
 			=> lazyIClassFixtureType?.Value;
+
+		public INamedTypeSymbol ICollectionFixtureType
+			=> lazyICollectionFixtureType?.Value;
 
 		public virtual bool TheorySupportsParameterArrays
 			=> Version >= Version_2_2_0;
