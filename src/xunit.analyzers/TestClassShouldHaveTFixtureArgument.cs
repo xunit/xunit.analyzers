@@ -8,6 +8,7 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestClassShouldHaveTFixtureArgument : XunitDiagnosticAnalyzer
 	{
+		public const string TFixturePropertyKey = "TFixture";
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument);
 
@@ -41,10 +42,14 @@ namespace Xunit.Analyzers
 						if (hasConstructorWithTFixtureArg)
 							continue;
 
+						var propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
+
+						propertiesBuilder.Add(TFixturePropertyKey, tFixtureDataType.Name);
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1033_TestClassShouldHaveTFixtureArgument,
-								classSymbol.Locations.First(),
+								location: classSymbol.Locations.First(),
+								properties: propertiesBuilder.ToImmutable(),
 								classSymbol.ToDisplayString(),
 								tFixtureDataType.ToDisplayString()));
 					}

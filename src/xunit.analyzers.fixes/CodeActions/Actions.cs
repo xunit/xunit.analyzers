@@ -1,8 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.CodeActions
 {
@@ -12,6 +14,49 @@ namespace Xunit.Analyzers.CodeActions
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			editor.SetAccessibility(declaration, accessibility);
+			return editor.GetChangedDocument();
+		}
+
+		public static async Task<Document> AddConstructor(Document document, ClassDeclarationSyntax declaration, string tFixtureTypeName, CancellationToken cancellationToken)
+		{
+			// todo make this respect the user's preferences on identiifer name style
+			var fieldName = "_" + tFixtureTypeName.Substring(0, 1).ToLower() + tFixtureTypeName.Substring(1, tFixtureTypeName.Length - 1);
+			var constructorArgName = tFixtureTypeName.Substring(0, 1).ToLower() + tFixtureTypeName.Substring(1, tFixtureTypeName.Length - 1);
+			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
+			var fieldDeclaration = FieldDeclaration(
+						VariableDeclaration(
+							IdentifierName(tFixtureTypeName))
+						.WithVariables(
+							SingletonSeparatedList(
+								VariableDeclarator(
+									Identifier(fieldName)))))
+					.WithModifiers(
+						TokenList(
+								Token(SyntaxKind.PrivateKeyword),
+								Token(SyntaxKind.ReadOnlyKeyword)));
+
+			var constructor = ConstructorDeclaration(
+						Identifier(declaration.Identifier.Text))
+					.WithParameterList(
+						ParameterList(
+							SingletonSeparatedList(
+								Parameter(
+									Identifier(constructorArgName))
+								.WithType(
+									IdentifierName(tFixtureTypeName)))))
+					.WithBody(
+						Block(
+							SingletonList<StatementSyntax>(
+								ExpressionStatement(
+									AssignmentExpression(
+										SyntaxKind.SimpleAssignmentExpression,
+										IdentifierName(fieldName),
+										IdentifierName(constructorArgName))))));
+
+			editor.InsertMembers(declaration, 0, new SyntaxNode[] { fieldDeclaration, constructor });
+
+			var newdoc = await editor.GetChangedDocument().GetTextAsync();
 			return editor.GetChangedDocument();
 		}
 
