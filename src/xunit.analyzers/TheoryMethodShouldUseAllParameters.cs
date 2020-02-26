@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -41,7 +43,7 @@ namespace Xunit.Analyzers
 			if (!flowAnalysis.Succeeded)
 				return;
 
-			var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside);
+			var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct());
 
 			for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 			{
