@@ -716,6 +716,14 @@ namespace Xunit.Analyzers
 				var expected = Verify.Diagnostic("xUnit1010").WithSpan(1, 70, 1, 71).WithArguments("a", "T");
 				await Verify.VerifyAnalyzerAsync(source, expected);
 			}
+
+			[Fact]
+			public async void DoesNotFindError_FromMatchingArrayType()
+			{
+				var source = "public class TestClass { [Xunit.Theory, Xunit.InlineData(new int[] { 1, 3, 3 })] public void TestMethod<T>(T[] a) { } }";
+
+				await Verify.VerifyAnalyzerAsync(source);
+			}
 		}
 
 		public class ForConversionToDateTimeAndDateTimeOffset : InlineDataMustMatchTheoryParametersTests
