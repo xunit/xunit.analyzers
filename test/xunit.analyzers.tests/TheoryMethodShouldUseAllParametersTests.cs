@@ -139,7 +139,7 @@ class TestClass
         // mimicking mock setup use case
         // var mock = new Mock<IHaveOutParameter>();
         // mock.Setup(m => m.SomeMethod(out used));
-		Action setup = () => int.TryParse(used, out usedOut);
+        Action setup = () => int.TryParse(used, out usedOut);
     }
 }";
 
