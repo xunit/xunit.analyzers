@@ -29,7 +29,8 @@ namespace Xunit.Analyzers
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: string.Format(title,
+					title: string.Format(
+						title,
 						first.Properties[TestClassShouldHaveTFixtureArgument.TestClassNamePropertyKey],
 						first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey]),
 					createChangedDocument: ct => Actions.AddConstructor(
@@ -38,8 +39,8 @@ namespace Xunit.Analyzers
 						typeDisplayName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureDisplayNamePropertyKey],
 						typeName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey],
 						ct),
-						equivalenceKey: title),
-					context.Diagnostics);
+					equivalenceKey: title),
+				context.Diagnostics);
 		}
 	}
 }

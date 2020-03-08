@@ -24,25 +24,27 @@ namespace Xunit.Analyzers.CodeActions
 			string typeName,
 			CancellationToken cancellationToken)
 		{
-			// todo make this respect the user's preferences on identiifer name style
+			// TODO: Make this respect the user's preferences on identifier name style
 			var fieldName = "_" + typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
 			var constructorArgName = typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-			var fieldDeclaration = FieldDeclaration(
-						VariableDeclaration(
-							ParseTypeName(typeDisplayName))
-						.WithVariables(
-							SingletonSeparatedList(
-								VariableDeclarator(
-									Identifier(fieldName)))))
-					.WithModifiers(
-						TokenList(
-								Token(SyntaxKind.PrivateKeyword),
-								Token(SyntaxKind.ReadOnlyKeyword)));
+			var fieldDeclaration =
+				FieldDeclaration(
+					VariableDeclaration(
+						ParseTypeName(typeDisplayName))
+					.WithVariables(
+						SingletonSeparatedList(
+							VariableDeclarator(
+								Identifier(fieldName)))))
+				.WithModifiers(
+					TokenList(
+						Token(SyntaxKind.PrivateKeyword),
+						Token(SyntaxKind.ReadOnlyKeyword)));
 
-			var constructor = ConstructorDeclaration(
-						Identifier(declaration.Identifier.Text))
+			var constructor =
+				ConstructorDeclaration(
+					Identifier(declaration.Identifier.Text))
 					.WithParameterList(
 						ParameterList(
 							SingletonSeparatedList(
@@ -67,27 +69,31 @@ namespace Xunit.Analyzers.CodeActions
 		public static async Task<Solution> ChangeMemberAccessibility(Solution solution, ISymbol memberSymbol, Accessibility accessibility, CancellationToken cancellationToken)
 		{
 			var editor = SymbolEditor.Create(solution);
-			await editor.EditAllDeclarationsAsync(memberSymbol, (docEditor, syntaxNode) =>
-			{
-				docEditor.SetAccessibility(syntaxNode, accessibility);
-			}, cancellationToken).ConfigureAwait(false);
+			await editor.EditAllDeclarationsAsync(
+				memberSymbol,
+				(docEditor, syntaxNode) => docEditor.SetAccessibility(syntaxNode, accessibility),
+				cancellationToken).ConfigureAwait(false);
+
 			return editor.ChangedSolution;
 		}
 
 		public static async Task<Solution> ChangeMemberStaticModifier(Solution solution, ISymbol memberSymbol, bool isStatic, CancellationToken cancellationToken)
 		{
 			var editor = SymbolEditor.Create(solution);
-			await editor.EditAllDeclarationsAsync(memberSymbol, (docEditor, syntaxNode) =>
-			{
-				var newMods = DeclarationModifiers.From(memberSymbol).WithIsStatic(isStatic);
-				if (memberSymbol is IPropertySymbol propertySymbol && propertySymbol.IsReadOnly)
+			await editor.EditAllDeclarationsAsync(
+				memberSymbol,
+				(docEditor, syntaxNode) =>
 				{
-					// Looks like there's a bug in Roslyn where SetModifiers applies the 'readonly'
-					// keyword to a get-only property, producing illegal syntax.
-					newMods = newMods.WithIsReadOnly(false);
-				}
-				docEditor.SetModifiers(syntaxNode, newMods);
-			}, cancellationToken).ConfigureAwait(false);
+					var newMods = DeclarationModifiers.From(memberSymbol).WithIsStatic(isStatic);
+					if (memberSymbol is IPropertySymbol propertySymbol && propertySymbol.IsReadOnly)
+					{
+						// Looks like there's a bug in Roslyn where SetModifiers applies the 'readonly'
+						// keyword to a get-only property, producing illegal syntax.
+						newMods = newMods.WithIsReadOnly(false);
+					}
+					docEditor.SetModifiers(syntaxNode, newMods);
+				},
+				cancellationToken).ConfigureAwait(false);
 
 			return editor.ChangedSolution;
 		}
@@ -95,10 +101,10 @@ namespace Xunit.Analyzers.CodeActions
 		public static async Task<Solution> ChangeMemberType(Solution solution, ISymbol memberSymbol, ITypeSymbol type, CancellationToken cancellationToken)
 		{
 			var editor = SymbolEditor.Create(solution);
-			await editor.EditAllDeclarationsAsync(memberSymbol, (docEditor, syntaxNode) =>
-			{
-				docEditor.SetType(syntaxNode, docEditor.Generator.TypeExpression(type));
-			}, cancellationToken).ConfigureAwait(false);
+			await editor.EditAllDeclarationsAsync(
+				memberSymbol,
+				(docEditor, syntaxNode) => docEditor.SetType(syntaxNode, docEditor.Generator.TypeExpression(type)),
+				cancellationToken).ConfigureAwait(false);
 
 			return editor.ChangedSolution;
 		}

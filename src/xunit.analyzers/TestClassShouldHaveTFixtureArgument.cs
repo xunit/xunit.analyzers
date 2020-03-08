@@ -60,7 +60,6 @@ namespace Xunit.Analyzers
 								tFixtureDataType.ToDisplayString()));
 					}
 				}
-
 			}, SymbolKind.NamedType);
 		}
 	}
