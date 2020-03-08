@@ -4,7 +4,7 @@
     <!-- Warnings from old Microsoft.CodeAnalysis and friends not properly supporting .NET Core -->
     <NoWarn>NU1701</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFrameworks>netcoreapp2.2;net472</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
     <AnalyzersOutputPath>..\..\src\xunit.analyzers\bin\$(Configuration)\netstandard1.1\xunit.analyzers.dll</AnalyzersOutputPath>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

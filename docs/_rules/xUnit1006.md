@@ -24,11 +24,11 @@ To fix a violation of this rule, add parameters to the test method. The paramete
 ```csharp
 class Tests
 {
-    [Theory]
-    [InlineData(12, "book")]
-    public void Test()
-    {
-    }
+	[Theory]
+	[InlineData(12, "book")]
+	public void Test()
+	{
+	}
 }
 ```
 
@@ -37,11 +37,11 @@ class Tests
 ```csharp
 class Tests
 {
-    [Theory]
-    [InlineData(12, "book")]
-    public void Test(int amount, string productType)
-    {
-    }
+	[Theory]
+	[InlineData(12, "book")]
+	public void Test(int amount, string productType)
+	{
+	}
 }
 ```
 

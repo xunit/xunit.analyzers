@@ -10,7 +10,7 @@
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit.analyzers</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
-    <licenseUrl>https://raw.githubusercontent.com/xunit/xunit.analyzers/master/LICENSE</licenseUrl>
+    <license type="expression">Apache-2.0</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
   </metadata>

@@ -25,9 +25,9 @@ Use the generic overload of `Assert.IsType`, `Assert.IsNotType`, or `Assert.IsAs
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.IsType(typeof(string), result);
+	Assert.IsType(typeof(string), result);
 }
 ```
 
@@ -37,9 +37,9 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = "foo bar baz";
+	string result = "foo bar baz";
 
-    Assert.IsType<string>(result);
+	Assert.IsType<string>(result);
 }
 ```
 

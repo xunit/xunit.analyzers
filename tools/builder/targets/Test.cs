@@ -1,3 +1,5 @@
-[Target(nameof(Test),
-        nameof(TestCore), nameof(TestFx))]
+[Target(
+	BuildTarget.Test,
+	BuildTarget.TestCore, BuildTarget.TestFx
+)]
 public class Test { }

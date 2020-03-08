@@ -21,36 +21,42 @@ To fix a violation of this rule, annotate the method with `Fact` or `Theory` att
 
 ### Violates
 
-```
-public class Tests {
-  [Xunit.Fact]
-  public void Test1() {
-    Helper();
-  }
+```csharp
+public class Tests
+{
+	[Fact]
+	public void Test1()
+	{
+		Helper();
+	}
 
-  public void Test2() {
-    Helper();
-  }
+	public void Test2()
+	{
+		Helper();
+	}
 
-  public void Helper() {}
+	public void Helper() {}
 }
 ```
 
 ### Does not violate
 
-```
-public class Tests {
-  [Xunit.Fact]
-  public void Test1() {
-    Helper();
-  }
+```csharp
+public class Tests
+{
+	[Fact]
+	public void Test1()
+	{
+		Helper();
+	}
 
-  [Xunit.Fact]
-  public void Test2() {
-    Helper();
-  }
+	[Fact]
+	public void Test2()
+	{
+		Helper();
+	}
 
-  private void Helper() {}
+	private void Helper() {}
 }
 ```
 
@@ -65,17 +71,18 @@ public class Tests {
 
 Some xUnit.net extensions provide alternative attributes for annotating tests. Such attributes should be annotated with a marker attribute to prevent this rule from firing for valid usages of the extension. The marker attribute has to be called `IgnoreXunitAnalyzersRule1013` (in any or no namespace).
 
-```
-public sealed class IgnoreXunitAnalyzersRule1013Attribute : System.Attribute { }
+```csharp
+public sealed class IgnoreXunitAnalyzersRule1013Attribute : Attribute { }
 
 [IgnoreXunitAnalyzersRule1013]
-public class CustomTestTypeAttribute : System.Attribute { }
+public class CustomTestTypeAttribute : Attribute { }
 
-public class TestClass {
-  [Xunit.Fact]
-  public void TestMethod() { }
-  
-  [CustomTestType]
-  public void CustomTestMethod() {}
+public class TestClass
+{
+	[Fact]
+	public void TestMethod() { }
+
+	[CustomTestType]
+	public void CustomTestMethod() {}
 }
 ```

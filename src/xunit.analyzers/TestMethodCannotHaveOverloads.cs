@@ -8,62 +8,59 @@ using Xunit.Analyzers.Utilities;
 
 namespace Xunit.Analyzers
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
-    {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(Descriptors.X1024_TestMethodCannotHaveOverloads);
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
+	{
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1024_TestMethodCannotHaveOverloads);
 
-        internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
-        {
-            compilationStartContext.RegisterSymbolAction(symbolContext =>
-            {
-                var typeSymbol = (INamedTypeSymbol)symbolContext.Symbol;
-                if (typeSymbol.TypeKind != TypeKind.Class)
-                    return;
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		{
+			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			{
+				var typeSymbol = (INamedTypeSymbol)symbolContext.Symbol;
+				if (typeSymbol.TypeKind != TypeKind.Class)
+					return;
 
-                var methodsByName = typeSymbol.GetInheritedAndOwnMembers()
-                    .Where(s => s.Kind == SymbolKind.Method)
-                    .Cast<IMethodSymbol>()
-                    .Where(m => m.MethodKind == MethodKind.Ordinary)
-                    .GroupBy(m => m.Name);
+				var methodsByName = typeSymbol.GetInheritedAndOwnMembers()
+					.Where(s => s.Kind == SymbolKind.Method)
+					.Cast<IMethodSymbol>()
+					.Where(m => m.MethodKind == MethodKind.Ordinary)
+					.GroupBy(m => m.Name);
 
-                foreach (var grouping in methodsByName)
-                {
-                    symbolContext.CancellationToken.ThrowIfCancellationRequested();
+				foreach (var grouping in methodsByName)
+				{
+					symbolContext.CancellationToken.ThrowIfCancellationRequested();
 
-                    var methods = grouping.ToList();
-                    var methodName = grouping.Key;
-                    if (methods.Count == 1 ||
-                        !methods.Any(m => m.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType)))
-                        continue;
+					var methods = grouping.ToList();
+					var methodName = grouping.Key;
+					if (methods.Count == 1 || !methods.Any(m => m.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType)))
+						continue;
 
-                    var methodsWithoutOverloads = new List<IMethodSymbol>(methods.Count);
-                    foreach (var method in methods)
-                    {
-                        if (!methods.Any(m => m.IsOverride && m.OverriddenMethod.Equals(method)))
-                        {
-                            methodsWithoutOverloads.Add(method);
-                        }
-                    }
+					var methodsWithoutOverloads = new List<IMethodSymbol>(methods.Count);
+					foreach (var method in methods)
+						if (!methods.Any(m => m.IsOverride && m.OverriddenMethod.Equals(method)))
+							methodsWithoutOverloads.Add(method);
 
-                    if (methodsWithoutOverloads.Count == 1)
-                        continue;
+					if (methodsWithoutOverloads.Count == 1)
+						continue;
 
-                    foreach (var method in methodsWithoutOverloads.Where(m => m.ContainingType.Equals(typeSymbol)))
-                    {
-                        var otherType = methodsWithoutOverloads.Where(m => !m.Equals(method))
-                            .OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
-                            .First().ContainingType;
-                        symbolContext.ReportDiagnostic(Diagnostic.Create(
-                            Descriptors.X1024_TestMethodCannotHaveOverloads,
-                            method.Locations.First(),
-                            methodName,
-                            method.ContainingType.ToDisplayString(),
-                            otherType.ToDisplayString()));
-                    }
-                }
-            }, SymbolKind.NamedType);
-        }
-    }
+					foreach (var method in methodsWithoutOverloads.Where(m => m.ContainingType.Equals(typeSymbol)))
+					{
+						var otherType = methodsWithoutOverloads.Where(m => !m.Equals(method))
+							.OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
+							.First().ContainingType;
+
+						symbolContext.ReportDiagnostic(
+							Diagnostic.Create(
+								Descriptors.X1024_TestMethodCannotHaveOverloads,
+								method.Locations.First(),
+								methodName,
+								method.ContainingType.ToDisplayString(),
+								otherType.ToDisplayString()));
+					}
+				}
+			}, SymbolKind.NamedType);
+		}
+	}
 }

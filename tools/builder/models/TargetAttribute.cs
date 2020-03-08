@@ -1,15 +1,16 @@
 using System;
+using System.Linq;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class TargetAttribute : Attribute
 {
-    public TargetAttribute(string targetName, params string[] dependentTargets)
-    {
-        TargetName = targetName;
-        DependentTargets = dependentTargets ?? Array.Empty<string>();
-    }
+	public TargetAttribute(BuildTarget targetName, params BuildTarget[] dependentTargets)
+	{
+		TargetName = targetName.ToString();
+		DependentTargets = (dependentTargets ?? Enumerable.Empty<BuildTarget>()).Select(x => x.ToString()).ToArray();
+	}
 
-    public string TargetName { get; }
+	public string TargetName { get; }
 
-    public string[] DependentTargets { get; }
+	public string[] DependentTargets { get; }
 }

@@ -2,24 +2,23 @@
 
 namespace Xunit.Analyzers
 {
-    public class TestClassMustBePublicFixerTests
-    {
-        [Theory]
-        [InlineData("")]
-        [InlineData("internal")]
-        public async void MakesClassPublic(string nonPublicAccessModifier)
-        {
-            var source = $"{nonPublicAccessModifier} class [|TestClass|] {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
+	public class TestClassMustBePublicFixerTests
+	{
+		[Theory]
+		[InlineData("")]
+		[InlineData("internal")]
+		public async void MakesClassPublic(string nonPublicAccessModifier)
+		{
+			var source = $"{nonPublicAccessModifier} class [|TestClass|] {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
+			var fixedSource = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
 
-            var fixedSource = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+			await Verify.VerifyCodeFixAsync(source, fixedSource);
+		}
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
-        }
-
-        [Fact]
-        public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
-        {
-            var source = @"
+		[Fact]
+		public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
+		{
+			var source = @"
 partial class [|TestClass|]
 {
     [Xunit.Fact]
@@ -32,7 +31,7 @@ partial class TestClass
     public void TestMethod2() {}
 }";
 
-            var fixedSource = @"
+			var fixedSource = @"
 public partial class TestClass
 {
     [Xunit.Fact]
@@ -45,7 +44,7 @@ partial class TestClass
     public void TestMethod2() {}
 }";
 
-            await Verify.VerifyCodeFixAsync(source, fixedSource);
-        }
-    }
+			await Verify.VerifyCodeFixAsync(source, fixedSource);
+		}
+	}
 }

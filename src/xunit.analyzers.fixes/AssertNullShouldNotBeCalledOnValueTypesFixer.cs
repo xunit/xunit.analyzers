@@ -12,40 +12,42 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class AssertNullShouldNotBeCalledOnValueTypesFixer : CodeFixProvider
-    {
-        const string title = "Remove Call";
+	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+	public class AssertNullShouldNotBeCalledOnValueTypesFixer : CodeFixProvider
+	{
+		const string title = "Remove Call";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
+			= ImmutableArray.Create(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes.Id);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider()
+			=> WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var call = root.FindNode(context.Span).FirstAncestorOrSelf<ExpressionStatementSyntax>();
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    title,
-                    createChangedDocument: ct => RemoveCall(context.Document, call, ct),
-                    equivalenceKey: title),
-                context.Diagnostics);
-        }
+		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		{
+			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var call = root.FindNode(context.Span).FirstAncestorOrSelf<ExpressionStatementSyntax>();
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title,
+					createChangedDocument: ct => RemoveCall(context.Document, call, ct),
+					equivalenceKey: title),
+				context.Diagnostics);
+		}
 
-        private async Task<Document> RemoveCall(Document document, ExpressionStatementSyntax call, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		private async Task<Document> RemoveCall(Document document, ExpressionStatementSyntax call, CancellationToken cancellationToken)
+		{
+			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-            var containsLeadingComment = call.GetLeadingTrivia()
-                .Any(t => t.IsKind(SyntaxKind.MultiLineCommentTrivia) || t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-            var removeOptions = containsLeadingComment 
-                ? SyntaxRemoveOptions.KeepLeadingTrivia | SyntaxRemoveOptions.AddElasticMarker
-                : SyntaxRemoveOptions.KeepNoTrivia;
+			var containsLeadingComment = call.GetLeadingTrivia()
+				.Any(t => t.IsKind(SyntaxKind.MultiLineCommentTrivia) || t.IsKind(SyntaxKind.SingleLineCommentTrivia));
+			var removeOptions = containsLeadingComment
+				? SyntaxRemoveOptions.KeepLeadingTrivia | SyntaxRemoveOptions.AddElasticMarker
+				: SyntaxRemoveOptions.KeepNoTrivia;
 
-            editor.RemoveNode(call, removeOptions);
+			editor.RemoveNode(call, removeOptions);
 
-            return editor.GetChangedDocument();
-        }
-    }
+			return editor.GetChangedDocument();
+		}
+	}
 }

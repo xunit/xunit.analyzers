@@ -25,9 +25,9 @@ Use `Assert.Empty` instead.
 [Fact]
 public void ExampleMethod()
 {
-    IEnumerable<string> result = GetItems();
+	IEnumerable<string> result = GetItems();
 
-    Assert.Collection(result);
+	Assert.Collection(result);
 }
 ```
 
@@ -37,9 +37,9 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    IEnumerable<string> result = GetItems();
+	IEnumerable<string> result = GetItems();
 
-    Assert.Empty(result);
+	Assert.Empty(result);
 }
 ```
 

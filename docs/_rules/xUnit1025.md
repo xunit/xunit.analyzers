@@ -20,7 +20,7 @@ This usually comes from:
 
 ## How to fix violations
 
-Remove duplicated `InlineDataAttribute` occurences.
+Remove duplicated `InlineDataAttribute` occurrences.
 
 ## Examples
 
@@ -30,9 +30,9 @@ Remove duplicated `InlineDataAttribute` occurences.
 [Theory]
 [InlineData(2)]
 [InlineData(2)]
-public void TestMethod(int x) 
-{ 
-    //... 
+public void TestMethod(int x)
+{
+	//...
 }
 ```
 
@@ -40,9 +40,9 @@ public void TestMethod(int x)
 [Theory]
 [InlineData(2, 0)]
 [InlineData(2)]
-public void TestMethod(int x, int y = 0) 
-{ 
-    //... 
+public void TestMethod(int x, int y = 0)
+{
+	//...
 }
 ```
 
@@ -61,9 +61,9 @@ public void TestMethod(params int[] args)
 [Theory]
 [InlineData(2)]
 [InlineData(3)]
-public void TestMethod(int x) 
-{ 
-    //... 
+public void TestMethod(int x)
+{
+	//...
 }
 ```
 
@@ -71,9 +71,9 @@ public void TestMethod(int x)
 [Theory]
 [InlineData(2, 0)]
 [InlineData(2, 1)]
-public void TestMethod(int x, int y = 0) 
-{ 
-    //... 
+public void TestMethod(int x, int y = 0)
+{
+	//...
 }
 ```
 

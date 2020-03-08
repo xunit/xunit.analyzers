@@ -4,28 +4,27 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers
 {
-    public class ExecutionContext
-    {
-        const string AssemblyPrefix = "xunit.execution.";
+	public class ExecutionContext
+	{
+		const string AssemblyPrefix = "xunit.execution.";
 
-        readonly Lazy<INamedTypeSymbol> lazyLongLivedMarshalByRefObjectType;
+		readonly Lazy<INamedTypeSymbol> lazyLongLivedMarshalByRefObjectType;
 
-        public ExecutionContext(Compilation compilation, Version versionOverride = null)
-        {
-            var assembly = compilation.ReferencedAssemblyNames
-                                      .FirstOrDefault(a => a.Name.StartsWith(AssemblyPrefix, StringComparison.OrdinalIgnoreCase));
+		public ExecutionContext(Compilation compilation, Version versionOverride = null)
+		{
+			var assembly = compilation.ReferencedAssemblyNames.FirstOrDefault(a => a.Name.StartsWith(AssemblyPrefix, StringComparison.OrdinalIgnoreCase));
 
-            Platform = assembly?.Name?.Substring(AssemblyPrefix.Length);
-            Version = versionOverride ?? assembly?.Version;
+			Platform = assembly?.Name?.Substring(AssemblyPrefix.Length);
+			Version = versionOverride ?? assembly?.Version;
 
-            lazyLongLivedMarshalByRefObjectType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitLongLivedMarshalByRefObject));
-        }
+			lazyLongLivedMarshalByRefObjectType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitLongLivedMarshalByRefObject));
+		}
 
-        public INamedTypeSymbol LongLivedMarshalByRefObjectType
-            => lazyLongLivedMarshalByRefObjectType?.Value;
+		public INamedTypeSymbol LongLivedMarshalByRefObjectType
+			=> lazyLongLivedMarshalByRefObjectType?.Value;
 
-        public string Platform { get; }
+		public string Platform { get; }
 
-        public Version Version { get; }
-    }
+		public Version Version { get; }
+	}
 }

@@ -25,10 +25,10 @@ To fix a violation of this rule, replace the offending asserts with `Assert.Null
 [Fact]
 public void ExampleMethod()
 {
-    string result = GetSomeValue();
+	string result = GetSomeValue();
 
-    Assert.NotEqual(null, result);
-    Assert.Equal(null, result);
+	Assert.NotEqual(null, result);
+	Assert.Equal(null, result);
 }
 ```
 
@@ -38,10 +38,10 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    string result = GetSomeValue();
+	string result = GetSomeValue();
 
-    Assert.NotNull(result);
-    Assert.Null(result);
+	Assert.NotNull(result);
+	Assert.Null(result);
 }
 ```
 

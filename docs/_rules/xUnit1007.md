@@ -32,11 +32,11 @@ class TestData
 
 class Tests
 {
-    [Theory]
-    [ClassData(typeof(TestData))]
-    public void TestMethod(int amount, string productType)
-    {
-    }
+	[Theory]
+	[ClassData(typeof(TestData))]
+	public void TestMethod(int amount, string productType)
+	{
+	}
 }
 ```
 
@@ -45,21 +45,21 @@ class Tests
 ```csharp
 class TestData : IEnumerable<object[]>
 {
-    public IEnumerator<object[]> GetEnumerator()
-    {
-        yield return new object[] { 1, "book" };
-        yield return new object[] { 1, "magnifying glass" };
-    }
+	public IEnumerator<object[]> GetEnumerator()
+	{
+		yield return new object[] { 1, "book" };
+		yield return new object[] { 1, "magnifying glass" };
+	}
 
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 }
 
 class Tests
 {
-    [Theory]
-    [ClassData(typeof(TestData))]
-    public void TestMethod(int amount, string productType)
-    {
-    }
+	[Theory]
+	[ClassData(typeof(TestData))]
+	public void TestMethod(int amount, string productType)
+	{
+	}
 }
 ```

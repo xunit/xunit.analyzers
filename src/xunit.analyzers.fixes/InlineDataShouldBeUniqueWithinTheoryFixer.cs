@@ -11,44 +11,43 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class InlineDataShouldBeUniqueWithinTheoryFixer : CodeFixProvider
-    {
-        private const string Title = "Remove InlineData duplicate";
+	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+	public class InlineDataShouldBeUniqueWithinTheoryFixer : CodeFixProvider
+	{
+		private const string Title = "Remove InlineData duplicate";
 
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory.Id
-        );
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
+			= ImmutableArray.Create(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory.Id);
 
-        // There is an issue when two (or more) duplicate attributes occur one after another. The batch fixer won't
-        // merge multiple deletes at once due to close vicinity and the fixer would have to execute a few times.
-        // If sb wants all to be deleted at once maybe reporting the original attribute with all its duplicates 
-        // as a collection passed with a fixer parameter. To be considered.
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		// There is an issue when two (or more) duplicate attributes occur one after another. The batch fixer won't
+		// merge multiple deletes at once due to close vicinity and the fixer would have to execute a few times.
+		// If sb wants all to be deleted at once maybe reporting the original attribute with all its duplicates
+		// as a collection passed with a fixer parameter. To be considered.
+		public sealed override FixAllProvider GetFixAllProvider()
+			=> WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var reportedNode = root.FindNode(context.Span);
-            var attributeDuplicate = reportedNode as AttributeSyntax;
-            Debug.Assert(attributeDuplicate != null);
+		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		{
+			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var reportedNode = root.FindNode(context.Span);
+			var attributeDuplicate = reportedNode as AttributeSyntax;
+			Debug.Assert(attributeDuplicate != null);
 
-            var codeAction = CodeAction.Create(
-                Title,
-                ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
-                equivalenceKey: Title);
+			var codeAction = CodeAction.Create(
+				Title,
+				ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
+				equivalenceKey: Title);
 
-            context.RegisterCodeFix(codeAction, context.Diagnostics);
-        }
+			context.RegisterCodeFix(codeAction, context.Diagnostics);
+		}
 
-        private static async Task<Document> RemoveInlineDataDuplicate(Document document,
-            AttributeSyntax attributeDuplicate, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		private static async Task<Document> RemoveInlineDataDuplicate(Document document, AttributeSyntax attributeDuplicate, CancellationToken cancellationToken)
+		{
+			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-            editor.RemoveNode(attributeDuplicate);
+			editor.RemoveNode(attributeDuplicate);
 
-            return editor.GetChangedDocument();
-        }
-    }
+			return editor.GetChangedDocument();
+		}
+	}
 }

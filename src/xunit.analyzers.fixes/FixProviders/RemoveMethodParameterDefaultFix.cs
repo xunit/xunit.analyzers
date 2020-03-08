@@ -9,26 +9,27 @@ using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers.FixProviders
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class RemoveMethodParameterDefaultFix : CodeFixProvider
-    {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
+	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+	public class RemoveMethodParameterDefaultFix : CodeFixProvider
+	{
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
+			= ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
 
-        public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
-            var parameterName = parameter.Identifier.Text;
-            var title = $"Remove Parameter '{parameterName}' Default";
+		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		{
+			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
+			var parameterName = parameter.Identifier.Text;
+			var title = $"Remove Parameter '{parameterName}' Default";
 
-            context.RegisterCodeFix(
-                CodeAction.Create(title,
-                    ct => Actions.RemoveNodeAsync(context.Document, parameter.Default, ct),
-                    equivalenceKey: title),
-                context.Diagnostics);
-        }
-    }
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title,
+					ct => Actions.RemoveNodeAsync(context.Document, parameter.Default, ct),
+					equivalenceKey: title),
+				context.Diagnostics);
+		}
+	}
 }

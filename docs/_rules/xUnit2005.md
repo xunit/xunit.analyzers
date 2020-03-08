@@ -25,9 +25,9 @@ To fix a violation of this rule, use `Assert.Equal` or `Assert.NotEqual` instead
 [Fact]
 public void ExampleMethod()
 {
-    DateTime result = GetDateResult();
+	DateTime result = GetDateResult();
 
-    Assert.Same(new DateTime(2017, 01, 01), result);
+	Assert.Same(new DateTime(2017, 01, 01), result);
 }
 ```
 
@@ -37,9 +37,9 @@ public void ExampleMethod()
 [Fact]
 public void ExampleMethod()
 {
-    DateTime result = GetDateResult();
+	DateTime result = GetDateResult();
 
-    Assert.Equal(new DateTime(2017, 01, 01), result);
+	Assert.Equal(new DateTime(2017, 01, 01), result);
 }
 ```
 

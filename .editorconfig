@@ -2,9 +2,15 @@
 root = true
 
 [*]
-indent_style = space
+indent_style = tab
 indent_size = 4
 insert_final_newline = true
+
+# Visual Studio demands 2-spaced project files
+# Tabs are not legal whitespace for YAML files
+[*.{csproj,props,yaml,yml}]
+indent_style = space
+indent_size = 2
 
 [*.cs]
 # Sort using and Import directives with System.* appearing first

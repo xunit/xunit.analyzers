@@ -9,47 +9,43 @@ using Verify_2_2 = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodCa
 
 namespace Xunit.Analyzers
 {
-    public class TheoryMethodCannotHaveDefaultParameterTests
-    {
-        [Fact]
-        public async Task FindsErrorForTheoryWithDefaultParameter_WhenDefaultValueNotSupported()
-        {
-            var source =
-                "class TestClass {" +
-                "   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
-                "}";
+	public class TheoryMethodCannotHaveDefaultParameterTests
+	{
+		[Fact]
+		public async Task FindsErrorForTheoryWithDefaultParameter_WhenDefaultValueNotSupported()
+		{
+			var source =
+				"class TestClass {" +
+				"   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
+				"}";
 
-            var expected = Verify_2_1.Diagnostic().WithSpan(1, 85, 1, 89).WithSeverity(DiagnosticSeverity.Error).WithArguments("TestMethod", "TestClass", "c");
-            await Verify_2_1.VerifyAnalyzerAsync(source, expected);
-        }
+			var expected = Verify_2_1.Diagnostic().WithSpan(1, 85, 1, 89).WithSeverity(DiagnosticSeverity.Error).WithArguments("TestMethod", "TestClass", "c");
+			await Verify_2_1.VerifyAnalyzerAsync(source, expected);
+		}
 
-        [Fact]
-        public async Task DoesNotFindErrorForTheoryWithDefaultParameter_WhenDefaultValueSupported()
-        {
-            var source =
-                "class TestClass {" +
-                "   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
-                "}";
+		[Fact]
+		public async Task DoesNotFindErrorForTheoryWithDefaultParameter_WhenDefaultValueSupported()
+		{
+			var source =
+				"class TestClass {" +
+				"   [Xunit.Theory] public void TestMethod(int a, string b, string c = \"\") { }" +
+				"}";
 
-            await Verify_2_2.VerifyAnalyzerAsync(source);
-        }
+			await Verify_2_2.VerifyAnalyzerAsync(source);
+		}
 
-        internal class Analyzer_2_1_0
-            : TheoryMethodCannotHaveDefaultParameter
-        {
-            public Analyzer_2_1_0()
-                : base("2.1.0")
-            {
-            }
-        }
+		internal class Analyzer_2_1_0 : TheoryMethodCannotHaveDefaultParameter
+		{
+			public Analyzer_2_1_0()
+				: base("2.1.0")
+			{ }
+		}
 
-        internal class Analyzer_2_2_0
-            : TheoryMethodCannotHaveDefaultParameter
-        {
-            public Analyzer_2_2_0()
-                : base("2.2.0")
-            {
-            }
-        }
-    }
+		internal class Analyzer_2_2_0 : TheoryMethodCannotHaveDefaultParameter
+		{
+			public Analyzer_2_2_0()
+				: base("2.2.0")
+			{ }
+		}
+	}
 }

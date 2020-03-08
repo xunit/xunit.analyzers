@@ -2,12 +2,12 @@
 
 namespace Xunit.Analyzers
 {
-    public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
-    {
-        [Fact]
-        public async void ForValueTypeNullAssert_RemovesAssertion()
-        {
-            const string original = @"
+	public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
+	{
+		[Fact]
+		public async void ForValueTypeNullAssert_RemovesAssertion()
+		{
+			const string original = @"
 using Xunit;
 
 public class Tests
@@ -21,7 +21,7 @@ public class Tests
     }
 }";
 
-            const string expected = @"
+			const string expected = @"
 using Xunit;
 
 public class Tests
@@ -33,14 +33,14 @@ public class Tests
     }
 }";
 
-            await Verify.VerifyCodeFixAsync(original, expected);
-        }
+			await Verify.VerifyCodeFixAsync(original, expected);
+		}
 
-        [Fact]
-        // https://github.com/xunit/xunit/issues/1753
-        public async void ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
-        {
-            const string original = @"
+		[Fact]
+		// https://github.com/xunit/xunit/issues/1753
+		public async void ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
+		{
+			const string original = @"
 using System;
 using Xunit;
 
@@ -60,7 +60,7 @@ namespace XUnitTestProject1
         }
     }
 }";
-            const string expected = @"
+			const string expected = @"
 using System;
 using Xunit;
 
@@ -80,7 +80,7 @@ namespace XUnitTestProject1
     }
 }";
 
-            await Verify.VerifyCodeFixAsync(original, expected);
-        }
-    }
+			await Verify.VerifyCodeFixAsync(original, expected);
+		}
+	}
 }

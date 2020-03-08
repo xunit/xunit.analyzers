@@ -12,171 +12,179 @@ using SimpleExec;
 [HelpOption("-?|-h|--help")]
 public class BuildContext
 {
-    // Versions of downloaded dependent software
+	// Versions of downloaded dependent software
 
-    public string NuGetVersion => "5.0.2";
+	public string NuGetVersion => "5.3.1";
 
-    public string SignClientVersion => "0.9.1";
+	// Calculated properties
 
-    // Calculated properties
+	public string BaseFolder { get; private set; }
 
-    public string BaseFolder { get; private set; }
+	public string ConfigurationText => Configuration.ToString();
 
-    public string ConfigurationText => Configuration.ToString();
+	public bool NeedMono { get; private set; }
 
-    public bool NeedMono { get; private set; }
+	public string NuGetExe { get; private set; }
 
-    public string NuGetExe { get; private set; }
+	public string NuGetUrl { get; private set; }
 
-    public string NuGetUrl { get; private set; }
+	public string PackageOutputFolder { get; private set; }
 
-    public string PackageOutputFolder { get; private set; }
+	public string TestOutputFolder { get; private set; }
 
-    public string TestOutputFolder { get; private set; }
+	// User-controllable command-line options
 
-    // User-controllable command-line options
+	[Option("-c|--configuration", Description = "The target configuration (default: 'Release'; values: 'Debug', 'Release')")]
+	public Configuration Configuration { get; } = Configuration.Release;
 
-    [Option("--buildAssemblyVersion", Description = "Set the build assembly version (default: '99.99.99.0')")]
-    public string BuildAssemblyVersion { get; }
+	[Option("-N|--no-color", Description = "Disable colored output")]
+	public bool NoColor { get; }
 
-    [Option("--buildSemanticVersion", Description = "Set the build semantic version (default: '99.99.99-dev')")]
-    public string BuildSemanticVersion { get; }
+	[Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
+	public bool SkipDependencies { get; }
 
-    [Option("-c|--configuration", Description = "The target configuration (values: 'Debug', 'Release'; default: 'Release')")]
-    public Configuration Configuration { get; } = Configuration.Release;
+	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
 
-    [Option("-N|--no-color", Description = "Disable colored output")]
-    public bool NoColor { get; }
+	[Option("-v|--verbosity", Description = "Set verbosity level (default: 'minimal'; values: 'q[uiet]', 'm[inimal]', 'n[ormal]', 'd[etailed]', and 'diag[nostic]'")]
+	public BuildVerbosity Verbosity { get; } = BuildVerbosity.minimal;
 
-    [Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
-    public bool SkipDependencies { get; }
+	internal BuildVerbosity VerbosityNuGet
+	{
+		get
+		{
+			switch (Verbosity)
+			{
+				case BuildVerbosity.diagnostic: return BuildVerbosity.detailed;
+				case BuildVerbosity.minimal: return BuildVerbosity.normal;
+				default: return Verbosity;
+			}
+		}
+	}
 
-    [Argument(0, "targets", Description = "The target(s) to run (common values: 'Build', 'Restore', 'Test', 'TestCore', 'TestFx'; default: 'Test')")]
-    public BuildTarget[] Targets { get; } = new[] { BuildTarget.Test };
+	// Helper methods for build target consumption
 
-    [Option("-v|--verbose", Description = "Enable verbose output")]
-    public bool Verbose { get; }
+	public void BuildStep(string message)
+	{
+		WriteLineColor(ConsoleColor.White, $"==> {message} <==");
+		Console.WriteLine();
+	}
 
-    // Helper methods for build target consumption
+	public async Task Exec(string name, string args, string redactedArgs = null, string workingDirectory = null)
+	{
+		if (redactedArgs == null)
+			redactedArgs = args;
 
-    public void BuildStep(string message)
-    {
-        WriteLineColor(ConsoleColor.White, $"==> {message} <==");
-        Console.WriteLine();
-    }
+		if (NeedMono && name.EndsWith(".exe"))
+		{
+			args = $"{name} {args}";
+			redactedArgs = $"{name} {redactedArgs}";
+			name = "mono";
+		}
 
-    public async Task Exec(string name, string args, string redactedArgs = null, string workingDirectory = null)
-    {
-        if (redactedArgs == null)
-            redactedArgs = args;
+		WriteLineColor(ConsoleColor.DarkGray, $"EXEC: {name} {redactedArgs}{Environment.NewLine}");
 
-        if (NeedMono && name.EndsWith(".exe"))
-        {
-            args = $"{name} {args}";
-            redactedArgs = $"{name} {redactedArgs}";
-            name = "mono";
-        }
+		await Command.RunAsync(name, args, workingDirectory ?? BaseFolder, /*noEcho*/ true);
 
-        WriteLineColor(ConsoleColor.DarkGray, $"EXEC: {name} {redactedArgs}{Environment.NewLine}");
+		Console.WriteLine();
+	}
 
-        await Command.RunAsync(name, args, workingDirectory ?? BaseFolder, /*noEcho*/ true);
+	async Task<int> OnExecuteAsync()
+	{
+		Exception error = default;
 
-        Console.WriteLine();
-    }
+		try
+		{
+			NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    async Task<int> OnExecuteAsync()
-    {
-        Exception error = default;
+			// Find the folder with the solution file
+			BaseFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			while (true)
+			{
+				if (Directory.GetFiles(BaseFolder, "*.sln").Count() != 0)
+					break;
 
-        try
-        {
-            NeedMono = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+				BaseFolder = Path.GetDirectoryName(BaseFolder);
+				if (BaseFolder == null)
+					throw new InvalidOperationException("Could not locate a solution file in the directory hierarchy");
+			}
 
-            // Find the folder with the solution file
-            BaseFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            while (true)
-            {
-                if (Directory.GetFiles(BaseFolder, "*.sln").Count() != 0)
-                    break;
+			// Dependent folders
+			PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");
+			Directory.CreateDirectory(PackageOutputFolder);
 
-                BaseFolder = Path.GetDirectoryName(BaseFolder);
-                if (BaseFolder == null)
-                    throw new InvalidOperationException("Could not locate a solution file in the directory hierarchy");
-            }
+			TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
+			Directory.CreateDirectory(TestOutputFolder);
 
-            // Dependent folders
-            PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");
-            Directory.CreateDirectory(PackageOutputFolder);
+			var homeFolder = NeedMono
+				? Environment.GetEnvironmentVariable("HOME")
+				: Environment.GetEnvironmentVariable("USERPROFILE");
 
-            TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
-            Directory.CreateDirectory(TestOutputFolder);
+			var nuGetCliFolder = Path.Combine(homeFolder, ".nuget", "cli", NuGetVersion);
+			Directory.CreateDirectory(nuGetCliFolder);
 
-            var homeFolder = NeedMono
-                ? Environment.GetEnvironmentVariable("HOME")
-                : Environment.GetEnvironmentVariable("USERPROFILE");
+			NuGetExe = Path.Combine(nuGetCliFolder, "nuget.exe");
+			NuGetUrl = $"https://dist.nuget.org/win-x86-commandline/v{NuGetVersion}/nuget.exe";
 
-            var nuGetCliFolder = Path.Combine(homeFolder, ".nuget", "cli", NuGetVersion);
-            Directory.CreateDirectory(nuGetCliFolder);
+			// Parse the targets and Bullseye-specific arguments
+			var bullseyeArguments = Targets.Select(x => x.ToString());
+			if (SkipDependencies)
+				bullseyeArguments = bullseyeArguments.Append("--skip-dependencies");
 
-            NuGetExe = Path.Combine(nuGetCliFolder, "nuget.exe");
-            NuGetUrl = $"https://dist.nuget.org/win-x86-commandline/v{NuGetVersion}/nuget.exe";
+			// Find target classes
+			var targetCollection = new TargetCollection();
+			var targets
+				= Assembly.GetExecutingAssembly()
+					.ExportedTypes
+					.Select(x => new { type = x, attr = x.GetCustomAttribute<TargetAttribute>() })
+					.Where(x => x.attr != null);
 
-            // Parse the targets and Bullseye-specific arguments
-            var bullseyeArguments = Targets.Select(x => x.ToString());
-            if (SkipDependencies)
-                bullseyeArguments = bullseyeArguments.Append("--skip-dependencies");
+			foreach (var target in targets)
+			{
+				var method = target.type.GetRuntimeMethod("OnExecute", new[] { typeof(BuildContext) });
 
-            // Find target classes
-            var targetCollection = new TargetCollection();
+				if (method == null)
+					targetCollection.Add(new Target(target.attr.TargetName, target.attr.DependentTargets));
+				else
+					targetCollection.Add(new ActionTarget(target.attr.TargetName, target.attr.DependentTargets, () => (Task)method.Invoke(null, new[] { this })));
+			}
 
-            foreach (var target in Assembly.GetExecutingAssembly()
-                                           .ExportedTypes
-                                           .Select(x => new { type = x, attr = x.GetCustomAttribute<TargetAttribute>() })
-                                           .Where(x => x.attr != null))
-            {
-                var method = target.type.GetRuntimeMethod("OnExecute", new[] { typeof(BuildContext) });
+			// Let Bullseye run the target(s)
+			await targetCollection.RunAsync(bullseyeArguments, new NullConsole());
 
-                if (method == null)
-                    targetCollection.Add(new Target(target.attr.TargetName, target.attr.DependentTargets));
-                else
-                    targetCollection.Add(new ActionTarget(target.attr.TargetName, target.attr.DependentTargets, () => (Task)method.Invoke(null, new[] { this })));
-            }
+			return 0;
+		}
+		catch (Exception ex)
+		{
+			error = ex;
+			while (error is TargetInvocationException || error is TargetFailedException)
+				error = error.InnerException;
+		}
 
-            // Let Bullseye run the target(s)
-            await targetCollection.RunAsync(bullseyeArguments, new NullConsole());
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            error = ex;
-            while (error is TargetInvocationException || error is TargetFailedException)
-                error = error.InnerException;
-        }
+		Console.WriteLine();
 
-        Console.WriteLine();
+		if (error is NonZeroExitCodeException nonZeroExit)
+		{
+			WriteLineColor(ConsoleColor.Red, "==> Build failed! <==");
+			return nonZeroExit.ExitCode;
+		}
 
-        if (error is NonZeroExitCodeException nonZeroExit)
-        {
-            WriteLineColor(ConsoleColor.Red, "==> Build failed! <==");
-            return nonZeroExit.ExitCode;
-        }
+		WriteLineColor(ConsoleColor.Red, $"==> Build failed! An unhandled exception was thrown <==");
+		Console.WriteLine(error.ToString());
+		return -1;
+	}
 
-        WriteLineColor(ConsoleColor.Red, $"==> Build failed! An unhandled exception was thrown <==");
-        Console.WriteLine(error.ToString());
-        return -1;
-    }
+	public void WriteColor(ConsoleColor foregroundColor, string text)
+	{
+		if (!NoColor)
+			Console.ForegroundColor = foregroundColor;
 
-    public void WriteColor(ConsoleColor foregroundColor, string text)
-    {
-        if (!NoColor)
-            Console.ForegroundColor = foregroundColor;
+		Console.Write(text);
 
-        Console.Write(text);
+		if (!NoColor)
+			Console.ResetColor();
+	}
 
-        if (!NoColor)
-            Console.ResetColor();
-    }
-
-    public void WriteLineColor(ConsoleColor foregroundColor, string text)
-        => WriteColor(foregroundColor, $"{text}{Environment.NewLine}");
+	public void WriteLineColor(ConsoleColor foregroundColor, string text)
+		=> WriteColor(foregroundColor, $"{text}{Environment.NewLine}");
 }
