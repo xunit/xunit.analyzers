@@ -215,6 +215,14 @@ namespace Xunit.Analyzers
 		{
 			public static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination, XunitContext xunitContext)
 			{
+				if (destination.TypeKind == TypeKind.Array)
+				{
+					var destinationElementType = ((IArrayTypeSymbol)destination).ElementType;
+
+					if (destinationElementType.TypeKind == TypeKind.TypeParameter)
+						return IsConvertibleTypeParameter(source, (ITypeParameterSymbol)destinationElementType);
+				}
+
 				if (destination.TypeKind == TypeKind.TypeParameter)
 					return IsConvertibleTypeParameter(source, (ITypeParameterSymbol)destination);
 
