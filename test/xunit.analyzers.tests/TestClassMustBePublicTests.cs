@@ -127,7 +127,7 @@ public partial class TestClass
 					Sources = { source1, source2 },
 					ExpectedDiagnostics =
 					{
-						Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan("Test1.cs", 2, 16 + part2AccessModifier.Length, 2, 25 + part2AccessModifier.Length),
+						Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan("/0/Test1.cs", 2, 16 + part2AccessModifier.Length, 2, 25 + part2AccessModifier.Length),
 					},
 				},
 			}.RunAsync();
