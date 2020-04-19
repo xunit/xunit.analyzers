@@ -44,6 +44,10 @@ namespace Xunit.Analyzers
 				if (memberNameArgument == null)
 					return;
 
+				var propertyAttributeParameters = attribute.ArgumentList.Arguments
+					.Count(a => !string.IsNullOrEmpty(a.NameEquals?.Name.Identifier.ValueText));
+
+				var paramsCount = attribute.ArgumentList.Arguments.Count - 1 - propertyAttributeParameters;
 				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, symbolContext.CancellationToken);
 				if (!(constantValue.Value is string memberName))
 					return;
@@ -58,7 +62,7 @@ namespace Xunit.Analyzers
 
 				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>());
 				var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol);
+				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
 
 				if (memberSymbol == null)
 				{
@@ -170,11 +174,24 @@ namespace Xunit.Analyzers
 			};
 		}
 
-		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type)
+		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type, int paramsCount)
 		{
 			while (type != null)
 			{
+				if (paramsCount > 0)
+				{
+					var methodSymbol = type.GetMembers(memberName)
+						.OfType<IMethodSymbol>()
+						.FirstOrDefault(x => x.Parameters.Length == paramsCount);
+
+					if (methodSymbol != null)
+					{
+						return methodSymbol;
+					}
+				}
+
 				var memberSymbol = type.GetMembers(memberName).FirstOrDefault();
+
 				if (memberSymbol != null)
 					return memberSymbol;
 
