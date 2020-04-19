@@ -176,24 +176,36 @@ namespace Xunit.Analyzers
 
 		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type, int paramsCount)
 		{
+			if (paramsCount > 0 && FindMethodSymbol(memberName, type, paramsCount) is ISymbol methodSymbol)
+			{
+				return methodSymbol;
+			}
+
 			while (type != null)
 			{
-				if (paramsCount > 0)
-				{
-					var methodSymbol = type.GetMembers(memberName)
-						.OfType<IMethodSymbol>()
-						.FirstOrDefault(x => x.Parameters.Length == paramsCount);
-
-					if (methodSymbol != null)
-					{
-						return methodSymbol;
-					}
-				}
-
 				var memberSymbol = type.GetMembers(memberName).FirstOrDefault();
 
 				if (memberSymbol != null)
 					return memberSymbol;
+
+				type = type.BaseType;
+			}
+
+			return null;
+		}
+
+		static ISymbol FindMethodSymbol(string memberName, ITypeSymbol type, int paramsCount)
+		{
+			while (type != null)
+			{
+				var methodSymbol = type.GetMembers(memberName)
+					.OfType<IMethodSymbol>()
+					.FirstOrDefault(x => x.Parameters.Length == paramsCount);
+
+				if (methodSymbol != null)
+				{
+					return methodSymbol;
+				}
 
 				type = type.BaseType;
 			}
