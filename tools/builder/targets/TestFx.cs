@@ -14,6 +14,6 @@ public static class TestFx
 		var resultPath = Path.Combine(context.BaseFolder, "artifacts", "test");
 		File.Delete(Path.Combine(resultPath, "netfx.trx"));
 
-		return context.Exec("dotnet", $"test test/xunit.analyzers.tests --framework net472 --configuration {context.ConfigurationText} --no-build --logger trx;LogFileName=netfx.trx --results-directory \"{resultPath}\" --verbosity {context.Verbosity}");
+		return context.Exec("dotnet", $"test src/xunit.analyzers.tests --framework net472 --configuration {context.ConfigurationText} --no-build --logger trx;LogFileName=netfx.trx --results-directory \"{resultPath}\" --verbosity {context.Verbosity}");
 	}
 }

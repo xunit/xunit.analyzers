@@ -1,14 +1,35 @@
 <Project>
 
-  <Import Project="..\Directory.Build.props" />
+  <!-- ============================== -->
+  <!-- Universal properties and items -->
 
   <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- ======================================== -->
+  <!-- Production-specific properties and items -->
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.74" PrivateAssets="all" />
-  </ItemGroup>
+  <!-- ================================== -->
+  <!-- Test-specific properties and items -->
+
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyNuGetImplementations>true</CopyNuGetImplementations>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">Full</DebugType>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
 
 </Project>
