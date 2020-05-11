@@ -3,13 +3,13 @@
 	"isRoot": true,
 	"tools": {
 		"nbgv": {
-			"version": "3.1.13-beta",
+			"version": "3.1.91",
 			"commands": [
 				"nbgv"
 			]
 		},
 		"signclient": {
-			"version": "1.2.33",
+			"version": "1.2.109",
 			"commands": [
 				"SignClient"
 			]
