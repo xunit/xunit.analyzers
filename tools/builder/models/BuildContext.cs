@@ -151,7 +151,7 @@ public class BuildContext
 			}
 
 			// Let Bullseye run the target(s)
-			await targetCollection.RunAsync(bullseyeArguments.ToList(), SkipDependencies, false, false, new NullLogger(), null);
+			await targetCollection.RunAsync(bullseyeArguments.ToList(), SkipDependencies, false, false, new NullLogger(), _ => false);
 
 			return 0;
 		}
