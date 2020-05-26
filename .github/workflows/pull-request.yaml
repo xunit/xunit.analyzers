@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-18.04, macOS-latest]
     steps:
       - name: Clone source
         uses: actions/checkout@v1

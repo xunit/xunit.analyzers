@@ -7,7 +7,7 @@ on:
 jobs:
   build-unix:
     name: "CI Build"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - name: Clone source
         uses: actions/checkout@v1
