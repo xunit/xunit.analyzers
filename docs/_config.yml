@@ -1,6 +1,6 @@
 title: xUnit.net Analyzers
 description: Roslyn analyzers for xUnit.net
-logo: https://raw.github.com/xunit/media/master/logo-128-transparent.png
+logo: https://raw.github.com/xunit/media/main/logo-128-transparent.png
 collections:
   rules:
     output: true

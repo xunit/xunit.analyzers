@@ -9,7 +9,7 @@ This project contains source code analysis and cleanup rules for xUnit.net.
 
 **Requirements**: xUnit.net v2.0+ and Visual Studio 2015 Update 2 or later.
 
-**Documentation**: a list of supported rules is available at https://xunit.github.io/xunit.analyzers/
+**Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/
 
 **Bugs and issues**: please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
 
@@ -31,6 +31,6 @@ If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers 
 
 # About xUnit.net
 
-[<img align="right" src="https://xunit.github.io/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
+[<img align="right" src="https://xunit.net/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
 
 xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with ReSharper, CodeRush, TestDriven.NET and Xamarin. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).

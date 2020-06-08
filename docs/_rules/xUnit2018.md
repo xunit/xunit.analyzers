@@ -7,7 +7,7 @@ severity: Warning
 
 # This is a documentation stub
 
-Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/master/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
+Please submit a PR with updates to the [appropriate file]({{ site.github.repository_url }}/tree/main/docs/{{ page.relative_path }}) or create an [issue](https://github.com/xunit/xunit/issues) if you see this.
 
 ## Cause
 
