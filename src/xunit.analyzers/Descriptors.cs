@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
 
 		static DiagnosticDescriptor Rule(string id, string title, Category category, DiagnosticSeverity defaultSeverity, string messageFormat, string description = null)
 		{
-			var helpLink = $"https://xunit.github.io/xunit.analyzers/rules/{id}";
+			var helpLink = $"https://xunit.net/xunit.analyzers/rules/{id}";
 			var isEnabledByDefault = true;
 			return new DiagnosticDescriptor(id, title, messageFormat, categoryMapping.GetOrAdd(category, c => c.ToString()), defaultSeverity, isEnabledByDefault, description, helpLink);
 		}

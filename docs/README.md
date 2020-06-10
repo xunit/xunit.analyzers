@@ -1,6 +1,6 @@
 ## Viewing documentation
 
-To view the documentation head to https://xunit.github.io/xunit.analyzers/
+To view the documentation head to https://xunit.net/xunit.analyzers/
 
 ## Editing the documentation
 

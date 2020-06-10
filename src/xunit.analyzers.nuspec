@@ -9,7 +9,7 @@
     <description>Code Analyzers for projects using xUnit.net that help find and fix frequent issues when writing tests.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/xunit/xunit.analyzers</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/xunit/media/master/logo-512-transparent.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/xunit/media/main/logo-512-transparent.png</iconUrl>
     <license type="expression">Apache-2.0</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
