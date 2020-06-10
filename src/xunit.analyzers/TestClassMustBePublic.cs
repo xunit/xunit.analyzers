@@ -11,9 +11,9 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(context =>
+			context.RegisterSymbolAction(context =>
 			{
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;

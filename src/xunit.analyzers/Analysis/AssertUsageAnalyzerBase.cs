@@ -29,17 +29,17 @@ namespace Xunit.Analyzers
 			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 			context.EnableConcurrentExecution();
 
-			context.RegisterCompilationStartAction(compilationContext =>
+			context.RegisterCompilationStartAction(context =>
 			{
-				var assertType = compilationContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
+				var assertType = context.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
 				if (assertType == null)
 					return;
 
-				compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
+				context.RegisterSyntaxNodeAction(context =>
 				{
-					var invocation = (InvocationExpressionSyntax)syntaxContext.Node;
+					var invocation = (InvocationExpressionSyntax)context.Node;
 
-					var symbolInfo = syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
+					var symbolInfo = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken);
 					if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
 						return;
 
@@ -49,7 +49,7 @@ namespace Xunit.Analyzers
 							!methodNames.Contains(methodSymbol.Name))
 						return;
 
-					Analyze(syntaxContext, invocation, methodSymbol);
+					Analyze(context, invocation, methodSymbol);
 
 				}, SyntaxKind.InvocationExpression);
 			});

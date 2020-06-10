@@ -13,21 +13,21 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var attribute = (AttributeSyntax)syntaxNodeContext.Node;
+				var attribute = (AttributeSyntax)context.Node;
 				if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
 					return;
 
-				var attributeType = syntaxNodeContext.SemanticModel.GetTypeInfo(attribute).Type;
+				var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
 				if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 					return;
 
 				var skipArgument = attribute.ArgumentList.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
 				if (skipArgument != null)
-					syntaxNodeContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1004_TestMethodShouldNotBeSkipped,
 							skipArgument.GetLocation()));

@@ -12,11 +12,11 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var symbol = (IMethodSymbol)symbolContext.Symbol;
+				var symbol = (IMethodSymbol)context.Symbol;
 				var attributeTypes = new HashSet<INamedTypeSymbol>();
 				var count = 0;
 				foreach (var attribute in symbol.GetAttributes())
@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
 
 				if (count > 1)
 				{
-					symbolContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
 							symbol.Locations.First(),

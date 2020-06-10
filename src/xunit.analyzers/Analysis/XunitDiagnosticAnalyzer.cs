@@ -20,17 +20,17 @@ namespace Xunit.Analyzers
 			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 			context.EnableConcurrentExecution();
 
-			context.RegisterCompilationStartAction(compilationStartContext =>
+			context.RegisterCompilationStartAction(context =>
 			{
-				var xunitContext = new XunitContext(compilationStartContext.Compilation, versionOverride);
+				var xunitContext = new XunitContext(context.Compilation, versionOverride);
 				if (ShouldAnalyze(xunitContext))
-					AnalyzeCompilation(compilationStartContext, xunitContext);
+					AnalyzeCompilation(context, xunitContext);
 			});
 		}
 
 		protected virtual bool ShouldAnalyze(XunitContext xunitContext)
 			=> xunitContext.HasCoreReference;
 
-		internal abstract void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext);
+		internal abstract void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext);
 	}
 }

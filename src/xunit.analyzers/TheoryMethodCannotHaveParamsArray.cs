@@ -23,11 +23,11 @@ namespace Xunit.Analyzers
 		protected override bool ShouldAnalyze(XunitContext xunitContext)
 			=> xunitContext.HasCoreReference && !xunitContext.Core.TheorySupportsParameterArrays;
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var method = (IMethodSymbol)symbolContext.Symbol;
+				var method = (IMethodSymbol)context.Symbol;
 				var parameter = method.Parameters.LastOrDefault();
 				if (!(parameter?.IsParams ?? false))
 					return;
@@ -35,10 +35,10 @@ namespace Xunit.Analyzers
 				var attributes = method.GetAttributes();
 				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 				{
-					symbolContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1022_TheoryMethodCannotHaveParameterArray,
-							parameter.DeclaringSyntaxReferences.First().GetSyntax(compilationStartContext.CancellationToken).GetLocation(),
+							parameter.DeclaringSyntaxReferences.First().GetSyntax(context.CancellationToken).GetLocation(),
 							method.Name,
 							method.ContainingType.ToDisplayString(),
 							parameter.Name));

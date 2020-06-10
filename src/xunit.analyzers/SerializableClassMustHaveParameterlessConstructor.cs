@@ -13,19 +13,19 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var classDeclaration = (ClassDeclarationSyntax)syntaxNodeContext.Node;
+				var classDeclaration = (ClassDeclarationSyntax)context.Node;
 				if (classDeclaration.BaseList == null)
 					return;
 
-				var semanticModel = syntaxNodeContext.SemanticModel;
+				var semanticModel = context.SemanticModel;
 
 				foreach (var baseType in classDeclaration.BaseList.Types)
 				{
-					var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
+					var type = semanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
 					if (xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(type) == true)
 					{
 						if (!classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().Any())
@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
 
 						var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
 						if (parameterlessCtor == null || !parameterlessCtor.Modifiers.Any(m => m.Text == "public"))
-							syntaxNodeContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor,
 									classDeclaration.Identifier.GetLocation(),

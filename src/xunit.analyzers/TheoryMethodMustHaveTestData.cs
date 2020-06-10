@@ -11,16 +11,16 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 		   ImmutableArray.Create(Descriptors.X1003_TheoryMethodMustHaveTestData);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var symbol = (IMethodSymbol)symbolContext.Symbol;
+				var symbol = (IMethodSymbol)context.Symbol;
 				var attributes = symbol.GetAttributes();
 				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
 					(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType)))
 				{
-					symbolContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1003_TheoryMethodMustHaveTestData,
 							symbol.Locations.First()));

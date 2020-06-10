@@ -12,21 +12,21 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var classDeclaration = (ClassDeclarationSyntax)syntaxNodeContext.Node;
+				var classDeclaration = (ClassDeclarationSyntax)context.Node;
 				if (classDeclaration.BaseList == null)
 					return;
 
-				var semanticModel = syntaxNodeContext.SemanticModel;
+				var semanticModel = context.SemanticModel;
 				var isTestCase = false;
 				var hasMBRO = false;
 
 				foreach (var baseType in classDeclaration.BaseList.Types)
 				{
-					var type = semanticModel.GetTypeInfo(baseType.Type, compilationStartContext.CancellationToken).Type;
+					var type = semanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
 					if (xunitContext.Abstractions.ITestCaseType?.IsAssignableFrom(type) == true)
 						isTestCase = true;
 					if (xunitContext.Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(type) == true)
@@ -35,7 +35,7 @@ namespace Xunit.Analyzers
 
 				if (isTestCase && !hasMBRO)
 				{
-					syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
+					context.ReportDiagnostic(Diagnostic.Create(
 						Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
 						classDeclaration.Identifier.GetLocation(),
 						classDeclaration.Identifier.ValueText));
