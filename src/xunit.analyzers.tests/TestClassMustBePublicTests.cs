@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
 
 		[Theory]
 		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-		public async void ForFriendOrInternalClass_FindsError(			string factRelatedAttribute,			string classAccessModifier)
+		public async void ForFriendOrInternalClass_FindsError(string factRelatedAttribute, string classAccessModifier)
 		{
 			var source = @"
 " + classAccessModifier + @" class TestClass
@@ -84,7 +84,7 @@ public partial class TestClass
 		[InlineData("", "")]
 		[InlineData("", "internal")]
 		[InlineData("internal", "internal")]
-		public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(			string part1AccessModifier,			string part2AccessModifier)
+		public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(string part1AccessModifier, string part2AccessModifier)
 		{
 			var source = @"
 " + part1AccessModifier + @" partial class TestClass
@@ -106,7 +106,7 @@ public partial class TestClass
 		[InlineData("", "")]
 		[InlineData("", "internal")]
 		[InlineData("internal", "internal")]
-		public async void ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(			string part1AccessModifier,			string part2AccessModifier)
+		public async void ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(string part1AccessModifier, string part2AccessModifier)
 		{
 			var source1 = @"
 " + part1AccessModifier + @" partial class TestClass
