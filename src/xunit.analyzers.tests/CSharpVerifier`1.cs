@@ -65,26 +65,7 @@ namespace Xunit.Analyzers
 		{
 			public Test()
 			{
-				SolutionTransforms.Add((solution, projectId) =>
-				{
-					solution = solution
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.XunitAbstractionsReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.XunitAssertReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.XunitCoreReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemThreadingTasksReference);
-
-#if NETCOREAPP
-					solution = solution
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemCollectionsReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemCollectionsNonGenericReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemConsoleReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemRuntimeReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemRuntimeExtensionsReference)
-						.AddMetadataReference(projectId, CodeAnalyzerHelper.SystemTextRegularExpressionsReference);
-#endif
-
-					return solution;
-				});
+				ReferenceAssemblies = CodeAnalyzerHelper.CurrentXunit;
 
 				// xunit diagnostics are reported in both normal and generated code
 				TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.CodeAnalysis.Testing;
 using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
 
 namespace Xunit.Analyzers
@@ -47,15 +46,7 @@ public class MyTestCase: {0} {{ }}
 		public async void XunitTestCase_NoDiagnostics()
 		{
 			var source = "public class MyTestCase : Xunit.Sdk.XunitTestCase { }";
-
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source },
-					AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-				},
-			}.RunAsync();
+			await Verify.VerifyAnalyzerAsync(source);
 		}
 
 		[Theory]
@@ -63,14 +54,7 @@ public class MyTestCase: {0} {{ }}
 		public async void InterfaceWithProperBaseClass_NoDiagnostics(string @interface, string baseClass)
 		{
 			var source = string.Format(Template, $"{baseClass}, {@interface}");
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source },
-					AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-				},
-			}.RunAsync();
+			await Verify.VerifyAnalyzerAsync(source);
 		}
 
 		[Theory]
@@ -79,15 +63,8 @@ public class MyTestCase: {0} {{ }}
 		{
 			var source = string.Format(Template, @interface);
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source },
-					AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase") },
-				},
-			}.RunAsync();
+			var expected = Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase");
+			await Verify.VerifyAnalyzerAsync(source, expected);
 		}
 
 		[Theory]
@@ -96,15 +73,8 @@ public class MyTestCase: {0} {{ }}
 		{
 			var source = string.Format(Template, $"Foo, {@interface}");
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source },
-					AdditionalReferences = { CodeAnalyzerHelper.XunitExecutionReference },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase") },
-				},
-			}.RunAsync();
+			var expected = Verify.Diagnostic().WithLocation(4, 14).WithArguments("MyTestCase");
+			await Verify.VerifyAnalyzerAsync(source, expected);
 		}
 	}
 }
