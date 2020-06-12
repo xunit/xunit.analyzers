@@ -1,5 +1,6 @@
 public enum BuildTarget
 {
+	AnalyzeSource,
 	Build,
 	CI,
 	DownloadNuGet,

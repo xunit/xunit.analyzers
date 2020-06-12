@@ -1,5 +1,5 @@
 [Target(
 	BuildTarget.PR,
-	BuildTarget.Test
+	BuildTarget.AnalyzeSource, BuildTarget.Test
 )]
 public class PR { }
