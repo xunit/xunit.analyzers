@@ -127,10 +127,8 @@ public class BuildContext
 			NuGetExe = Path.Combine(nuGetCliFolder, "nuget.exe");
 			NuGetUrl = $"https://dist.nuget.org/win-x86-commandline/v{NuGetVersion}/nuget.exe";
 
-			// Parse the targets and Bullseye-specific arguments
-			var bullseyeArguments = Targets.Select(x => x.ToString());
-			if (SkipDependencies)
-				bullseyeArguments = bullseyeArguments.Append("--skip-dependencies");
+			// Parse the targets
+			var targetNames = Targets.Select(x => x.ToString()).ToList();
 
 			// Find target classes
 			var targetCollection = new TargetCollection();
@@ -151,7 +149,7 @@ public class BuildContext
 			}
 
 			// Let Bullseye run the target(s)
-			await targetCollection.RunAsync(bullseyeArguments.ToList(), SkipDependencies, false, false, new NullLogger(), _ => false);
+			await targetCollection.RunAsync(targetNames, SkipDependencies, dryRun: false, parallel: false, new NullLogger(), _ => false);
 
 			return 0;
 		}
