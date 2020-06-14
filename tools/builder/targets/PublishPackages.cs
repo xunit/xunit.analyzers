@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 [Target(
 	BuildTarget.PublishPackages,
-	BuildTarget.DownloadNuGet, BuildTarget.Packages
+	BuildTarget.Packages
 )]
 public static class PublishPackages
 {
@@ -27,9 +27,9 @@ public static class PublishPackages
 
 		foreach (var packageFile in packageFiles)
 		{
-			var args = $"push -source https://www.myget.org/F/xunit/api/v2/package -apiKey {publishToken} {packageFile}";
+			var args = $"nuget push --source https://www.myget.org/F/xunit/api/v2/package --apiKey {publishToken} --skip-duplicate {packageFile}";
 			var redactedArgs = args.Replace(publishToken, "[redacted]");
-			await context.Exec(context.NuGetExe, args, redactedArgs);
+			await context.Exec("dotnet", args, redactedArgs);
 		}
 	}
 }
