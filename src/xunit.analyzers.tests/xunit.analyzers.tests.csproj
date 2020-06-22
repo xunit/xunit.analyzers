@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Warnings from old Microsoft.CodeAnalysis and friends not properly supporting .NET Core -->
-    <NoWarn>NU1701</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
-    <AnalyzersOutputPath>..\..\src\xunit.analyzers\bin\$(Configuration)\netstandard1.1\xunit.analyzers.dll</AnalyzersOutputPath>
+    <AnalyzersOutputPath>..\..\src\xunit.analyzers\bin\$(Configuration)\netstandard1.3\xunit.analyzers.dll</AnalyzersOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.3.2" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
