@@ -16,13 +16,13 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes, new[] { NullMethod, NotNullMethod })
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			if (invocation.ArgumentList.Arguments.Count != 1)
 				return;
 
 			var argumentExpression = invocation.ArgumentList.Arguments.Single().Expression;
-			var argumentType = context.SemanticModel.GetTypeInfo(argumentExpression, context.CancellationToken).Type;
+			var argumentType = context.GetSemanticModel().GetTypeInfo(argumentExpression, context.CancellationToken).Type;
 
 			if (argumentType == null || IsArgumentTypeRecognizedAsReferenceType(argumentType))
 				return;

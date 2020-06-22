@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
 			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, new[] { "Throws", "ThrowsAny" })
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			if (invocation.ArgumentList.Arguments.Count < 1 || invocation.ArgumentList.Arguments.Count > 2)
 				return;
@@ -47,20 +47,20 @@ namespace Xunit.Analyzers
 					SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
 		}
 
-		private static SymbolInfo GetThrowExpressionSymbol(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation)
+		private static SymbolInfo GetThrowExpressionSymbol(OperationAnalysisContext context, InvocationExpressionSyntax invocation)
 		{
 			var argumentExpression = invocation.ArgumentList.Arguments.Last().Expression;
 
 			if (!(argumentExpression is LambdaExpressionSyntax lambdaExpression))
-				return context.SemanticModel.GetSymbolInfo(argumentExpression);
+				return context.GetSemanticModel().GetSymbolInfo(argumentExpression);
 
 			if (!(lambdaExpression.Body is AwaitExpressionSyntax awaitExpression))
-				return context.SemanticModel.GetSymbolInfo(lambdaExpression.Body);
+				return context.GetSemanticModel().GetSymbolInfo(lambdaExpression.Body);
 
-			return context.SemanticModel.GetSymbolInfo(awaitExpression.Expression);
+			return context.GetSemanticModel().GetSymbolInfo(awaitExpression.Expression);
 		}
 
-		private static bool ThrowExpressionReturnsTask(SymbolInfo symbol, SyntaxNodeAnalysisContext context)
+		private static bool ThrowExpressionReturnsTask(SymbolInfo symbol, OperationAnalysisContext context)
 		{
 			if (symbol.Symbol?.Kind != SymbolKind.Method)
 				return false;

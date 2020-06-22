@@ -12,7 +12,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, new[] { "Collection" })
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var arguments = invocation.ArgumentList.Arguments;
 			if (arguments.Count != 1)

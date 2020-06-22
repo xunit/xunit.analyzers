@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers
 {
@@ -35,26 +35,23 @@ namespace Xunit.Analyzers
 				if (assertType == null)
 					return;
 
-				context.RegisterSyntaxNodeAction(context =>
+				context.RegisterOperationAction(context =>
 				{
-					var invocation = (InvocationExpressionSyntax)context.Node;
-
-					var symbolInfo = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken);
-					if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
+					var invocationOperation = (IInvocationOperation)context.Operation;
+					if (!(invocationOperation.Syntax is InvocationExpressionSyntax invocation))
 						return;
 
-					var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
+					var methodSymbol = invocationOperation.TargetMethod;
 					if (methodSymbol.MethodKind != MethodKind.Ordinary ||
 							!Equals(methodSymbol.ContainingType, assertType) ||
 							!methodNames.Contains(methodSymbol.Name))
 						return;
 
 					Analyze(context, invocation, methodSymbol);
-
-				}, SyntaxKind.InvocationExpression);
+				}, OperationKind.Invocation);
 			});
 		}
 
-		protected abstract void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method);
+		protected abstract void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method);
 	}
 }

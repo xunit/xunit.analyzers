@@ -31,14 +31,14 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck, EqualMethods)
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			if (method.Parameters.Length != 2 ||
 				!method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_Int32) ||
 				!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_Int32))
 				return;
 
-			var size = context.SemanticModel.GetConstantValue(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken);
+			var size = context.GetSemanticModel().GetConstantValue(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken);
 			if (!size.HasValue)
 				return;
 
@@ -56,7 +56,7 @@ namespace Xunit.Analyzers
 			if (expression == null)
 				return;
 
-			var symbolInfo = context.SemanticModel.GetSymbolInfo(expression, context.CancellationToken);
+			var symbolInfo = context.GetSemanticModel().GetSymbolInfo(expression, context.CancellationToken);
 
 			if (IsCollectionsWithExceptionThrowingGetEnumeratorMethod(symbolInfo) ||
 				!IsWellKnownSizeMethod(symbolInfo) &&
@@ -87,17 +87,17 @@ namespace Xunit.Analyzers
 		private static bool IsWellKnownSizeMethod(SymbolInfo symbolInfo)
 			 => SizeMethods.Contains(symbolInfo.Symbol.OriginalDefinition.ToDisplayString());
 
-		private static bool IsICollectionCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+		private static bool IsICollectionCountProperty(OperationAnalysisContext context, SymbolInfo symbolInfo)
 			=> IsCountPropertyOf(
 				context.Compilation.GetTypeByMetadataName(Constants.Types.SystemCollectionsICollection),
 				symbolInfo);
 
-		private static bool IsICollectionOfTCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+		private static bool IsICollectionOfTCountProperty(OperationAnalysisContext context, SymbolInfo symbolInfo)
 			=> IsCountPropertyOfGenericType(
 				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T),
 				symbolInfo);
 
-		private static bool IsIReadOnlyCollectionOfTCountProperty(SyntaxNodeAnalysisContext context, SymbolInfo symbolInfo)
+		private static bool IsIReadOnlyCollectionOfTCountProperty(OperationAnalysisContext context, SymbolInfo symbolInfo)
 			=> IsCountPropertyOfGenericType(
 				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T),
 				symbolInfo);

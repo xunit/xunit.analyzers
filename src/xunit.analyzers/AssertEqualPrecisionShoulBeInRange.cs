@@ -12,14 +12,14 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange, new[] { "Equal", "NotEqual" })
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation,
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation,
 			IMethodSymbol method)
 		{
 			var numericType = GetMethodNumericType(method);
 			if (numericType == null)
 				return;
 
-			var numericLiteralValue = GetNumericLiteralValue(invocation, context.SemanticModel);
+			var numericLiteralValue = GetNumericLiteralValue(invocation, context.GetSemanticModel());
 			if (numericLiteralValue == null)
 				return;
 
@@ -65,7 +65,7 @@ namespace Xunit.Analyzers
 				: null;
 		}
 
-		private static void EnsurePrecisionInRange(SyntaxNodeAnalysisContext context, Location location,
+		private static void EnsurePrecisionInRange(OperationAnalysisContext context, Location location,
 			SpecialType numericType, int numericValue)
 		{
 			var precisionMax = PrecisionMaxLimits[numericType];
