@@ -19,7 +19,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck, BooleanMethods)
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var arguments = invocation.ArgumentList.Arguments;
 			if (arguments.Count != 1)
@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
 			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
 				return;
 
-			var symbolInfo = context.SemanticModel.GetSymbolInfo(invocationExpression);
+			var symbolInfo = context.GetSemanticModel().GetSymbolInfo(invocationExpression);
 			if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
 				return;
 

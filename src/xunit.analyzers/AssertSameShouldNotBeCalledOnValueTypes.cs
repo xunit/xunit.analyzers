@@ -17,13 +17,13 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes, new[] { SameMethod, NotSameMethod })
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			if (invocation.ArgumentList.Arguments.Count != 2)
 				return;
 
-			var firstArgumentType = context.SemanticModel.GetTypeInfo(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken).Type;
-			var secondArgumentType = context.SemanticModel.GetTypeInfo(invocation.ArgumentList.Arguments[1].Expression, context.CancellationToken).Type;
+			var firstArgumentType = context.GetSemanticModel().GetTypeInfo(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken).Type;
+			var secondArgumentType = context.GetSemanticModel().GetTypeInfo(invocation.ArgumentList.Arguments[1].Expression, context.CancellationToken).Type;
 			if (firstArgumentType == null || secondArgumentType == null)
 				return;
 

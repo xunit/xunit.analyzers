@@ -19,7 +19,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var arguments = invocation.ArgumentList.Arguments;
 			var literalFirstArgument = arguments.First().Expression as LiteralExpressionSyntax;

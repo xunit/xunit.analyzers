@@ -19,13 +19,13 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType, IsTypeMethods)
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			if (!(invocation.GetSimpleName() is GenericNameSyntax genericName))
 				return;
 
 			var typeSyntax = genericName.TypeArgumentList.Arguments[0];
-			var typeInfo = context.SemanticModel.GetTypeInfo(typeSyntax);
+			var typeInfo = context.GetSemanticModel().GetTypeInfo(typeSyntax);
 			var typeKind = GetAbstractTypeKind(typeInfo.Type);
 			if (typeKind == null)
 				return;

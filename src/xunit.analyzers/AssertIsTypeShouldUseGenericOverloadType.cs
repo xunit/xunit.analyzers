@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload, IsTypeMethods)
 		{ }
 
-		protected override void Analyze(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var arguments = invocation.ArgumentList.Arguments;
 			if (arguments.Count != 2)
@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 			if (!(arguments[0].Expression is TypeOfExpressionSyntax typeOfExpression))
 				return;
 
-			var typeInfo = context.SemanticModel.GetTypeInfo(typeOfExpression.Type);
+			var typeInfo = context.GetSemanticModel().GetTypeInfo(typeOfExpression.Type);
 			var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type);
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
