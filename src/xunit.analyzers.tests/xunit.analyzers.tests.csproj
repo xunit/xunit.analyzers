@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
-    <AnalyzersOutputPath>..\..\src\xunit.analyzers\bin\$(Configuration)\netstandard1.3\xunit.analyzers.dll</AnalyzersOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,12 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" />
+    <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Analyzer Include="$(AnalyzersOutputPath)" />
   </ItemGroup>
 
 </Project>
