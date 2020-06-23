@@ -12,19 +12,19 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			var taskType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-			var configuredTaskAwaitableType = compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
+			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
+			var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
 			var interfacesToIgnore = new List<INamedTypeSymbol>
 			{
-				compilationStartContext.Compilation.GetSpecialType(SpecialType.System_IDisposable),
-				compilationStartContext.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
+				context.Compilation.GetSpecialType(SpecialType.System_IDisposable),
+				context.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
 			};
 
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var type = (INamedTypeSymbol)symbolContext.Symbol;
+				var type = (INamedTypeSymbol)context.Symbol;
 
 				if (type.TypeKind != TypeKind.Class ||
 					type.DeclaredAccessibility != Accessibility.Public ||
@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
 				var violations = new List<IMethodSymbol>();
 				foreach (var member in type.GetMembers().Where(m => m.Kind == SymbolKind.Method))
 				{
-					symbolContext.CancellationToken.ThrowIfCancellationRequested();
+					context.CancellationToken.ThrowIfCancellationRequested();
 
 					var method = (IMethodSymbol)member;
 					// Check for method.IsAbstract and earlier for type.IsAbstract is done
@@ -92,7 +92,7 @@ namespace Xunit.Analyzers
 					foreach (var method in violations)
 					{
 						var testType = method.Parameters.Any() ? "Theory" : "Fact";
-						symbolContext.ReportDiagnostic(
+						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
 								method.Locations.First(),

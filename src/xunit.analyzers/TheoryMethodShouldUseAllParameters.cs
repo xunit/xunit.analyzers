@@ -14,21 +14,21 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var methodSyntax = (MethodDeclarationSyntax)syntaxNodeContext.Node;
+				var methodSyntax = (MethodDeclarationSyntax)context.Node;
 				if (methodSyntax.ParameterList.Parameters.Count == 0)
 					return;
 
-				var methodSymbol = syntaxNodeContext.SemanticModel.GetDeclaredSymbol(methodSyntax);
+				var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
 
 				var attributes = methodSymbol.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
 
-				AnalyzeTheoryParameters(syntaxNodeContext, methodSyntax, methodSymbol);
+				AnalyzeTheoryParameters(context, methodSyntax, methodSymbol);
 			}, SyntaxKind.MethodDeclaration);
 		}
 

@@ -14,11 +14,11 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1024_TestMethodCannotHaveOverloads);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var typeSymbol = (INamedTypeSymbol)symbolContext.Symbol;
+				var typeSymbol = (INamedTypeSymbol)context.Symbol;
 				if (typeSymbol.TypeKind != TypeKind.Class)
 					return;
 
@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 
 				foreach (var grouping in methodsByName)
 				{
-					symbolContext.CancellationToken.ThrowIfCancellationRequested();
+					context.CancellationToken.ThrowIfCancellationRequested();
 
 					var methods = grouping.ToList();
 					var methodName = grouping.Key;
@@ -51,7 +51,7 @@ namespace Xunit.Analyzers
 							.OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
 							.First().ContainingType;
 
-						symbolContext.ReportDiagnostic(
+						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1024_TestMethodCannotHaveOverloads,
 								method.Locations.First(),

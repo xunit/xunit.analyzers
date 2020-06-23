@@ -24,25 +24,25 @@ namespace Xunit.Analyzers
 		protected override bool ShouldAnalyze(XunitContext xunitContext)
 			=> !xunitContext.Core.TheorySupportsDefaultParameterValues;
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var method = (IMethodSymbol)symbolContext.Symbol;
+				var method = (IMethodSymbol)context.Symbol;
 				var attributes = method.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
 
 				foreach (var parameter in method.Parameters)
 				{
-					symbolContext.CancellationToken.ThrowIfCancellationRequested();
+					context.CancellationToken.ThrowIfCancellationRequested();
 					if (parameter.HasExplicitDefaultValue)
 					{
 						var syntaxNode = parameter.DeclaringSyntaxReferences.First()
-							.GetSyntax(compilationStartContext.CancellationToken)
+							.GetSyntax(context.CancellationToken)
 							.FirstAncestorOrSelf<ParameterSyntax>();
 
-						symbolContext.ReportDiagnostic(
+						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter,
 								syntaxNode.Default.GetLocation(),

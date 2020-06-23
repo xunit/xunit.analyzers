@@ -23,9 +23,9 @@ namespace Xunit.Analyzers
 				Descriptors.X1020_MemberDataPropertyMustHaveGetter,
 				Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			var compilation = compilationStartContext.Compilation;
+			var compilation = context.Compilation;
 
 			var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
 
@@ -33,18 +33,18 @@ namespace Xunit.Analyzers
 				compilation is CSharpCompilation cSharpCompilation
 				&& cSharpCompilation.LanguageVersion >= LanguageVersion.CSharp6;
 
-			compilationStartContext.RegisterSyntaxNodeAction(symbolContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var attribute = (AttributeSyntax)symbolContext.Node;
-				var semanticModel = symbolContext.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute, symbolContext.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
+				var attribute = (AttributeSyntax)context.Node;
+				var semanticModel = context.SemanticModel;
+				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
 					return;
 
 				var memberNameArgument = attribute.ArgumentList.Arguments.FirstOrDefault();
 				if (memberNameArgument == null)
 					return;
 
-				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, symbolContext.CancellationToken);
+				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
 				if (!(constantValue.Value is string memberName))
 					return;
 
@@ -53,7 +53,7 @@ namespace Xunit.Analyzers
 				if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
 				{
 					var typeSyntax = typeofExpression.Type;
-					memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, symbolContext.CancellationToken).Type;
+					memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
 				}
 
 				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>());
@@ -62,7 +62,7 @@ namespace Xunit.Analyzers
 
 				if (memberSymbol == null)
 				{
-					symbolContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1015_MemberDataMustReferenceExistingMember,
 							attribute.GetLocation(),
@@ -75,7 +75,7 @@ namespace Xunit.Analyzers
 						memberSymbol.Kind != SymbolKind.Property &&
 						memberSymbol.Kind != SymbolKind.Method)
 					{
-						symbolContext.ReportDiagnostic(
+						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
 								attribute.GetLocation()));
@@ -88,7 +88,7 @@ namespace Xunit.Analyzers
 							if (!Equals(memberSymbol.ContainingType, testClassTypeSymbol))
 								builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
 
-							symbolContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1014_MemberDataShouldUseNameOfOperator,
 									memberNameArgument.Expression.GetLocation(),
@@ -105,7 +105,7 @@ namespace Xunit.Analyzers
 
 						if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
 						{
-							symbolContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1016_MemberDataMustReferencePublicMember,
 									attribute.GetLocation(),
@@ -113,7 +113,7 @@ namespace Xunit.Analyzers
 						}
 						if (!memberSymbol.IsStatic)
 						{
-							symbolContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1017_MemberDataMustReferenceStaticMember,
 									attribute.GetLocation(),
@@ -122,7 +122,7 @@ namespace Xunit.Analyzers
 						var memberType = GetMemberType(memberSymbol);
 						if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
 						{
-							symbolContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 									attribute.GetLocation(),
@@ -132,7 +132,7 @@ namespace Xunit.Analyzers
 						}
 						if (memberSymbol.Kind == SymbolKind.Property && ((IPropertySymbol)memberSymbol).GetMethod == null)
 						{
-							symbolContext.ReportDiagnostic(
+							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1020_MemberDataPropertyMustHaveGetter,
 									attribute.GetLocation()));
@@ -143,7 +143,7 @@ namespace Xunit.Analyzers
 							if (extraArguments.Any())
 							{
 								var span = TextSpan.FromBounds(extraArguments.First().Span.Start, extraArguments.Last().Span.End);
-								symbolContext.ReportDiagnostic(
+								context.ReportDiagnostic(
 									Diagnostic.Create(
 										Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
 										Location.Create(attribute.SyntaxTree, span)));

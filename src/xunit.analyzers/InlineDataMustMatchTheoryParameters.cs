@@ -33,17 +33,17 @@ namespace Xunit.Analyzers
 				Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
 				Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
 			var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 			var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
-			var compilation = compilationStartContext.Compilation;
+			var compilation = context.Compilation;
 			var systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
 			var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
-			compilationStartContext.RegisterSymbolAction(symbolContext =>
+			context.RegisterSymbolAction(context =>
 			{
-				var method = (IMethodSymbol)symbolContext.Symbol;
+				var method = (IMethodSymbol)context.Symbol;
 
 				var attributes = method.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
@@ -51,7 +51,7 @@ namespace Xunit.Analyzers
 
 				foreach (var attribute in attributes)
 				{
-					symbolContext.CancellationToken.ThrowIfCancellationRequested();
+					context.CancellationToken.ThrowIfCancellationRequested();
 
 					if (!attribute.AttributeClass.Equals(xunitContext.Core.InlineDataAttributeType))
 						continue;
@@ -60,7 +60,7 @@ namespace Xunit.Analyzers
 					if (attribute.ConstructorArguments.Length != 1 || !objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type))
 						continue;
 
-					var attributeSyntax = (AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(symbolContext.CancellationToken);
+					var attributeSyntax = (AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
 
 					var arrayStyle = ParameterArrayStyleType.Initializer;
 					var dataParameterExpressions = GetParameterExpressionsFromArrayArgument(attributeSyntax);
@@ -78,7 +78,7 @@ namespace Xunit.Analyzers
 					{
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
 						builder[ParameterArrayStyle] = arrayStyle.ToString();
-						symbolContext.ReportDiagnostic(Diagnostic.Create(
+						context.ReportDiagnostic(Diagnostic.Create(
 							Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
 							attributeSyntax.GetLocation(),
 							builder.ToImmutable()));
@@ -120,7 +120,7 @@ namespace Xunit.Analyzers
 							var isConvertible = ConversionChecker.IsConvertible(compilation, value.Type, parameterType, xunitContext);
 							if (!isConvertible)
 							{
-								symbolContext.ReportDiagnostic(Diagnostic.Create(
+								context.ReportDiagnostic(Diagnostic.Create(
 									Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
 									dataParameterExpressions[valueIdx].GetLocation(),
 									properties,
@@ -133,7 +133,7 @@ namespace Xunit.Analyzers
 							&& parameterType.IsValueType
 							&& parameterType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
 						{
-							symbolContext.ReportDiagnostic(Diagnostic.Create(
+							context.ReportDiagnostic(Diagnostic.Create(
 								Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
 								dataParameterExpressions[valueIdx].GetLocation(),
 								properties,
@@ -152,7 +152,7 @@ namespace Xunit.Analyzers
 					{
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
 						builder[ParameterIndex] = valueIdx.ToString();
-						symbolContext.ReportDiagnostic(
+						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
 								dataParameterExpressions[valueIdx].GetLocation(),

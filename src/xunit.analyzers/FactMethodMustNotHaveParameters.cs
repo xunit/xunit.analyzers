@@ -14,17 +14,17 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			compilationStartContext.RegisterSyntaxNodeAction(syntaxNodeContext =>
+			context.RegisterSyntaxNodeAction(context =>
 			{
-				var methodDeclaration = (MethodDeclarationSyntax)syntaxNodeContext.Node;
+				var methodDeclaration = (MethodDeclarationSyntax)context.Node;
 				if (methodDeclaration.ParameterList.Parameters.Count == 0)
 					return;
 
-				if (methodDeclaration.AttributeLists.ContainsAttributeType(syntaxNodeContext.SemanticModel, xunitContext.Core.FactAttributeType, exactMatch: true))
+				if (methodDeclaration.AttributeLists.ContainsAttributeType(context.SemanticModel, xunitContext.Core.FactAttributeType, exactMatch: true))
 				{
-					syntaxNodeContext.ReportDiagnostic(
+					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1001_FactMethodMustNotHaveParameters,
 							methodDeclaration.Identifier.GetLocation(),

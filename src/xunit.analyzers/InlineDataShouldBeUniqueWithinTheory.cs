@@ -13,8 +13,8 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 			=> ImmutableArray.Create(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext compilationStartContext, XunitContext xunitContext)
-			=> compilationStartContext.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, xunitContext), SymbolKind.Method);
+		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+			=> context.RegisterSymbolAction(context => AnalyzeMethod(context, xunitContext), SymbolKind.Method);
 
 		private static void AnalyzeMethod(SymbolAnalysisContext context, XunitContext xunitContext)
 		{
