@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,49 +16,37 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count < 2)
+			var arguments = invocationOperation.Arguments;
+			if (arguments.Length < 2)
 				return;
 
-			ArgumentSyntax expectedArg, actualArg;
-			if (arguments.All(x => x.NameColon != null))
-			{
-				expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "expected");
-				actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "actual");
-			}
-			else
-			{
-				expectedArg = arguments[0];
-				actualArg = arguments[1];
-			}
+			var expectedArg = arguments.FirstOrDefault(arg => arg.Parameter.Name == "expected");
+			var actualArg = arguments.FirstOrDefault(arg => arg.Parameter.Name == "actual");
+			if (expectedArg is null || actualArg is null)
+				return;
 
-			if (IsLiteralOrConstant(actualArg.Expression, context.GetSemanticModel(), context.CancellationToken) &&
-				!IsLiteralOrConstant(expectedArg.Expression, context.GetSemanticModel(), context.CancellationToken))
+			if (IsLiteralOrConstant(actualArg.Value) && !IsLiteralOrConstant(expectedArg.Value))
 			{
-				var parentMethod = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-				var parentType = parentMethod.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+				var parentMethod = context.ContainingSymbol;
+				var parentType = parentMethod.ContainingType;
 
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst,
-						invocation.GetLocation(),
-						actualArg.Expression.ToString(),
+						invocationOperation.Syntax.GetLocation(),
+						actualArg.Value.Syntax.ToString(),
 						SymbolDisplay.ToDisplayString(
 							method,
 							SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None).WithParameterOptions(SymbolDisplayParameterOptions.IncludeName)),
-						parentMethod.Identifier.ValueText,
-						parentType.Identifier.ValueText));
+						parentMethod.Name,
+						parentType?.Name ?? "<unknown>"));
 			}
 		}
 
-		static bool IsLiteralOrConstant(ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken)
+		static bool IsLiteralOrConstant(IOperation operation)
 		{
-			return expression.IsKind(SyntaxKind.DefaultExpression) ||
-				   expression.IsKind(SyntaxKind.TypeOfExpression) ||
-				   expression.IsKind(SyntaxKind.SizeOfExpression) ||
-				   expression is LiteralExpressionSyntax ||
-				   expression.IsNameofExpression(semanticModel, cancellationToken) ||
-				   expression.IsEnumValueExpression(semanticModel, cancellationToken);
+			return operation.ConstantValue.HasValue
+				|| operation.Kind == OperationKind.TypeOf;
 		}
 	}
 }
