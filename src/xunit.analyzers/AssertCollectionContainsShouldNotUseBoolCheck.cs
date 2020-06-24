@@ -26,22 +26,18 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count < 1 || arguments.Count > 2)
+			var arguments = invocationOperation.Arguments;
+			if (arguments.Length < 1 || arguments.Length > 2)
 				return;
 
-			if (method.Parameters.Length > 1 && method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_String))
+			if (method.Parameters.Length > 1 && method.Parameters[1].Type.SpecialType == SpecialType.System_String)
 				return;
 
-			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
+			if (!(arguments.FirstOrDefault(arg => arg.Parameter.Equals(method.Parameters[0]))?.Value is IInvocationOperation invocationExpression))
 				return;
 
-			var symbolInfo = context.GetSemanticModel().GetSymbolInfo(invocationExpression);
-			if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
-				return;
-
-			var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
-			if (!IsLinqContainsMethod(methodSymbol) && !IsICollectionContainsMethod(context, symbolInfo))
+			var methodSymbol = invocationExpression.TargetMethod;
+			if (!IsLinqContainsMethod(methodSymbol) && !IsICollectionContainsMethod(context, methodSymbol))
 				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
@@ -49,7 +45,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2017_AssertCollectionContainsShouldNotUseBoolCheck,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
@@ -57,11 +53,10 @@ namespace Xunit.Analyzers
 		}
 
 		private static bool IsLinqContainsMethod(IMethodSymbol methodSymbol)
-			=> methodSymbol.ReducedFrom != null && LinqContainsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol.ReducedFrom));
+			=> methodSymbol.OriginalDefinition != null && LinqContainsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol.OriginalDefinition));
 
-		private static bool IsICollectionContainsMethod(OperationAnalysisContext context, SymbolInfo symbolInfo)
+		private static bool IsICollectionContainsMethod(OperationAnalysisContext context, IMethodSymbol methodSymbol)
 		{
-			var methodSymbol = symbolInfo.Symbol;
 			var containingType = methodSymbol.ContainingType;
 			var genericCollectionType = containingType.GetGenericInterfaceImplementation(context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T));
 
