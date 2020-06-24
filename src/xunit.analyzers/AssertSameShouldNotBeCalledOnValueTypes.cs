@@ -20,11 +20,11 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			if (invocation.ArgumentList.Arguments.Count != 2)
+			if (invocationOperation.Arguments.Length != 2)
 				return;
 
-			var firstArgumentType = context.GetSemanticModel().GetTypeInfo(invocation.ArgumentList.Arguments[0].Expression, context.CancellationToken).Type;
-			var secondArgumentType = context.GetSemanticModel().GetTypeInfo(invocation.ArgumentList.Arguments[1].Expression, context.CancellationToken).Type;
+			var firstArgumentType = invocationOperation.Arguments[0].Value.WalkDownImplicitConversions()?.Type;
+			var secondArgumentType = invocationOperation.Arguments[1].Value.WalkDownImplicitConversions()?.Type;
 			if (firstArgumentType == null || secondArgumentType == null)
 				return;
 
@@ -38,7 +38,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
