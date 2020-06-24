@@ -47,11 +47,11 @@ namespace Xunit.Analyzers
 							!methodNames.Contains(methodSymbol.Name))
 						return;
 
-					Analyze(context, invocation, methodSymbol);
+					Analyze(context, invocationOperation, invocation, methodSymbol);
 				}, OperationKind.Invocation);
 			});
 		}
 
-		protected abstract void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method);
+		protected abstract void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method);
 	}
 }

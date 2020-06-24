@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers
 {
@@ -17,7 +18,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2001_AssertEqualsShouldNotBeUsed, new[] { EqualsMethod, ReferenceEqualsMethod })
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[MethodName] = method.Name;
