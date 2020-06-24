@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers
 {
@@ -19,7 +20,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
 			var arguments = invocation.ArgumentList.Arguments;
 			var literalFirstArgument = arguments.First().Expression as LiteralExpressionSyntax;
