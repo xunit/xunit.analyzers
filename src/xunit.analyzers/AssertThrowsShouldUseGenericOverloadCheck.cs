@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,15 +20,16 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count != 2)
+			var parameters = invocationOperation.TargetMethod.Parameters;
+			if (parameters.Length != 2)
 				return;
 
-			if (!(arguments[0].Expression is TypeOfExpressionSyntax typeOfExpression))
+			var typeArgument = invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(parameters[0]))?.Value;
+			if (!(typeArgument is ITypeOfOperation typeOfOperation))
 				return;
 
-			var typeInfo = context.GetSemanticModel().GetTypeInfo(typeOfExpression.Type);
-			var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type);
+			var type = typeOfOperation.TypeOperand;
+			var typeName = SymbolDisplay.ToDisplayString(type);
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[MethodName] = method.Name;
@@ -36,7 +38,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2015_AssertThrowsShouldUseGenericOverload,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					typeName));
 		}
