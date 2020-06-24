@@ -18,19 +18,18 @@ namespace Xunit.Analyzers
 			context.RegisterSyntaxNodeAction(context =>
 			{
 				var attribute = (AttributeSyntax)context.Node;
-				if (!(attribute.ArgumentList?.Arguments.Any() ?? false))
+				var skipArgument = attribute.ArgumentList?.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
+				if (skipArgument is null)
 					return;
 
 				var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
 				if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 					return;
 
-				var skipArgument = attribute.ArgumentList.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
-				if (skipArgument != null)
-					context.ReportDiagnostic(
-						Diagnostic.Create(
-							Descriptors.X1004_TestMethodShouldNotBeSkipped,
-							skipArgument.GetLocation()));
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1004_TestMethodShouldNotBeSkipped,
+						skipArgument.GetLocation()));
 			}, SyntaxKind.Attribute);
 		}
 	}

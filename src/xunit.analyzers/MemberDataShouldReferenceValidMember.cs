@@ -36,12 +36,12 @@ namespace Xunit.Analyzers
 			context.RegisterSyntaxNodeAction(context =>
 			{
 				var attribute = (AttributeSyntax)context.Node;
-				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
+				var memberNameArgument = attribute.ArgumentList?.Arguments.FirstOrDefault();
+				if (memberNameArgument == null)
 					return;
 
-				var memberNameArgument = attribute.ArgumentList.Arguments.FirstOrDefault();
-				if (memberNameArgument == null)
+				var semanticModel = context.SemanticModel;
+				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
 					return;
 
 				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
