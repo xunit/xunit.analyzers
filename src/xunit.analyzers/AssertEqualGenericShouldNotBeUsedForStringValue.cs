@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -15,9 +14,9 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, EqualMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
-			if (invocation.ArgumentList.Arguments.Count != 2)
+			if (invocationOperation.Arguments.Length != 2)
 				return;
 
 			if (!method.IsGenericMethod && method.Name == "Equal")
@@ -33,7 +32,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					invalidUsageDescription));
 		}
 	}

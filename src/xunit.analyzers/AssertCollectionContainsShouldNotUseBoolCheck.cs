@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -24,7 +23,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2017_AssertCollectionContainsShouldNotUseBoolCheck, new[] { "True", "False" })
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
 			var arguments = invocationOperation.Arguments;
 			if (arguments.Length < 1 || arguments.Length > 2)

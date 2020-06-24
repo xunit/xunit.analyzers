@@ -13,8 +13,9 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, new[] { "Collection" })
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
+			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
 			var arguments = invocation.ArgumentList.Arguments;
 			if (arguments.Count != 1)
 				return;
@@ -25,7 +26,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					SymbolDisplay.ToDisplayString(
 						method,
 						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -15,7 +14,7 @@ namespace Xunit.Analyzers
 		{ }
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation,
-			InvocationExpressionSyntax invocation, IMethodSymbol method)
+			IMethodSymbol method)
 		{
 			var numericType = GetMethodNumericType(method);
 			if (numericType == null)

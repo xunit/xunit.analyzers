@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -38,20 +37,17 @@ namespace Xunit.Analyzers
 				context.RegisterOperationAction(context =>
 				{
 					var invocationOperation = (IInvocationOperation)context.Operation;
-					if (!(invocationOperation.Syntax is InvocationExpressionSyntax invocation))
-						return;
-
 					var methodSymbol = invocationOperation.TargetMethod;
 					if (methodSymbol.MethodKind != MethodKind.Ordinary ||
 							!Equals(methodSymbol.ContainingType, assertType) ||
 							!methodNames.Contains(methodSymbol.Name))
 						return;
 
-					Analyze(context, invocationOperation, invocation, methodSymbol);
+					Analyze(context, invocationOperation, methodSymbol);
 				}, OperationKind.Invocation);
 			});
 		}
 
-		protected abstract void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method);
+		protected abstract void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method);
 	}
 }

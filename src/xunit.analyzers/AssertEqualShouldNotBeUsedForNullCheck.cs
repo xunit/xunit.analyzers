@@ -20,8 +20,9 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
+			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
 			var arguments = invocation.ArgumentList.Arguments;
 			var literalFirstArgument = arguments.First().Expression as LiteralExpressionSyntax;
 			if (!literalFirstArgument?.IsKind(SyntaxKind.NullLiteralExpression) ?? true)
@@ -32,7 +33,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
