@@ -38,18 +38,14 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count != 1)
+			var arguments = invocationOperation.Arguments;
+			if (arguments.Length != 1)
 				return;
 
-			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
+			if (!(arguments[0].Value is IInvocationOperation invocationExpression))
 				return;
 
-			var symbolInfo = context.GetSemanticModel().GetSymbolInfo(invocationExpression);
-			if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
-				return;
-
-			var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
+			var methodSymbol = invocationExpression.TargetMethod;
 			if (!EqualsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 				return;
 
@@ -60,10 +56,12 @@ namespace Xunit.Analyzers
 				if (method.Name == "False")
 					return;
 
-				var stringComparisonExpression = invocationExpression.ArgumentList.Arguments.Last().Expression;
-				var stringComparison = (StringComparison)context.GetSemanticModel().GetConstantValue(stringComparisonExpression).Value;
+				var stringComparisonExpression = invocationExpression.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(methodSymbol.Parameters.Last()))?.Value;
+				var stringComparison = (StringComparison?)(int?)(stringComparisonExpression?.ConstantValue.Value);
+				if (stringComparison is null)
+					return;
 
-				if (!SupportedStringComparisons.Contains(stringComparison))
+				if (!SupportedStringComparisons.Contains(stringComparison.Value))
 					return;
 
 				ignoreCase = stringComparison == StringComparison.OrdinalIgnoreCase ? bool.TrueString : bool.FalseString;
@@ -77,7 +75,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
