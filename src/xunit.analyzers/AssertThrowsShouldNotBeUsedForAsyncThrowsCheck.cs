@@ -23,12 +23,12 @@ namespace Xunit.Analyzers
 			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, new[] { "Throws", "ThrowsAny" })
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
-			if (invocation.ArgumentList.Arguments.Count < 1 || invocation.ArgumentList.Arguments.Count > 2)
+			if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
 				return;
 
-			var throwExpressionSymbol = GetThrowExpressionSymbol(context, invocation);
+			var throwExpressionSymbol = GetThrowExpressionSymbol(context, (InvocationExpressionSyntax)invocationOperation.Syntax);
 			if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 				return;
 
@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 				descriptor,
-				invocation.GetLocation(),
+				invocationOperation.Syntax.GetLocation(),
 				builder.ToImmutable(),
 				SymbolDisplay.ToDisplayString(
 					method,

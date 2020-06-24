@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -21,10 +20,10 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, EqualMethods.Union(NotEqualMethods))
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
+		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count != 2 && arguments.Count != 3)
+			var arguments = invocationOperation.Arguments;
+			if (arguments.Length != 2 && arguments.Length != 3)
 				return;
 
 			// Match Assert.Equal<bool>(true, expression) but not e.g. Assert.Equal<object>(true, expression).
@@ -32,11 +31,11 @@ namespace Xunit.Analyzers
 				!method.TypeArguments[0].SpecialType.Equals(SpecialType.System_Boolean))
 				return;
 
-			if (!(arguments.First().Expression is LiteralExpressionSyntax literalFirstArgument))
+			if (!(arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value is ILiteralOperation literalFirstArgument))
 				return;
 
-			var isTrue = literalFirstArgument.IsKind(SyntaxKind.TrueLiteralExpression);
-			var isFalse = literalFirstArgument.IsKind(SyntaxKind.FalseLiteralExpression);
+			var isTrue = literalFirstArgument.ConstantValue.HasValue && Equals(literalFirstArgument.ConstantValue.Value, true);
+			var isFalse = literalFirstArgument.ConstantValue.HasValue && Equals(literalFirstArgument.ConstantValue.Value, false);
 
 			if (!(isTrue ^ isFalse))
 				return;
@@ -47,7 +46,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
