@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,21 +22,17 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			if (!(invocation.GetSimpleName() is GenericNameSyntax genericName))
-				return;
-
-			var typeSyntax = genericName.TypeArgumentList.Arguments[0];
-			var typeInfo = context.GetSemanticModel().GetTypeInfo(typeSyntax);
-			var typeKind = GetAbstractTypeKind(typeInfo.Type);
+			var type = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault();
+			var typeKind = GetAbstractTypeKind(type);
 			if (typeKind == null)
 				return;
 
-			var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type);
+			var typeName = SymbolDisplay.ToDisplayString(type);
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					typeKind,
 					typeName));
 		}
