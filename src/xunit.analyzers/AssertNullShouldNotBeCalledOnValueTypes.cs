@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -19,19 +18,18 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			if (invocation.ArgumentList.Arguments.Count != 1)
+			if (invocationOperation.Arguments.Length != 1)
 				return;
 
-			var argumentExpression = invocation.ArgumentList.Arguments.Single().Expression;
-			var argumentType = context.GetSemanticModel().GetTypeInfo(argumentExpression, context.CancellationToken).Type;
-
+			var argumentValue = invocationOperation.Arguments[0].Value.WalkDownImplicitConversions();
+			var argumentType = argumentValue.Type;
 			if (argumentType == null || IsArgumentTypeRecognizedAsReferenceType(argumentType))
 				return;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					GetDisplayString(method),
 					GetDisplayString(argumentType)));
 		}
