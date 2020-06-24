@@ -30,18 +30,14 @@ namespace Xunit.Analyzers
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, InvocationExpressionSyntax invocation, IMethodSymbol method)
 		{
-			var arguments = invocation.ArgumentList.Arguments;
-			if (arguments.Count != 1)
+			var arguments = invocationOperation.Arguments;
+			if (arguments.Length != 1)
 				return;
 
-			if (!(arguments.First().Expression is InvocationExpressionSyntax invocationExpression))
+			if (!(arguments[0].Value is IInvocationOperation invocationExpression))
 				return;
 
-			var symbolInfo = context.GetSemanticModel().GetSymbolInfo(invocationExpression);
-			if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
-				return;
-
-			var methodSymbol = (IMethodSymbol)symbolInfo.Symbol;
+			var methodSymbol = invocationExpression.TargetMethod;
 			if (!SubstringMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 				return;
 
@@ -54,7 +50,7 @@ namespace Xunit.Analyzers
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck,
-					invocation.GetLocation(),
+					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
