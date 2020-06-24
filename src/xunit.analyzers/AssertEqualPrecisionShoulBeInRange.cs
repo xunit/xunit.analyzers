@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -20,13 +21,11 @@ namespace Xunit.Analyzers
 			if (numericType == null)
 				return;
 
-			var numericLiteralValue = GetNumericLiteralValue(invocation, context.GetSemanticModel());
-			if (numericLiteralValue == null)
+			var precision = GetNumericLiteralValue(invocationOperation);
+			if (precision == null)
 				return;
 
-			var precisionLiteralExpression = invocation.ArgumentList.Arguments[2].Expression;
-
-			EnsurePrecisionInRange(context, precisionLiteralExpression.GetLocation(), numericType.Value, numericLiteralValue.Value);
+			EnsurePrecisionInRange(context, precision.Value.precisionArgument.Value.Syntax.GetLocation(), numericType.Value, precision.Value.value);
 		}
 
 		/// <summary>
@@ -51,19 +50,21 @@ namespace Xunit.Analyzers
 		/// This has the semantic of: 1. Ensure the analysis applies, 2. Get data for further analysis.
 		/// </summary>
 		/// <param name="invocation"></param>
-		/// <param name="contextSemanticModel"></param>
-		private static int? GetNumericLiteralValue(InvocationExpressionSyntax invocation,
-			SemanticModel contextSemanticModel)
+		private static (IArgumentOperation precisionArgument, int value)? GetNumericLiteralValue(IInvocationOperation invocation)
 		{
-			if (invocation.ArgumentList?.Arguments.Count != 3)
+			if (invocation.Arguments.Length != 3)
 				return null;
 
-			var precisionArgumentExpression = invocation.ArgumentList.Arguments[2].Expression;
-			var constantValue = contextSemanticModel.GetConstantValue(precisionArgumentExpression);
+			var precisionParameter = invocation.TargetMethod.Parameters[2];
+			var precisionArgument = invocation.Arguments.First(arg => arg.Parameter.Equals(precisionParameter));
+			if (precisionArgument is null)
+				return null;
 
-			return constantValue.HasValue && constantValue.Value is int
-				? (int?)constantValue.Value
-				: null;
+			var constantValue = precisionArgument.Value.ConstantValue;
+			if (!constantValue.HasValue || !(constantValue.Value is int value))
+				return null;
+
+			return (precisionArgument, value);
 		}
 
 		private static void EnsurePrecisionInRange(OperationAnalysisContext context, Location location,
