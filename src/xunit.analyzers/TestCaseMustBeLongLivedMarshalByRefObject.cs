@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -14,33 +13,25 @@ namespace Xunit.Analyzers
 
 		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			context.RegisterSyntaxNodeAction(context =>
+			context.RegisterSymbolAction(context =>
 			{
-				var classDeclaration = (ClassDeclarationSyntax)context.Node;
-				if (classDeclaration.BaseList == null)
+				var namedType = (INamedTypeSymbol)context.Symbol;
+				if (namedType.TypeKind != TypeKind.Class)
 					return;
 
-				var semanticModel = context.SemanticModel;
-				var isTestCase = false;
-				var hasMBRO = false;
+				var isTestCase = xunitContext.Abstractions.ITestCaseType?.IsAssignableFrom(namedType) ?? false;
+				if (!isTestCase)
+					return;
 
-				foreach (var baseType in classDeclaration.BaseList.Types)
-				{
-					var type = semanticModel.GetTypeInfo(baseType.Type, context.CancellationToken).Type;
-					if (xunitContext.Abstractions.ITestCaseType?.IsAssignableFrom(type) == true)
-						isTestCase = true;
-					if (xunitContext.Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(type) == true)
-						hasMBRO = true;
-				}
+				var hasMBRO = xunitContext.Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(namedType) ?? false;
+				if (hasMBRO)
+					return;
 
-				if (isTestCase && !hasMBRO)
-				{
-					context.ReportDiagnostic(Diagnostic.Create(
-						Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
-						classDeclaration.Identifier.GetLocation(),
-						classDeclaration.Identifier.ValueText));
-				}
-			}, SyntaxKind.ClassDeclaration);
+				context.ReportDiagnostic(Diagnostic.Create(
+					Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
+					namedType.Locations.First(),
+					namedType.Name));
+			}, SymbolKind.NamedType);
 		}
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext)

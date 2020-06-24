@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
@@ -16,21 +14,22 @@ namespace Xunit.Analyzers
 
 		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
-			context.RegisterSyntaxNodeAction(context =>
+			context.RegisterSymbolAction(context =>
 			{
-				var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-				if (methodDeclaration.ParameterList.Parameters.Count == 0)
+				var symbol = (IMethodSymbol)context.Symbol;
+				if (symbol.Parameters.IsEmpty)
 					return;
 
-				if (methodDeclaration.AttributeLists.ContainsAttributeType(context.SemanticModel, xunitContext.Core.FactAttributeType, exactMatch: true))
+				var attributes = symbol.GetAttributes();
+				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1001_FactMethodMustNotHaveParameters,
-							methodDeclaration.Identifier.GetLocation(),
-							methodDeclaration.Identifier.ValueText));
+							symbol.Locations.First(),
+							symbol.Name));
 				}
-			}, SyntaxKind.MethodDeclaration);
+			}, SymbolKind.Method);
 		}
 	}
 }
