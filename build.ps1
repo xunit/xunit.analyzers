@@ -12,6 +12,9 @@ Push-Location (Split-Path $MyInvocation.MyCommand.Definition)
 
 try {
     & dotnet run --project tools/builder --no-launch-profile -- $args
+    if (-not $?) {
+        Exit $LASTEXITCODE
+    }
 }
 finally {
     Pop-Location
