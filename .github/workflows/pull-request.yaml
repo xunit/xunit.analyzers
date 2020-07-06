@@ -7,9 +7,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Clone source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Get .NET Core information
         run: dotnet --info
