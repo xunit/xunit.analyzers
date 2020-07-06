@@ -9,15 +9,14 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <PackageTargetFallback>portable-net45+win8</PackageTargetFallback>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.8" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.6.1" />
   </ItemGroup>
 
   <ItemGroup>

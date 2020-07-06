@@ -67,7 +67,7 @@ public class TestClass
 			DiagnosticResult[] expected =
 			{
 				Verify.Diagnostic().WithLocation(8, 9).WithArguments("0", "Assert.Equal(expected, actual)", "TestMethod", "TestClass"),
-				Verify.CompilerError("CS1738").WithLocation(8, 41).WithMessage("Named argument specifications must appear after all fixed arguments have been specified"),
+				Verify.CompilerError("CS1738").WithLocation(8, 41).WithMessage("Named argument specifications must appear after all fixed arguments have been specified. Please use language version 7.2 or greater to allow non-trailing named arguments."),
 			};
 			await Verify.VerifyCodeFixAsync(source, expected, fixedSource);
 		}
