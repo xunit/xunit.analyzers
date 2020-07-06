@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,7 +29,7 @@ namespace Xunit.Analyzers
 			if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
 				return;
 
-			var throwExpressionSymbol = GetThrowExpressionSymbol(context, (InvocationExpressionSyntax)invocationOperation.Syntax);
+			var throwExpressionSymbol = GetThrowExpressionSymbol(context, invocationOperation);
 			if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 				return;
 
@@ -48,26 +49,71 @@ namespace Xunit.Analyzers
 					SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
 		}
 
-		private static SymbolInfo GetThrowExpressionSymbol(OperationAnalysisContext context, InvocationExpressionSyntax invocation)
+		private static ISymbol GetThrowExpressionSymbol(OperationAnalysisContext context, IInvocationOperation invocationOperation)
 		{
+			var argument = invocationOperation.Arguments.Last().Value;
+			if (argument is IDelegateCreationOperation delegateCreation)
+			{
+				if (delegateCreation.Target is IAnonymousFunctionOperation anonymousFunction)
+				{
+					IOperation symbolOperation = null;
+					if (anonymousFunction.Body.Operations.Length == 2
+						&& anonymousFunction.Body.Operations[0] is IExpressionStatementOperation expressionStatement
+						&& anonymousFunction.Body.Operations[1] is IReturnOperation { ReturnedValue: null })
+					{
+						symbolOperation = expressionStatement.Operation;
+					}
+					else if (anonymousFunction.Body.Operations.Length == 1
+						&& anonymousFunction.Body.Operations[0] is IReturnOperation { ReturnedValue: { } returnedValue })
+					{
+						symbolOperation = returnedValue.WalkDownImplicitConversions();
+					}
+
+					if (symbolOperation is IAwaitOperation awaitOperation)
+					{
+						symbolOperation = awaitOperation.Operation.WalkDownImplicitConversions();
+					}
+
+					if (symbolOperation is IInvocationOperation symbolInvoke)
+					{
+						return symbolInvoke.TargetMethod;
+					}
+					else if (symbolOperation is ILiteralOperation)
+					{
+						return null;
+					}
+				}
+				else if (delegateCreation.Target is IMethodReferenceOperation methodReference)
+				{
+					return methodReference.Method;
+				}
+			}
+
+#if DEBUG
+			// Fall back to SemanticModel analysis. This should never return a result different from the above.
+			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
 			var argumentExpression = invocation.ArgumentList.Arguments.Last().Expression;
+			var semanticModel = context.Compilation.GetSemanticModel(context.Operation.Syntax.SyntaxTree);
 
 			if (!(argumentExpression is LambdaExpressionSyntax lambdaExpression))
-				return context.GetSemanticModel().GetSymbolInfo(argumentExpression);
+				return semanticModel.GetSymbolInfo(argumentExpression).Symbol;
 
 			if (!(lambdaExpression.Body is AwaitExpressionSyntax awaitExpression))
-				return context.GetSemanticModel().GetSymbolInfo(lambdaExpression.Body);
+				return semanticModel.GetSymbolInfo(lambdaExpression.Body).Symbol;
 
-			return context.GetSemanticModel().GetSymbolInfo(awaitExpression.Expression);
+			return semanticModel.GetSymbolInfo(awaitExpression.Expression).Symbol;
+#else
+			return null;
+#endif
 		}
 
-		private static bool ThrowExpressionReturnsTask(SymbolInfo symbol, OperationAnalysisContext context)
+		private static bool ThrowExpressionReturnsTask(ISymbol symbol, OperationAnalysisContext context)
 		{
-			if (symbol.Symbol?.Kind != SymbolKind.Method)
+			if (symbol?.Kind != SymbolKind.Method)
 				return false;
 
 			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-			var returnType = ((IMethodSymbol)symbol.Symbol).ReturnType;
+			var returnType = ((IMethodSymbol)symbol).ReturnType;
 			if (taskType.IsAssignableFrom(returnType))
 				return true;
 
