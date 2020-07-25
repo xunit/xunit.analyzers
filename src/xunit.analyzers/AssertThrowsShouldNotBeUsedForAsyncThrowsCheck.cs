@@ -89,22 +89,7 @@ namespace Xunit.Analyzers
 				}
 			}
 
-#if DEBUG
-			// Fall back to SemanticModel analysis. This should never return a result different from the above.
-			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
-			var argumentExpression = invocation.ArgumentList.Arguments.Last().Expression;
-			var semanticModel = context.Compilation.GetSemanticModel(context.Operation.Syntax.SyntaxTree);
-
-			if (!(argumentExpression is LambdaExpressionSyntax lambdaExpression))
-				return semanticModel.GetSymbolInfo(argumentExpression).Symbol;
-
-			if (!(lambdaExpression.Body is AwaitExpressionSyntax awaitExpression))
-				return semanticModel.GetSymbolInfo(lambdaExpression.Body).Symbol;
-
-			return semanticModel.GetSymbolInfo(awaitExpression.Expression).Symbol;
-#else
 			return null;
-#endif
 		}
 
 		private static bool ThrowExpressionReturnsTask(ISymbol symbol, OperationAnalysisContext context)
