@@ -21,11 +21,11 @@ namespace Xunit.Analyzers
 			context.RegisterSyntaxNodeAction(context =>
 			{
 				var attribute = (AttributeSyntax)context.Node;
-				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
+				if (!(attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression is TypeOfExpressionSyntax argumentExpression))
 					return;
 
-				if (!(attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression is TypeOfExpressionSyntax argumentExpression))
+				var semanticModel = context.SemanticModel;
+				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
 					return;
 
 				var classType = (INamedTypeSymbol)semanticModel.GetTypeInfo(argumentExpression.Type).Type;
