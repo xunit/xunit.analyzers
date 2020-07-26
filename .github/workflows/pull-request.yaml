@@ -15,7 +15,14 @@ jobs:
         run: dotnet --info
 
       - name: "Build target: PR"
-        run: powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ./build.ps1 PR"
+        run: dotnet run --project tools/builder --no-launch-profile -- PR
+
+      - name: "Upload artifact: test-windows-latest"
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-windows-latest
+          path: artifacts/test
+        if: always()
 
   build-unix:
     name: "*nix"
@@ -31,23 +38,22 @@ jobs:
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 2.1.802
+          dotnet-version: 2.1.808
 
       - name: Install .NET Core SDK 3.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.0.101
+          dotnet-version: 3.0.103
 
       - name: Enable .NET Core SxS
-        run: |
-          rsync -a ${DOTNET_ROOT/3.0.101/2.1.802}/* $DOTNET_ROOT/
+        run: rsync -a ${DOTNET_ROOT/3.0.103/2.1.808}/* $DOTNET_ROOT/
 
       - name: "Build target: PR"
-        run: bash ./build PR
+        run: dotnet run --project tools/builder --no-launch-profile -- PR
 
-      - name: "Upload artifact: test"
+      - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v1
         with:
-          name: test
+          name: test-${{ matrix.os }}
           path: artifacts/test
         if: always()

@@ -15,7 +15,7 @@ jobs:
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 2.1.805
+          dotnet-version: 2.1.808
 
       - name: Install .NET Core SDK 3.0
         uses: actions/setup-dotnet@v1
@@ -23,7 +23,7 @@ jobs:
           dotnet-version: 3.0.103
 
       - name: Enable .NET Core SxS
-        run: rsync -a ${DOTNET_ROOT/3.0.103/2.1.805}/* $DOTNET_ROOT/
+        run: rsync -a ${DOTNET_ROOT/3.0.103/2.1.808}/* $DOTNET_ROOT/
 
       - name: Get build information
         run: dotnet tool restore && dotnet nbgv cloud --all-vars
@@ -33,7 +33,7 @@ jobs:
           PublishToken: ${{ secrets.PublishToken }}
           SignClientUser: ${{ secrets.SignClientUser }}
           SignClientSecret: ${{ secrets.SignClientSecret }}
-        run: bash ./build CI
+        run: dotnet run --project tools/builder --no-launch-profile -- CI
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v1
