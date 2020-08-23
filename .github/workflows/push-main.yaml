@@ -41,13 +41,3 @@ jobs:
           name: test
           path: artifacts/test
         if: always()
-
-      - name: Slack notification
-        uses: 8398a7/action-slack@v2
-        with:
-          status: ${{ job.status }}
-          author_name: "CI Build: xunit.analyzers"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SlackWebhookUrl }}
-        if: always()
