@@ -1,15 +1,18 @@
 using System.Threading.Tasks;
 
-[Target(
-	BuildTarget.Build,
-	BuildTarget.Restore
-)]
-public static class Build
+namespace Builder
 {
-	public static async Task OnExecute(BuildContext context)
+	[Target(
+		BuildTarget.Build,
+		BuildTarget.Restore
+	)]
+	public static class Build
 	{
-		context.BuildStep("Compiling binaries");
+		public static async Task OnExecute(BuildContext context)
+		{
+			context.BuildStep("Compiling binaries");
 
-		await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
+			await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
+		}
 	}
 }

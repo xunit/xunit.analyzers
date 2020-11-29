@@ -5,25 +5,29 @@ on:
       - main
 
 jobs:
-  build-unix:
+  build:
     name: "CI Build"
     runs-on: ubuntu-18.04
+    env:
+      DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Install .NET Core SDK 2.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 2.1.808
+          dotnet-version: '2.1.x'
 
-      - name: Install .NET Core SDK 3.0
+      - name: Install .NET SDK 5.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.0.103
+          dotnet-version: '5.0.x'
 
-      - name: Enable .NET Core SxS
-        run: rsync -a ${DOTNET_ROOT/3.0.103/2.1.808}/* $DOTNET_ROOT/
+      - name: Get .NET information
+        run: dotnet --info
 
       - name: Get build information
         run: dotnet tool restore && dotnet nbgv cloud --all-vars
@@ -36,7 +40,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- CI
 
       - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: test
           path: artifacts/test

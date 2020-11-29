@@ -4,11 +4,11 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.2.17-beta-gceb8927950" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.40" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- ======================================== -->

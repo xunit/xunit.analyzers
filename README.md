@@ -9,21 +9,21 @@ This project contains source code analysis and cleanup rules for xUnit.net.
 
 **Requirements**: xUnit.net v2.0+ and Visual Studio 2015 Update 2 or later.
 
-**Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/
+**Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/rules/
 
 **Bugs and issues**: please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
 
-To build the project, you will need Visual Studio 2017. The VSIX project can be set as your startup project, to debug the analyzers inside a special instance of Visual Studio.
+**Building**: see [BUILDING.md](BUILDING.md).
 
 ## How to install
 
-- xUnit.net 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box
+- xUnit.net 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box. If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.core) instead, you can reference [`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
 - xUnit.net 2.2.0 and earlier: you have to install the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers) explicitly
 
 ## How to uninstall
 
-If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the correspoding versions of [`xunit.core` ](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
+If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core` ](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
 
 ## Analysis and Code Fix in Action
 
