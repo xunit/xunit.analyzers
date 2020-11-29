@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.fixes", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.tests", "src\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{58C228AC-60BB-4928-AE3A-282CDD2EA912}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{64892803-8508-4D0D-952D-D5FA19B411DB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocBuilder", "tools\DocBuilder\DocBuilder.csproj", "{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,15 +32,10 @@ Global
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{897D042D-2C87-412F-805E-2905A1A38C83} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
-		{FCF755CD-4ADC-4CE8-A084-0DE0FF29F4FA} = {64892803-8508-4D0D-952D-D5FA19B411DB}
 	EndGlobalSection
 EndGlobal
