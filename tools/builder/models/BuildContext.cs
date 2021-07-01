@@ -23,7 +23,7 @@ namespace Builder
 
 		// Versions of downloaded dependent software
 
-		public static string NuGetVersion => "5.8.0";
+		public static string NuGetVersion => "5.9.1";
 
 		// Calculated properties
 
