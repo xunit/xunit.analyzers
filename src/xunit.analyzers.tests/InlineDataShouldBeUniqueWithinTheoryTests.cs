@@ -142,6 +142,25 @@ namespace Xunit.Analyzers
 
 				await Verify.VerifyAnalyzerAsync(source);
 			}
+
+			[Fact]
+			public async void DoesNotFindError_WhenFirstArrayIsEqualAndEmptyArraysAreUsed()
+			{
+				// Specially crafted InlineData values that will cause the InlineDataUniquenessComparer
+				// to return same hashcodes, because GetFlattenedArgumentPrimitives ignores empty arrays.
+				// This will trigger the actual bug, where the first parameter object array being equal
+				// would cause the other parameters to not be evaluated for equality at all.
+
+				var source =
+					"public class TestClass {" +
+					"    [Xunit.Theory]" +
+					"    [Xunit.InlineData(new int[] { 1 }, new int[0], new int[] { 1 })]" +
+					"    [Xunit.InlineData(new int[] { 1 }, new int[] { 1 }, new int[0])]" +
+					"    public static void Test(int[] x, int[] y, int[] z) { }" +
+					"}";
+
+				await Verify.VerifyAnalyzerAsync(source);
+			}
 		}
 
 		public class ForDuplicatedInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
@@ -284,17 +303,51 @@ namespace Xunit.Analyzers
 				await Verify.VerifyAnalyzerAsync(source, expected);
 			}
 
-			[Fact]
-			public async void FindsError_WhenDuplicatedByDefaultValueOfParameter()
+			// The value 1 doesn't seem to trigger bugs related to comparing boxed values, but 2 does
+			public static TheoryData<int> DefaultValueData { get; } = new TheoryData<int>() { 1, 2 };
+
+			[Theory]
+			[MemberData(nameof(DefaultValueData))]
+			public async void FindsError_WhenFirstDuplicatedByDefaultValueOfParameter_DefaultInlineDataFirst(int defaultValue)
 			{
 				var source =
 					"public class TestClass" +
 					"{" +
-					"   [Xunit.Theory, Xunit.InlineData(10, 1), Xunit.InlineData(10)]" +
-					"   public void TestMethod(int x, int y = 1) { }" +
+					$"   [Xunit.Theory, Xunit.InlineData(), Xunit.InlineData({defaultValue})]" +
+					$"   public void TestMethod(int y = {defaultValue}) {{ }}" +
 					"}";
 
-				var expected = Verify.Diagnostic().WithSpan(1, 67, 1, 87).WithSeverity(DiagnosticSeverity.Warning).WithArguments("TestMethod", "TestClass");
+				var expected = Verify.Diagnostic().WithSpan(1, 62, 1, 81).WithSeverity(DiagnosticSeverity.Warning).WithArguments("TestMethod", "TestClass");
+				await Verify.VerifyAnalyzerAsync(source, expected);
+			}
+
+			[Theory]
+			[MemberData(nameof(DefaultValueData))]
+			public async void FindsError_WhenSecondDuplicatedByDefaultValueOfParameter(int defaultValue)
+			{
+				var source =
+					"public class TestClass" +
+					"{" +
+					$"    [Xunit.Theory, Xunit.InlineData({defaultValue}), Xunit.InlineData()]" +
+					$"    public void TestMethod(int y = {defaultValue}) {{ }}" +
+					"}";
+
+				var expected = Verify.Diagnostic().WithSpan(1, 64, 1, 82).WithSeverity(DiagnosticSeverity.Warning).WithArguments("TestMethod", "TestClass");
+				await Verify.VerifyAnalyzerAsync(source, expected);
+			}
+
+			[Theory]
+			[MemberData(nameof(DefaultValueData))]
+			public async void FindsError_WhenTwoDuplicatedByDefaultValueOfParameter(int defaultValue)
+			{
+				var source =
+					"public class TestClass" +
+					"{" +
+					"    [Xunit.Theory, Xunit.InlineData(), Xunit.InlineData()]" +
+					$"   public void TestMethod(int y = {defaultValue}) {{ }}" +
+					"}";
+
+				var expected = Verify.Diagnostic().WithSpan(1, 63, 1, 81).WithSeverity(DiagnosticSeverity.Warning).WithArguments("TestMethod", "TestClass");
 				await Verify.VerifyAnalyzerAsync(source, expected);
 			}
 
