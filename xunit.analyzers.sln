@@ -1,23 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CAA9D63-0806-4CB1-8C32-AA8045E1F441}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\xunit.analyzers.nuspec = src\xunit.analyzers.nuspec
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{897D042D-2C87-412F-805E-2905A1A38C83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers", "src\xunit.analyzers\xunit.analyzers.csproj", "{897D042D-2C87-412F-805E-2905A1A38C83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.fixes", "src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj", "{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.fixes", "src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj", "{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xunit.analyzers.tests", "src\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{58C228AC-60BB-4928-AE3A-282CDD2EA912}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.tests", "src\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{58C228AC-60BB-4928-AE3A-282CDD2EA912}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{897D042D-2C87-412F-805E-2905A1A38C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -33,9 +34,15 @@ Global
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{897D042D-2C87-412F-805E-2905A1A38C83} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {601643AE-7617-4470-841B-56F1E8356D87}
 	EndGlobalSection
 EndGlobal
