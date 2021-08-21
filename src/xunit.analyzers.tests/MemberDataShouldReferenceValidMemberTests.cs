@@ -341,5 +341,34 @@ public class OtherClass { public static System.Collections.Generic.IEnumerable<o
 
 			await Verify.VerifyAnalyzerAsync(source);
 		}
+
+
+		[Fact]
+		public async void DoesNotFindWarning_IfHasValidMember()
+		{
+			var source =
+				"public class TestClass {" +
+				"   private static void TestData() {}" +
+				"   public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }" +
+				"   [Xunit.MemberData(nameof(TestData), new object[] { 1 })] public void TestMethod(int n) { }" +
+				"}";
+
+			await Verify.VerifyAnalyzerAsync(source);
+		}
+
+		[Fact]
+		public async void DoesNotFindWarning_IfHasValidMemberInBaseClass()
+		{
+			var source =
+				"public class TestClassBase {" +
+				"    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }" +
+				"}" +
+				"public class TestClass : TestClassBase {" +
+				"    private static void TestData() {}" +
+				"    [Xunit.MemberData(nameof(TestData), new object[] { 1 })] public void TestMethod(int n) { }" +
+				"}";
+
+			await Verify.VerifyAnalyzerAsync(source);
+		}
 	}
 }

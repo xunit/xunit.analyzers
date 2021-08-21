@@ -44,6 +44,14 @@ namespace Xunit.Analyzers
 				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
 					return;
 
+				var propertyAttributeParameters =
+					attribute
+						.ArgumentList
+						.Arguments
+						.Count(a => !string.IsNullOrEmpty(a.NameEquals?.Name.Identifier.ValueText));
+
+				var paramsCount = attribute.ArgumentList.Arguments.Count - 1 - propertyAttributeParameters;
+
 				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
 				if (!(constantValue.Value is string memberName))
 					return;
@@ -58,7 +66,7 @@ namespace Xunit.Analyzers
 
 				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>());
 				var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol);
+				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
 
 				if (memberSymbol == null)
 				{
@@ -170,13 +178,36 @@ namespace Xunit.Analyzers
 			};
 		}
 
-		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type)
+		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type, int paramsCount)
 		{
+			if (paramsCount > 0 && FindMethodSymbol(memberName, type, paramsCount) is ISymbol methodSymbol)
+				return methodSymbol;
+
 			while (type != null)
 			{
 				var memberSymbol = type.GetMembers(memberName).FirstOrDefault();
 				if (memberSymbol != null)
 					return memberSymbol;
+
+				type = type.BaseType;
+			}
+
+			return null;
+		}
+
+
+		static ISymbol FindMethodSymbol(string memberName, ITypeSymbol type, int paramsCount)
+		{
+			while (type != null)
+			{
+				var methodSymbol =
+					type
+						.GetMembers(memberName)
+						.OfType<IMethodSymbol>()
+						.FirstOrDefault(x => x.Parameters.Length == paramsCount);
+
+				if (methodSymbol != null)
+					return methodSymbol;
 
 				type = type.BaseType;
 			}
