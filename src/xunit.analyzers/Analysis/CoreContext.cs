@@ -10,6 +10,7 @@ namespace Xunit.Analyzers
 		static readonly Version Version_2_4_0 = new Version("2.4.0");
 
 		readonly Lazy<INamedTypeSymbol> lazyClassDataAttributeType;
+		readonly Lazy<INamedTypeSymbol> lazyCollectionDefinitionAttributeType;
 		readonly Lazy<INamedTypeSymbol> lazyDataAttributeType;
 		readonly Lazy<INamedTypeSymbol> lazyFactAttributeType;
 		readonly Lazy<INamedTypeSymbol> lazyInlineDataAttributeType;
@@ -27,6 +28,7 @@ namespace Xunit.Analyzers
 					?.Version;
 
 			lazyClassDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute));
+			lazyCollectionDefinitionAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitCollectionDefinitionAttribute));
 			lazyDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute));
 			lazyFactAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute));
 			lazyInlineDataAttributeType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute));
@@ -38,6 +40,9 @@ namespace Xunit.Analyzers
 
 		public INamedTypeSymbol ClassDataAttributeType
 			=> lazyClassDataAttributeType?.Value;
+
+		public INamedTypeSymbol CollectionDefinitionAttributeType
+			=> lazyCollectionDefinitionAttributeType?.Value;
 
 		public INamedTypeSymbol DataAttributeType
 			=> lazyDataAttributeType?.Value;

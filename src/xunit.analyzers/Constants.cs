@@ -6,6 +6,7 @@
 		{
 			internal static readonly string XunitAssert = "Xunit.Assert";
 			internal static readonly string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
+			internal static readonly string XunitCollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
 			internal static readonly string XunitIAsyncLifetime = "Xunit.IAsyncLifetime";
 			internal static readonly string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
 			internal static readonly string XunitLongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
