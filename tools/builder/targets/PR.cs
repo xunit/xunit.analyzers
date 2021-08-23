@@ -1,8 +1,5 @@
-namespace Builder
-{
-	[Target(
-		BuildTarget.PR,
-		BuildTarget.AnalyzeSource, BuildTarget.Test, BuildTarget.Packages
-	)]
-	public class PR { }
-}
+[Target(
+	BuildTarget.PR,
+	BuildTarget.AnalyzeSource, BuildTarget.Test, BuildTarget.Packages
+)]
+public class PR { }

@@ -1,19 +1,16 @@
 using System;
 using System.Linq;
 
-namespace Builder
+[AttributeUsage(AttributeTargets.Class)]
+public class TargetAttribute : Attribute
 {
-	[AttributeUsage(AttributeTargets.Class)]
-	public class TargetAttribute : Attribute
+	public TargetAttribute(BuildTarget targetName, params BuildTarget[] dependentTargets)
 	{
-		public TargetAttribute(BuildTarget targetName, params BuildTarget[] dependentTargets)
-		{
-			TargetName = targetName.ToString();
-			DependentTargets = (dependentTargets ?? Enumerable.Empty<BuildTarget>()).Select(x => x.ToString()).ToArray();
-		}
-
-		public string TargetName { get; }
-
-		public string[] DependentTargets { get; }
+		TargetName = targetName.ToString();
+		DependentTargets = (dependentTargets ?? Enumerable.Empty<BuildTarget>()).Select(x => x.ToString()).ToArray();
 	}
+
+	public string TargetName { get; }
+
+	public string[] DependentTargets { get; }
 }

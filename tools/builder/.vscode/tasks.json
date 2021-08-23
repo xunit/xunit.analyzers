@@ -15,7 +15,7 @@
 			"presentation": {
 				"focus": true
 			},
-			"problemMatcher": []
+			"problemMatcher": "$msCompile"
 		},
 		{
 			"label": "Build (analyzers)",

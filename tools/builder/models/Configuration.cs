@@ -1,8 +1,5 @@
-namespace Builder
+public enum Configuration
 {
-	public enum Configuration
-	{
-		Debug,
-		Release,
-	}
+	Debug,
+	Release,
 }

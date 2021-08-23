@@ -1,18 +1,15 @@
 using System.Threading.Tasks;
 
-namespace Builder
+[Target(
+	BuildTarget.AnalyzeSource,
+	BuildTarget.Restore
+)]
+public static class AnalyzeSource
 {
-	[Target(
-		BuildTarget.AnalyzeSource,
-		BuildTarget.Restore
-	)]
-	public static class AnalyzeSource
+	public static async Task OnExecute(BuildContext context)
 	{
-		public static async Task OnExecute(BuildContext context)
-		{
-			context.BuildStep("Analyzing source");
+		context.BuildStep("Analyzing source");
 
-			await context.Exec("dotnet", $"format --check --verbosity {context.Verbosity}");
-		}
+		await context.Exec("dotnet", $"format --check --folder --verbosity {context.Verbosity}");
 	}
 }

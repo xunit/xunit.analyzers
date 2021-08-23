@@ -1,18 +1,15 @@
 using System.Threading.Tasks;
 
-namespace Builder
+[Target(
+	BuildTarget.Build,
+	BuildTarget.Restore
+)]
+public static class Build
 {
-	[Target(
-		BuildTarget.Build,
-		BuildTarget.Restore
-	)]
-	public static class Build
+	public static async Task OnExecute(BuildContext context)
 	{
-		public static async Task OnExecute(BuildContext context)
-		{
-			context.BuildStep("Compiling binaries");
+		context.BuildStep("Compiling binaries");
 
-			await context.Exec("dotnet", $"build --no-restore --configuration {context.ConfigurationText} --verbosity {context.Verbosity}");
-		}
+		await context.Exec("dotnet", $"msbuild -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
 	}
 }
