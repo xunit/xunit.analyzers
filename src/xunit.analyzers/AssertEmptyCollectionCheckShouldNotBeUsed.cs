@@ -9,11 +9,16 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEmptyCollectionCheckShouldNotBeUsed : AssertUsageAnalyzerBase
 	{
+		static readonly string[] targetMethods = { Constants.Asserts.Collection };
+
 		public AssertEmptyCollectionCheckShouldNotBeUsed()
-			: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, new[] { "Collection" })
+			: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
 			var arguments = invocation.ArgumentList.Arguments;
@@ -29,7 +34,13 @@ namespace Xunit.Analyzers
 					invocationOperation.Syntax.GetLocation(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

@@ -16,7 +16,9 @@ namespace Xunit.Analyzers.FixProviders
 			: base(new[] { Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id })
 		{ }
 
-		public override async Task RegisterCodeFixesAsync(CodeFixContext context, ISymbol member)
+		public override async Task RegisterCodeFixesAsync(
+			CodeFixContext context,
+			ISymbol member)
 		{
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 			var type = TypeSymbolFactory.IEnumerableOfObjectArray(semanticModel.Compilation);
@@ -24,9 +26,11 @@ namespace Xunit.Analyzers.FixProviders
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: title,
-					createChangedSolution: ct => Actions.ChangeMemberType(context.Document.Project.Solution, member, type, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberType(member, type, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

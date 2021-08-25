@@ -17,11 +17,11 @@ namespace Xunit.Analyzers
 		const string MarkAsTheoryTitle = "Mark as Theory";
 		const string removeDataAttributesTitle = "Remove Data Attributes";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -32,18 +32,29 @@ namespace Xunit.Analyzers
 				CodeAction.Create(
 					MarkAsTheoryTitle,
 					ct => MarkAsTheoryAsync(context.Document, methodDeclaration, ct),
-					equivalenceKey: MarkAsTheoryTitle),
-				context.Diagnostics);
+					equivalenceKey: MarkAsTheoryTitle
+				),
+				context.Diagnostics
+			);
 
 			context.RegisterCodeFix(
 				new RemoveAttributesOfTypeCodeAction(removeDataAttributesTitle, context.Document, methodDeclaration.AttributeLists, Constants.Types.XunitSdkDataAttribute),
-				context.Diagnostics);
+				context.Diagnostics
+			);
 		}
 
-		async Task<Document> MarkAsTheoryAsync(Document document, MethodDeclarationSyntax methodDeclaration, CancellationToken cancellationToken)
+		async Task<Document> MarkAsTheoryAsync(
+			Document document,
+			MethodDeclarationSyntax methodDeclaration,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			editor.ReplaceNode(methodDeclaration, (node, generator) => generator.InsertAttributes(node, 0, generator.Attribute(Constants.Types.XunitTheoryAttribute)));
+
+			editor.ReplaceNode(
+				methodDeclaration,
+				(node, generator) => generator.InsertAttributes(node, 0, generator.Attribute(Constants.Types.XunitTheoryAttribute))
+			);
+
 			return editor.GetChangedDocument();
 		}
 	}

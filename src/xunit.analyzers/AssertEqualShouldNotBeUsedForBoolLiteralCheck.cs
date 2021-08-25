@@ -11,16 +11,27 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal static string LiteralValue = "LiteralValue";
-		internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
-		internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual" });
+		public static readonly HashSet<string> EqualMethods = new()
+		{
+			Constants.Asserts.Equal,
+			Constants.Asserts.StrictEqual
+		};
+		public static readonly HashSet<string> NotEqualMethods = new()
+		{
+			Constants.Asserts.NotEqual,
+			Constants.Asserts.NotStrictEqual
+		};
+
+		static readonly string[] targetMethods = EqualMethods.Union(NotEqualMethods).ToArray();
 
 		public AssertEqualShouldNotBeUsedForBoolLiteralCheck()
-			: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, EqualMethods.Union(NotEqualMethods))
+			: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var arguments = invocationOperation.Arguments;
 			if (arguments.Length != 2 && arguments.Length != 3)
@@ -31,7 +42,7 @@ namespace Xunit.Analyzers
 				!method.TypeArguments[0].SpecialType.Equals(SpecialType.System_Boolean))
 				return;
 
-			if (!(arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value is ILiteralOperation literalFirstArgument))
+			if (arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value is not ILiteralOperation literalFirstArgument)
 				return;
 
 			var isTrue = literalFirstArgument.ConstantValue.HasValue && Equals(literalFirstArgument.ConstantValue.Value, true);
@@ -41,8 +52,9 @@ namespace Xunit.Analyzers
 				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
-			builder[LiteralValue] = isTrue ? bool.TrueString : bool.FalseString;
+			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.LiteralValue] = isTrue ? bool.TrueString : bool.FalseString;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck,
@@ -50,7 +62,13 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

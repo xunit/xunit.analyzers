@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,34 +14,32 @@ namespace Xunit.Analyzers
 	{
 		const string titleTemplate = "Use Assert.{0}";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			string replacement = null;
-			switch (context.Diagnostics.First().Properties[AssertEqualsShouldNotBeUsed.MethodName])
+			var diagnostic = context.Diagnostics.First();
+			var replacement = diagnostic.Properties[Constants.Properties.MethodName] switch
 			{
-				case AssertEqualsShouldNotBeUsed.EqualsMethod:
-					replacement = "Equal";
-					break;
-
-				case AssertEqualsShouldNotBeUsed.ReferenceEqualsMethod:
-					replacement = "Same";
-					break;
-			}
+				nameof(object.Equals) => Constants.Asserts.Equal,
+				nameof(object.ReferenceEquals) => Constants.Asserts.Same,
+				_ => null,
+			};
 
 			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
 			{
 				var title = string.Format(titleTemplate, replacement);
+
 				context.RegisterCodeFix(
 					new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
-					context.Diagnostics);
+					context.Diagnostics
+				);
 			}
 		}
 	}

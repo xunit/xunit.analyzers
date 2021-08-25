@@ -12,15 +12,29 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual", "Same" });
-		internal static readonly HashSet<string> NotEqualMethods = new HashSet<string>(new[] { "NotEqual", "NotStrictEqual", "NotSame" });
+		public static readonly HashSet<string> EqualMethods = new()
+		{
+			Constants.Asserts.Equal,
+			Constants.Asserts.StrictEqual,
+			Constants.Asserts.Same
+		};
+		public static readonly HashSet<string> NotEqualMethods = new()
+		{
+			Constants.Asserts.NotEqual,
+			Constants.Asserts.NotStrictEqual,
+			Constants.Asserts.NotSame
+		};
+
+		static readonly string[] targetMethods = EqualMethods.Union(NotEqualMethods).ToArray();
 
 		public AssertEqualShouldNotBeUsedForNullCheck()
-			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, EqualMethods.Union(NotEqualMethods))
+			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
 			var arguments = invocation.ArgumentList.Arguments;
@@ -29,7 +43,8 @@ namespace Xunit.Analyzers
 				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
+			builder[Constants.Properties.MethodName] = method.Name;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck,
@@ -37,7 +52,13 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

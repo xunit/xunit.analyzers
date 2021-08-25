@@ -12,24 +12,29 @@ namespace Xunit.Analyzers.FixProviders
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class RemoveMethodParameterDefaultFix : CodeFixProvider
 	{
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
+		const string titleTemplate = "Remove Parameter '{0}' Default";
 
-		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id);
+
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
 			var parameterName = parameter.Identifier.Text;
-			var title = $"Remove Parameter '{parameterName}' Default";
+			var title = string.Format(titleTemplate, parameterName);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					ct => Actions.RemoveNodeAsync(context.Document, parameter.Default, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					ct => context.Document.RemoveNode(parameter.Default, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

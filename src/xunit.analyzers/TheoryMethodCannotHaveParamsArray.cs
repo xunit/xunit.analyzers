@@ -17,13 +17,13 @@ namespace Xunit.Analyzers
 			: base(new Version(assemblyVersion))
 		{ }
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
 
-		protected override bool ShouldAnalyze(XunitContext xunitContext)
-			=> xunitContext.HasCoreReference && !xunitContext.Core.TheorySupportsParameterArrays;
+		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+			xunitContext.HasCoreReference && !xunitContext.Core.TheorySupportsParameterArrays;
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -34,15 +34,15 @@ namespace Xunit.Analyzers
 
 				var attributes = method.GetAttributes();
 				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
-				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1022_TheoryMethodCannotHaveParameterArray,
 							parameter.DeclaringSyntaxReferences.First().GetSyntax(context.CancellationToken).GetLocation(),
 							method.Name,
 							method.ContainingType.ToDisplayString(),
-							parameter.Name));
-				}
+							parameter.Name
+						)
+					);
 			}, SymbolKind.Method);
 		}
 	}

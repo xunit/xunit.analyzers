@@ -11,10 +11,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
@@ -23,7 +25,6 @@ namespace Xunit.Analyzers
 					return;
 
 				var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
-
 				var attributes = methodSymbol.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
@@ -32,7 +33,10 @@ namespace Xunit.Analyzers
 			}, SyntaxKind.MethodDeclaration);
 		}
 
-		private static void AnalyzeTheoryParameters(SyntaxNodeAnalysisContext context, MethodDeclarationSyntax methodSyntax, IMethodSymbol methodSymbol)
+		static void AnalyzeTheoryParameters(
+			SyntaxNodeAnalysisContext context,
+			MethodDeclarationSyntax methodSyntax,
+			IMethodSymbol methodSymbol)
 		{
 			var methodBody = (SyntaxNode)methodSyntax.Body ?? methodSyntax.ExpressionBody?.Expression;
 			if (methodBody == null)
@@ -57,7 +61,9 @@ namespace Xunit.Analyzers
 							parameterSyntax.Identifier.GetLocation(),
 							methodSymbol.Name,
 							methodSymbol.ContainingType.Name,
-							parameterSymbol.Name));
+							parameterSymbol.Name
+						)
+					);
 				}
 			}
 		}

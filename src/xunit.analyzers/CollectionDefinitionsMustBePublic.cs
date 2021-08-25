@@ -11,7 +11,9 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1027_CollectionDefinitionClassMustBePublic);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -27,11 +29,13 @@ namespace Xunit.Analyzers
 				if (!doesClassContainCollectionDefinitionAttribute)
 					return;
 
-				context.ReportDiagnostic(Diagnostic.Create(
-					Descriptors.X1027_CollectionDefinitionClassMustBePublic,
-					classSymbol.Locations.First(),
-					classSymbol.Locations.Skip(1)));
-
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1027_CollectionDefinitionClassMustBePublic,
+						classSymbol.Locations.First(),
+						classSymbol.Locations.Skip(1)
+					)
+				);
 			}, SymbolKind.NamedType);
 		}
 	}

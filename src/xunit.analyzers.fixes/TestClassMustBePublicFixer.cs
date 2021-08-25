@@ -1,12 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Editing;
 using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
@@ -16,11 +14,11 @@ namespace Xunit.Analyzers
 	{
 		const string title = "Make Public";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -30,9 +28,11 @@ namespace Xunit.Analyzers
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: title,
-					createChangedDocument: ct => Actions.ChangeAccessibility(context.Document, classDeclaration, Accessibility.Public, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					createChangedDocument: ct => context.Document.ChangeAccessibility(classDeclaration, Accessibility.Public, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

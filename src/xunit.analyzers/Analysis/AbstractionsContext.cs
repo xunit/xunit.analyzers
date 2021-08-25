@@ -9,11 +9,14 @@ namespace Xunit.Analyzers
 		readonly Lazy<INamedTypeSymbol> lazyITestCaseType;
 		readonly Lazy<INamedTypeSymbol> lazyIXunitSerializableType;
 
-		public AbstractionsContext(Compilation compilation, Version versionOverride)
+		public AbstractionsContext(
+			Compilation compilation,
+			Version versionOverride)
 		{
 			Version =
 				versionOverride ??
-				compilation.ReferencedAssemblyNames
+				compilation
+					.ReferencedAssemblyNames
 					.FirstOrDefault(a => a.Name.Equals("xunit.abstractions", StringComparison.OrdinalIgnoreCase))
 					?.Version;
 
@@ -21,11 +24,11 @@ namespace Xunit.Analyzers
 			lazyIXunitSerializableType = new Lazy<INamedTypeSymbol>(() => compilation.GetTypeByMetadataName(Constants.Types.XunitAbstractionsIXunitSerializableType));
 		}
 
-		public INamedTypeSymbol ITestCaseType
-			=> lazyITestCaseType?.Value;
+		public INamedTypeSymbol ITestCaseType =>
+			lazyITestCaseType?.Value;
 
-		public INamedTypeSymbol IXunitSerializableType
-			=> lazyIXunitSerializableType?.Value;
+		public INamedTypeSymbol IXunitSerializableType =>
+			lazyIXunitSerializableType?.Value;
 
 		public Version Version { get; }
 	}

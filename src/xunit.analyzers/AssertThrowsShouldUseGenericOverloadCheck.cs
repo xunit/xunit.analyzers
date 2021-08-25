@@ -10,11 +10,14 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertThrowsShouldUseGenericOverloadCheck : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal static string TypeName = "TypeName";
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Throws,
+			Constants.Asserts.ThrowsAsync
+		};
 
 		public AssertThrowsShouldUseGenericOverloadCheck()
-			: base(Descriptors.X2015_AssertThrowsShouldUseGenericOverload, new[] { "Throws", "ThrowsAsync" })
+			: base(Descriptors.X2015_AssertThrowsShouldUseGenericOverload, targetMethods)
 		{ }
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
@@ -31,15 +34,17 @@ namespace Xunit.Analyzers
 			var typeName = SymbolDisplay.ToDisplayString(type);
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
-			builder[TypeName] = typeName;
+			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.TypeName] = typeName;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2015_AssertThrowsShouldUseGenericOverload,
 					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
-					typeName));
+					typeName
+				)
+			);
 		}
 	}
 }

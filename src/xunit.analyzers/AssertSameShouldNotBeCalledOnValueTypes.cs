@@ -9,15 +9,20 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertSameShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal const string SameMethod = "Same";
-		internal const string NotSameMethod = "NotSame";
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Same,
+			Constants.Asserts.NotSame
+		};
 
 		public AssertSameShouldNotBeCalledOnValueTypes()
-			: base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes, new[] { SameMethod, NotSameMethod })
+			: base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			if (invocationOperation.Arguments.Length != 2)
 				return;
@@ -33,7 +38,8 @@ namespace Xunit.Analyzers
 			var typeToDisplay = firstArgumentType.IsReferenceType ? secondArgumentType : firstArgumentType;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
+			builder[Constants.Properties.MethodName] = method.Name;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes,
@@ -41,10 +47,18 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None)),
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+					),
 					SymbolDisplay.ToDisplayString(
 						typeToDisplay,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

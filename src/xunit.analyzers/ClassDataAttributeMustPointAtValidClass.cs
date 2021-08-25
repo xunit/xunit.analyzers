@@ -13,7 +13,9 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 		   ImmutableArray.Create(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			var compilation = context.Compilation;
 			var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
@@ -37,12 +39,13 @@ namespace Xunit.Analyzers
 				var noValidConstructor = !classType.InstanceConstructors.Any(c => c.Parameters.IsEmpty && c.DeclaredAccessibility == Accessibility.Public);
 
 				if (missingInterface || isAbstract || noValidConstructor)
-				{
-					context.ReportDiagnostic(Diagnostic.Create(
-						Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
-						argumentExpression.Type.GetLocation(),
-						classType.Name));
-				}
+					context.ReportDiagnostic(
+						Diagnostic.Create(
+							Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
+							argumentExpression.Type.GetLocation(),
+							classType.Name
+						)
+					);
 			}, SyntaxKind.Attribute);
 		}
 	}

@@ -15,30 +15,33 @@ namespace Xunit.Analyzers
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class TestMethodMustNotHaveMultipleFactAttributesFixer : CodeFixProvider
 	{
-		const string genericTitle = "Keep {0} Attribute";
+		const string titleTemplate = "Keep {0} Attribute";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
-
 			var attributeTypes = context.Diagnostics.First().Properties.Keys.ToList();
+
 			foreach (var attributeType in attributeTypes)
 			{
 				var simpleName = GetAttributeSimpleName(attributeType);
-				var title = string.Format(genericTitle, simpleName);
+				var title = string.Format(titleTemplate, simpleName);
+
 				context.RegisterCodeFix(
 					CodeAction.Create(
 						title: title,
-						createChangedDocument: ct => RemoveAttributesAsync(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
-						equivalenceKey: title),
-					context.Diagnostics);
+						createChangedDocument: ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
+						equivalenceKey: title
+					),
+					context.Diagnostics
+				);
 			}
 		}
 
@@ -55,11 +58,17 @@ namespace Xunit.Analyzers
 			return simpleName;
 		}
 
-		async Task<Document> RemoveAttributesAsync(Document document, MethodDeclarationSyntax methodDeclaration, IReadOnlyList<string> attributeTypesToConsider, string attributeTypeToKeep, CancellationToken cancellationToken)
+		async Task<Document> RemoveAttributes(
+			Document document,
+			MethodDeclarationSyntax methodDeclaration,
+			IReadOnlyList<string> attributeTypesToConsider,
+			string attributeTypeToKeep,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 			var oneKept = false;
+
 			foreach (var attributeList in methodDeclaration.AttributeLists)
 			{
 				foreach (var attribute in attributeList.Attributes)

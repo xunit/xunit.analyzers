@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,10 +8,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class FactMethodShouldNotHaveTestData : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -26,7 +27,9 @@ namespace Xunit.Analyzers
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1005_FactMethodShouldNotHaveTestData,
-							symbol.Locations.First()));
+							symbol.Locations.First()
+						)
+					);
 				}
 			}, SymbolKind.Method);
 		}

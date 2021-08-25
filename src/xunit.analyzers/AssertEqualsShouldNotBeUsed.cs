@@ -9,18 +9,24 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualsShouldNotBeUsed : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal const string EqualsMethod = "Equals";
-		internal const string ReferenceEqualsMethod = "ReferenceEquals";
+		static readonly string[] targetMethods =
+		{
+			nameof(object.Equals),
+			nameof(object.ReferenceEquals)
+		};
 
 		public AssertEqualsShouldNotBeUsed()
-			: base(Descriptors.X2001_AssertEqualsShouldNotBeUsed, new[] { EqualsMethod, ReferenceEqualsMethod })
+			: base(Descriptors.X2001_AssertEqualsShouldNotBeUsed, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
+			builder[Constants.Properties.MethodName] = method.Name;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2001_AssertEqualsShouldNotBeUsed,
@@ -28,7 +34,12 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

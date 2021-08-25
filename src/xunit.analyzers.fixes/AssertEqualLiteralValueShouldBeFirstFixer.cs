@@ -16,33 +16,40 @@ namespace Xunit.Analyzers
 	{
 		const string title = "Swap Arguments";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					createChangedDocument: ct => SwapArgumentsAsync(context.Document, invocation, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					createChangedDocument: ct => SwapArguments(context.Document, invocation, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 
-		private async Task<Document> SwapArgumentsAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+		async Task<Document> SwapArguments(
+			Document document,
+			InvocationExpressionSyntax invocation,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-
 			var arguments = invocation.ArgumentList.Arguments;
 
 			ArgumentSyntax expectedArg, actualArg;
 			if (arguments.All(x => x.NameColon != null))
 			{
-				expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "expected");
-				actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == "actual");
+				expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Expected);
+				actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Actual);
 			}
 			else
 			{

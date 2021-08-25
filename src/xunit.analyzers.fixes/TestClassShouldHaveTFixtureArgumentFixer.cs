@@ -13,34 +13,37 @@ namespace Xunit.Analyzers
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class TestClassShouldHaveTFixtureArgumentFixer : CodeFixProvider
 	{
-		const string title = "Generate constructor {0}({1})";
+		const string titleTemplate = "Generate constructor {0}({1})";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-			var first = context.Diagnostics.First();
+			var diagnostic = context.Diagnostics.First();
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: string.Format(
-						title,
-						first.Properties[TestClassShouldHaveTFixtureArgument.TestClassNamePropertyKey],
-						first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey]),
-					createChangedDocument: ct => Actions.AddConstructor(
-						context.Document,
+						titleTemplate,
+						diagnostic.Properties[Constants.Properties.TestClassName],
+						diagnostic.Properties[Constants.Properties.TFixtureName]
+					),
+					createChangedDocument: ct => context.Document.AddConstructor(
 						classDeclaration,
-						typeDisplayName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureDisplayNamePropertyKey],
-						typeName: first.Properties[TestClassShouldHaveTFixtureArgument.TFixtureNamePropertyKey],
-						ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+						typeDisplayName: diagnostic.Properties[Constants.Properties.TFixtureDisplayName],
+						typeName: diagnostic.Properties[Constants.Properties.TFixtureName],
+						ct
+					),
+					equivalenceKey: titleTemplate
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

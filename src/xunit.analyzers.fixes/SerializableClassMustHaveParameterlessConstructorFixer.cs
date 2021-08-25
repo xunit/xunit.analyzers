@@ -9,26 +9,26 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class SerializableClassMustHaveParameterlessConstructorFixer : CodeFixProvider
 	{
-		const string ObsoleteMessage = "Called by the de-serializer; should only be called by deriving classes for de-serialization purposes";
-		const string Title = "Create/update constructor";
+		const string title = "Create/update constructor";
 
 		static readonly LiteralExpressionSyntax obsoleteText;
 
-		public override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id);
+		public override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		static SerializableClassMustHaveParameterlessConstructorFixer()
 		{
-			obsoleteText = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(ObsoleteMessage));
+			obsoleteText = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"));
 		}
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -38,13 +38,18 @@ namespace Xunit.Analyzers
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: Title,
-					createChangedDocument: ct => RunFix(context.Document, classDeclaration, ct),
-					equivalenceKey: Title),
-				context.Diagnostics);
+					title: title,
+					createChangedDocument: ct => AddObsoleteAttribute(context.Document, classDeclaration, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 
-		async Task<Document> RunFix(Document document, ClassDeclarationSyntax declaration, CancellationToken cancellationToken)
+		async Task<Document> AddObsoleteAttribute(
+			Document document,
+			ClassDeclarationSyntax declaration,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var generator = editor.Generator;
@@ -53,7 +58,8 @@ namespace Xunit.Analyzers
 			var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
 			var hasObsolete =
-				parameterlessCtor.AttributeLists
+				parameterlessCtor
+					.AttributeLists
 					.SelectMany(al => al.Attributes)
 					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
 

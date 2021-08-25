@@ -8,14 +8,20 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertNullShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 	{
-		private const string NullMethod = "Null";
-		private const string NotNullMethod = "NotNull";
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Null,
+			Constants.Asserts.NotNull
+		};
 
 		public AssertNullShouldNotBeCalledOnValueTypes()
-			: base(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes, new[] { NullMethod, NotNullMethod })
+			: base(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			if (invocationOperation.Arguments.Length != 1)
 				return;
@@ -30,10 +36,12 @@ namespace Xunit.Analyzers
 					Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes,
 					invocationOperation.Syntax.GetLocation(),
 					GetDisplayString(method),
-					GetDisplayString(argumentType)));
+					GetDisplayString(argumentType)
+				)
+			);
 		}
 
-		private static bool IsArgumentTypeRecognizedAsReferenceType(ITypeSymbol argumentType)
+		static bool IsArgumentTypeRecognizedAsReferenceType(ITypeSymbol argumentType)
 		{
 			var isNullableOfT = argumentType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
 			var isUnconstrainedGenericType = !argumentType.IsReferenceType && !argumentType.IsValueType;
@@ -41,7 +49,7 @@ namespace Xunit.Analyzers
 			return argumentType.IsReferenceType || isNullableOfT || isUnconstrainedGenericType;
 		}
 
-		private static string GetDisplayString(ISymbol method)
+		static string GetDisplayString(ISymbol method)
 		{
 			var displayFormat = SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None);
 

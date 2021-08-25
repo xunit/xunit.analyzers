@@ -12,12 +12,6 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 	{
-		private static readonly IList<ExpressionSyntax> EmptyExpressionList = new ExpressionSyntax[0];
-
-		internal static readonly string ParameterIndex = "ParameterIndex";
-		internal static readonly string ParameterName = "ParameterName";
-		internal static readonly string ParameterArrayStyle = "ParameterArrayStyle";
-
 		public InlineDataMustMatchTheoryParameters()
 		{ }
 
@@ -26,14 +20,17 @@ namespace Xunit.Analyzers
 			: base(new Version(assemblyVersion))
 		{ }
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(
 				Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
 				Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
 				Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
-				Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter);
+				Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter
+			);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 			var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
@@ -67,8 +64,13 @@ namespace Xunit.Analyzers
 					if (dataParameterExpressions == null)
 					{
 						arrayStyle = ParameterArrayStyleType.Params;
-						dataParameterExpressions = attributeSyntax.ArgumentList?.Arguments.Select(a => a.Expression).ToList()
-							?? new List<ExpressionSyntax>();
+						dataParameterExpressions =
+							attributeSyntax
+								.ArgumentList
+								?.Arguments
+								.Select(a => a.Expression)
+								.ToList()
+								?? new List<ExpressionSyntax>();
 					}
 
 					var dataArrayArgument = attribute.ConstructorArguments.Single();
@@ -77,11 +79,15 @@ namespace Xunit.Analyzers
 					if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues, systemRuntimeInteropServicesOptionalAttribute)))
 					{
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
-						builder[ParameterArrayStyle] = arrayStyle.ToString();
-						context.ReportDiagnostic(Diagnostic.Create(
-							Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
-							attributeSyntax.GetLocation(),
-							builder.ToImmutable()));
+						builder[Constants.Properties.ParameterArrayStyle] = arrayStyle.ToString();
+
+						context.ReportDiagnostic(
+							Diagnostic.Create(
+								Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
+								attributeSyntax.GetLocation(),
+								builder.ToImmutable()
+							)
+						);
 					}
 
 					int valueIdx = 0, paramIdx = 0;
@@ -90,9 +96,10 @@ namespace Xunit.Analyzers
 						var parameter = method.Parameters[paramIdx];
 
 						// unwrap parameter type when the argument is a parameter list
-						var parameterType = xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
-							? arrayParam.ElementType
-							: parameter.Type;
+						var parameterType =
+							xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+								? arrayParam.ElementType
+								: parameter.Type;
 
 						if (Equals(parameterType, compilation.ObjectType))
 						{
@@ -110,8 +117,8 @@ namespace Xunit.Analyzers
 						}
 
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
-						builder[ParameterIndex] = paramIdx.ToString();
-						builder[ParameterName] = parameter.Name;
+						builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+						builder[Constants.Properties.ParameterName] = parameter.Name;
 						var properties = builder.ToImmutable();
 
 						var value = values[valueIdx];
@@ -119,26 +126,30 @@ namespace Xunit.Analyzers
 						{
 							var isConvertible = ConversionChecker.IsConvertible(compilation, value.Type, parameterType, xunitContext);
 							if (!isConvertible)
-							{
-								context.ReportDiagnostic(Diagnostic.Create(
-									Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-									dataParameterExpressions[valueIdx].GetLocation(),
-									properties,
-									parameter.Name,
-									SymbolDisplay.ToDisplayString(parameterType)));
-							}
+								context.ReportDiagnostic(
+									Diagnostic.Create(
+										Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
+										dataParameterExpressions[valueIdx].GetLocation(),
+										properties,
+										parameter.Name,
+										SymbolDisplay.ToDisplayString(parameterType)
+									)
+								);
 						}
 
 						if (value.IsNull
 							&& parameterType.IsValueType
 							&& parameterType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
 						{
-							context.ReportDiagnostic(Diagnostic.Create(
-								Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
-								dataParameterExpressions[valueIdx].GetLocation(),
-								properties,
-								parameter.Name,
-								SymbolDisplay.ToDisplayString(parameterType)));
+							context.ReportDiagnostic(
+								Diagnostic.Create(
+									Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
+									dataParameterExpressions[valueIdx].GetLocation(),
+									properties,
+									parameter.Name,
+									SymbolDisplay.ToDisplayString(parameterType)
+								)
+							);
 						}
 
 						if (!parameter.IsParams)
@@ -151,25 +162,30 @@ namespace Xunit.Analyzers
 					for (; valueIdx < values.Length; valueIdx++)
 					{
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
-						builder[ParameterIndex] = valueIdx.ToString();
+						builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+						builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString();
+
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
 								dataParameterExpressions[valueIdx].GetLocation(),
 								builder.ToImmutable(),
-								values[valueIdx].ToCSharpString()));
+								values[valueIdx].ToCSharpString()
+							)
+						);
 					}
 				}
 			}, SymbolKind.Method);
 		}
 
-		private static bool RequiresMatchingValue(IParameterSymbol parameter, bool supportsParamsArray,
-			bool supportsDefaultValue, INamedTypeSymbol optionalAttribute)
-		{
-			return !(parameter.HasExplicitDefaultValue && supportsDefaultValue)
+		static bool RequiresMatchingValue(
+			IParameterSymbol parameter,
+			bool supportsParamsArray,
+			bool supportsDefaultValue,
+			INamedTypeSymbol optionalAttribute) =>
+				!(parameter.HasExplicitDefaultValue && supportsDefaultValue)
 				&& !(parameter.IsParams && supportsParamsArray)
 				&& !parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute));
-		}
 
 		static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
 		{
@@ -177,28 +193,20 @@ namespace Xunit.Analyzers
 				return null;
 
 			var argumentExpression = attribute.ArgumentList.Arguments.Single().Expression;
-			InitializerExpressionSyntax initializer = null;
-			switch (argumentExpression.Kind())
+			var initializer = argumentExpression.Kind() switch
 			{
-				case SyntaxKind.ArrayCreationExpression:
-					initializer = ((ArrayCreationExpressionSyntax)argumentExpression).Initializer;
-					break;
-
-				case SyntaxKind.ImplicitArrayCreationExpression:
-					initializer = ((ImplicitArrayCreationExpressionSyntax)argumentExpression).Initializer;
-					break;
-
-				default:
-					return null;
-			}
+				SyntaxKind.ArrayCreationExpression => ((ArrayCreationExpressionSyntax)argumentExpression).Initializer,
+				SyntaxKind.ImplicitArrayCreationExpression => ((ImplicitArrayCreationExpressionSyntax)argumentExpression).Initializer,
+				_ => null,
+			};
 
 			if (initializer == null)
-				return EmptyExpressionList;
+				return null;
 
 			return initializer.Expressions.ToList();
 		}
 
-		internal enum ParameterArrayStyleType
+		public enum ParameterArrayStyleType
 		{
 			/// <summary>
 			/// E.g. InlineData(1, 2, 3)
@@ -211,9 +219,13 @@ namespace Xunit.Analyzers
 			Initializer,
 		}
 
-		private static class ConversionChecker
+		static class ConversionChecker
 		{
-			public static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination, XunitContext xunitContext)
+			public static bool IsConvertible(
+				Compilation compilation,
+				ITypeSymbol source,
+				ITypeSymbol destination,
+				XunitContext xunitContext)
 			{
 				if (destination.TypeKind == TypeKind.Array)
 				{
@@ -244,7 +256,9 @@ namespace Xunit.Analyzers
 					|| (conversion.IsExplicit && conversion.IsNullable);
 			}
 
-			private static bool IsConvertibleTypeParameter(ITypeSymbol source, ITypeParameterSymbol destination)
+			static bool IsConvertibleTypeParameter(
+				ITypeSymbol source,
+				ITypeParameterSymbol destination)
 			{
 				if (destination.HasValueTypeConstraint && !source.IsValueType)
 					return false;
@@ -254,7 +268,9 @@ namespace Xunit.Analyzers
 				return destination.ConstraintTypes.All(c => c.IsAssignableFrom(source));
 			}
 
-			private static bool IsConvertibleNumeric(ITypeSymbol source, ITypeSymbol destination)
+			static bool IsConvertibleNumeric(
+				ITypeSymbol source,
+				ITypeSymbol destination)
 			{
 				if (destination.SpecialType == SpecialType.System_Char
 					&& (source.SpecialType == SpecialType.System_Double || source.SpecialType == SpecialType.System_Single))
@@ -266,12 +282,12 @@ namespace Xunit.Analyzers
 				return true; // Allow all numeric conversions. Narrowing conversion issues will be reported at runtime.
 			}
 
-			private static bool IsDateTimeOffsetOrGuid(ITypeSymbol destination)
+			static bool IsDateTimeOffsetOrGuid(ITypeSymbol destination)
 			{
-				if (destination.ContainingNamespace?.Name != "System")
+				if (destination.ContainingNamespace?.Name != nameof(System))
 					return false;
 
-				return destination.MetadataName == "DateTimeOffset" || destination.MetadataName == "Guid";
+				return destination.MetadataName == nameof(DateTimeOffset) || destination.MetadataName == nameof(Guid);
 			}
 		}
 	}

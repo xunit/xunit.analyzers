@@ -13,12 +13,12 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertNullShouldNotBeCalledOnValueTypesFixer : CodeFixProvider
+	public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer : CodeFixProvider
 	{
-		const string title = "Remove Call";
+		const string title = "Make Parameter Nullable";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes.Id);
+			ImmutableArray.Create(Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id);
 
 		public sealed override FixAllProvider GetFixAllProvider() =>
 			WellKnownFixAllProviders.BatchFixer;
@@ -26,34 +26,35 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var call = root.FindNode(context.Span).FirstAncestorOrSelf<ExpressionStatementSyntax>();
+			var node = root.FindNode(context.Span);
+			var diagnostic = context.Diagnostics.Single();
+			var diagnosticId = diagnostic.Id;
+			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			var parameterIndex = int.Parse(diagnostic.Properties[Constants.Properties.ParameterIndex]);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					createChangedDocument: ct => RemoveCall(context.Document, call, ct),
-					equivalenceKey: title
+					ct => MakeParameterNullable(context.Document, method, parameterIndex, ct),
+					title
 				),
 				context.Diagnostics
 			);
 		}
 
-		async Task<Document> RemoveCall(
+		async Task<Document> MakeParameterNullable(
 			Document document,
-			ExpressionStatementSyntax call,
+			MethodDeclarationSyntax method,
+			int parameterIndex,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var containsLeadingComment =
-				call
-					.GetLeadingTrivia()
-					.Any(t => t.IsKind(SyntaxKind.MultiLineCommentTrivia) || t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-			var removeOptions =
-				containsLeadingComment
-					? SyntaxRemoveOptions.KeepLeadingTrivia | SyntaxRemoveOptions.AddElasticMarker
-					: SyntaxRemoveOptions.KeepNoTrivia;
+			var param = method.ParameterList.Parameters[parameterIndex];
+			var semanticModel = editor.SemanticModel;
+			var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
+			var nullable = nullableT.Construct(semanticModel.GetTypeInfo(param.Type, cancellationToken).Type);
 
-			editor.RemoveNode(call, removeOptions);
+			editor.SetType(param, editor.Generator.TypeExpression(nullable));
 
 			return editor.GetChangedDocument();
 		}

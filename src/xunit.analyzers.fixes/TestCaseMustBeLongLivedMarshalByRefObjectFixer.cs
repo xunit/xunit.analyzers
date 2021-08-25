@@ -14,11 +14,11 @@ namespace Xunit.Analyzers
 	{
 		const string title = "Set Base Type";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -28,9 +28,11 @@ namespace Xunit.Analyzers
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: title,
-					createChangedDocument: ct => Actions.SetBaseClass(context.Document, classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					createChangedDocument: ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

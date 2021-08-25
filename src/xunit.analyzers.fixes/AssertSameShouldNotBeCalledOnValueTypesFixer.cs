@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,35 +14,31 @@ namespace Xunit.Analyzers
 	{
 		const string titleTemplate = "Use Assert.{0}";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var methodName = context.Diagnostics.First().Properties[AssertSameShouldNotBeCalledOnValueTypes.MethodName];
+			var methodName = context.Diagnostics.First().Properties[Constants.Properties.MethodName];
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			string replacement = null;
-			switch (methodName)
+			var replacement = methodName switch
 			{
-				case AssertSameShouldNotBeCalledOnValueTypes.SameMethod:
-					replacement = "Equal";
-					break;
-
-				case AssertSameShouldNotBeCalledOnValueTypes.NotSameMethod:
-					replacement = "NotEqual";
-					break;
-			}
+				Constants.Asserts.Same => Constants.Asserts.Equal,
+				Constants.Asserts.NotSame => Constants.Asserts.NotEqual,
+				_ => null,
+			};
 
 			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
 			{
 				var title = string.Format(titleTemplate, replacement);
 				context.RegisterCodeFix(
 					new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
-					context.Diagnostics);
+					context.Diagnostics
+				);
 			}
 		}
 	}

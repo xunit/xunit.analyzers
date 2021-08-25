@@ -10,11 +10,7 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertSubstringCheckShouldNotUseBoolCheck : AssertUsageAnalyzerBase
 	{
-		public const string AssertMethodName = "AssertMethodName";
-		public const string SubstringMethodName = "SubstringMethodName";
-
-		private static readonly HashSet<string> BooleanMethods = new HashSet<string>(new[] { "True", "False" });
-		private static readonly HashSet<string> SubstringMethods = new HashSet<string>(new[]
+		private static readonly HashSet<string> substringMethods = new HashSet<string>(new[]
 		{
 			"string.Contains(string)",
 			"string.StartsWith(string)",
@@ -22,12 +18,20 @@ namespace Xunit.Analyzers
 			"string.EndsWith(string)",
 			"string.EndsWith(string, System.StringComparison)"
 		});
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.True,
+			Constants.Asserts.False
+		};
 
 		public AssertSubstringCheckShouldNotUseBoolCheck()
-			: base(Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck, BooleanMethods)
+			: base(Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var arguments = invocationOperation.Arguments;
 			if (arguments.Length != 1)
@@ -37,15 +41,16 @@ namespace Xunit.Analyzers
 				return;
 
 			var methodSymbol = invocationExpression.TargetMethod;
-			if (!SubstringMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
+			if (!substringMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 				return;
 
-			if (methodSymbol.Name != "Contains" && method.Name == "False")
+			if (methodSymbol.Name != Constants.Asserts.Contains && method.Name == Constants.Asserts.False)
 				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[AssertMethodName] = method.Name;
-			builder[SubstringMethodName] = methodSymbol.Name;
+			builder[Constants.Properties.AssertMethodName] = method.Name;
+			builder[Constants.Properties.SubstringMethodName] = methodSymbol.Name;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck,
@@ -53,7 +58,13 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					)
+				)
+			);
 		}
 	}
 }

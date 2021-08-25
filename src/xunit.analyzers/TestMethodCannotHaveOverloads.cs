@@ -2,9 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Xunit.Analyzers.Utilities;
 
 namespace Xunit.Analyzers
 {
@@ -14,7 +12,9 @@ namespace Xunit.Analyzers
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1024_TestMethodCannotHaveOverloads);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -22,11 +22,13 @@ namespace Xunit.Analyzers
 				if (typeSymbol.TypeKind != TypeKind.Class)
 					return;
 
-				var methodsByName = typeSymbol.GetInheritedAndOwnMembers()
-					.Where(s => s.Kind == SymbolKind.Method)
-					.Cast<IMethodSymbol>()
-					.Where(m => m.MethodKind == MethodKind.Ordinary)
-					.GroupBy(m => m.Name);
+				var methodsByName =
+					typeSymbol
+						.GetInheritedAndOwnMembers()
+						.Where(s => s.Kind == SymbolKind.Method)
+						.Cast<IMethodSymbol>()
+						.Where(m => m.MethodKind == MethodKind.Ordinary)
+						.GroupBy(m => m.Name);
 
 				foreach (var grouping in methodsByName)
 				{
@@ -47,9 +49,12 @@ namespace Xunit.Analyzers
 
 					foreach (var method in methodsWithoutOverloads.Where(m => m.ContainingType.Equals(typeSymbol)))
 					{
-						var otherType = methodsWithoutOverloads.Where(m => !m.Equals(method))
-							.OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
-							.First().ContainingType;
+						var otherType =
+							methodsWithoutOverloads
+								.Where(m => !m.Equals(method))
+								.OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
+								.First()
+								.ContainingType;
 
 						context.ReportDiagnostic(
 							Diagnostic.Create(
@@ -57,7 +62,9 @@ namespace Xunit.Analyzers
 								method.Locations.First(),
 								methodName,
 								method.ContainingType.ToDisplayString(),
-								otherType.ToDisplayString()));
+								otherType.ToDisplayString()
+							)
+						);
 					}
 				}
 			}, SymbolKind.NamedType);

@@ -28,9 +28,11 @@ namespace Xunit.Analyzers
 			});
 		}
 
-		protected virtual bool ShouldAnalyze(XunitContext xunitContext)
-			=> xunitContext.HasCoreReference;
+		protected virtual bool ShouldAnalyze(XunitContext xunitContext) =>
+			xunitContext.HasCoreReference;
 
-		internal abstract void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext);
+		public abstract void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext);
 	}
 }

@@ -9,10 +9,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
 			var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
@@ -31,11 +33,13 @@ namespace Xunit.Analyzers
 					type.IsAbstract)
 					return;
 
-				var methodsToIgnore = interfacesToIgnore.Where(i => i != null && type.AllInterfaces.Contains(i))
-					.SelectMany(i => i.GetMembers())
-					.Select(m => type.FindImplementationForInterfaceMember(m))
-					.Where(s => s != null)
-					.ToList();
+				var methodsToIgnore =
+					interfacesToIgnore
+						.Where(i => i != null && type.AllInterfaces.Contains(i))
+						.SelectMany(i => i.GetMembers())
+						.Select(m => type.FindImplementationForInterfaceMember(m))
+						.Where(s => s != null)
+						.ToList();
 
 				var hasTestMethods = false;
 				var violations = new List<IMethodSymbol>();
@@ -43,11 +47,11 @@ namespace Xunit.Analyzers
 				{
 					context.CancellationToken.ThrowIfCancellationRequested();
 
-					var method = (IMethodSymbol)member;
 					// Check for method.IsAbstract and earlier for type.IsAbstract is done
 					// twice to enable better diagnostics during code editing. It is useful with
-					// incomplete code for abstract types - missing abstract keyword  on type
+					// incomplete code for abstract types - missing abstract keyword on type
 					// or on abstract method
+					var method = (IMethodSymbol)member;
 					if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
 						continue;
 
@@ -56,9 +60,10 @@ namespace Xunit.Analyzers
 					hasTestMethods = hasTestMethods || isTestMethod;
 
 					if (isTestMethod ||
-						attributes.Any(attribute => attribute.AttributeClass.GetAttributes()
-							.Any(att => att.AttributeClass.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute"))))
+						attributes.Any(attribute => attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute"))))
+					{
 						continue;
+					}
 
 					if (method.DeclaredAccessibility == Accessibility.Public &&
 						(method.ReturnsVoid ||
@@ -91,14 +96,17 @@ namespace Xunit.Analyzers
 				{
 					foreach (var method in violations)
 					{
-						var testType = method.Parameters.Any() ? "Theory" : "Fact";
+						var testType = method.Parameters.Any() ? Constants.Attributes.Theory : Constants.Attributes.Fact;
+
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
 								method.Locations.First(),
 								method.Name,
 								method.ContainingType.Name,
-								testType));
+								testType
+							)
+						);
 					}
 				}
 			}, SymbolKind.NamedType);

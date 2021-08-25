@@ -18,13 +18,15 @@ namespace Xunit.Analyzers
 			: base(new Version(assemblyVersion))
 		{ }
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
 
-		protected override bool ShouldAnalyze(XunitContext xunitContext)
-			=> !xunitContext.Core.TheorySupportsDefaultParameterValues;
+		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+			!xunitContext.Core.TheorySupportsDefaultParameterValues;
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -36,11 +38,15 @@ namespace Xunit.Analyzers
 				foreach (var parameter in method.Parameters)
 				{
 					context.CancellationToken.ThrowIfCancellationRequested();
+
 					if (parameter.HasExplicitDefaultValue)
 					{
-						var syntaxNode = parameter.DeclaringSyntaxReferences.First()
-							.GetSyntax(context.CancellationToken)
-							.FirstAncestorOrSelf<ParameterSyntax>();
+						var syntaxNode =
+							parameter
+								.DeclaringSyntaxReferences
+								.First()
+								.GetSyntax(context.CancellationToken)
+								.FirstAncestorOrSelf<ParameterSyntax>();
 
 						context.ReportDiagnostic(
 							Diagnostic.Create(
@@ -48,7 +54,9 @@ namespace Xunit.Analyzers
 								syntaxNode.Default.GetLocation(),
 								method.Name,
 								method.ContainingType.ToDisplayString(),
-								parameter.Name));
+								parameter.Name
+							)
+						);
 					}
 				}
 			}, SymbolKind.Method);

@@ -5,9 +5,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Xunit.Analyzers
 {
-	internal static class SyntaxExtensions
+	public static class SyntaxExtensions
 	{
-		internal static bool ContainsAttributeType(this SyntaxList<AttributeListSyntax> attributeLists, SemanticModel semanticModel, INamedTypeSymbol attributeType, bool exactMatch = false)
+		public static bool ContainsAttributeType(
+			this SyntaxList<AttributeListSyntax> attributeLists,
+			SemanticModel semanticModel,
+			INamedTypeSymbol attributeType,
+			bool exactMatch = false)
 		{
 			foreach (var attributeList in attributeLists)
 			{
@@ -22,7 +26,7 @@ namespace Xunit.Analyzers
 			return false;
 		}
 
-		internal static SimpleNameSyntax GetSimpleName(this InvocationExpressionSyntax invocation)
+		public static SimpleNameSyntax GetSimpleName(this InvocationExpressionSyntax invocation)
 		{
 			return invocation.Expression switch
 			{
@@ -32,7 +36,10 @@ namespace Xunit.Analyzers
 			};
 		}
 
-		internal static bool IsEnumValueExpression(this ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken = default(CancellationToken))
+		public static bool IsEnumValueExpression(
+			this ExpressionSyntax expression,
+			SemanticModel semanticModel,
+			CancellationToken cancellationToken = default)
 		{
 			if (!expression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
 				return false;
@@ -41,7 +48,10 @@ namespace Xunit.Analyzers
 			return symbol?.Kind == SymbolKind.Field && symbol.ContainingType.TypeKind == TypeKind.Enum;
 		}
 
-		internal static bool IsNameofExpression(this ExpressionSyntax expression, SemanticModel semanticModel, CancellationToken cancellationToken = default(CancellationToken))
+		public static bool IsNameofExpression(
+			this ExpressionSyntax expression,
+			SemanticModel semanticModel,
+			CancellationToken cancellationToken = default)
 		{
 			if (!expression.IsKind(SyntaxKind.InvocationExpression))
 				return false;
@@ -54,8 +64,9 @@ namespace Xunit.Analyzers
 				return false;
 
 			// A real nameof expression doesn't have a matching symbol, but it does have the string type
-			return semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol == null &&
-				semanticModel.GetTypeInfo(expression, cancellationToken).Type?.SpecialType == SpecialType.System_String;
+			return
+				semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol == null
+				&& semanticModel.GetTypeInfo(expression, cancellationToken).Type?.SpecialType == SpecialType.System_String;
 		}
 	}
 }

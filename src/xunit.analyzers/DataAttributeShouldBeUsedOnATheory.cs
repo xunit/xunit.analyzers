@@ -8,10 +8,10 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -26,7 +26,9 @@ namespace Xunit.Analyzers
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1008_DataAttributeShouldBeUsedOnATheory,
-							methodSymbol.Locations.First()));
+							methodSymbol.Locations.First()
+						)
+					);
 			}, SymbolKind.Method);
 		}
 	}

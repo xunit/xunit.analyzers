@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,16 +9,22 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBase
 	{
-		private const string AbstractClass = "abstract class";
-		private const string Interface = "interface";
-
-		private static HashSet<string> IsTypeMethods { get; } = new HashSet<string>(new[] { "IsType", "IsNotType" });
+		const string abstractClass = "abstract class";
+		const string @interface = "interface";
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.IsType,
+			Constants.Asserts.IsNotType
+		};
 
 		public AssertIsTypeShouldNotBeUsedForAbstractType()
-			: base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType, IsTypeMethods)
+			: base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var type = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault();
 			var typeKind = GetAbstractTypeKind(type);
@@ -33,20 +38,22 @@ namespace Xunit.Analyzers
 					Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType,
 					invocationOperation.Syntax.GetLocation(),
 					typeKind,
-					typeName));
+					typeName
+				)
+			);
 		}
 
-		private static string GetAbstractTypeKind(ITypeSymbol typeSymbol)
+		static string GetAbstractTypeKind(ITypeSymbol typeSymbol)
 		{
 			switch (typeSymbol.TypeKind)
 			{
 				case TypeKind.Class:
 					if (typeSymbol.IsAbstract)
-						return AbstractClass;
+						return abstractClass;
 					break;
 
 				case TypeKind.Interface:
-					return Interface;
+					return @interface;
 			}
 
 			return null;

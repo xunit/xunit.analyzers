@@ -5,14 +5,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers
 {
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class FactMethodMustNotHaveParameters : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -22,13 +23,13 @@ namespace Xunit.Analyzers
 
 				var attributes = symbol.GetAttributes();
 				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true))
-				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1001_FactMethodMustNotHaveParameters,
 							symbol.Locations.First(),
-							symbol.Name));
-				}
+							symbol.Name
+						)
+					);
 			}, SymbolKind.Method);
 		}
 	}

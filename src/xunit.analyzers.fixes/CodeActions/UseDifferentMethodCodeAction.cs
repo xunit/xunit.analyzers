@@ -12,24 +12,29 @@ namespace Xunit.Analyzers.CodeActions
 		readonly Document document;
 		readonly InvocationExpressionSyntax invocation;
 		readonly string replacementMethod;
-		readonly string title;
 
-		public UseDifferentMethodCodeAction(string title, Document document, InvocationExpressionSyntax invocation, string replacementMethod)
+		public UseDifferentMethodCodeAction(
+			string title,
+			Document document,
+			InvocationExpressionSyntax invocation,
+			string replacementMethod)
 		{
+			Title = title;
+
 			this.document = document;
 			this.invocation = invocation;
 			this.replacementMethod = replacementMethod;
-			this.title = title;
 		}
 
-		public override string Title => title;
-
 		public override string EquivalenceKey => Title;
+
+		public override string Title { get; }
 
 		protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
+
 			editor.ReplaceNode(memberAccess, memberAccess.WithName((SimpleNameSyntax)editor.Generator.IdentifierName(replacementMethod)));
 
 			return editor.GetChangedDocument();

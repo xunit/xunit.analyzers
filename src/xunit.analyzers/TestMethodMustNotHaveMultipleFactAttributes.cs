@@ -9,16 +9,19 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
 				var symbol = (IMethodSymbol)context.Symbol;
 				var attributeTypes = new HashSet<INamedTypeSymbol>();
 				var count = 0;
+
 				foreach (var attribute in symbol.GetAttributes())
 				{
 					var attributeType = attribute.AttributeClass;
@@ -35,7 +38,9 @@ namespace Xunit.Analyzers
 						Diagnostic.Create(
 							Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
 							symbol.Locations.First(),
-							properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)));
+							properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)
+						)
+					);
 				}
 			}, SymbolKind.Method);
 		}

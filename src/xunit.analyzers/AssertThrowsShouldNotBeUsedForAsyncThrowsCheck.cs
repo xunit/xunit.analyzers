@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -12,16 +11,19 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyzerBase
 	{
-		internal const string MethodName = "MethodName";
-
-		private static readonly HashSet<string> ObsoleteMethods = new HashSet<string>
+		static readonly HashSet<string> obsoleteThrowsMethods = new()
 		{
 			"Xunit.Assert.Throws<System.NotImplementedException>(System.Func<System.Threading.Tasks.Task>)",
 			"Xunit.Assert.Throws<System.ArgumentException>(string, System.Func<System.Threading.Tasks.Task>)"
 		};
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Throws,
+			Constants.Asserts.ThrowsAny
+		};
 
 		public AssertThrowsShouldNotBeUsedForAsyncThrowsCheck()
-			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, new[] { "Throws", "ThrowsAny" })
+			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, targetMethods)
 		{ }
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
@@ -29,16 +31,18 @@ namespace Xunit.Analyzers
 			if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
 				return;
 
-			var throwExpressionSymbol = GetThrowExpressionSymbol(context, invocationOperation);
+			var throwExpressionSymbol = GetThrowExpressionSymbol(invocationOperation);
 			if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 				return;
 
-			var descriptor = ObsoleteMethods.Contains(SymbolDisplay.ToDisplayString(method))
-				? Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
-				: Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck;
+			var descriptor =
+				obsoleteThrowsMethods.Contains(SymbolDisplay.ToDisplayString(method))
+					? Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
+					: Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
+			builder[Constants.Properties.MethodName] = method.Name;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 				descriptor,
@@ -46,12 +50,15 @@ namespace Xunit.Analyzers
 				builder.ToImmutable(),
 				SymbolDisplay.ToDisplayString(
 					method,
-					SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+					SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))
+				)
+			);
 		}
 
-		private static ISymbol GetThrowExpressionSymbol(OperationAnalysisContext context, IInvocationOperation invocationOperation)
+		static ISymbol GetThrowExpressionSymbol(IInvocationOperation invocationOperation)
 		{
 			var argument = invocationOperation.Arguments.Last().Value;
+
 			if (argument is IDelegateCreationOperation delegateCreation)
 			{
 				if (delegateCreation.Target is IAnonymousFunctionOperation anonymousFunction)
@@ -70,29 +77,22 @@ namespace Xunit.Analyzers
 					}
 
 					if (symbolOperation is IAwaitOperation awaitOperation)
-					{
 						symbolOperation = awaitOperation.Operation.WalkDownImplicitConversions();
-					}
-
 					if (symbolOperation is IInvocationOperation symbolInvoke)
-					{
 						return symbolInvoke.TargetMethod;
-					}
 					else if (symbolOperation is ILiteralOperation)
-					{
 						return null;
-					}
 				}
 				else if (delegateCreation.Target is IMethodReferenceOperation methodReference)
-				{
 					return methodReference.Method;
-				}
 			}
 
 			return null;
 		}
 
-		private static bool ThrowExpressionReturnsTask(ISymbol symbol, OperationAnalysisContext context)
+		static bool ThrowExpressionReturnsTask(
+			ISymbol symbol,
+			OperationAnalysisContext context)
 		{
 			if (symbol?.Kind != SymbolKind.Method)
 				return false;

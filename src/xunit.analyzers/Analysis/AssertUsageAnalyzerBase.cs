@@ -9,16 +9,20 @@ namespace Xunit.Analyzers
 {
 	public abstract class AssertUsageAnalyzerBase : DiagnosticAnalyzer
 	{
-		readonly HashSet<string> methodNames;
+		readonly HashSet<string> targetMethods;
 
-		protected AssertUsageAnalyzerBase(DiagnosticDescriptor descriptor, IEnumerable<string> methods)
-			: this(new[] { descriptor }, methods)
+		protected AssertUsageAnalyzerBase(
+			DiagnosticDescriptor descriptor,
+			IEnumerable<string> methods)
+				: this(new[] { descriptor }, methods)
 		{ }
 
-		protected AssertUsageAnalyzerBase(IEnumerable<DiagnosticDescriptor> descriptors, IEnumerable<string> methods)
+		protected AssertUsageAnalyzerBase(
+			IEnumerable<DiagnosticDescriptor> descriptors,
+			IEnumerable<string> methods)
 		{
 			SupportedDiagnostics = ImmutableArray.CreateRange(descriptors);
-			methodNames = new HashSet<string>(methods, StringComparer.Ordinal);
+			targetMethods = new HashSet<string>(methods, StringComparer.Ordinal);
 		}
 
 		public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
@@ -38,9 +42,7 @@ namespace Xunit.Analyzers
 				{
 					var invocationOperation = (IInvocationOperation)context.Operation;
 					var methodSymbol = invocationOperation.TargetMethod;
-					if (methodSymbol.MethodKind != MethodKind.Ordinary ||
-							!Equals(methodSymbol.ContainingType, assertType) ||
-							!methodNames.Contains(methodSymbol.Name))
+					if (methodSymbol.MethodKind != MethodKind.Ordinary || !Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
 						return;
 
 					Analyze(context, invocationOperation, methodSymbol);
@@ -48,6 +50,9 @@ namespace Xunit.Analyzers
 			});
 		}
 
-		protected abstract void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method);
+		protected abstract void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method);
 	}
 }

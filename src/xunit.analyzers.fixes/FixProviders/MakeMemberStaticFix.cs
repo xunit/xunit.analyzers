@@ -16,16 +16,20 @@ namespace Xunit.Analyzers.FixProviders
 			: base(new[] { Descriptors.X1017_MemberDataMustReferenceStaticMember.Id })
 		{ }
 
-		public override Task RegisterCodeFixesAsync(CodeFixContext context, ISymbol member)
+		public override Task RegisterCodeFixesAsync(
+			CodeFixContext context,
+			ISymbol member)
 		{
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: title,
-					createChangedSolution: ct => Actions.ChangeMemberStaticModifier(context.Document.Project.Solution, member, true, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberStaticModifier(member, true, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 
-			return Task.FromResult(0);
+			return Task.CompletedTask;
 		}
 	}
 }

@@ -13,11 +13,11 @@ namespace Xunit.Analyzers
 	{
 		const string removeDataAttributesTitle = "Remove Data Attributes";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -26,7 +26,8 @@ namespace Xunit.Analyzers
 
 			context.RegisterCodeFix(
 				new RemoveAttributesOfTypeCodeAction(removeDataAttributesTitle, context.Document, methodDeclaration.AttributeLists, Constants.Types.XunitSdkDataAttribute),
-				context.Diagnostics);
+				context.Diagnostics
+			);
 		}
 	}
 }

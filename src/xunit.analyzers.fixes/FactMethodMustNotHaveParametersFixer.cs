@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Xunit.Analyzers.CodeActions;
 
 namespace Xunit.Analyzers
 {
@@ -16,11 +15,11 @@ namespace Xunit.Analyzers
 	{
 		const string removeParametersTitle = "Remove Parameters";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -30,14 +29,20 @@ namespace Xunit.Analyzers
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: removeParametersTitle,
-					createChangedDocument: ct => RemoveParametersAsync(context.Document, methodDeclaration.ParameterList, ct),
-					equivalenceKey: removeParametersTitle),
-				context.Diagnostics);
+					createChangedDocument: ct => RemoveParameters(context.Document, methodDeclaration.ParameterList, ct),
+					equivalenceKey: removeParametersTitle
+				),
+				context.Diagnostics
+			);
 		}
 
-		async Task<Document> RemoveParametersAsync(Document document, ParameterListSyntax parameterListSyntax, CancellationToken cancellationToken)
+		async Task<Document> RemoveParameters(
+			Document document,
+			ParameterListSyntax parameterListSyntax,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
 			foreach (var parameter in parameterListSyntax.Parameters)
 				editor.RemoveNode(parameter);
 

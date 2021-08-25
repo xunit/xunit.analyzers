@@ -15,11 +15,11 @@ namespace Xunit.Analyzers
 	{
 		const string title = "Remove Skip Argument";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -29,14 +29,20 @@ namespace Xunit.Analyzers
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					ct => RemoveArgumentAsync(context.Document, argument, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					ct => RemoveArgument(context.Document, argument, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 
-		async Task<Document> RemoveArgumentAsync(Document document, AttributeArgumentSyntax argument, CancellationToken ct)
+		async Task<Document> RemoveArgument(
+			Document document,
+			AttributeArgumentSyntax argument,
+			CancellationToken ct)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, ct).ConfigureAwait(false);
+
 			editor.RemoveNode(argument);
 
 			return editor.GetChangedDocument();

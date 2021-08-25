@@ -13,11 +13,14 @@ namespace Xunit.Analyzers.FixProviders
 	{
 		const string title = "Convert to Theory";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1001_FactMethodMustNotHaveParameters.Id, Descriptors.X1005_FactMethodShouldNotHaveTestData.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(
+				Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
+				Descriptors.X1005_FactMethodShouldNotHaveTestData.Id
+			);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -30,8 +33,10 @@ namespace Xunit.Analyzers.FixProviders
 					context.Document,
 					methodDeclaration.AttributeLists,
 					fromTypeName: Constants.Types.XunitTheoryAttribute,
-					toTypeName: Constants.Types.XunitFactAttribute),
-				context.Diagnostics);
+					toTypeName: Constants.Types.XunitFactAttribute
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

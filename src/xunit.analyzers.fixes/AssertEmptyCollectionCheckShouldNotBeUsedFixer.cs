@@ -5,23 +5,23 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class AssertEmptyCollectionCheckShouldNotBeUsedFixer : CodeFixProvider
 	{
-		private const string UseAssertEmptyCheckTitle = "Use Assert.Empty";
-		private const string AddElementInspectorTitle = "Add element inspector";
+		const string addElementInspectorTitle = "Add element inspector";
+		const string useAssertEmptyCheckTitle = "Use Assert.Empty";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -30,41 +30,50 @@ namespace Xunit.Analyzers
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					UseAssertEmptyCheckTitle,
-					createChangedDocument: ct => UseEmptyCheckAsync(context.Document, invocation, ct),
-					equivalenceKey: UseAssertEmptyCheckTitle),
-				context.Diagnostics);
+					useAssertEmptyCheckTitle,
+					createChangedDocument: ct => UseEmptyCheck(context.Document, invocation, ct),
+					equivalenceKey: useAssertEmptyCheckTitle
+				),
+				context.Diagnostics
+			);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					AddElementInspectorTitle,
-					createChangedDocument: ct => AddElementInspectorAsync(context.Document, invocation, ct),
-					equivalenceKey: AddElementInspectorTitle),
-				context.Diagnostics);
+					addElementInspectorTitle,
+					createChangedDocument: ct => AddElementInspector(context.Document, invocation, ct),
+					equivalenceKey: addElementInspectorTitle
+				),
+				context.Diagnostics
+			);
 		}
 
-		private static async Task<Document> UseEmptyCheckAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+		static async Task<Document> UseEmptyCheck(
+			Document document,
+			InvocationExpressionSyntax invocation,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
+
 			editor.ReplaceNode(
 				invocation,
-				invocation.WithExpression(memberAccess.WithName(SyntaxFactory.IdentifierName("Empty"))));
+				invocation.WithExpression(memberAccess.WithName(IdentifierName("Empty")))
+			);
 
 			return editor.GetChangedDocument();
 		}
 
-		private static async Task<Document> AddElementInspectorAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+		static async Task<Document> AddElementInspector(
+			Document document,
+			InvocationExpressionSyntax invocation,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
 			editor.ReplaceNode(
 				invocation,
-				invocation.WithArgumentList(
-					invocation.ArgumentList.AddArguments(
-						SyntaxFactory.Argument(
-							SyntaxFactory.SimpleLambdaExpression(
-								SyntaxFactory.Parameter(SyntaxFactory.Identifier("x")),
-								SyntaxFactory.Block())))));
+				invocation.WithArgumentList(invocation.ArgumentList.AddArguments(Argument(SimpleLambdaExpression(Parameter(Identifier("x")), Block()))))
+			);
 
 			return editor.GetChangedDocument();
 		}

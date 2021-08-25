@@ -12,8 +12,8 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(
 				Descriptors.X1014_MemberDataShouldUseNameOfOperator,
 				Descriptors.X1015_MemberDataMustReferenceExistingMember,
 				Descriptors.X1016_MemberDataMustReferencePublicMember,
@@ -21,9 +21,12 @@ namespace Xunit.Analyzers
 				Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
 				Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 				Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-				Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters);
+				Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters
+			);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			var compilation = context.Compilation;
 
@@ -53,10 +56,10 @@ namespace Xunit.Analyzers
 				var paramsCount = attribute.ArgumentList.Arguments.Count - 1 - propertyAttributeParameters;
 
 				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
-				if (!(constantValue.Value is string memberName))
+				if (constantValue.Value is not string memberName)
 					return;
 
-				var memberTypeArgument = attribute.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == "MemberType");
+				var memberTypeArgument = attribute.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
 				ITypeSymbol memberTypeSymbol = null;
 				if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
 				{
@@ -75,7 +78,9 @@ namespace Xunit.Analyzers
 							Descriptors.X1015_MemberDataMustReferenceExistingMember,
 							attribute.GetLocation(),
 							memberName,
-							SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)));
+							SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)
+						)
+					);
 				}
 				else
 				{
@@ -86,7 +91,9 @@ namespace Xunit.Analyzers
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
-								attribute.GetLocation()));
+								attribute.GetLocation()
+							)
+						);
 					}
 					else
 					{
@@ -102,13 +109,15 @@ namespace Xunit.Analyzers
 									memberNameArgument.Expression.GetLocation(),
 									builder.ToImmutable(),
 									memberName,
-									memberSymbol.ContainingType.ToDisplayString()));
+									memberSymbol.ContainingType.ToDisplayString()
+								)
+							);
 						}
 
 						var memberProperties = new Dictionary<string, string>
 						{
-							{ "DeclaringType", declaredMemberTypeSymbol.ToDisplayString() },
-							{ "MemberName", memberName }
+							{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
+							{ Constants.AttributeProperties.MemberName, memberName }
 						}.ToImmutableDictionary();
 
 						if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
@@ -117,7 +126,9 @@ namespace Xunit.Analyzers
 								Diagnostic.Create(
 									Descriptors.X1016_MemberDataMustReferencePublicMember,
 									attribute.GetLocation(),
-									memberProperties));
+									memberProperties
+								)
+							);
 						}
 						if (!memberSymbol.IsStatic)
 						{
@@ -125,7 +136,9 @@ namespace Xunit.Analyzers
 								Diagnostic.Create(
 									Descriptors.X1017_MemberDataMustReferenceStaticMember,
 									attribute.GetLocation(),
-									memberProperties));
+									memberProperties
+								)
+							);
 						}
 						var memberType = GetMemberType(memberSymbol);
 						if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
@@ -136,14 +149,18 @@ namespace Xunit.Analyzers
 									attribute.GetLocation(),
 									memberProperties,
 									SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType),
-									SymbolDisplay.ToDisplayString(memberType)));
+									SymbolDisplay.ToDisplayString(memberType)
+								)
+							);
 						}
 						if (memberSymbol.Kind == SymbolKind.Property && ((IPropertySymbol)memberSymbol).GetMethod == null)
 						{
 							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-									attribute.GetLocation()));
+									attribute.GetLocation()
+								)
+							);
 						}
 						var extraArguments = attribute.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals == null).ToList();
 						if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
@@ -154,7 +171,9 @@ namespace Xunit.Analyzers
 								context.ReportDiagnostic(
 									Diagnostic.Create(
 										Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
-										Location.Create(attribute.SyntaxTree, span)));
+										Location.Create(attribute.SyntaxTree, span)
+									)
+								);
 							}
 						}
 
@@ -167,18 +186,19 @@ namespace Xunit.Analyzers
 			}, SyntaxKind.Attribute);
 		}
 
-		static ITypeSymbol GetMemberType(ISymbol memberSymbol)
-		{
-			return memberSymbol switch
+		static ITypeSymbol GetMemberType(ISymbol memberSymbol) =>
+			memberSymbol switch
 			{
 				IPropertySymbol prop => prop.Type,
 				IFieldSymbol field => field.Type,
 				IMethodSymbol method => method.ReturnType,
 				_ => null,
 			};
-		}
 
-		static ISymbol FindMemberSymbol(string memberName, ITypeSymbol type, int paramsCount)
+		static ISymbol FindMemberSymbol(
+			string memberName,
+			ITypeSymbol type,
+			int paramsCount)
 		{
 			if (paramsCount > 0 && FindMethodSymbol(memberName, type, paramsCount) is ISymbol methodSymbol)
 				return methodSymbol;
@@ -196,7 +216,10 @@ namespace Xunit.Analyzers
 		}
 
 
-		static ISymbol FindMethodSymbol(string memberName, ITypeSymbol type, int paramsCount)
+		static ISymbol FindMethodSymbol(
+			string memberName,
+			ITypeSymbol type,
+			int paramsCount)
 		{
 			while (type != null)
 			{

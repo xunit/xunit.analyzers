@@ -8,18 +8,20 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class AssertEqualPrecisionShouldBeInRangeFixer : CodeFixProvider
 	{
-		private const string title = "Use precision 0";
+		const string title = "Use precision 0";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
 			ImmutableArray.Create(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -32,20 +34,23 @@ namespace Xunit.Analyzers
 				CodeAction.Create(
 					title,
 					createChangedDocument: ct => UseRecommendedPrecision(context.Document, precisionArgument, ct),
-					equivalenceKey: title),
-				context.Diagnostics);
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 
-		private static async Task<Document> UseRecommendedPrecision(Document document,
-			ArgumentSyntax precisionArgument, CancellationToken cancellationToken)
+		static async Task<Document> UseRecommendedPrecision(
+			Document document,
+			ArgumentSyntax precisionArgument,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 			editor.ReplaceNode(
 				precisionArgument,
-				SyntaxFactory.Argument(
-					SyntaxFactory.LiteralExpression(
-						SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(0))));
+				Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)))
+			);
 
 			return editor.GetChangedDocument();
 		}

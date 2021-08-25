@@ -8,22 +8,24 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestClassMustBePublic : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1000_TestClassMustBePublic);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;
 
-				var classSymbol = (INamedTypeSymbol)context.Symbol; // RegisterSymbolAction guarantees by 2nd arg
-
-				var doesClassContainTests = classSymbol
-					.GetMembers()
-					.OfType<IMethodSymbol>()
-					.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+				var classSymbol = (INamedTypeSymbol)context.Symbol;
+				var doesClassContainTests =
+					classSymbol
+						.GetMembers()
+						.OfType<IMethodSymbol>()
+						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;
@@ -33,7 +35,9 @@ namespace Xunit.Analyzers
 						Descriptors.X1000_TestClassMustBePublic,
 						classSymbol.Locations.First(),
 						classSymbol.Locations.Skip(1),
-						classSymbol.Name));
+						classSymbol.Name
+					)
+				);
 
 			}, SymbolKind.NamedType);
 		}

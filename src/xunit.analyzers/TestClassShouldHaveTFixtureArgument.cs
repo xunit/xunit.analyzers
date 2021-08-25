@@ -8,25 +8,24 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestClassShouldHaveTFixtureArgument : XunitDiagnosticAnalyzer
 	{
-		public const string TFixtureDisplayNamePropertyKey = nameof(TFixtureDisplayNamePropertyKey);
-		public const string TFixtureNamePropertyKey = nameof(TFixtureNamePropertyKey);
-		public const string TestClassNamePropertyKey = nameof(TestClassNamePropertyKey);
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
 				if (context.Symbol.DeclaredAccessibility != Accessibility.Public)
 					return;
 
-				var classSymbol = (INamedTypeSymbol)context.Symbol; // RegisterSymbolAction guarantees by 2nd arg
-
-				var doesClassContainTests = classSymbol
-					.GetMembers()
-					.OfType<IMethodSymbol>()
-					.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+				var classSymbol = (INamedTypeSymbol)context.Symbol;
+				var doesClassContainTests =
+					classSymbol
+						.GetMembers()
+						.OfType<IMethodSymbol>()
+						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;
@@ -47,9 +46,9 @@ namespace Xunit.Analyzers
 							continue;
 
 						var propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
-						propertiesBuilder.Add(TFixtureDisplayNamePropertyKey, tFixtureDataType.ToDisplayString());
-						propertiesBuilder.Add(TFixtureNamePropertyKey, tFixtureDataType.Name);
-						propertiesBuilder.Add(TestClassNamePropertyKey, classSymbol.Name);
+						propertiesBuilder.Add(Constants.Properties.TFixtureDisplayName, tFixtureDataType.ToDisplayString());
+						propertiesBuilder.Add(Constants.Properties.TFixtureName, tFixtureDataType.Name);
+						propertiesBuilder.Add(Constants.Properties.TestClassName, classSymbol.Name);
 
 						context.ReportDiagnostic(
 							Diagnostic.Create(
@@ -57,7 +56,9 @@ namespace Xunit.Analyzers
 								location: classSymbol.Locations.First(),
 								properties: propertiesBuilder.ToImmutable(),
 								classSymbol.ToDisplayString(),
-								tFixtureDataType.ToDisplayString()));
+								tFixtureDataType.ToDisplayString()
+							)
+						);
 					}
 				}
 			}, SymbolKind.NamedType);

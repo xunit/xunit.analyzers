@@ -6,54 +6,48 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertNullShouldNotBeCalledOnValueTypesFixer : CodeFixProvider
+	public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : CodeFixProvider
 	{
-		const string title = "Remove Call";
-
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes.Id);
+			ImmutableArray.Create(Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id);
 
 		public sealed override FixAllProvider GetFixAllProvider() =>
 			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
+			var diagnosticId = context.Diagnostics.Single().Id;
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var call = root.FindNode(context.Span).FirstAncestorOrSelf<ExpressionStatementSyntax>();
+			var attribute = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeSyntax>();
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
-					createChangedDocument: ct => RemoveCall(context.Document, call, ct),
-					equivalenceKey: title
+					"Remove Arguments",
+					createChangedDocument: ct => RemoveUnneededArguments(context.Document, attribute, context.Span, ct),
+					equivalenceKey: "Remove MemberData Arguments"
 				),
 				context.Diagnostics
 			);
 		}
 
-		async Task<Document> RemoveCall(
+		async Task<Document> RemoveUnneededArguments(
 			Document document,
-			ExpressionStatementSyntax call,
+			AttributeSyntax attribute,
+			TextSpan span,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var containsLeadingComment =
-				call
-					.GetLeadingTrivia()
-					.Any(t => t.IsKind(SyntaxKind.MultiLineCommentTrivia) || t.IsKind(SyntaxKind.SingleLineCommentTrivia));
-			var removeOptions =
-				containsLeadingComment
-					? SyntaxRemoveOptions.KeepLeadingTrivia | SyntaxRemoveOptions.AddElasticMarker
-					: SyntaxRemoveOptions.KeepNoTrivia;
 
-			editor.RemoveNode(call, removeOptions);
+			foreach (var argument in attribute.ArgumentList.Arguments)
+				if (argument.Span.OverlapsWith(span))
+					editor.RemoveNode(argument);
 
 			return editor.GetChangedDocument();
 		}

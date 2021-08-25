@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers
 {
@@ -16,11 +16,11 @@ namespace Xunit.Analyzers
 	{
 		const string title = "Use string Assert.Equal";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue.Id);
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -29,23 +29,28 @@ namespace Xunit.Analyzers
 			var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>();
 
 			if (invocation.Expression is MemberAccessExpressionSyntax)
-			{
 				context.RegisterCodeFix(
 					CodeAction.Create(
 						title,
-						createChangedDocument: ct => UseNonGenericStringEqualCheckAsync(context.Document, invocation, ct),
-						equivalenceKey: title),
-					context.Diagnostics);
-			}
+						createChangedDocument: ct => UseNonGenericStringEqualCheck(context.Document, invocation, ct),
+						equivalenceKey: title
+					),
+					context.Diagnostics
+				);
 		}
 
-		static async Task<Document> UseNonGenericStringEqualCheckAsync(Document document, InvocationExpressionSyntax invocation, CancellationToken cancellationToken)
+		static async Task<Document> UseNonGenericStringEqualCheck(
+			Document document,
+			InvocationExpressionSyntax invocation,
+			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
+
 			editor.ReplaceNode(
 				memberAccess,
-				memberAccess.WithName(SyntaxFactory.IdentifierName("Equal")));
+				memberAccess.WithName(IdentifierName(Constants.Asserts.Equal))
+			);
 
 			return editor.GetChangedDocument();
 		}

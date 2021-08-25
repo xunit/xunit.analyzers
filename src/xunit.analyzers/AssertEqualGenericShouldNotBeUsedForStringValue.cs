@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -8,18 +7,25 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualGenericShouldNotBeUsedForStringValue : AssertUsageAnalyzerBase
 	{
-		private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "StrictEqual" });
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Equal,
+			Constants.Asserts.StrictEqual
+		};
 
 		public AssertEqualGenericShouldNotBeUsedForStringValue()
-			: base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, EqualMethods)
+			: base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			if (invocationOperation.Arguments.Length != 2)
 				return;
 
-			if (!method.IsGenericMethod && method.Name == "Equal")
+			if (!method.IsGenericMethod && method.Name == Constants.Asserts.Equal)
 				return;
 
 			if (method.IsGenericMethod &&
@@ -28,12 +34,15 @@ namespace Xunit.Analyzers
 				!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_String)))
 				return;
 
-			var invalidUsageDescription = method.Name == "Equal" ? "generic Assert.Equal overload" : "Assert.StrictEqual";
+			var invalidUsageDescription = method.Name == Constants.Asserts.Equal ? "generic Assert.Equal overload" : "Assert.StrictEqual";
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue,
 					invocationOperation.Syntax.GetLocation(),
-					invalidUsageDescription));
+					invalidUsageDescription
+				)
+			);
 		}
 	}
 }

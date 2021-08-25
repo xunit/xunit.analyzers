@@ -10,10 +10,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1004_TestMethodShouldNotBeSkipped);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
@@ -29,7 +31,9 @@ namespace Xunit.Analyzers
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1004_TestMethodShouldNotBeSkipped,
-						skipArgument.GetLocation()));
+						skipArgument.GetLocation()
+					)
+				);
 			}, SyntaxKind.Attribute);
 		}
 	}

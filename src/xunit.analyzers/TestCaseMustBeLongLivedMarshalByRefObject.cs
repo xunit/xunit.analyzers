@@ -8,10 +8,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TestCaseMustBeLongLivedMarshalByRefObject : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -27,14 +29,17 @@ namespace Xunit.Analyzers
 				if (hasMBRO)
 					return;
 
-				context.ReportDiagnostic(Diagnostic.Create(
-					Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
-					namedType.Locations.First(),
-					namedType.Name));
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
+						namedType.Locations.First(),
+						namedType.Name
+					)
+				);
 			}, SymbolKind.NamedType);
 		}
 
-		protected override bool ShouldAnalyze(XunitContext xunitContext)
-			=> xunitContext.HasAbstractionsReference && xunitContext.HasExecutionReference;
+		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+			xunitContext.HasAbstractionsReference && xunitContext.HasExecutionReference;
 	}
 }

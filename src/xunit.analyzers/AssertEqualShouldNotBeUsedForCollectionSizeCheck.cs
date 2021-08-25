@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -11,28 +12,27 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
 	{
-		internal static string MethodName = "MethodName";
-		internal static string SizeValue = "SizeValue";
-
-		private static readonly HashSet<string> CollectionTypesWithExceptionThrowingGetEnumeratorMethod = new HashSet<string>
-		{
-			"System.ArraySegment<T>"
-		};
-
-		private static readonly HashSet<string> EqualMethods = new HashSet<string>(new[] { "Equal", "NotEqual" });
-
-		private static readonly HashSet<string> SizeMethods = new HashSet<string>
+		static readonly HashSet<string> collectionTypesWithExceptionThrowingGetEnumeratorMethod = new() { "System.ArraySegment<T>" };
+		static readonly HashSet<string> sizeMethods = new()
 		{
 			"System.Array.Length",
 			"System.Linq.Enumerable.Count<TSource>(System.Collections.Generic.IEnumerable<TSource>)",
 			"System.Collections.Immutable.ImmutableArray<T>.Length",
 		};
+		static readonly string[] targetMethods =
+		{
+			Constants.Asserts.Equal,
+			Constants.Asserts.NotEqual
+		};
 
 		public AssertEqualShouldNotBeUsedForCollectionSizeCheck()
-			: base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck, EqualMethods)
+			: base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			if (method.Parameters.Length != 2 ||
 				!method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_Int32) ||
@@ -45,10 +45,10 @@ namespace Xunit.Analyzers
 				return;
 
 			// Make sure the first parameter really is an int before checking its value. Could for example be a char.
-			if (!(sizeValue.Value is int size))
+			if (sizeValue.Value is not int size)
 				return;
 
-			if (size < 0 || size > 1 || size == 1 && method.Name != "Equal")
+			if (size < 0 || size > 1 || size == 1 && method.Name != Constants.Asserts.Equal)
 				return;
 
 			var otherArgument = invocationOperation.Arguments.FirstOrDefault(arg => !arg.Parameter.Equals(method.Parameters[0]));
@@ -71,8 +71,8 @@ namespace Xunit.Analyzers
 				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			builder[MethodName] = method.Name;
-			builder[SizeValue] = size.ToString();
+			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.SizeValue] = size.ToString();
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -81,44 +81,61 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))));
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					)
+				)
+			);
 		}
 
-		private static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(ISymbol symbol)
-		{
-			return CollectionTypesWithExceptionThrowingGetEnumeratorMethod.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
-		}
+		static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(ISymbol symbol) =>
+			collectionTypesWithExceptionThrowingGetEnumeratorMethod.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
 
-		private static bool IsWellKnownSizeMethod(ISymbol symbol)
-			 => SizeMethods.Contains(symbol.OriginalDefinition.ToDisplayString());
+		static bool IsWellKnownSizeMethod(ISymbol symbol) =>
+			sizeMethods.Contains(symbol.OriginalDefinition.ToDisplayString());
 
-		private static bool IsICollectionCountProperty(OperationAnalysisContext context, ISymbol symbol)
-			=> IsCountPropertyOf(
-				context.Compilation.GetTypeByMetadataName(Constants.Types.SystemCollectionsICollection),
-				symbol);
+		static bool IsICollectionCountProperty(
+			OperationAnalysisContext context,
+			ISymbol symbol) =>
+				IsCountPropertyOf(
+					context.Compilation.GetTypeByMetadataName(Constants.Types.SystemCollectionsICollection),
+					symbol
+				);
 
-		private static bool IsICollectionOfTCountProperty(OperationAnalysisContext context, ISymbol symbol)
-			=> IsCountPropertyOfGenericType(
-				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T),
-				symbol);
+		static bool IsICollectionOfTCountProperty(
+			OperationAnalysisContext context,
+			ISymbol symbol) =>
+				IsCountPropertyOfGenericType(
+					context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T),
+					symbol
+				);
 
-		private static bool IsIReadOnlyCollectionOfTCountProperty(OperationAnalysisContext context, ISymbol symbol)
-			=> IsCountPropertyOfGenericType(
-				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T),
-				symbol);
+		static bool IsIReadOnlyCollectionOfTCountProperty(
+			OperationAnalysisContext context,
+			ISymbol symbol) =>
+				IsCountPropertyOfGenericType(
+					context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T),
+					symbol
+				);
 
-		private static bool IsCountPropertyOfGenericType(INamedTypeSymbol openCollectionType, ISymbol symbol)
+		static bool IsCountPropertyOfGenericType(
+			INamedTypeSymbol openCollectionType,
+			ISymbol symbol)
 		{
 			var containingType = symbol.ContainingType;
 			var concreteCollectionType = containingType.GetGenericInterfaceImplementation(openCollectionType);
 			return concreteCollectionType != null && IsCountPropertyOf(concreteCollectionType, symbol);
 		}
 
-		private static bool IsCountPropertyOf(INamedTypeSymbol collectionType, ISymbol symbol)
+		static bool IsCountPropertyOf(
+			INamedTypeSymbol collectionType,
+			ISymbol symbol)
 		{
 			var memberSymbol = symbol;
 			var containingType = memberSymbol.ContainingType;
-			var countSymbol = collectionType.GetMember("Count");
+			var countSymbol = collectionType.GetMember(nameof(ICollection.Count));
 			var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
 			return countSymbolImplementation?.Equals(memberSymbol) ?? false;
 		}

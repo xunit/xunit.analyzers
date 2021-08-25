@@ -10,13 +10,17 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
-			=> context.RegisterSymbolAction(context => AnalyzeMethod(context, xunitContext), SymbolKind.Method);
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext) =>
+				context.RegisterSymbolAction(context => AnalyzeMethod(context, xunitContext), SymbolKind.Method);
 
-		private static void AnalyzeMethod(SymbolAnalysisContext context, XunitContext xunitContext)
+		static void AnalyzeMethod(
+			SymbolAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			var method = (IMethodSymbol)context.Symbol;
 
@@ -24,16 +28,18 @@ namespace Xunit.Analyzers
 			if (!methodAllAttributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 				return;
 
-			var objectArrayType = TypeSymbolFactory.GetObjectArrayType(context.Compilation);
+			var objectArrayType = TypeSymbolFactory.ObjectArray(context.Compilation);
 
-			var wellFormedInlineDataAttributes = methodAllAttributes
-				.Where(a => Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType)
-					&& HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
+			var wellFormedInlineDataAttributes =
+				methodAllAttributes
+					.Where(a => Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType) && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
 			AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);
 		}
 
-		private static void AnalyzeInlineDataAttributesWithinTheory(SymbolAnalysisContext context, IEnumerable<AttributeData> inlineDataAttributes)
+		static void AnalyzeInlineDataAttributesWithinTheory(
+			SymbolAnalysisContext context,
+			IEnumerable<AttributeData> inlineDataAttributes)
 		{
 			var attributeRelatedMethod = (IMethodSymbol)context.Symbol;
 			var uniqueAttributes = new HashSet<AttributeData>(new InlineDataUniquenessComparer(attributeRelatedMethod));
@@ -49,10 +55,14 @@ namespace Xunit.Analyzers
 			}
 		}
 
-		private static AttributeSyntax GetAttributeSyntax(SymbolAnalysisContext context, AttributeData attribute)
-			=> (AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
+		static AttributeSyntax GetAttributeSyntax(
+			SymbolAnalysisContext context,
+			AttributeData attribute) =>
+				(AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
 
-		private static void ReportDuplicate(SymbolAnalysisContext context, AttributeData duplicateAttribute)
+		static void ReportDuplicate(
+			SymbolAnalysisContext context,
+			AttributeData duplicateAttribute)
 		{
 			var method = (IMethodSymbol)context.Symbol;
 
@@ -61,25 +71,33 @@ namespace Xunit.Analyzers
 					Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory,
 					GetAttributeSyntax(context, duplicateAttribute).GetLocation(),
 					method.Name,
-					method.ContainingType.Name));
+					method.ContainingType.Name
+				)
+			);
 		}
 
-		private static bool HasAttributeDeclarationNoCompilationErrors(AttributeData attribute, IArrayTypeSymbol objectArrayType)
-			=> attribute.ConstructorArguments.Length == 1 &&
+		static bool HasAttributeDeclarationNoCompilationErrors(
+			AttributeData attribute,
+			IArrayTypeSymbol objectArrayType) =>
+				attribute.ConstructorArguments.Length == 1 &&
 				objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type);
 
-		private class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
+		class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
 		{
-			private ImmutableArray<IParameterSymbol> _methodParametersWithExplicitDefaults;
+			ImmutableArray<IParameterSymbol> methodParametersWithExplicitDefaults;
 
 			public InlineDataUniquenessComparer(IMethodSymbol attributeRelatedMethod)
 			{
-				_methodParametersWithExplicitDefaults = attributeRelatedMethod.Parameters
-					.Where(p => p.HasExplicitDefaultValue)
-					.ToImmutableArray();
+				methodParametersWithExplicitDefaults =
+					attributeRelatedMethod
+						.Parameters
+						.Where(p => p.HasExplicitDefaultValue)
+						.ToImmutableArray();
 			}
 
-			public bool Equals(AttributeData x, AttributeData y)
+			public bool Equals(
+				AttributeData x,
+				AttributeData y)
 			{
 				var xArguments = GetEffectiveTestArguments(x);
 				var yArguments = GetEffectiveTestArguments(y);
@@ -91,12 +109,12 @@ namespace Xunit.Analyzers
 				return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments);
 			}
 
-			/// <summary>
-			/// Since arguments can be object[] at any level we need to compare 2 sequences of trees for equality.
-			/// The algorithm traverses each tree in a sequence and compares with the corresponding tree in the other sequence.
-			/// Any difference at any stage results in inequality proved and <c>false</c> returned.
-			/// </summary>
-			private bool AreArgumentsEqual(ImmutableArray<object> xArguments, ImmutableArray<object> yArguments)
+			// Since arguments can be object[] at any level we need to compare 2 sequences of trees for equality.
+			// The algorithm traverses each tree in a sequence and compares with the corresponding tree in the other sequence.
+			// Any difference at any stage results in inequality proved and <c>false</c> returned.
+			bool AreArgumentsEqual(
+				ImmutableArray<object> xArguments,
+				ImmutableArray<object> yArguments)
 			{
 				if (xArguments.Length != yArguments.Length)
 					return false;
@@ -164,17 +182,15 @@ namespace Xunit.Analyzers
 				return true;
 			}
 
-			/// <summary>
-			/// A special search for a degenerated case of either:
-			/// 1. InlineData(null) or
-			/// 2. InlineData() and a single param method with default returning null.
-			/// </summary>
-			private static bool IsSingleNullByInlineDataOrByDefaultParamValue(ImmutableArray<object> args)
+			// A special search for a degenerated case of either:
+			// 1. InlineData(null) or
+			// 2. InlineData() and a single param method with default returning null.
+			static bool IsSingleNullByInlineDataOrByDefaultParamValue(ImmutableArray<object> args)
 			{
 				if (args.Length != 1)
 					return false;
 
-				return (args[0]) switch
+				return args[0] switch
 				{
 					TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull => true,
 					IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null => true,
@@ -199,7 +215,7 @@ namespace Xunit.Analyzers
 				return hash;
 			}
 
-			private ImmutableArray<object> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
+			ImmutableArray<object> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
 			{
 				var results = new List<object>();
 
@@ -228,25 +244,26 @@ namespace Xunit.Analyzers
 				return results.ToImmutableArray();
 			}
 
-			/// <summary>
-			/// Effective test arguments consist of InlineData argument typed constants concatenated
-			/// with default parameters of a test method providing such default parameters are not covered by InlineData arguments.
-			/// </summary>
-			private ImmutableArray<object> GetEffectiveTestArguments(AttributeData attributeData)
+			// Effective test arguments consist of InlineData argument typed constants concatenated
+			// with default parameters of a test method providing such default parameters are not covered by InlineData arguments.
+			ImmutableArray<object> GetEffectiveTestArguments(AttributeData attributeData)
 			{
 				var inlineDataObjectArrayArgument = attributeData.ConstructorArguments.Single();
 
 				// special case InlineData(null): the compiler will treat the whole data array as being initialized to null
-				var inlineDataArguments = inlineDataObjectArrayArgument.IsNull
-					? ImmutableArray.Create(inlineDataObjectArrayArgument)
-					: inlineDataObjectArrayArgument.Values;
+				var inlineDataArguments =
+					inlineDataObjectArrayArgument.IsNull
+						? ImmutableArray.Create(inlineDataObjectArrayArgument)
+						: inlineDataObjectArrayArgument.Values;
 
-				var methodDefaultValuesNonCoveredByInlineData = _methodParametersWithExplicitDefaults
-					 .Where(p => p.Ordinal >= inlineDataArguments.Length);
+				var methodDefaultValuesNonCoveredByInlineData =
+					methodParametersWithExplicitDefaults
+						.Where(p => p.Ordinal >= inlineDataArguments.Length);
 
-				var allMethodArguments = inlineDataArguments
-					.Cast<object>()
-					.Concat(methodDefaultValuesNonCoveredByInlineData);
+				var allMethodArguments =
+					inlineDataArguments
+						.Cast<object>()
+						.Concat(methodDefaultValuesNonCoveredByInlineData);
 
 				return allMethodArguments.ToImmutableArray();
 			}

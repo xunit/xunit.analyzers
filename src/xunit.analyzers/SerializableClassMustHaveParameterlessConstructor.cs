@@ -8,10 +8,12 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnosticAnalyzer
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-			=> ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+			ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor);
 
-		internal override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+		public override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
 			context.RegisterSymbolAction(context =>
 			{
@@ -31,11 +33,13 @@ namespace Xunit.Analyzers
 					Diagnostic.Create(
 						Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor,
 						namedType.Locations.First(),
-						namedType.Name));
+						namedType.Name
+					)
+				);
 			}, SymbolKind.NamedType);
 		}
 
-		protected override bool ShouldAnalyze(XunitContext xunitContext)
-			=> xunitContext.HasAbstractionsReference;
+		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+			xunitContext.HasAbstractionsReference;
 	}
 }

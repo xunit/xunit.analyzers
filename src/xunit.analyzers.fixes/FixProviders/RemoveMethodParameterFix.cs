@@ -14,10 +14,15 @@ namespace Xunit.Analyzers.FixProviders
 	{
 		const string titleTemplate = "Remove Parameter '{0}'";
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
-			= ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id, Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id, Descriptors.X1026_TheoryMethodShouldUseAllParameters.Id);
+		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+			ImmutableArray.Create(
+				Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
+				Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id,
+				Descriptors.X1026_TheoryMethodShouldUseAllParameters.Id
+			);
 
-		public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
@@ -28,9 +33,11 @@ namespace Xunit.Analyzers.FixProviders
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					string.Format(titleTemplate, parameterName),
-					ct => Actions.RemoveNodeAsync(context.Document, parameter, ct),
-					equivalenceKey: titleTemplate),
-				context.Diagnostics);
+					ct => context.Document.RemoveNode(parameter, ct),
+					equivalenceKey: titleTemplate
+				),
+				context.Diagnostics
+			);
 		}
 	}
 }

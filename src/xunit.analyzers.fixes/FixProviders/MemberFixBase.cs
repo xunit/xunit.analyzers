@@ -11,8 +11,8 @@ namespace Xunit.Analyzers.FixProviders
 	{
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
 
-		public sealed override FixAllProvider GetFixAllProvider()
-			=> WellKnownFixAllProviders.BatchFixer;
+		public sealed override FixAllProvider GetFixAllProvider() =>
+			WellKnownFixAllProviders.BatchFixer;
 
 		public MemberFixBase(IEnumerable<string> diagnostics)
 		{
@@ -38,6 +38,8 @@ namespace Xunit.Analyzers.FixProviders
 			await RegisterCodeFixesAsync(context, member).ConfigureAwait(false);
 		}
 
-		public abstract Task RegisterCodeFixesAsync(CodeFixContext context, ISymbol member);
+		public abstract Task RegisterCodeFixesAsync(
+			CodeFixContext context,
+			ISymbol member);
 	}
 }
