@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -41,16 +40,6 @@ namespace Xunit.Analyzers
 
 		public static Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource)
 		{
-			// Roslyn fixers always use \r\n for newlines, regardless of OS environment settings, so we normalize
-			// the source as it typically comes from multi-line strings with varying newlines.
-			if (Environment.NewLine != "\r\n")
-			{
-				if (source != null)
-					source = source.Replace(Environment.NewLine, "\r\n");
-				if (fixedSource != null)
-					fixedSource = fixedSource.Replace(Environment.NewLine, "\r\n");
-			}
-
 			var test = new Test
 			{
 				TestCode = source,
