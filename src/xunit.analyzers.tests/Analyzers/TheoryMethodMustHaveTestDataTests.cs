@@ -1,35 +1,49 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 
-namespace Xunit.Analyzers
+public class TheoryMethodMustHaveTestDataTests
 {
-	public class TheoryMethodMustHaveTestDataTests
+	[Fact]
+	public async void DoesNotFindErrorForFactMethod()
 	{
-		[Fact]
-		public async void DoesNotFindErrorForFactMethod()
-		{
-			var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod() { }
+}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Theory]
-		[InlineData("InlineData")]
-		[InlineData("MemberData(\"\")")]
-		[InlineData("ClassData(typeof(string))")]
-		public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
-		{
-			var source = "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
+	[Theory]
+	[InlineData("InlineData")]
+	[InlineData("MemberData(\"\")")]
+	[InlineData("ClassData(typeof(string))")]
+	public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	{
+		var source = $@"
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.{dataAttribute}]
+    public void TestMethod() {{ }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Fact]
-		public async void FindsErrorForTheoryMethodMissingData()
-		{
-			var source = "class TestClass { [Xunit.Theory] public void TestMethod() { } }";
+	[Fact]
+	public async void FindsErrorForTheoryMethodMissingData()
+	{
+		var source = @"
+class TestClass {
+    [Xunit.Theory]
+    public void TestMethod() { }
+}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 17, 4, 27);
 
-			var expected = Verify.Diagnostic().WithSpan(1, 46, 1, 56);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 }

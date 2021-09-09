@@ -1,50 +1,53 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
-namespace Xunit.Analyzers
+public class TestClassMustBePublicFixerTests
 {
-	public class TestClassMustBePublicFixerTests
+	[Theory]
+	[InlineData("")]
+	[InlineData("internal")]
+	public async void MakesClassPublic(string nonPublicAccessModifier)
 	{
-		[Theory]
-		[InlineData("")]
-		[InlineData("internal")]
-		public async void MakesClassPublic(string nonPublicAccessModifier)
-		{
-			var source = $"{nonPublicAccessModifier} class [|TestClass|] {{ [Xunit.Fact] public void TestMethod() {{ }} }}";
-			var fixedSource = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+		var before = $@"
+{nonPublicAccessModifier} class [|TestClass|] {{
+    [Xunit.Fact]
+    public void TestMethod() {{ }}
+}}";
 
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		var after = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod() { }
+}";
 
-		[Fact]
-		public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
-		{
-			var source = @"
-partial class [|TestClass|]
-{
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
+
+	[Fact]
+	public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
+	{
+		var before = @"
+partial class [|TestClass|] {
     [Xunit.Fact]
     public void TestMethod1() {}
 }
 
-partial class TestClass
-{
+partial class TestClass {
     [Xunit.Fact]
     public void TestMethod2() {}
 }";
 
-			var fixedSource = @"
-public partial class TestClass
-{
+		var after = @"
+public partial class TestClass {
     [Xunit.Fact]
     public void TestMethod1() {}
 }
 
-partial class TestClass
-{
+partial class TestClass {
     [Xunit.Fact]
     public void TestMethod2() {}
 }";
 
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
 	}
 }

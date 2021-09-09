@@ -1,56 +1,47 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
 
-namespace Xunit.Analyzers
+public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
 {
-	public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
+	[Fact]
+	public async void ForValueTypeNullAssert_RemovesAssertion()
 	{
-		[Fact]
-		public async void ForValueTypeNullAssert_RemovesAssertion()
-		{
-			const string original = @"
+		const string before = @"
 using Xunit;
 
-public class Tests
-{
+public class Tests {
     [Fact]
-    public void TestMethod()
-    {
+    public void TestMethod() {
         int i = 1;
 
         [|Assert.NotNull(i)|];
     }
 }";
-
-			const string expected = @"
+		const string after = @"
 using Xunit;
 
-public class Tests
-{
+public class Tests {
     [Fact]
-    public void TestMethod()
-    {
+    public void TestMethod() {
         int i = 1;
     }
 }";
 
-			await Verify.VerifyCodeFixAsync(original, expected);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
 
-		[Fact]
-		// https://github.com/xunit/xunit/issues/1753
-		public async void ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
-		{
-			const string original = @"
+	[Fact]
+	// https://github.com/xunit/xunit/issues/1753
+	public async void ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
+	{
+		const string before = @"
 using System;
 using Xunit;
 
-namespace XUnitTestProject1
-{
-    public class UnitTest1
-    {
+namespace XUnitTestProject1 {
+    public class UnitTest1 {
         [Fact]
-        public void Test1()
-        {
+        public void Test1() {
             int i = 1;
 
             // I am a comment which gets deleted by the quick fix
@@ -60,17 +51,14 @@ namespace XUnitTestProject1
         }
     }
 }";
-			const string expected = @"
+		const string after = @"
 using System;
 using Xunit;
 
-namespace XUnitTestProject1
-{
-    public class UnitTest1
-    {
+namespace XUnitTestProject1 {
+    public class UnitTest1 {
         [Fact]
-        public void Test1()
-        {
+        public void Test1() {
             int i = 1;
 
             // I am a comment which gets deleted by the quick fix
@@ -80,7 +68,6 @@ namespace XUnitTestProject1
     }
 }";
 
-			await Verify.VerifyCodeFixAsync(original, expected);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
 	}
 }

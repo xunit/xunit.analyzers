@@ -1,32 +1,45 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 
-namespace Xunit.Analyzers
+public class FactMethodMustNotHaveParametersTests
 {
-	public class FactMethodMustNotHaveParametersTests
+	[Fact]
+	public async void DoesNotFindErrorForFactWithNoParameters()
 	{
-		[Fact]
-		public async void DoesNotFindErrorForFactWithNoParameters()
-		{
-			var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod() { }
+}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Fact]
-		public async void DoesNotFindErrorForTheoryWithParameters()
-		{
-			var source = "public class TestClass { [Xunit.Theory] public void TestMethod(string p) { } }";
+	[Fact]
+	public async void DoesNotFindErrorForTheoryWithParameters()
+	{
+		var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    public void TestMethod(string p) { }
+}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Fact]
-		public async void FindsErrorForPrivateClass()
-		{
-			var source = "public class TestClass { [Xunit.Fact] public void TestMethod(string p) { } }";
+	[Fact]
+	public async void FindsErrorForFactWithParameter()
+	{
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod(string p) { }
+}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 17, 4, 27);
 
-			var expected = Verify.Diagnostic().WithSpan(1, 51, 1, 61);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 }

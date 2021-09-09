@@ -1,45 +1,53 @@
 ﻿using System.Collections.Generic;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
+using System.Linq;
+using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
 
-namespace Xunit.Analyzers
+public class TestClassShouldHaveTFixtureArgumentTests
 {
-	public class TestClassShouldHaveTFixtureArgumentTests
+	public static IEnumerable<object[]> CreateFactsInNonPublicClassCases =
+		from attribute in new[] { "Xunit.Fact", "Xunit.Theory" }
+		from @interface in new[] { "Xunit.IClassFixture", "Xunit.ICollectionFixture" }
+		select new[] { attribute, @interface };
+
+	[Theory]
+	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
+	public async void ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(
+		string attribute,
+		string @interface)
 	{
-		public static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
-		{
-			foreach (var factAttribute in new[] { "Xunit.Fact", "Xunit.Theory" })
-				foreach (var fixtureInterface in new[] { "Xunit.IClassFixture", "Xunit.ICollectionFixture" })
-					yield return new object[] { factAttribute, fixtureInterface };
-		}
+		var source = $@"
+public class FixtureData {{ }}
 
-		[Theory]
-		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-		public async void ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(string factRelatedAttribute, string fixtureInterface)
-		{
-			var source = @"
-public class FixtureData { }
-public class TestClass : " + fixtureInterface + @"<FixtureData> { " + $"[{factRelatedAttribute}]" + @"public void TestMethod() { } }";
-
-			var expected = Verify.Diagnostic()
-				.WithLocation(3, 14)
+public class TestClass: {@interface}<FixtureData> {{
+    [{attribute}]
+    public void TestMethod() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 14, 4, 23)
 				.WithArguments("TestClass", "FixtureData");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
 
-		[Theory]
-		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-		public async void ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(string factRelatedAttribute, string fixtureInterface)
-		{
-			var source = @"
-public class FixtureData { }
-public class TestClass : " + fixtureInterface + @"<FixtureData> 
-{
-	public TestClass(FixtureData fixtureData) { }
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-	[" + factRelatedAttribute + @"] public void TestMethod() { }
-}";
+	[Theory]
+	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
+	public async void ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(
+		string attribute,
+		string @interface)
+	{
+		var source = $@"
+public class FixtureData {{ }}
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+public class TestClass: {@interface}<FixtureData> {{
+    public TestClass(FixtureData fixtureData) {{ }}
+
+    [{attribute}]
+    public void TestMethod() {{ }}
+}}";
+
+		await Verify.VerifyAnalyzerAsync(source);
 	}
 }

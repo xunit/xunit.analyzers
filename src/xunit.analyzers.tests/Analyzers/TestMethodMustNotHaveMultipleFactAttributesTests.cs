@@ -1,46 +1,54 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
 
-namespace Xunit.Analyzers
+public class TestMethodMustNotHaveMultipleFactAttributesTests
 {
-	public class TestMethodMustNotHaveMultipleFactAttributesTests
+	[Theory]
+	[InlineData("Fact")]
+	[InlineData("Theory")]
+	public async void DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
 	{
-		[Theory]
-		[InlineData("Fact")]
-		[InlineData("Theory")]
-		public async void DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
-		{
-			var source = "public class TestClass { [Xunit." + attribute + "] public void TestMethod() { } }";
+		var source = $@"
+public class TestClass {{
+    [Xunit.{attribute}]
+    public void TestMethod() {{ }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Fact]
-		public async void FindsErrorForMethodWithTheoryAndFact()
-		{
-			var source = "public class TestClass { [Xunit.Fact, Xunit.Theory] public void TestMethod() { } }";
+	[Fact]
+	public async void FindsErrorForMethodWithTheoryAndFact()
+	{
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    [Xunit.Theory]
+    public void TestMethod() { }
+}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 17, 5, 27);
 
-			var expected = Verify.Diagnostic().WithSpan(1, 65, 1, 75);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Fact]
-		public async void FindsErrorForMethodWithCustomFactAttribute()
-		{
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources =
-					{
-						"public class TestClass { [Xunit.Fact, CustomFact] public void TestMethod() { } }",
-						"public class CustomFactAttribute : Xunit.FactAttribute { }",
-					},
-					ExpectedDiagnostics =
-					{
-						Verify.Diagnostic().WithSpan(1, 63, 1, 73),
-					},
-				},
-			}.RunAsync();
-		}
+	[Fact]
+	public async void FindsErrorForMethodWithCustomFactAttribute()
+	{
+		var source1 = @"
+public class TestClass {
+    [Xunit.Fact]
+    [CustomFact]
+    public void TestMethod() { }
+}";
+		var source2 = "public class CustomFactAttribute : Xunit.FactAttribute { }";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 17, 5, 27);
+
+		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 }, expected);
 	}
 }

@@ -8,46 +8,45 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.VisualStudio.Composition;
 using Xunit.Analyzers.FixProviders;
 
-namespace Xunit.Analyzers
+static class CodeFixProviderDiscovery
 {
-	internal static class CodeFixProviderDiscovery
+	static readonly Lazy<IExportProviderFactory> ExportProviderFactory;
+
+	static CodeFixProviderDiscovery()
 	{
-		private static readonly Lazy<IExportProviderFactory> ExportProviderFactory;
-
-		static CodeFixProviderDiscovery()
-		{
-			ExportProviderFactory = new Lazy<IExportProviderFactory>(
-				() =>
-				{
-					var discovery = new AttributedPartDiscovery(Resolver.DefaultInstance, isNonPublicSupported: true);
-					var parts = Task.Run(() => discovery.CreatePartsAsync(typeof(ChangeMemberTypeFix).Assembly)).GetAwaiter().GetResult();
-					var catalog = ComposableCatalog.Create(Resolver.DefaultInstance).AddParts(parts);
-
-					var configuration = CompositionConfiguration.Create(catalog);
-					var runtimeComposition = RuntimeComposition.CreateRuntimeComposition(configuration);
-					return runtimeComposition.CreateExportProviderFactory();
-				},
-				LazyThreadSafetyMode.ExecutionAndPublication);
-		}
-
-		public static IEnumerable<CodeFixProvider> GetCodeFixProviders(string language)
-		{
-			var exportProvider = ExportProviderFactory.Value.CreateExportProvider();
-			var exports = exportProvider.GetExports<CodeFixProvider, LanguageMetadata>();
-			return exports.Where(export => export.Metadata.Languages.Contains(language)).Select(export => export.Value);
-		}
-
-		private class LanguageMetadata
-		{
-			public LanguageMetadata(IDictionary<string, object> data)
+		ExportProviderFactory = new Lazy<IExportProviderFactory>(
+			() =>
 			{
-				if (!data.TryGetValue(nameof(ExportCodeFixProviderAttribute.Languages), out var languages))
-					languages = new string[0];
+				var discovery = new AttributedPartDiscovery(Resolver.DefaultInstance, isNonPublicSupported: true);
+				var parts = Task.Run(() => discovery.CreatePartsAsync(typeof(ChangeMemberTypeFix).Assembly)).GetAwaiter().GetResult();
+				var catalog = ComposableCatalog.Create(Resolver.DefaultInstance).AddParts(parts);
 
-				Languages = ((string[])languages).ToImmutableArray();
-			}
+				var configuration = CompositionConfiguration.Create(catalog);
+				var runtimeComposition = RuntimeComposition.CreateRuntimeComposition(configuration);
+				return runtimeComposition.CreateExportProviderFactory();
+			},
+			LazyThreadSafetyMode.ExecutionAndPublication
+		);
+	}
 
-			public ImmutableArray<string> Languages { get; }
+	public static IEnumerable<CodeFixProvider> GetCodeFixProviders(string language)
+	{
+		var exportProvider = ExportProviderFactory.Value.CreateExportProvider();
+		var exports = exportProvider.GetExports<CodeFixProvider, LanguageMetadata>();
+
+		return exports.Where(export => export.Metadata.Languages.Contains(language)).Select(export => export.Value);
+	}
+
+	class LanguageMetadata
+	{
+		public LanguageMetadata(IDictionary<string, object> data)
+		{
+			if (!data.TryGetValue(nameof(ExportCodeFixProviderAttribute.Languages), out var languages))
+				languages = new string[0];
+
+			Languages = ((string[])languages).ToImmutableArray();
 		}
+
+		public ImmutableArray<string> Languages { get; }
 	}
 }

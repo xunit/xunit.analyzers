@@ -1,23 +1,28 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
+﻿using Xunit;
+using Xunit.Analyzers;
+using Verify = CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
 
-namespace Xunit.Analyzers
+public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTests
 {
-	public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTests
+	public static TheoryData<string> Methods = new()
 	{
-		public static TheoryData<string> BooleanMethods
-			= new TheoryData<string> { "True", "False" };
+		Constants.Asserts.True,
+		Constants.Asserts.False,
+	};
 
-		[Theory]
-		[MemberData(nameof(BooleanMethods))]
-		public async void FindsWarning_ForLinqAnyCheck(string method)
-		{
-			var source =
-				@"using System.Linq;
-class TestClass { void TestMethod() {
-    [|Xunit.Assert." + method + @"(new [] { 1 }.Any(i => true))|];
-} }";
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async void FindsWarning_ForLinqAnyCheck(string method)
+	{
+		var source = $@"
+using System.Linq;
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+class TestClass {{
+    void TestMethod() {{
+        [|Xunit.Assert.{method}(new [] {{ 1 }}.Any(i => true))|];
+    }}
+}}";
+
+		await Verify.VerifyAnalyzerAsync(source);
 	}
 }

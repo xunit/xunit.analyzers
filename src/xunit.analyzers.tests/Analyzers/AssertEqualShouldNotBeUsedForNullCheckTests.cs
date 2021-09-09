@@ -1,128 +1,181 @@
 ﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullCheck>;
+using Xunit;
+using Xunit.Analyzers;
+using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullCheck>;
 
-namespace Xunit.Analyzers
+public class AssertEqualShouldNotBeUsedForNullCheckTests
 {
-	public class AssertEqualShouldNotBeUsedForNullCheckTests
+	public static TheoryData<string> Methods_All = new()
 	{
-		public static TheoryData<string> Methods
-			= new TheoryData<string> { "Equal", "NotEqual", "StrictEqual", "NotStrictEqual", "Same", "NotSame" };
+		Constants.Asserts.Equal,
+		Constants.Asserts.NotEqual,
+		Constants.Asserts.StrictEqual,
+		Constants.Asserts.NotStrictEqual,
+		Constants.Asserts.Same,
+		Constants.Asserts.NotSame,
+	};
+	public static TheoryData<string> Methods_Equal = new()
+	{
+		Constants.Asserts.Equal,
+		Constants.Asserts.NotEqual,
+	};
 
-		[Theory]
-		[InlineData("Equal")]
-		[InlineData("NotEqual")]
-		public async void FindsWarning_ForFirstNullLiteral_StringOverload(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    string val = null;
-    Xunit.Assert." + method + @"(null, val);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_Equal))]
+	public async void FindsWarning_ForFirstNullLiteral_StringOverload(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        string val = null;
+        Xunit.Assert.{method}(null, val);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 33 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 29 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[InlineData("Equal")]
-		[InlineData("NotEqual")]
-		public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    string val = null;
-    Xunit.Assert." + method + @"(null, val, System.StringComparer.Ordinal);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_Equal))]
+	public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        string val = null;
+        Xunit.Assert.{method}(null, val, System.StringComparer.Ordinal);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 64 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 60 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[MemberData(nameof(Methods))]
-		public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    object val = null;
-    Xunit.Assert." + method + @"(null, val);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_All))]
+	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        object val = null;
+        Xunit.Assert.{method}(null, val);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 33 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 29 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[InlineData("Equal")]
-		[InlineData("NotEqual")]
-		public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    object val = null;
-    Xunit.Assert." + method + @"(null, val, System.Collections.Generic.EqualityComparer<object>.Default);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_Equal))]
+	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        object val = null;
+        Xunit.Assert.{method}(null, val, System.Collections.Generic.EqualityComparer<object>.Default);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 94 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 90 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[InlineData("Equal")]
-		[InlineData("NotEqual")]
-		[InlineData("StrictEqual")]
-		[InlineData("NotStrictEqual")]
-		public async void FindsWarning_ForFirstNullLiteral_GenericOverload(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    TestClass val = null;
-    Xunit.Assert." + method + @"<TestClass>(null, val);
-} }";
+	[Theory]
+	[InlineData(Constants.Asserts.Equal)]
+	[InlineData(Constants.Asserts.NotEqual)]
+	[InlineData(Constants.Asserts.StrictEqual)]
+	[InlineData(Constants.Asserts.NotStrictEqual)]
+	public async void FindsWarning_ForFirstNullLiteral_GenericOverload(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        TestClass val = null;
+        Xunit.Assert.{method}<TestClass>(null, val);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 44 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 40 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[InlineData("Equal")]
-		[InlineData("NotEqual")]
-		public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    TestClass val = null;
-    Xunit.Assert." + method + @"<TestClass>(null, val, System.Collections.Generic.EqualityComparer<TestClass>.Default);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_Equal))]
+	public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        TestClass val = null;
+        Xunit.Assert.{method}<TestClass>(null, val, System.Collections.Generic.EqualityComparer<TestClass>.Default);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 9, 5, 108 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()");
 
-			var expected = Verify.Diagnostic().WithSpan(3, 5, 3, 104 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments($"Assert.{method}()");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[MemberData(nameof(Methods))]
-		public async void DoesNotFindWarning_ForOtherLiteral(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    int val = 1;
-    Xunit.Assert." + method + @"(1, val);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_All))]
+	public async void DoesNotFindWarning_ForOtherLiteral(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        int val = 1;
+        Xunit.Assert.{method}(1, val);
+    }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Theory]
-		[MemberData(nameof(Methods))]
-		public async void DoesNotFindWarning_ForSecondNullLiteral(string method)
-		{
-			var source =
-@"class TestClass { void TestMethod() {
-    string val = null;
-    Xunit.Assert." + method + @"(val, null);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods_All))]
+	public async void DoesNotFindWarning_ForSecondNullLiteral(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        string val = null;
+        Xunit.Assert.{method}(val, null);
+    }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
 	}
 }

@@ -1,136 +1,135 @@
 ﻿using System.Collections.Generic;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
+using System.Linq;
+using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
-namespace Xunit.Analyzers
+public class TestClassMustBePublicTests
 {
-	public class TestClassMustBePublicTests
+	public static IEnumerable<object[]> CreateFactsInNonPublicClassCases =
+		from attribute in new[] { "Xunit.Fact", "Xunit.Theory" }
+		from modifier in new[] { "", "internal" }
+		select new[] { attribute, modifier };
+
+	[Fact]
+	public async void ForPublicClass_DoesNotFindError()
 	{
-		public static IEnumerable<object[]> CreateFactsInNonPublicClassCases()
-		{
-			foreach (var factAttribute in new[] { "Xunit.Fact", "Xunit.Theory" })
-				foreach (var nonPublicAccessModifierForClass in new[] { "", "internal" })
-					yield return new object[] { factAttribute, nonPublicAccessModifierForClass };
-		}
-
-		[Fact]
-		public async void ForPublicClass_DoesNotFindError()
-		{
-			var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
-
-			await Verify.VerifyAnalyzerAsync(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-		public async void ForFriendOrInternalClass_FindsError(string factRelatedAttribute, string classAccessModifier)
-		{
-			var source = @"
-" + classAccessModifier + @" class TestClass
-{
-    [" + factRelatedAttribute + @"] public void TestMethod() { }
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod() { }
 }";
 
-			var expected = Verify.Diagnostic().WithSpan(2, 8 + classAccessModifier.Length, 2, 17 + classAccessModifier.Length);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData("public")]
-		public async void ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string otherPartAccessModifier)
-		{
-			var source = @"
-public partial class TestClass
-{
-    [Xunit.Fact] public void Test1() {}
-}
+	[Theory]
+	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
+	public async void ForFriendOrInternalClass_FindsError(
+		string attribute,
+		string modifier)
+	{
+		var source = $@"
+{modifier} class TestClass {{
+    [{attribute}]
+    public void TestMethod() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(2, 8 + modifier.Length, 2, 17 + modifier.Length);
 
-" + otherPartAccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test2() {}
-}
-";
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+	[Theory]
+	[InlineData("")]
+	[InlineData("public")]
+	public async void ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string modifier)
+	{
+		var source = $@"
+public partial class TestClass {{
+    [Xunit.Fact]
+    public void Test1() {{ }}
+}}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData("public")]
-		public async void ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotFindError(string otherPartAccessModifier)
-		{
-			var source1 = @"
-public partial class TestClass
-{
-    [Xunit.Fact] public void Test1() {}
+{modifier} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test2() {{ }}
+}}";
+
+		await Verify.VerifyAnalyzerAsync(source);
+	}
+
+	[Theory]
+	[InlineData("")]
+	[InlineData("public")]
+	public async void ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotFindError(string modifier)
+	{
+		var source1 = @"
+public partial class TestClass {
+    [Xunit.Fact]
+    public void Test1() { }
 }";
-			var source2 = @"
-" + otherPartAccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test2() {}
-}
-";
+		var source2 = $@"
+{modifier} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test2() {{ }}
+}}";
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source1, source2 },
-				},
-			}.RunAsync();
-		}
+		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 });
+	}
 
-		[Theory]
-		[InlineData("", "")]
-		[InlineData("", "internal")]
-		[InlineData("internal", "internal")]
-		public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(string part1AccessModifier, string part2AccessModifier)
-		{
-			var source = @"
-" + part1AccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test1() {}
-}
+	[Theory]
+	[InlineData("", "")]
+	[InlineData("", "internal")]
+	[InlineData("internal", "internal")]
+	public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
+		string modifier1,
+		string modifier2)
+	{
+		var source = $@"
+{modifier1} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test1() {{ }}
+}}
 
-" + part2AccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test2() {}
-}
-";
+{modifier2} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test2() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
+				.WithSpan(7, 16 + modifier2.Length, 7, 25 + modifier2.Length);
 
-			var expected = Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan(7, 16 + part2AccessModifier.Length, 7, 25 + part2AccessModifier.Length);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[InlineData("", "")]
-		[InlineData("", "internal")]
-		[InlineData("internal", "internal")]
-		public async void ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(string part1AccessModifier, string part2AccessModifier)
-		{
-			var source1 = @"
-" + part1AccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test1() {}
-}";
-			var source2 = @"
-" + part2AccessModifier + @" partial class TestClass
-{
-    [Xunit.Fact] public void Test2() {}
-}
-";
+	[Theory]
+	[InlineData("", "")]
+	[InlineData("", "internal")]
+	[InlineData("internal", "internal")]
+	public async void ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(
+		string modifier1,
+		string modifier2)
+	{
+		var source1 = $@"
+{modifier1} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test1() {{ }}
+}}";
+		var source2 = $@"
+{modifier2} partial class TestClass {{
+    [Xunit.Fact]
+    public void Test2() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
+				.WithSpan("/0/Test1.cs", 2, 16 + modifier2.Length, 2, 25 + modifier2.Length);
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { source1, source2 },
-					ExpectedDiagnostics =
-					{
-						Verify.Diagnostic().WithSpan(2, 16 + part1AccessModifier.Length, 2, 25 + part1AccessModifier.Length).WithSpan("/0/Test1.cs", 2, 16 + part2AccessModifier.Length, 2, 25 + part2AccessModifier.Length),
-					},
-				},
-			}.RunAsync();
-		}
+		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 }, expected);
 	}
 }

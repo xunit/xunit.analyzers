@@ -1,39 +1,41 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.CollectionDefinitionClassesMustBePublic>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.CollectionDefinitionClassesMustBePublic>;
 
-namespace Xunit.Analyzers
+public class CollectionDefinitionClassesMustBePublicFixerTests
 {
-	public class CollectionDefinitionClassesMustBePublicFixerTests
+	[Theory]
+	[InlineData("")]
+	[InlineData("internal ")]
+	public async void MakesClassPublic(string modifier)
 	{
-		[Theory]
-		[InlineData("")]
-		[InlineData("internal ")]
-		public async void MakesClassPublic(string nonPublicAccessModifier)
-		{
-			var source = $@"
+		var before = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]
-{nonPublicAccessModifier}class [|CollectionDefinitionClass|] {{ }}";
-			var fixedSource = @"
+{modifier}class [|CollectionDefinitionClass|] {{ }}";
+
+		var after = @"
 [Xunit.CollectionDefinition(""MyCollection"")]
 public class CollectionDefinitionClass { }";
 
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData("internal ")]
-		public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic(string nonPublicAccessModifier)
-		{
-			var source = $@"
+	[Theory]
+	[InlineData("")]
+	[InlineData("internal ")]
+	public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic(string modifier)
+	{
+		var before = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]
-{nonPublicAccessModifier}partial class [|CollectionDefinitionClass|] {{ }}
+{modifier}partial class [|CollectionDefinitionClass|] {{ }}
+
 partial class CollectionDefinitionClass {{ }}";
-			var fixedSource = @"
+
+		var after = @"
 [Xunit.CollectionDefinition(""MyCollection"")]
 public partial class CollectionDefinitionClass { }
+
 partial class CollectionDefinitionClass { }";
 
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
 	}
 }

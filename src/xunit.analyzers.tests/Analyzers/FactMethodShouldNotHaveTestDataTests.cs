@@ -1,57 +1,70 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
-namespace Xunit.Analyzers
+public class FactMethodShouldNotHaveTestDataTests
 {
-	public class FactMethodShouldNotHaveTestDataTests
+	[Fact]
+	public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
 	{
-		[Fact]
-		public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
-		{
-			var source = "public class TestClass { [Xunit.Fact] public void TestMethod() { } }";
+		var source = @"
+public class TestClass {
+    [Xunit.Fact]
+    public void TestMethod() { }
+}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Theory]
-		[InlineData("InlineData")]
-		[InlineData("MemberData(\"\")")]
-		[InlineData("ClassData(typeof(string))")]
-		public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
-		{
-			var source = "public class TestClass { [Xunit.Theory, Xunit." + dataAttribute + "] public void TestMethod() { } }";
+	[Theory]
+	[InlineData("InlineData")]
+	[InlineData("MemberData(\"\")")]
+	[InlineData("ClassData(typeof(string))")]
+	public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	{
+		var source = $@"
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.{dataAttribute}]
+    public void TestMethod() {{ }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
+	}
 
-		[Theory]
-		[InlineData("InlineData")]
-		[InlineData("MemberData(\"\")")]
-		[InlineData("ClassData(typeof(string))")]
-		public async void DoesNotFindErrorForDerivedFactMethodWithDataAttributes(string dataAttribute)
-		{
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources =
-					{
-						"public class DerivedFactAttribute: Xunit.FactAttribute {}",
-						"public class TestClass { [DerivedFactAttribute, Xunit." + dataAttribute + "] public void TestMethod() { } }",
-					},
-				},
-			}.RunAsync();
-		}
+	[Theory]
+	[InlineData("InlineData")]
+	[InlineData("MemberData(\"\")")]
+	[InlineData("ClassData(typeof(string))")]
+	public async void DoesNotFindErrorForDerivedFactMethodWithDataAttributes(string dataAttribute)
+	{
+		var source1 = "public class DerivedFactAttribute: Xunit.FactAttribute {}";
+		var source2 = $@"
+public class TestClass {{
+    [DerivedFactAttribute]
+    [Xunit.{dataAttribute}]
+    public void TestMethod() {{ }}
+}}";
 
-		[Theory]
-		[InlineData("InlineData")]
-		[InlineData("MemberData(\"\")")]
-		[InlineData("ClassData(typeof(string))")]
-		public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
-		{
-			var source = "public class TestClass { [Xunit.Fact, Xunit." + dataAttribute + "] public void TestMethod() { } }";
+		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 });
+	}
 
-			var expected = Verify.Diagnostic().WithSpan(1, 59 + dataAttribute.Length, 1, 69 + dataAttribute.Length);
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+	[Theory]
+	[InlineData("InlineData")]
+	[InlineData("MemberData(\"\")")]
+	[InlineData("ClassData(typeof(string))")]
+	public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
+	{
+		var source = $@"
+public class TestClass {{
+    [Xunit.Fact]
+    [Xunit.{dataAttribute}]
+    public void TestMethod() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(5, 17, 5, 27);
+
+		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 }

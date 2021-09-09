@@ -1,35 +1,47 @@
 ﻿using Microsoft.CodeAnalysis;
-using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
+using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 
-namespace Xunit.Analyzers
+public class AssertIsTypeShouldUseGenericOverloadTests
 {
-	public class AssertIsTypeShouldUseGenericOverloadTests
+	public static TheoryData<string> Methods = new()
 	{
-		public static TheoryData<string> Methods = new TheoryData<string> { "IsType", "IsNotType", "IsAssignableFrom" };
+		"IsType",
+		"IsNotType",
+		"IsAssignableFrom",
+	};
 
-		[Theory]
-		[MemberData(nameof(Methods))]
-		public async void FindsWarning_ForNonGenericCall(string method)
-		{
-			var source =
-				@"class TestClass { void TestMethod() {
-    Xunit.Assert." + method + @"(typeof(int), 1);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async void FindsWarning_ForNonGenericCall(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.{method}(typeof(int), 1);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 9, 4, 38 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("int");
 
-			var expected = Verify.Diagnostic().WithSpan(2, 5, 2, 34 + method.Length).WithSeverity(DiagnosticSeverity.Warning).WithArguments("int");
-			await Verify.VerifyAnalyzerAsync(source, expected);
-		}
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
 
-		[Theory]
-		[MemberData(nameof(Methods))]
-		public async void DoesNotFindWarning_ForGenericCall(string method)
-		{
-			var source =
-				@"class TestClass { void TestMethod() {
-    Xunit.Assert." + method + @"<int>(1);
-} }";
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async void DoesNotFindWarning_ForGenericCall(string method)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.{method}<int>(1);
+    }}
+}}";
 
-			await Verify.VerifyAnalyzerAsync(source);
-		}
+		await Verify.VerifyAnalyzerAsync(source);
 	}
 }

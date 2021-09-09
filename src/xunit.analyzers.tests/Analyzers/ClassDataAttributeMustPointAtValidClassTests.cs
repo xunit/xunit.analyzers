@@ -1,104 +1,94 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
 
-namespace Xunit.Analyzers
+public class ClassDataAttributeMustPointAtValidClassTests
 {
-	public class ClassDataAttributeMustPointAtValidClassTests
+	static readonly string TestMethodSource = @"
+using Xunit;
+
+public class TestClass {
+    [Theory]
+    [ClassData(typeof(DataClass))]
+    public void TestMethod() { }
+}";
+
+	[Fact]
+	public async void SuccessCase()
 	{
-		private static readonly string TestMethodSource = "public class TestClass { [Xunit.Theory][Xunit.ClassData(typeof(DataClass))] public void TestMethod() { } }";
+		var dataClassSource = @"
+using System.Collections;
+using System.Collections.Generic;
 
-		[Fact]
-		public async void DoesNotFindErrorForFactMethod()
-		{
-			var source =
-@"class DataClass : System.Collections.Generic.IEnumerable<object[]> {
-    public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
+class DataClass: IEnumerable<object[]> {
+    public IEnumerator<object[]> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
 }";
 
-			await new Verify.Test
-			{
-				TestState = { Sources = { TestMethodSource, source } },
-			}.RunAsync();
-		}
+		await Verify.VerifyAnalyzerAsync(new[] { TestMethodSource, dataClassSource });
+	}
 
-		[Fact]
-		public async void FindsErrorForDataClassNotImplementingInterface()
-		{
-			var source =
-@"class DataClass : System.Collections.Generic.IEnumerable<object> {
-    public System.Collections.Generic.IEnumerator<object> GetEnumerator() => null;
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+	public static TheoryData<string> FailureCases = new()
+	{
+		// Incorrect enumeration type (object instead of object[])
+		@"
+using System.Collections;
+using System.Collections.Generic;
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { TestMethodSource, source },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-				},
-			}.RunAsync();
-		}
+class DataClass: IEnumerable<object> {
+    public IEnumerator<object> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
+}",
+		// Abstract class
+		@"
+using System.Collections;
+using System.Collections.Generic;
 
-		[Fact]
-		public async void FindsErrorForAbstractDataClass()
-		{
-			var source =
-@"abstract class DataClass : System.Collections.Generic.IEnumerable<object[]> {
-    public DataClass() {}
-    public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+abstract class DataClass: IEnumerable<object[]> {
+    public IEnumerator<object[]> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
+}",
+		// Missing parameterless constructor
+		@"
+using System.Collections;
+using System.Collections.Generic;
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { TestMethodSource, source },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-				},
-			}.RunAsync();
-		}
+class DataClass: IEnumerable<object[]> {
+    public DataClass(string parameter) { }
+    public IEnumerator<object[]> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
+}",
+		// Parameterless constructor is internal
+		@"
+using System.Collections;
+using System.Collections.Generic;
 
-		[Fact]
-		public async void FindsErrorForDataClassWithImplicitPrivateConstructor()
-		{
-			var source =
-@"class DataClass : System.Collections.Generic.IEnumerable<object[]> {
-    public DataClass(string parameter) {}
-    public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}";
+class DataClass: IEnumerable<object[]> {
+    internal DataClass() { }
+    public IEnumerator<object[]> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
+}",
+		// Parameterless constructor is private
+		@"
+using System.Collections;
+using System.Collections.Generic;
 
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { TestMethodSource, source },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-				},
-			}.RunAsync();
-		}
+class DataClass: IEnumerable<object[]> {
+    private DataClass() { }
+    public IEnumerator<object[]> GetEnumerator() => null;
+    IEnumerator IEnumerable.GetEnumerator() => null;
+}",
+	};
 
-		[Theory]
-		[InlineData("private")]
-		[InlineData("internal")]
-		public async void FindsErrorForDataClassWithExplicitNonPublicConstructor(string accessibility)
-		{
-			var source =
-string.Format(@"class DataClass : System.Collections.Generic.IEnumerable<object[]> {{
-    {0} DataClass() {{}}
-    public System.Collections.Generic.IEnumerator<object[]> GetEnumerator() => null;
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => null;
-}}", accessibility);
-			await new Verify.Test
-			{
-				TestState =
-				{
-					Sources = { TestMethodSource, source },
-					ExpectedDiagnostics = { Verify.Diagnostic().WithSpan(1, 64, 1, 73) },
-				},
-			}.RunAsync();
-		}
+	[Theory]
+	[MemberData(nameof(FailureCases))]
+	public async void FailureCase(string dataClassSource)
+	{
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(6, 23, 6, 32)
+				.WithArguments("DataClass");
+
+		await Verify.VerifyAnalyzerAsync(new[] { TestMethodSource, dataClassSource }, expected);
 	}
 }

@@ -1,39 +1,63 @@
-﻿using Verify = Xunit.Analyzers.CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
+﻿using Xunit;
+using Verify = CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
 
-namespace Xunit.Analyzers
+public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
 {
-	public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
+	[Fact]
+	public async void WithNoBaseClass_WithoutUsing_AddsBaseClass()
 	{
-		[Fact]
-		public async void WithNoBaseClass_WithoutUsing_AddsBaseClass()
-		{
-			var source = "public class [|MyTestCase|] : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-			var fixedSource = "public class MyTestCase : Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		var before = "public class [|MyTestCase|]: {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+		var after = "public class MyTestCase: Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		[Fact]
-		public async void WithNoBaseClass_WithUsing_AddsBaseClass()
-		{
-			var source = "using Xunit; using Xunit.Abstractions; public class [|MyTestCase|] : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-			var fixedSource = "using Xunit; using Xunit.Abstractions; public class MyTestCase : LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
 
-		[Fact]
-		public async void WithBadBaseClass_WithoutUsing_ReplacesBaseClass()
-		{
-			var source = "public class Foo { } public class [|MyTestCase|] : Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-			var fixedSource = "public class Foo { } public class MyTestCase : Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+	[Fact]
+	public async void WithNoBaseClass_WithUsing_AddsBaseClass()
+	{
+		var before = @"
+using Xunit;
+using Xunit.Abstractions;
 
-		[Fact]
-		public async void WithBadBaseClass_WithUsing_ReplacesBaseClass()
-		{
-			var source = "using Xunit; using Xunit.Abstractions; public class Foo { } public class [|MyTestCase|] : Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-			var fixedSource = "using Xunit; using Xunit.Abstractions; public class Foo { } public class MyTestCase : LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
-			await Verify.VerifyCodeFixAsync(source, fixedSource);
-		}
+public class [|MyTestCase|]: {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		var after = @"
+using Xunit;
+using Xunit.Abstractions;
+
+public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
+
+	[Fact]
+	public async void WithBadBaseClass_WithoutUsing_ReplacesBaseClass()
+	{
+		var before = "public class Foo { } public class [|MyTestCase|]: Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+		var after = "public class Foo { } public class MyTestCase: Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		await Verify.VerifyCodeFixAsync(before, after);
+	}
+
+	[Fact]
+	public async void WithBadBaseClass_WithUsing_ReplacesBaseClass()
+	{
+		var before = @"
+using Xunit;
+using Xunit.Abstractions;
+
+public class Foo { }
+
+public class [|MyTestCase|]: Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		var after = @"
+using Xunit;
+using Xunit.Abstractions;
+
+public class Foo { }
+
+public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		await Verify.VerifyCodeFixAsync(before, after);
 	}
 }
