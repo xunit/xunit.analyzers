@@ -4,15 +4,16 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Xunit.Analyzers.CodeActions;
+using Xunit.Analyzers.FixProviders;
 
-namespace Xunit.Analyzers.FixProviders
+namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public sealed class ChangeMemberTypeFix : MemberFixBase
+	public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : MemberFixBase
 	{
 		const string title = "Change Member Return Type";
 
-		public ChangeMemberTypeFix()
+		public MemberDataShouldReferenceValidMember_ReturnTypeFixer()
 			: base(new[] { Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id })
 		{ }
 

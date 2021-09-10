@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -57,35 +56,12 @@ public class CSharpVerifier<TAnalyzer>
 		string before,
 		string after,
 		int? codeActionIndex = null) =>
-#pragma warning disable CS0612 // Type or member is obsolete
-			VerifyCodeFixAsync(before, after, DiagnosticResult.EmptyDiagnosticResults, codeActionIndex);
-#pragma warning restore CS0612 // Type or member is obsolete
-
-	[Obsolete]
-	public static Task VerifyCodeFixAsync(
-		string before,
-		string after,
-		DiagnosticResult diagnostic,
-		int? codeActionIndex = null) =>
-			VerifyCodeFixAsync(before, after, new[] { diagnostic }, codeActionIndex);
-
-	[Obsolete]
-	public static Task VerifyCodeFixAsync(
-		string before,
-		string after,
-		DiagnosticResult[] diagnostics,
-		int? codeActionIndex = null)
-	{
-		var test = new Test
-		{
-			TestCode = before,
-			FixedCode = after,
-			CodeActionIndex = codeActionIndex
-		};
-
-		test.ExpectedDiagnostics.AddRange(diagnostics);
-		return test.RunAsync();
-	}
+			new Test
+			{
+				TestCode = before,
+				FixedCode = after,
+				CodeActionIndex = codeActionIndex
+			}.RunAsync();
 
 	public class Test : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
 	{

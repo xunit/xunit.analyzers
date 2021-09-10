@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.VisualStudio.Composition;
-using Xunit.Analyzers.FixProviders;
+using Xunit.Analyzers.CodeActions;
 
 static class CodeFixProviderDiscovery
 {
@@ -18,7 +18,7 @@ static class CodeFixProviderDiscovery
 			() =>
 			{
 				var discovery = new AttributedPartDiscovery(Resolver.DefaultInstance, isNonPublicSupported: true);
-				var parts = Task.Run(() => discovery.CreatePartsAsync(typeof(ChangeMemberTypeFix).Assembly)).GetAwaiter().GetResult();
+				var parts = Task.Run(() => discovery.CreatePartsAsync(typeof(CodeAnalysisExtensions).Assembly)).GetAwaiter().GetResult();
 				var catalog = ComposableCatalog.Create(Resolver.DefaultInstance).AddParts(parts);
 
 				var configuration = CompositionConfiguration.Create(catalog);
