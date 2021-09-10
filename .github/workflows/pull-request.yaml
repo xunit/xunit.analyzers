@@ -1,5 +1,7 @@
 name: xUnit.net Analyzers PR Build
-on: pull_request
+on:
+  - pull_request
+  - workflow_dispatch
 
 jobs:
   build:
@@ -29,9 +31,6 @@ jobs:
 
       - name: Get .NET information
         run: dotnet --info
-
-      - name: Get build information
-        run: dotnet tool restore && dotnet nbgv cloud --all-vars
 
       - name: "Build target: PR"
         run: dotnet run --project tools/builder --no-launch-profile -- PR

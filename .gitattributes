@@ -8,3 +8,5 @@
 *.snk binary
 *.vbproj text merge=union
 *.xls binary
+
+.gitmodules eol=lf

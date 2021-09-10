@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 [Target(
 	BuildTarget.Packages,
-	BuildTarget.Build, BuildTarget.DownloadNuGet
+	BuildTarget.Build
 )]
 public static class Packages
 {
@@ -13,22 +13,11 @@ public static class Packages
 	{
 		context.BuildStep("Creating NuGet packages");
 
-		var versionOverride = string.Format(
-			"{0}{1}.{2}+{3}",
-			Environment.GetEnvironmentVariable("NBGV_SimpleVersion"),
-			Environment.GetEnvironmentVariable("NBGV_PrereleaseVersion"),
-			Environment.GetEnvironmentVariable("NBGV_VersionHeight"),
-			Environment.GetEnvironmentVariable("NBGV_GitCommitIdShort")
-		);
-		var versionOption = versionOverride == ".+" ? string.Empty : $"-Version \"{versionOverride}\"";
+		// Clean up any existing packages to force re-packing
+		var packageFiles = Directory.GetFiles(context.PackageOutputFolder, "*.nupkg");
+		foreach (var packageFile in packageFiles)
+			File.Delete(packageFile);
 
-		var nuspecFiles =
-			Directory
-				.GetFiles(context.BaseFolder, "*.nuspec", SearchOption.AllDirectories)
-				.OrderBy(x => x)
-				.Select(x => x[(context.BaseFolder.Length + 1)..]);
-
-		foreach (var nuspecFile in nuspecFiles)
-			await context.Exec(context.NuGetExe, $"pack {nuspecFile} -NonInteractive -NoPackageAnalysis -OutputDirectory {context.PackageOutputFolder} -Properties Configuration={context.ConfigurationText} -Verbosity {context.VerbosityNuGet} {versionOption}");
+		await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} src/xunit.analyzers -p:NuspecFile=xunit.analyzers.nuspec");
 	}
 }

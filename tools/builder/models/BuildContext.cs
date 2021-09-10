@@ -15,8 +15,6 @@ using SimpleExec;
 public class BuildContext
 {
 	string? baseFolder;
-	string? nuGetExe;
-	string? nuGetUrl;
 	string? packageOutputFolder;
 	string? testOutputFolder;
 
@@ -35,18 +33,6 @@ public class BuildContext
 	public string ConfigurationText => Configuration.ToString();
 
 	public bool NeedMono { get; private set; }
-
-	public string NuGetExe
-	{
-		get => nuGetExe ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(NuGetExe)}");
-		private set => nuGetExe = value ?? throw new ArgumentNullException(nameof(NuGetExe));
-	}
-
-	public string NuGetUrl
-	{
-		get => nuGetUrl ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(NuGetUrl)}");
-		private set => nuGetUrl = value ?? throw new ArgumentNullException(nameof(NuGetUrl));
-	}
 
 	public string PackageOutputFolder
 	{
@@ -159,9 +145,6 @@ public class BuildContext
 
 			var nuGetCliFolder = Path.Combine(homeFolder, ".nuget", "cli", NuGetVersion);
 			Directory.CreateDirectory(nuGetCliFolder);
-
-			NuGetExe = Path.Combine(nuGetCliFolder, "nuget.exe");
-			NuGetUrl = $"https://dist.nuget.org/win-x86-commandline/v{NuGetVersion}/nuget.exe";
 
 			// Parse the targets
 			var targetNames = Targets.Select(x => x.ToString()).ToList();

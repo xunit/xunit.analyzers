@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+      - 'rel/**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,15 +31,12 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: Get build information
-        run: dotnet tool restore && dotnet nbgv cloud --all-vars
-
       - name: "Build target: CI"
         env:
           PublishToken: ${{ secrets.PublishToken }}
           SignClientUser: ${{ secrets.SignClientUser }}
           SignClientSecret: ${{ secrets.SignClientSecret }}
-        run: dotnet run --project tools/builder --no-launch-profile -- CI
+        run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v2
