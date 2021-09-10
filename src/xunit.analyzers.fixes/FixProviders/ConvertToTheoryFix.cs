@@ -32,8 +32,8 @@ namespace Xunit.Analyzers.FixProviders
 					title,
 					context.Document,
 					methodDeclaration.AttributeLists,
-					fromTypeName: Constants.Types.XunitTheoryAttribute,
-					toTypeName: Constants.Types.XunitFactAttribute
+					fromTypeName: Constants.Types.XunitFactAttribute,
+					toTypeName: Constants.Types.XunitTheoryAttribute
 				),
 				context.Diagnostics
 			);
