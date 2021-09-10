@@ -4,7 +4,7 @@
 		<id>xunit.analyzers</id>
 		<version>$PackageVersion$</version>
 		<title>xUnit.net [Code Analyzers]</title>
-		<authors>jnewkirk,bradwilson</authors>
+		<authors>jnewkirk,bradwilson,marcind</authors>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
