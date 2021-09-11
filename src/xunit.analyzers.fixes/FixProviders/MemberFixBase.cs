@@ -14,10 +14,8 @@ namespace Xunit.Analyzers.FixProviders
 		public sealed override FixAllProvider GetFixAllProvider() =>
 			WellKnownFixAllProviders.BatchFixer;
 
-		public MemberFixBase(IEnumerable<string> diagnostics)
-		{
+		public MemberFixBase(IEnumerable<string> diagnostics) =>
 			FixableDiagnosticIds = diagnostics.ToImmutableArray();
-		}
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{

@@ -87,7 +87,7 @@ class TestClass {{
 }}";
 		var expected =
 			Verify
-				.Diagnostic("xUnit2014")
+				.Diagnostic()
 				.WithSpan(8, 9, 8, 70 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("Assert.Throws()");
@@ -116,9 +116,9 @@ class TestClass {{
 				.WithSpan(8, 9, 8, 62 + lambda.Length)
 				.WithMessage("'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
 			Verify
-				.Diagnostic("xUnit2019")
+				.Diagnostic()
 				.WithSpan(8, 9, 8, 62 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Hidden)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("Assert.Throws()"),
 		};
 
@@ -146,9 +146,9 @@ class TestClass {{
 				.WithSpan(8, 9, 8, 66 + lambda.Length)
 				.WithMessage("'Assert.Throws<T>(string, Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
 			Verify
-				.Diagnostic("xUnit2019")
+				.Diagnostic()
 				.WithSpan(8, 9, 8, 66 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Hidden)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("Assert.Throws()"),
 		};
 
@@ -225,7 +225,7 @@ class TestClass {{
 }}";
 		var expected =
 			Verify
-				.Diagnostic("xUnit2014")
+				.Diagnostic()
 				.WithSpan(8, 9, 8, 65 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("Assert.ThrowsAny()");

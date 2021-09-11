@@ -10,14 +10,14 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertSubstringCheckShouldNotUseBoolCheck : AssertUsageAnalyzerBase
 	{
-		private static readonly HashSet<string> substringMethods = new HashSet<string>(new[]
+		private static readonly HashSet<string> substringMethods = new()
 		{
 			"string.Contains(string)",
 			"string.StartsWith(string)",
 			"string.StartsWith(string, System.StringComparison)",
 			"string.EndsWith(string)",
 			"string.EndsWith(string, System.StringComparison)"
-		});
+		};
 		static readonly string[] targetMethods =
 		{
 			Constants.Asserts.True,

@@ -4,16 +4,17 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Xunit.Analyzers.CodeActions;
+using Xunit.Analyzers.FixProviders;
 
-namespace Xunit.Analyzers.FixProviders
+namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public sealed class MakeMemberStaticFix : MemberFixBase
+	public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : MemberFixBase
 	{
-		const string title = "Make Member Static";
+		const string title = "Make Member Public";
 
-		public MakeMemberStaticFix()
-			: base(new[] { Descriptors.X1017_MemberDataMustReferenceStaticMember.Id })
+		public MemberDataShouldReferenceValidMember_VisibilityFixer()
+			: base(new[] { Descriptors.X1016_MemberDataMustReferencePublicMember.Id })
 		{ }
 
 		public override Task RegisterCodeFixesAsync(
@@ -23,7 +24,7 @@ namespace Xunit.Analyzers.FixProviders
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title: title,
-					createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberStaticModifier(member, true, ct),
+					createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberAccessibility(member, Accessibility.Public, ct),
 					equivalenceKey: title
 				),
 				context.Diagnostics

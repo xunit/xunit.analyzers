@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,11 +10,6 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyzerBase
 	{
-		static readonly HashSet<string> obsoleteThrowsMethods = new()
-		{
-			"Xunit.Assert.Throws<System.NotImplementedException>(System.Func<System.Threading.Tasks.Task>)",
-			"Xunit.Assert.Throws<System.ArgumentException>(string, System.Func<System.Threading.Tasks.Task>)"
-		};
 		static readonly string[] targetMethods =
 		{
 			Constants.Asserts.Throws,
@@ -23,7 +17,7 @@ namespace Xunit.Analyzers
 		};
 
 		public AssertThrowsShouldNotBeUsedForAsyncThrowsCheck()
-			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck, Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, targetMethods)
+			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, targetMethods)
 		{ }
 
 		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
@@ -35,17 +29,12 @@ namespace Xunit.Analyzers
 			if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 				return;
 
-			var descriptor =
-				obsoleteThrowsMethods.Contains(SymbolDisplay.ToDisplayString(method))
-					? Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
-					: Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck;
-
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-				descriptor,
+				Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck,
 				invocationOperation.Syntax.GetLocation(),
 				builder.ToImmutable(),
 				SymbolDisplay.ToDisplayString(

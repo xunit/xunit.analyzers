@@ -19,10 +19,7 @@ namespace Xunit.Analyzers
 		const string TitleTemplate = "Use Assert.{0}";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(
-				Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id,
-				Descriptors.X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id
-			);
+			ImmutableArray.Create(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id);
 
 		public sealed override FixAllProvider GetFixAllProvider() =>
 			WellKnownFixAllProviders.BatchFixer;
@@ -104,7 +101,7 @@ namespace Xunit.Analyzers
 			ExpressionSyntax asyncThrowsInvocation =
 				invocation
 					.WithExpression(memberAccess.WithName(GetName(replacementMethod, memberAccess)))
-					.WithArgumentList(GetArguments(invocation));
+					.WithArgumentList(invocation.ArgumentList);
 
 			if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
 				return asyncThrowsInvocation;
@@ -122,51 +119,6 @@ namespace Xunit.Analyzers
 				return IdentifierName(replacementMethod);
 
 			return GenericName(IdentifierName(replacementMethod).Identifier, genericNameSyntax.TypeArgumentList);
-		}
-
-		static ArgumentListSyntax GetArguments(InvocationExpressionSyntax invocation)
-		{
-			var arguments = invocation.ArgumentList;
-			var argumentSyntax = invocation.ArgumentList.Arguments.Last();
-
-			if (argumentSyntax.Expression is not LambdaExpressionSyntax lambdaExpression)
-				return arguments;
-
-			if (lambdaExpression.Body is not AwaitExpressionSyntax awaitExpression)
-				return arguments;
-
-			var lambdaExpressionWithoutAsyncKeyword = RemoveAsyncKeywordFromLambdaExpression(lambdaExpression, awaitExpression);
-
-			return
-				invocation
-					.ArgumentList
-					.WithArguments(
-						invocation
-							.ArgumentList
-							.Arguments
-							.Replace(argumentSyntax, Argument(lambdaExpressionWithoutAsyncKeyword))
-					);
-		}
-
-		static ExpressionSyntax RemoveAsyncKeywordFromLambdaExpression(
-			LambdaExpressionSyntax lambdaExpression,
-			AwaitExpressionSyntax awaitExpression)
-		{
-			if (lambdaExpression is SimpleLambdaExpressionSyntax simpleLambdaExpression)
-				return
-					simpleLambdaExpression
-						.ReplaceNode(awaitExpression, awaitExpression.Expression)
-						.WithAsyncKeyword(default)
-						.WithLeadingTrivia(simpleLambdaExpression.AsyncKeyword.LeadingTrivia);
-
-			if (lambdaExpression is ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression)
-				return
-					parenthesizedLambdaExpression
-						.ReplaceNode(awaitExpression, awaitExpression.Expression)
-						.WithAsyncKeyword(default)
-						.WithLeadingTrivia(parenthesizedLambdaExpression.AsyncKeyword.LeadingTrivia);
-
-			return lambdaExpression;
 		}
 	}
 }

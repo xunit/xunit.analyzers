@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.DiagnosticSeverity;
 using static Xunit.Analyzers.Category;
@@ -506,6 +507,7 @@ namespace Xunit.Analyzers
 				"Do not compare an object's exact type to the {0} '{1}'."
 			);
 
+		[Obsolete("This check was unnecessary, as it's already covered by xUnit2014", error: true)]
 		public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
 			Rule(
 				"xUnit2019",

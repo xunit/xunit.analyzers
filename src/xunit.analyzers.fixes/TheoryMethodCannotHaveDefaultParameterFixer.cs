@@ -7,10 +7,10 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers.FixProviders
+namespace Xunit.Analyzers
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class RemoveMethodParameterDefaultFix : CodeFixProvider
+	public class TheoryMethodCannotHaveDefaultParameterFixer : CodeFixProvider
 	{
 		const string titleTemplate = "Remove Parameter '{0}' Default";
 

@@ -34,7 +34,10 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void Analyze(
+			OperationAnalysisContext context,
+			IInvocationOperation invocationOperation,
+			IMethodSymbol method)
 		{
 			var arguments = invocationOperation.Arguments;
 			if (arguments.Length != 1)
