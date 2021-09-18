@@ -20,10 +20,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
     <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />

@@ -5,14 +5,23 @@
 
   <PropertyGroup>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
+    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>9.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -22,21 +31,34 @@
   <!-- ======================================== -->
   <!-- Production-specific properties and items -->
 
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests')) != true">
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
+  <Choose>
+    <When Condition=" !$(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>true</SignAssembly>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
   <!-- ================================== -->
   <!-- Test-specific properties and items -->
 
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.tests'))">
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <CopyNuGetImplementations>true</CopyNuGetImplementations>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <GenerateDependencyFile>true</GenerateDependencyFile>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-  </PropertyGroup>
+  <Choose>
+    <When Condition=" $(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <CopyNuGetImplementations>true</CopyNuGetImplementations>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+        <GenerateDependencyFile>true</GenerateDependencyFile>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
 </Project>
