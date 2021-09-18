@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 			var diagnostic = context.Diagnostics.First();
 			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
 			var sizeValue = diagnostic.Properties[Constants.Properties.SizeValue];
-			var replacement = GetReplacementMethodName(methodName, sizeValue);
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 			var title = string.Format(titleTemplate, replacement);
 
 			context.RegisterCodeFix(
@@ -41,16 +41,6 @@ namespace Xunit.Analyzers
 				),
 				context.Diagnostics
 			);
-		}
-
-		static string GetReplacementMethodName(
-			string methodName,
-			string literalValue)
-		{
-			if (literalValue == "1")
-				return Constants.Asserts.Single;
-
-			return methodName == Constants.Asserts.Equal ? Constants.Asserts.Empty : Constants.Asserts.NotEmpty;
 		}
 
 		static async Task<Document> UseCollectionSizeAssertionAsync(

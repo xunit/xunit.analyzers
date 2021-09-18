@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 			var diagnostic = context.Diagnostics.First();
 			var assertMethodName = diagnostic.Properties[Constants.Properties.AssertMethodName];
-			var replacement = assertMethodName == Constants.Asserts.True ? Constants.Asserts.Contains : Constants.Asserts.DoesNotContain;
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 
 			var title = string.Format(titleTemplate, replacement);
 			context.RegisterCodeFix(

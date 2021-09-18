@@ -11,18 +11,17 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzerBase
 	{
-		public static readonly HashSet<string> EqualMethods = new()
+		static readonly HashSet<string> equalMethods = new()
 		{
 			Constants.Asserts.Equal,
 			Constants.Asserts.StrictEqual
 		};
-		public static readonly HashSet<string> NotEqualMethods = new()
+		static readonly HashSet<string> notEqualMethods = new()
 		{
 			Constants.Asserts.NotEqual,
 			Constants.Asserts.NotStrictEqual
 		};
-
-		static readonly string[] targetMethods = EqualMethods.Union(NotEqualMethods).ToArray();
+		static readonly string[] targetMethods = equalMethods.Union(notEqualMethods).ToArray();
 
 		public AssertEqualShouldNotBeUsedForBoolLiteralCheck()
 			: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, targetMethods)
@@ -51,9 +50,12 @@ namespace Xunit.Analyzers
 			if (!(isTrue ^ isFalse))
 				return;
 
+			var replacement = GetReplacementMethodName(method.Name, isTrue);
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.LiteralValue] = isTrue ? bool.TrueString : bool.FalseString;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -66,9 +68,22 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
+		}
+
+		static string GetReplacementMethodName(
+			string methodName,
+			bool isTrue)
+		{
+			if (equalMethods.Contains(methodName))
+				return isTrue ? Constants.Asserts.True : Constants.Asserts.False;
+			if (notEqualMethods.Contains(methodName))
+				return isTrue ? Constants.Asserts.False : Constants.Asserts.True;
+
+			return null;
 		}
 	}
 }

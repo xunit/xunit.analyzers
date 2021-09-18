@@ -45,8 +45,14 @@ namespace Xunit.Analyzers
 			if (!IsLinqContainsMethod(methodSymbol) && !IsICollectionContainsMethod(context, methodSymbol))
 				return;
 
+			var replacement =
+				method.Name == Constants.Asserts.True
+					? Constants.Asserts.Contains
+					: Constants.Asserts.DoesNotContain;
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -55,8 +61,12 @@ namespace Xunit.Analyzers
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(
 						method,
-						SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					),
+					replacement
 				)
 			);
 		}

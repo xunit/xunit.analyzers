@@ -22,6 +22,7 @@
 			public const string DoesNotContain = "DoesNotContain";
 			public const string DoesNotMatch = "DoesNotMatch";
 			public const string Empty = "Empty";
+			public const string EndsWith = "EndsWith";
 			public const string Equal = "Equal";
 			public const string False = "False";
 			public const string IsAssignableFrom = "IsAssignableFrom";
@@ -36,9 +37,11 @@
 			public const string Null = "Null";
 			public const string Same = "Same";
 			public const string Single = "Single";
+			public const string StartsWith = "StartsWith";
 			public const string StrictEqual = "StrictEqual";
 			public const string Throws = "Throws";
 			public const string ThrowsAny = "ThrowsAny";
+			public const string ThrowsAnyAsync = "ThrowsAnyAsync";
 			public const string ThrowsAsync = "ThrowsAsync";
 			public const string True = "True";
 		}
@@ -77,6 +80,7 @@
 			public const string ParameterIndex = "ParameterIndex";
 			public const string ParameterName = "ParameterName";
 			public const string ParameterSpecialType = "ParameterSpecialType";
+			public const string Replacement = "Replacement";
 			public const string SizeValue = "SizeValue";
 			public const string SubstringMethodName = "SubstringMethodName";
 			public const string TestClassName = "TestClassName";

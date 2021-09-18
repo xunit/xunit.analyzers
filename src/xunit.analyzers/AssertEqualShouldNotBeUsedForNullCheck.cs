@@ -12,20 +12,19 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
 	{
-		public static readonly HashSet<string> EqualMethods = new()
+		static readonly HashSet<string> equalMethods = new()
 		{
 			Constants.Asserts.Equal,
 			Constants.Asserts.StrictEqual,
 			Constants.Asserts.Same
 		};
-		public static readonly HashSet<string> NotEqualMethods = new()
+		static readonly HashSet<string> notEqualMethods = new()
 		{
 			Constants.Asserts.NotEqual,
 			Constants.Asserts.NotStrictEqual,
 			Constants.Asserts.NotSame
 		};
-
-		static readonly string[] targetMethods = EqualMethods.Union(NotEqualMethods).ToArray();
+		static readonly string[] targetMethods = equalMethods.Union(notEqualMethods).ToArray();
 
 		public AssertEqualShouldNotBeUsedForNullCheck()
 			: base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck, targetMethods)
@@ -42,8 +41,11 @@ namespace Xunit.Analyzers
 			if (!literalFirstArgument?.IsKind(SyntaxKind.NullLiteralExpression) ?? true)
 				return;
 
+			var replacement = GetReplacementMethod(method.Name);
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -56,9 +58,20 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
+		}
+
+		static string GetReplacementMethod(string methodName)
+		{
+			if (equalMethods.Contains(methodName))
+				return Constants.Asserts.Null;
+			if (notEqualMethods.Contains(methodName))
+				return Constants.Asserts.NotNull;
+
+			return null;
 		}
 	}
 }

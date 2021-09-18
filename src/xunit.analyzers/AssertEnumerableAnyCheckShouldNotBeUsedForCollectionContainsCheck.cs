@@ -35,8 +35,14 @@ namespace Xunit.Analyzers
 			if (SymbolDisplay.ToDisplayString(methodSymbol.OriginalDefinition) != enumerableAnyExtensionMethod)
 				return;
 
+			var replacement =
+				method.Name == Constants.Asserts.True
+					? Constants.Asserts.Contains
+					: Constants.Asserts.DoesNotContain;
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -49,7 +55,8 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
 		}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyncThrowsCheck>;
 
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
@@ -90,7 +91,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 70 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()");
+				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -119,7 +120,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 62 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()"),
+				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
 		};
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -149,7 +150,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 66 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()"),
+				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
 		};
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -228,7 +229,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 65 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.ThrowsAny()");
+				.WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

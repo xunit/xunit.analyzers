@@ -28,7 +28,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 34 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Hidden)
-				.WithArguments($"Assert.{method}()"),
+				.WithArguments($"Assert.{method}()", replacement),
 		};
 
 		await Verify.VerifyAnalyzerAsync(source, expected);

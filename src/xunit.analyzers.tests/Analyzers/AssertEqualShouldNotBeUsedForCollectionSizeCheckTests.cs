@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
 
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
@@ -66,7 +67,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 32 + collection.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()");
+				.WithArguments("Assert.Equal()", Constants.Asserts.Empty);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -88,7 +89,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 35 + collection.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.NotEqual()");
+				.WithArguments("Assert.NotEqual()", Constants.Asserts.NotEmpty);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -110,7 +111,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 32 + collection.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()");
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -145,7 +146,7 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(20, 9, 20, 51)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()");
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

@@ -30,7 +30,8 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 78 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments(method, "System.NotImplementedException");
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -49,7 +50,8 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 106 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments(method, "System.NotImplementedException");
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

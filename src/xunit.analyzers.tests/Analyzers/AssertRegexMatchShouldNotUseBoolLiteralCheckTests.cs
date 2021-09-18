@@ -5,15 +5,17 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLi
 
 public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 {
-	public static TheoryData<string> Methods = new()
+	public static TheoryData<string, string> Methods_WithReplacement = new()
 	{
-		Constants.Asserts.True,
-		Constants.Asserts.False,
+		{ Constants.Asserts.True, Constants.Asserts.Matches },
+		{ Constants.Asserts.False, Constants.Asserts.DoesNotMatch },
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForStaticRegexIsMatch(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarning_ForStaticRegexIsMatch(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -26,14 +28,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 83 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -46,14 +50,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 87 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -67,7 +73,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 45 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

@@ -36,9 +36,16 @@ namespace Xunit.Analyzers
 				return;
 
 			var typeToDisplay = firstArgumentType.IsReferenceType ? secondArgumentType : firstArgumentType;
+			var replacement = method.Name switch
+			{
+				Constants.Asserts.Same => Constants.Asserts.Equal,
+				Constants.Asserts.NotSame => Constants.Asserts.NotEqual,
+				_ => null,
+			};
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -56,7 +63,8 @@ namespace Xunit.Analyzers
 						SymbolDisplayFormat
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
-					)
+					),
+					replacement
 				)
 			);
 		}

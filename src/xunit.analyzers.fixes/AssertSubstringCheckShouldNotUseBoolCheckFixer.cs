@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 			var diagnostic = context.Diagnostics.First();
 			var assertMethodName = diagnostic.Properties[Constants.Properties.AssertMethodName];
 			var substringMethodName = diagnostic.Properties[Constants.Properties.SubstringMethodName];
-			var replacement = GetReplacementMethodName(assertMethodName, substringMethodName);
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 			var title = string.Format(titleTemplate, replacement);
 
 			context.RegisterCodeFix(
@@ -41,16 +41,6 @@ namespace Xunit.Analyzers
 				),
 				context.Diagnostics
 			);
-		}
-
-		static string GetReplacementMethodName(
-			string assertMethodName,
-			string substringMethodName)
-		{
-			if (substringMethodName == nameof(string.Contains))
-				return assertMethodName == Constants.Asserts.True ? Constants.Asserts.Contains : Constants.Asserts.DoesNotContain;
-
-			return substringMethodName;
 		}
 
 		static async Task<Document> UseSubstringCheckAsync(

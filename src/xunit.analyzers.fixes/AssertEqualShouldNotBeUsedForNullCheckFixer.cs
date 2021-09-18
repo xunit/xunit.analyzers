@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 			var diagnostic = context.Diagnostics.First();
 			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var replacement = GetReplacementMethod(methodName);
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 
 			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
 			{
@@ -43,16 +43,6 @@ namespace Xunit.Analyzers
 					context.Diagnostics
 				);
 			}
-		}
-
-		static string GetReplacementMethod(string methodName)
-		{
-			if (AssertEqualShouldNotBeUsedForNullCheck.EqualMethods.Contains(methodName))
-				return Constants.Asserts.Null;
-			if (AssertEqualShouldNotBeUsedForNullCheck.NotEqualMethods.Contains(methodName))
-				return Constants.Asserts.NotNull;
-
-			return null;
 		}
 
 		static async Task<Document> UseNullCheckAsync(

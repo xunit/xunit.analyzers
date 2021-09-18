@@ -12,8 +12,11 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForBooleanContainsCheck(string method)
+	[InlineData(Constants.Asserts.True, Constants.Asserts.Contains)]
+	[InlineData(Constants.Asserts.False, Constants.Asserts.DoesNotContain)]
+	public async void FindsWarning_ForBooleanContainsCheck(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -26,7 +29,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 43 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -59,7 +62,7 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 49)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.StartsWith);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -78,7 +81,7 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 89)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.StartsWith);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -179,7 +182,7 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 47)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.EndsWith);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -198,7 +201,7 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 87)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.EndsWith);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

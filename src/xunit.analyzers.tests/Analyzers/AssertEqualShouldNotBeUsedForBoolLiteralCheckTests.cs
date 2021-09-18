@@ -14,8 +14,13 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForFirstBoolLiteral(string method)
+	[InlineData(Constants.Asserts.Equal, Constants.Asserts.True)]
+	[InlineData(Constants.Asserts.StrictEqual, Constants.Asserts.True)]
+	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.False)]
+	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.False)]
+	public async void FindsWarning_ForFirstBoolLiteral(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -29,15 +34,17 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 33 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[InlineData(Constants.Asserts.Equal)]
-	[InlineData(Constants.Asserts.NotEqual)]
-	public async void FindsWarning_ForFirstBoolLiteral_WithCustomComparer(string method)
+	[InlineData(Constants.Asserts.Equal, Constants.Asserts.False)]
+	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.True)]
+	public async void FindsWarning_ForFirstBoolLiteral_WithCustomComparer(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -51,7 +58,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 93 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

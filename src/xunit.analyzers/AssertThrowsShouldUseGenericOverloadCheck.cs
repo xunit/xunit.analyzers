@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 				return;
 
 			var typeArgument = invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(parameters[0]))?.Value;
-			if (!(typeArgument is ITypeOfOperation typeOfOperation))
+			if (typeArgument is not ITypeOfOperation typeOfOperation)
 				return;
 
 			var type = typeOfOperation.TypeOperand;
@@ -42,6 +42,7 @@ namespace Xunit.Analyzers
 					Descriptors.X2015_AssertThrowsShouldUseGenericOverload,
 					invocationOperation.Syntax.GetLocation(),
 					builder.ToImmutable(),
+					method.Name,
 					typeName
 				)
 			);

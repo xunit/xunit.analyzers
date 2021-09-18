@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 			var diagnostic = context.Diagnostics.First();
 			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
 			var literalValue = diagnostic.Properties[Constants.Properties.LiteralValue];
-			var replacement = GetReplacementMethodName(methodName, literalValue);
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 
 			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
 			{
@@ -44,18 +44,6 @@ namespace Xunit.Analyzers
 					context.Diagnostics
 				);
 			}
-		}
-
-		static string GetReplacementMethodName(
-			string methodName,
-			string literalValue)
-		{
-			if (AssertEqualShouldNotBeUsedForBoolLiteralCheck.EqualMethods.Contains(methodName))
-				return literalValue == bool.TrueString ? Constants.Asserts.True : Constants.Asserts.False;
-			if (AssertEqualShouldNotBeUsedForBoolLiteralCheck.NotEqualMethods.Contains(methodName))
-				return literalValue == bool.TrueString ? Constants.Asserts.False : Constants.Asserts.True;
-
-			return null;
 		}
 
 		static async Task<Document> UseBoolCheckAsync(

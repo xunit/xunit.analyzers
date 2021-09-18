@@ -6,10 +6,10 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertStringEqualityCheckShouldNot
 
 public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 {
-	public static TheoryData<string> Methods = new()
+	public static TheoryData<string, string> Methods_WithReplacement = new()
 	{
-		Constants.Asserts.True,
-		Constants.Asserts.False,
+		{ Constants.Asserts.True, Constants.Asserts.Equal },
+		{ Constants.Asserts.False, Constants.Asserts.NotEqual },
 	};
 	public static TheoryData<StringComparison> SupportedStringComparisons = new()
 	{
@@ -34,8 +34,10 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForInstanceEqualsCheck(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarning_ForInstanceEqualsCheck(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -48,7 +50,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 41 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -68,7 +70,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 71 + comparison.ToString().Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.Equal);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -102,8 +104,10 @@ class TestClass {{
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForStaticEqualsCheck(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarning_ForStaticEqualsCheck(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -116,7 +120,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 56 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -136,7 +140,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 86 + comparison.ToString().Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.Equal);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

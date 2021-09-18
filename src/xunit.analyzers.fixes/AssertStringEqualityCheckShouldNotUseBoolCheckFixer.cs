@@ -33,7 +33,7 @@ namespace Xunit.Analyzers
 			var assertMethodName = diagnostic.Properties[Constants.Properties.AssertMethodName];
 			var isStaticMethodCall = diagnostic.Properties[Constants.Properties.IsStaticMethodCall];
 			var ignoreCase = diagnostic.Properties[Constants.Properties.IgnoreCase];
-			var replacement = GetReplacementMethodName(assertMethodName);
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -44,9 +44,6 @@ namespace Xunit.Analyzers
 				context.Diagnostics
 			);
 		}
-
-		static string GetReplacementMethodName(string assertMethodName) =>
-			assertMethodName == Constants.Asserts.True ? Constants.Asserts.Equal : Constants.Asserts.NotEqual;
 
 		static async Task<Document> UseEqualCheck(
 			Document document,

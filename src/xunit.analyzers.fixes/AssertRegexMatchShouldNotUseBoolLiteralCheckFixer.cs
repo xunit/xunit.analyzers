@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 			var diagnostic = context.Diagnostics.First();
 			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
 			var isStatic = diagnostic.Properties[Constants.Properties.IsStatic];
-			var replacementMethod = methodName == Constants.Asserts.True ? Constants.Asserts.Matches : Constants.Asserts.DoesNotMatch;
+			var replacementMethod = diagnostic.Properties[Constants.Properties.Replacement];
 			var title = string.Format(titleTemplate, replacementMethod);
 
 			context.RegisterCodeFix(

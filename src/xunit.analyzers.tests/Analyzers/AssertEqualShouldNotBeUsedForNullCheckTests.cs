@@ -14,15 +14,17 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 		Constants.Asserts.Same,
 		Constants.Asserts.NotSame,
 	};
-	public static TheoryData<string> Methods_Equal = new()
+	public static TheoryData<string, string> Methods_Equal_WithReplacement = new()
 	{
-		Constants.Asserts.Equal,
-		Constants.Asserts.NotEqual,
+		{ Constants.Asserts.Equal, Constants.Asserts.Null },
+		{ Constants.Asserts.NotEqual, Constants.Asserts.NotNull }
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods_Equal))]
-	public async void FindsWarning_ForFirstNullLiteral_StringOverload(string method)
+	[MemberData(nameof(Methods_Equal_WithReplacement))]
+	public async void FindsWarning_ForFirstNullLiteral_StringOverload(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -36,14 +38,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 33 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods_Equal))]
-	public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(string method)
+	[MemberData(nameof(Methods_Equal_WithReplacement))]
+	public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -57,14 +61,21 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 64 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods_All))]
-	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(string method)
+	[InlineData(Constants.Asserts.Equal, Constants.Asserts.Null)]
+	[InlineData(Constants.Asserts.StrictEqual, Constants.Asserts.Null)]
+	[InlineData(Constants.Asserts.Same, Constants.Asserts.Null)]
+	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.NotNull)]
+	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.NotNull)]
+	[InlineData(Constants.Asserts.NotSame, Constants.Asserts.NotNull)]
+	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -78,14 +89,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 33 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods_Equal))]
-	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(string method)
+	[MemberData(nameof(Methods_Equal_WithReplacement))]
+	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -99,17 +112,19 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 94 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[InlineData(Constants.Asserts.Equal)]
-	[InlineData(Constants.Asserts.NotEqual)]
-	[InlineData(Constants.Asserts.StrictEqual)]
-	[InlineData(Constants.Asserts.NotStrictEqual)]
-	public async void FindsWarning_ForFirstNullLiteral_GenericOverload(string method)
+	[InlineData(Constants.Asserts.Equal, Constants.Asserts.Null)]
+	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.NotNull)]
+	[InlineData(Constants.Asserts.StrictEqual, Constants.Asserts.Null)]
+	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.NotNull)]
+	public async void FindsWarning_ForFirstNullLiteral_GenericOverload(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -123,14 +138,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 44 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods_Equal))]
-	public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(string method)
+	[MemberData(nameof(Methods_Equal_WithReplacement))]
+	public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -144,7 +161,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 108 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()");
+				.WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

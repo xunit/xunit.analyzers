@@ -70,9 +70,12 @@ namespace Xunit.Analyzers
 				!IsIReadOnlyCollectionOfTCountProperty(context, symbol))
 				return;
 
+			var replacement = GetReplacementMethodName(method.Name, size);
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.SizeValue] = size.ToString();
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -85,9 +88,20 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
+		}
+
+		static string GetReplacementMethodName(
+			string methodName,
+			int size)
+		{
+			if (size == 1)
+				return Constants.Asserts.Single;
+
+			return methodName == Constants.Asserts.Equal ? Constants.Asserts.Empty : Constants.Asserts.NotEmpty;
 		}
 
 		static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(ISymbol symbol) =>

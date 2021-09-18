@@ -31,12 +31,13 @@ namespace Xunit.Analyzers
 			var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 			var diagnostic = context.Diagnostics.First();
 			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var title = string.Format(TitleTemplate, methodName + "Async");
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var title = string.Format(TitleTemplate, replacement);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					createChangedDocument: ct => UseAsyncThrowsCheck(context.Document, invocation, method, methodName + "Async", ct),
+					createChangedDocument: ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
 					equivalenceKey: title
 				),
 				context.Diagnostics

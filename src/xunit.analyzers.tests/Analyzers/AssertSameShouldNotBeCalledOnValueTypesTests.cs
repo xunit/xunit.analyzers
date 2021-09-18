@@ -5,15 +5,17 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValue
 
 public class AssertSameShouldNotBeCalledOnValueTypesTests
 {
-	public static TheoryData<string> Methods = new()
+	public static TheoryData<string, string> Methods_WithReplacement = new()
 	{
-		Constants.Asserts.Same,
-		Constants.Asserts.NotSame,
+		{ Constants.Asserts.Same, Constants.Asserts.Equal },
+		{ Constants.Asserts.NotSame, Constants.Asserts.NotEqual },
 	};
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarningForTwoValueParameters(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarningForTwoValueParameters(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -27,14 +29,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 28 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int");
+				.WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarningForFirstValueParameters(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarningForFirstValueParameters(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -48,14 +52,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 28 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int");
+				.WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(Methods))]
-	public async void FindsWarningForSecondValueParameters(string method)
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarningForSecondValueParameters(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 class TestClass {{
@@ -69,7 +75,7 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(5, 9, 5, 28 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int");
+				.WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

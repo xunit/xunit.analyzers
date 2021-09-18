@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -24,8 +25,16 @@ namespace Xunit.Analyzers
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)
 		{
+			var replacement = method.Name switch
+			{
+				nameof(object.Equals) => Constants.Asserts.Equal,
+				nameof(object.ReferenceEquals) => Constants.Asserts.Same,
+				_ => throw new InvalidOperationException($"Unexpected method name: {method.Name}")
+			};
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -37,7 +46,8 @@ namespace Xunit.Analyzers
 						SymbolDisplayFormat
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
-					)
+					),
+					replacement
 				)
 			);
 		}

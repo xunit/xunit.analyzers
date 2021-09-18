@@ -20,20 +20,19 @@ namespace Xunit.Analyzers
 
 	public static class Descriptors
 	{
-		static ConcurrentDictionary<Category, string> categoryMapping = new();
+		static readonly ConcurrentDictionary<Category, string> categoryMapping = new();
 
 		static DiagnosticDescriptor Rule(
 			string id,
 			string title,
 			Category category,
 			DiagnosticSeverity defaultSeverity,
-			string messageFormat,
-			string description = null)
+			string messageFormat)
 		{
 			var helpLink = $"https://xunit.net/xunit.analyzers/rules/{id}";
-			var isEnabledByDefault = true;
+			var categoryString = categoryMapping.GetOrAdd(category, c => c.ToString());
 
-			return new DiagnosticDescriptor(id, title, messageFormat, categoryMapping.GetOrAdd(category, c => c.ToString()), defaultSeverity, isEnabledByDefault, description, helpLink);
+			return new DiagnosticDescriptor(id, title, messageFormat, categoryString, defaultSeverity, isEnabledByDefault: true, helpLinkUri: helpLink);
 		}
 
 		public static DiagnosticDescriptor X1000_TestClassMustBePublic { get; } =
@@ -42,7 +41,7 @@ namespace Xunit.Analyzers
 				"Test classes must be public",
 				Usage,
 				Error,
-				"Test classes must be public"
+				"Test classes must be public. Add or change the visibility modifier of the test class to public."
 			);
 
 		public static DiagnosticDescriptor X1001_FactMethodMustNotHaveParameters { get; } =
@@ -51,8 +50,7 @@ namespace Xunit.Analyzers
 				"Fact methods cannot have parameters",
 				Usage,
 				Error,
-				"Fact methods cannot have parameters",
-				"Remove the parameters from the method or convert it into a Theory."
+				"Fact methods cannot have parameters. Remove the parameters from the method or convert it into a Theory."
 			);
 
 		public static DiagnosticDescriptor X1002_TestMethodMustNotHaveMultipleFactAttributes { get; } =
@@ -61,7 +59,7 @@ namespace Xunit.Analyzers
 				"Test methods cannot have multiple Fact or Theory attributes",
 				Usage,
 				Error,
-				"Test methods cannot have multiple Fact or Theory attributes"
+				"Test methods cannot have multiple Fact or Theory attributes. Remove all but one of the attributes."
 			);
 
 		public static DiagnosticDescriptor X1003_TheoryMethodMustHaveTestData { get; } =
@@ -70,8 +68,7 @@ namespace Xunit.Analyzers
 				"Theory methods must have test data",
 				Usage,
 				Error,
-				"Theory methods must have test data",
-				"Use InlineData, MemberData, or ClassData to provide test data for the Theory"
+				"Theory methods must have test data. Use InlineData, MemberData, or ClassData to provide test data for the Theory."
 			);
 
 		public static DiagnosticDescriptor X1004_TestMethodShouldNotBeSkipped { get; } =
@@ -80,7 +77,7 @@ namespace Xunit.Analyzers
 				"Test methods should not be skipped",
 				Usage,
 				Info,
-				"Test methods should not be skipped"
+				"Test methods should not be skipped. Remove the Skip property to start running the test again."
 			);
 
 		public static DiagnosticDescriptor X1005_FactMethodShouldNotHaveTestData { get; } =
@@ -89,7 +86,7 @@ namespace Xunit.Analyzers
 				"Fact methods should not have test data",
 				Usage,
 				Warning,
-				"Fact methods should not have test data"
+				"Fact methods should not have test data. Remove the test data, or convert the Fact to a Theory."
 			);
 
 		public static DiagnosticDescriptor X1006_TheoryMethodShouldHaveParameters { get; } =
@@ -98,7 +95,7 @@ namespace Xunit.Analyzers
 				"Theory methods should have parameters",
 				Usage,
 				Warning,
-				"Theory methods should have parameters"
+				"Theory methods should have parameters. Add parameter(s) to the theory method."
 			);
 
 		public static DiagnosticDescriptor X1007_ClassDataAttributeMustPointAtValidClass { get; } =
@@ -107,8 +104,7 @@ namespace Xunit.Analyzers
 				"ClassData must point at a valid class",
 				Usage,
 				Error,
-				"ClassData must point at a valid class",
-				"The class {0} must be public, not sealed, with an empty constructor, and implement IEnumerable<object[]>."
+				"ClassData must point at a valid class. The class {0} must be public, not sealed, with an empty constructor, and implement IEnumerable<object[]>."
 			);
 
 		public static DiagnosticDescriptor X1008_DataAttributeShouldBeUsedOnATheory { get; } =
@@ -117,7 +113,7 @@ namespace Xunit.Analyzers
 				"Test data attribute should only be used on a Theory",
 				Usage,
 				Warning,
-				"Test data attribute should only be used on a Theory"
+				"Test data attribute should only be used on a Theory. Remove the test data, or add the Theory attribute to the test method."
 			);
 
 		public static DiagnosticDescriptor X1009_InlineDataMustMatchTheoryParameters_TooFewValues { get; } =
@@ -126,7 +122,7 @@ namespace Xunit.Analyzers
 				"InlineData values must match the number of method parameters",
 				Usage,
 				Error,
-				"InlineData values must match the number of method parameters"
+				"InlineData values must match the number of method parameters. Remove unused parameters, or add more data for the missing parameters."
 			);
 
 		public static DiagnosticDescriptor X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType { get; } =
@@ -135,7 +131,7 @@ namespace Xunit.Analyzers
 				"The value is not convertible to the method parameter type",
 				Usage,
 				Error,
-				"The value is not convertible to the method parameter '{0}' of type '{1}'."
+				"The value is not convertible to the method parameter '{0}' of type '{1}'. Use a compatible data value."
 			);
 
 		public static DiagnosticDescriptor X1011_InlineDataMustMatchTheoryParameters_ExtraValue { get; } =
@@ -144,7 +140,7 @@ namespace Xunit.Analyzers
 				"There is no matching method parameter",
 				Usage,
 				Error,
-				"There is no matching method parameter for value: {0}."
+				"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
 			);
 
 		public static DiagnosticDescriptor X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
@@ -153,8 +149,7 @@ namespace Xunit.Analyzers
 				"Null should not be used for value type parameters",
 				Usage,
 				Warning,
-				"Null should not be used for value type parameter '{0}' of type '{1}'.",
-				"xUnit.net will execute the theory initializing the parameter to the default value of the type, which might not be the desired behavior"
+				"Null should not be used for value type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
 			);
 
 		public static DiagnosticDescriptor X1013_PublicMethodShouldBeMarkedAsTest { get; } =
@@ -163,9 +158,7 @@ namespace Xunit.Analyzers
 				"Public method should be marked as test",
 				Usage,
 				Warning,
-				"Public method '{0}' on test class '{1}' should be marked as a {2}.",
-				"Public methods on a test class that return void or Task should be marked as tests or have their accessibility reduced. While test methods do not have to be public, "
-					+ "having public non-test methods might indicate that a method was intended to be a test but the annotation was not applied."
+				"Public method '{0}' on test class '{1}' should be marked as a {2}. Reduce the visibility of the method, or add a {2} attribute to the method."
 			);
 
 		public static DiagnosticDescriptor X1014_MemberDataShouldUseNameOfOperator { get; } =
@@ -174,7 +167,7 @@ namespace Xunit.Analyzers
 				"MemberData should use nameof operator for member name",
 				Usage,
 				Warning,
-				"MemberData should use nameof operator to reference member '{0}' on type '{1}'."
+				"MemberData should use nameof operator to reference member '{0}' on type '{1}'. Replace the constant string with nameof."
 			);
 
 		public static DiagnosticDescriptor X1015_MemberDataMustReferenceExistingMember { get; } =
@@ -183,7 +176,7 @@ namespace Xunit.Analyzers
 				"MemberData must reference an existing member",
 				Usage,
 				Error,
-				"MemberData must reference an existing member '{0}' on type '{1}'."
+				"MemberData must reference an existing member '{0}' on type '{1}'. Fix the member reference, or add the missing data member."
 			);
 
 		public static DiagnosticDescriptor X1016_MemberDataMustReferencePublicMember { get; } =
@@ -192,7 +185,7 @@ namespace Xunit.Analyzers
 				"MemberData must reference a public member",
 				Usage,
 				Error,
-				"MemberData must reference a public member"
+				"MemberData must reference a public member. Add or change the visibility of the data member to public."
 			);
 
 		public static DiagnosticDescriptor X1017_MemberDataMustReferenceStaticMember { get; } =
@@ -201,7 +194,7 @@ namespace Xunit.Analyzers
 				"MemberData must reference a static member",
 				Usage,
 				Error,
-				"MemberData must reference a static member"
+				"MemberData must reference a static member. Add the static modifier to the data member."
 			);
 
 		public static DiagnosticDescriptor X1018_MemberDataMustReferenceValidMemberKind { get; } =
@@ -210,7 +203,7 @@ namespace Xunit.Analyzers
 				"MemberData must reference a valid member kind",
 				Usage,
 				Error,
-				"MemberData must reference a property, field, or method"
+				"MemberData must reference a property, field, or method. Convert the data member to a compatible member type."
 			);
 
 		public static DiagnosticDescriptor X1019_MemberDataMustReferenceMemberOfValidType { get; } =
@@ -237,8 +230,7 @@ namespace Xunit.Analyzers
 				"MemberData should not have parameters if the referenced member is not a method",
 				Usage,
 				Warning,
-				"MemberData should not have parameters if the referenced member is not a method",
-				"Additional MemberData parameters are only used for methods. They are ignored for fields and properties."
+				"MemberData should not have parameters if the referenced member is not a method. Remove the parameter values, or convert the data member to a method with parameters."
 			);
 
 		public static DiagnosticDescriptor X1022_TheoryMethodCannotHaveParameterArray { get; } =
@@ -247,8 +239,7 @@ namespace Xunit.Analyzers
 				"Theory methods cannot have a parameter array",
 				Usage,
 				Error,
-				"Theory method '{0}' on test class '{1}' cannot have a parameter array '{2}'.",
-				"Params array support was added in xUnit.net 2.2. Remove the parameter or upgrade the xUnit.net binaries."
+				"Theory method '{0}' on test class '{1}' cannot have a parameter array '{2}'. Upgrade to xUnit.net 2.2 or later to enable this feature."
 			);
 
 		public static DiagnosticDescriptor X1023_TheoryMethodCannotHaveDefaultParameter { get; } =
@@ -257,8 +248,7 @@ namespace Xunit.Analyzers
 				"Theory methods cannot have default parameter values",
 				Usage,
 				Error,
-				"Theory method '{0}' on test class '{1}' parameter '{2}' cannot have a default value.",
-				"Default parameter values support was added in xUnit.net 2.2. Remove the default value or upgrade the xUnit.net binaries."
+				"Theory method '{0}' on test class '{1}' parameter '{2}' cannot have a default value. Upgrade to xUnit.net 2.2 or later to enable this feature."
 			);
 
 		public static DiagnosticDescriptor X1024_TestMethodCannotHaveOverloads { get; } =
@@ -267,10 +257,7 @@ namespace Xunit.Analyzers
 				"Test methods cannot have overloads",
 				Usage,
 				Error,
-				"Test method '{0}' on test class '{1}' has the same name as another method declared on class '{2}'.",
-				"Test method overloads are not supported as most test runners cannot correctly invoke the appropriate overload. "
-					+ "This includes any combination of static and instance methods declared with any visibility in the same class or across a "
-					+ "class hierarchy. Rename one of the methods."
+				"Test method '{0}' on test class '{1}' has the same name as another method declared on class '{2}'. Rename method(s) so that there are no overloaded names."
 			);
 
 		public static DiagnosticDescriptor X1025_InlineDataShouldBeUniqueWithinTheory { get; } =
@@ -279,8 +266,7 @@ namespace Xunit.Analyzers
 				"InlineData should be unique within the Theory it belongs to",
 				Usage,
 				Warning,
-				"Theory method '{0}' on test class '{1}' has InlineData duplicate(s).",
-				"Theory should have all InlineData elements unique. Remove redundant attribute(s) from the theory method."
+				"Theory method '{0}' on test class '{1}' has InlineData duplicate(s). Remove redundant attribute(s) from the theory method."
 			);
 
 		public static DiagnosticDescriptor X1026_TheoryMethodShouldUseAllParameters { get; } =
@@ -289,7 +275,7 @@ namespace Xunit.Analyzers
 				"Theory methods should use all of their parameters",
 				Usage,
 				Warning,
-				"Theory method '{0}' on test class '{1}' does not use parameter '{2}'."
+				"Theory method '{0}' on test class '{1}' does not use parameter '{2}'. Use the parameter, or remove the parameter and associated data."
 			);
 
 		public static DiagnosticDescriptor X1027_CollectionDefinitionClassMustBePublic { get; } =
@@ -298,7 +284,7 @@ namespace Xunit.Analyzers
 				"Collection definition classes must be public",
 				Usage,
 				Error,
-				"Collection definition classes must be public"
+				"Collection definition classes must be public. Add or change the visibility modifier of the collection definition class to public."
 			);
 
 		// Placeholder for rule X1028
@@ -331,7 +317,7 @@ namespace Xunit.Analyzers
 				"Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture",
 				Usage,
 				Info,
-				"Test class '{0}' does not contain constructor argument of type '{1}'."
+				"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
 			);
 
 		public static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
@@ -340,8 +326,7 @@ namespace Xunit.Analyzers
 				"Constants and literals should be the expected argument",
 				Assertions,
 				Warning,
-				"The literal or constant value {0} should be passed as the 'expected' argument in the call to '{1}' in method '{2}' on type '{3}'.",
-				"The xUnit.net Assertion library produces the best error messages if the expected value is passed in as the expected argument."
+				"The literal or constant value {0} should be passed as the 'expected' argument in the call to '{1}' in method '{2}' on type '{3}'. Swap the parameter values."
 			);
 
 		public static DiagnosticDescriptor X2001_AssertEqualsShouldNotBeUsed { get; } =
@@ -350,7 +335,7 @@ namespace Xunit.Analyzers
 				"Do not use invalid equality check",
 				Assertions,
 				Hidden,
-				"Do not use {0}."
+				"Do not use {0}. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2002_AssertNullShouldNotBeCalledOnValueTypes { get; } =
@@ -359,7 +344,7 @@ namespace Xunit.Analyzers
 				"Do not use null check on value type",
 				Assertions,
 				Warning,
-				"Do not use {0} on value type '{1}'."
+				"Do not use {0} on value type '{1}'. Remove this assert."
 			);
 
 		public static DiagnosticDescriptor X2003_AssertEqualShouldNotUsedForNullCheck { get; } =
@@ -368,7 +353,7 @@ namespace Xunit.Analyzers
 				"Do not use equality check to test for null value",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for null value."
+				"Do not use {0} to check for null value. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2004_AssertEqualShouldNotUsedForBoolLiteralCheck { get; } =
@@ -377,7 +362,7 @@ namespace Xunit.Analyzers
 				"Do not use equality check to test for boolean conditions",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for boolean conditions."
+				"Do not use {0} to check for boolean conditions. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2005_AssertSameShouldNotBeCalledOnValueTypes { get; } =
@@ -386,8 +371,7 @@ namespace Xunit.Analyzers
 				"Do not use identity check on value type",
 				Assertions,
 				Warning,
-				"Do not use {0} on value type '{1}'.",
-				"The value type will be boxed which means its identity will always be different."
+				"Do not use {0} on value type '{1}'. Value types do not have identity. Use Assert.{2} instead."
 			);
 
 		public static DiagnosticDescriptor X2006_AssertEqualGenericShouldNotBeUsedForStringValue { get; } =
@@ -396,7 +380,7 @@ namespace Xunit.Analyzers
 				"Do not use invalid string equality check",
 				Assertions,
 				Warning,
-				"Do not use {0} to test for string equality."
+				"Do not use {0} to test for string equality. Use {1} instead."
 			);
 
 		public static DiagnosticDescriptor X2007_AssertIsTypeShouldUseGenericOverload { get; } =
@@ -405,7 +389,7 @@ namespace Xunit.Analyzers
 				"Do not use typeof expression to check the type",
 				Assertions,
 				Warning,
-				"Do not use typeof({0}) expression to check the type."
+				"Do not use typeof({0}) expression to check the type. Use Assert.IsType<{0}> instead."
 			);
 
 		public static DiagnosticDescriptor X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck { get; } =
@@ -414,7 +398,7 @@ namespace Xunit.Analyzers
 				"Do not use boolean check to match on regular expressions",
 				Assertions,
 				Warning,
-				"Do not use {0} to match on regular expressions."
+				"Do not use {0} to match on regular expressions. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2009_AssertSubstringCheckShouldNotUseBoolCheck { get; } =
@@ -423,7 +407,7 @@ namespace Xunit.Analyzers
 				"Do not use boolean check to check for substrings",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for substrings."
+				"Do not use {0} to check for substrings. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer { get; } =
@@ -432,7 +416,7 @@ namespace Xunit.Analyzers
 				"Do not use boolean check to check for string equality",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for string equality."
+				"Do not use {0} to check for string equality. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2011_AssertEmptyCollectionCheckShouldNotBeUsed { get; } =
@@ -441,16 +425,16 @@ namespace Xunit.Analyzers
 				"Do not use empty collection check",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for empty collections."
+				"Do not use {0} to check for empty collections. Add element inspectors (for non-empty collections), or use Assert.Empty (for empty collections) instead."
 			);
 
 		public static DiagnosticDescriptor X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck { get; } =
 			Rule(
 				"xUnit2012",
-				"Do not use Enumerable.Any() to check if a value exists in a collection",
+				"Do not use boolean check to check if a value exists in a collection",
 				Assertions,
 				Warning,
-				"Do not use Enumerable.Any() to check if a value exists in a collection."
+				"Do not use {0} to check if a value exists in a collection. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck { get; } =
@@ -459,7 +443,7 @@ namespace Xunit.Analyzers
 				"Do not use equality check to check for collection size.",
 				Assertions,
 				Warning,
-				"Do not use {0} to check for collection size."
+				"Do not use {0} to check for collection size. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
@@ -468,7 +452,7 @@ namespace Xunit.Analyzers
 				"Do not use throws check to check for asynchronously thrown exception",
 				Assertions,
 				Error,
-				"Do not use {0} to check for asynchronously thrown exceptions."
+				"Do not use {0} to check for asynchronously thrown exceptions. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2015_AssertThrowsShouldUseGenericOverload { get; } =
@@ -477,7 +461,7 @@ namespace Xunit.Analyzers
 				"Do not use typeof expression to check the exception type",
 				Assertions,
 				Warning,
-				"Do not use typeof() expression to check the exception type."
+				"Do not use typeof({1}) expression to check the exception type. Use Assert.{0}<{1}> instead."
 			);
 
 		public static DiagnosticDescriptor X2016_AssertEqualPrecisionShouldBeInRange { get; } =
@@ -495,7 +479,7 @@ namespace Xunit.Analyzers
 				"Do not use Contains() to check if a value exists in a collection",
 				Assertions,
 				Warning,
-				"Do not use Contains() to check if a value exists in a collection."
+				"Do not use {0} to check if a value exists in a collection. Use Assert.{1} instead."
 			);
 
 		public static DiagnosticDescriptor X2018_AssertIsTypeShouldNotBeUsedForAbstractType { get; } =
@@ -504,18 +488,12 @@ namespace Xunit.Analyzers
 				"Do not compare an object's exact type to an abstract class or interface",
 				Assertions,
 				Warning,
-				"Do not compare an object's exact type to the {0} '{1}'."
+				"Do not compare an object's exact type to the {0} '{1}'. Use Assert.IsAssignableFrom instead."
 			);
 
 		[Obsolete("This check was unnecessary, as it's already covered by xUnit2014", error: true)]
-		public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck { get; } =
-			Rule(
-				"xUnit2019",
-				"Do not use obsolete throws check to check for asynchronously thrown exception",
-				Assertions,
-				Hidden,
-				"Do not use obsolete {0} to check for asynchronously thrown exceptions."
-			);
+		public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
+			=> throw new NotImplementedException();
 
 		// Placeholder for rule X2020
 
@@ -543,7 +521,7 @@ namespace Xunit.Analyzers
 				"Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject",
 				Extensibility,
 				Error,
-				"Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject"
+				"Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject."
 			);
 
 		public static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =
@@ -552,7 +530,7 @@ namespace Xunit.Analyzers
 				"Classes that implement Xunit.Abstractions.IXunitSerializable must have a public parameterless constructor",
 				Extensibility,
 				Error,
-				"Class {0} must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable"
+				"Class {0} must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable."
 			);
 
 		// Placeholder for rule X3002

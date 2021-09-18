@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertCollectionContainsShouldNotUseBoolCheck>;
 
 public class AssertCollectionContainsShouldNotUseBoolCheckTests
@@ -29,7 +30,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 40 + collection.Length)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -48,7 +49,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 41 + collection.Length)
-				.WithArguments("Assert.False()");
+				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -69,7 +70,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 40 + enumerable.Length)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -90,7 +91,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 98 + enumerable.Length)
-				.WithArguments("Assert.True()");
+				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -111,7 +112,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 41 + enumerable.Length)
-				.WithArguments("Assert.False()");
+				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
@@ -132,7 +133,7 @@ class TestClass {{
 			Verify
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 99 + enumerable.Length)
-				.WithArguments("Assert.False()");
+				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}

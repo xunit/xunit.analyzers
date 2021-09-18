@@ -25,12 +25,7 @@ namespace Xunit.Analyzers
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 			var diagnostic = context.Diagnostics.First();
-			var replacement = diagnostic.Properties[Constants.Properties.MethodName] switch
-			{
-				nameof(object.Equals) => Constants.Asserts.Equal,
-				nameof(object.ReferenceEquals) => Constants.Asserts.Same,
-				_ => null,
-			};
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 
 			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
 			{

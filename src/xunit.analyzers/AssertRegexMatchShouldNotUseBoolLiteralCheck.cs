@@ -41,9 +41,15 @@ namespace Xunit.Analyzers
 			if (!regexIsMatchSymbols.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 				return;
 
+			var replacement =
+				method.Name == Constants.Asserts.True
+					? Constants.Asserts.Matches
+					: Constants.Asserts.DoesNotMatch;
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.IsStatic] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -56,7 +62,8 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
 		}

@@ -68,10 +68,16 @@ namespace Xunit.Analyzers
 				ignoreCase = stringComparison == StringComparison.OrdinalIgnoreCase ? bool.TrueString : bool.FalseString;
 			}
 
+			var replacement =
+				method.Name == Constants.Asserts.True
+					? Constants.Asserts.Equal
+					: Constants.Asserts.NotEqual;
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
 			builder[Constants.Properties.IsStaticMethodCall] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;
 			builder[Constants.Properties.IgnoreCase] = ignoreCase;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -84,7 +90,8 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
 		}

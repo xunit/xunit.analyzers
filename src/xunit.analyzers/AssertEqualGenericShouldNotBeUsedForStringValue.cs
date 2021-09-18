@@ -34,13 +34,21 @@ namespace Xunit.Analyzers
 				!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_String)))
 				return;
 
-			var invalidUsageDescription = method.Name == Constants.Asserts.Equal ? "generic Assert.Equal overload" : "Assert.StrictEqual";
+			var invalidUsageDescription =
+				method.Name == Constants.Asserts.Equal
+					? "Assert.Equal<string>"
+					: "Assert.StrictEqual";
+			var replacement =
+				method.Name == Constants.Asserts.Equal
+					? "non-generic Assert.Equal"
+					: "Assert.Equal";
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue,
 					invocationOperation.Syntax.GetLocation(),
-					invalidUsageDescription
+					invalidUsageDescription,
+					replacement
 				)
 			);
 		}

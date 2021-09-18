@@ -29,17 +29,25 @@ namespace Xunit.Analyzers
 			if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 				return;
 
+			var replacement = method.Name + "Async";
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-				Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck,
-				invocationOperation.Syntax.GetLocation(),
-				builder.ToImmutable(),
-				SymbolDisplay.ToDisplayString(
-					method,
-					SymbolDisplayFormat.CSharpShortErrorMessageFormat.WithParameterOptions(SymbolDisplayParameterOptions.None).WithGenericsOptions(SymbolDisplayGenericsOptions.None))
+					Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck,
+					invocationOperation.Syntax.GetLocation(),
+					builder.ToImmutable(),
+					SymbolDisplay.ToDisplayString(
+						method,
+						SymbolDisplayFormat
+							.CSharpShortErrorMessageFormat
+							.WithParameterOptions(SymbolDisplayParameterOptions.None)
+							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
+					),
+					replacement
 				)
 			);
 		}

@@ -28,8 +28,8 @@ namespace Xunit.Analyzers
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 			var diagnostic = context.Diagnostics.First();
-			var assertMethodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var replacement = assertMethodName == Constants.Asserts.True ? Constants.Asserts.Contains : Constants.Asserts.DoesNotContain;
+			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
+			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
 			var title = string.Format(titleTemplate, replacement);
 
 			context.RegisterCodeFix(

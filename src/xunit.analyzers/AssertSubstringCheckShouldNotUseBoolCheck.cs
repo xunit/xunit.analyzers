@@ -37,7 +37,7 @@ namespace Xunit.Analyzers
 			if (arguments.Length != 1)
 				return;
 
-			if (!(arguments[0].Value is IInvocationOperation invocationExpression))
+			if (arguments[0].Value is not IInvocationOperation invocationExpression)
 				return;
 
 			var methodSymbol = invocationExpression.TargetMethod;
@@ -47,9 +47,12 @@ namespace Xunit.Analyzers
 			if (methodSymbol.Name != Constants.Asserts.Contains && method.Name == Constants.Asserts.False)
 				return;
 
+			var replacement = GetReplacementMethodName(method.Name, methodSymbol.Name);
+
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
 			builder[Constants.Properties.SubstringMethodName] = methodSymbol.Name;
+			builder[Constants.Properties.Replacement] = replacement;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -62,9 +65,19 @@ namespace Xunit.Analyzers
 							.CSharpShortErrorMessageFormat
 							.WithParameterOptions(SymbolDisplayParameterOptions.None)
 							.WithGenericsOptions(SymbolDisplayGenericsOptions.None)
-					)
+					),
+					replacement
 				)
 			);
+		}
+		static string GetReplacementMethodName(
+			string assertMethodName,
+			string substringMethodName)
+		{
+			if (substringMethodName == nameof(string.Contains))
+				return assertMethodName == Constants.Asserts.True ? Constants.Asserts.Contains : Constants.Asserts.DoesNotContain;
+
+			return substringMethodName;
 		}
 	}
 }
