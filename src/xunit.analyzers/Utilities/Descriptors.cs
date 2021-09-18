@@ -225,10 +225,10 @@ namespace Xunit.Analyzers
 		public static DiagnosticDescriptor X1020_MemberDataPropertyMustHaveGetter { get; } =
 			Rule(
 				"xUnit1020",
-				"MemberData must reference a property with a getter",
+				"MemberData must reference a property with a public getter",
 				Usage,
 				Error,
-				"MemberData must reference a property with a getter"
+				"MemberData must reference a property with a public getter. Add a public getter to the data member, or change the visibility of the existing getter to public."
 			);
 
 		public static DiagnosticDescriptor X1021_MemberDataNonMethodShouldNotHaveParameters { get; } =

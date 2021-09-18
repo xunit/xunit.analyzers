@@ -353,6 +353,28 @@ public class TestClass {
 	}
 
 	[Theory]
+	[InlineData("internal")]
+	[InlineData("protected")]
+	[InlineData("private")]
+	public async void FindsError_ForMemberPropertyWithNonPublicGetter(string visibility)
+	{
+		var source = $@"
+public class TestClass {{
+    public static System.Collections.Generic.IEnumerable<object[]> Data {{ {visibility} get {{ return null; }} set {{ }} }}
+
+    [Xunit.MemberData(nameof(Data))]
+    public void TestMethod() {{ }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic("xUnit1020")
+				.WithSpan(5, 6, 5, 36)
+				.WithSeverity(DiagnosticSeverity.Error);
+
+		await Verify.VerifyAnalyzerAsync(source, expected);
+	}
+
+	[Theory]
 	[InlineData("'a', 123")]
 	[InlineData("new object[] { 'a', 123 }")]
 	[InlineData("parameters: new object[] { 'a', 123 }")]

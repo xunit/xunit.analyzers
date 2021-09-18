@@ -153,14 +153,16 @@ namespace Xunit.Analyzers
 								)
 							);
 						}
-						if (memberSymbol.Kind == SymbolKind.Property && ((IPropertySymbol)memberSymbol).GetMethod == null)
+						if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
 						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-									attribute.GetLocation()
-								)
-							);
+							var getMethod = ((IPropertySymbol)memberSymbol).GetMethod;
+							if (getMethod == null || getMethod.DeclaredAccessibility != Accessibility.Public)
+								context.ReportDiagnostic(
+									Diagnostic.Create(
+										Descriptors.X1020_MemberDataPropertyMustHaveGetter,
+										attribute.GetLocation()
+									)
+								);
 						}
 						var extraArguments = attribute.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals == null).ToList();
 						if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
