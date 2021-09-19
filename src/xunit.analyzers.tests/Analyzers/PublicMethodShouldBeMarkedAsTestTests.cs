@@ -12,7 +12,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -26,7 +26,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -40,7 +40,7 @@ public class TestClass: System.IDisposable {
     public void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -54,7 +54,7 @@ public abstract class TestClass {
     public abstract void AbstractMethod();
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -69,7 +69,7 @@ public abstract class TestClass {
     public abstract void AbstractMethod();
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -87,7 +87,7 @@ public class TestClass: BaseClass {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -105,7 +105,7 @@ public class TestClass: BaseClass, System.IDisposable {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -125,7 +125,7 @@ public class TestClass: IntermediateClass {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -147,7 +147,7 @@ public class TestClass: Xunit.IAsyncLifetime {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -167,7 +167,7 @@ public class TestClass {
     public void CustomTestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -195,7 +195,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("CustomTestMethod", "TestClass", "Fact");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -217,7 +217,7 @@ public class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("Method", "TestClass", "Fact");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -239,7 +239,7 @@ public class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("Method", "TestClass", "Theory");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -260,6 +260,6 @@ public class TestClass {{
 				.WithSpan(6, 26, 6, 32)
 				.WithMessage("'TestClass.Method()': no suitable method found to override");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

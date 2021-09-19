@@ -25,7 +25,7 @@ public partial class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(new[] { source, sharedCode });
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source, sharedCode });
 	}
 
 	[Fact]
@@ -37,7 +37,7 @@ public partial class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(new[] { source, sharedCode });
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source, sharedCode });
 	}
 
 	[Fact]
@@ -54,7 +54,7 @@ public partial class TestClass {
 				.WithSpan(3, 23, 3, 29)
 				.WithArguments("Data", "TestClass");
 
-		await Verify.VerifyAnalyzerAsync(new[] { source, sharedCode }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source, sharedCode }, expected);
 	}
 
 	[Fact]
@@ -71,7 +71,7 @@ public partial class TestClass {
 				.WithSpan(3, 23, 3, 34)
 				.WithArguments("OtherData", "OtherClass");
 
-		await Verify.VerifyAnalyzerAsync(new[] { source, sharedCode }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source, sharedCode }, expected);
 	}
 
 	[Fact]
@@ -89,7 +89,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("BogusName", "TestClass");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -107,7 +107,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("BogusName", "TestClass");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -126,7 +126,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("BogusName", "OtherClass");
 
-		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
 	}
 
 	[Fact]
@@ -145,7 +145,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("TestMethod", "OtherClass");
 
-		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
 	}
 
 	[Theory]
@@ -169,7 +169,7 @@ public class TestClass {{
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -183,7 +183,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -216,7 +216,7 @@ public class TestClass {{
 				.WithSpan(8, 6, 8, 24 + dataNameExpressionLength)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
 	}
 
 	[Fact]
@@ -235,7 +235,7 @@ public class TestClass {
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -249,7 +249,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -271,7 +271,7 @@ public class TestClass {{
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -288,7 +288,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -313,7 +313,7 @@ public class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("System.Collections.Generic.IEnumerable<object[]>", memberType);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -330,7 +330,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -349,7 +349,7 @@ public class TestClass {
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -371,7 +371,7 @@ public class TestClass {{
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -393,7 +393,7 @@ public class TestClass {{
 				.WithSpan(5, 37, 5, 37 + paramsArgument.Length)
 				.WithSeverity(DiagnosticSeverity.Warning);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -415,7 +415,7 @@ public class TestClass {{
 				.WithSpan(5, 37, 5, 37 + paramsArgument.Length)
 				.WithSeverity(DiagnosticSeverity.Warning);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -429,7 +429,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 
@@ -446,7 +446,7 @@ public class TestClass {
     public void TestMethod(int n) { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -466,6 +466,6 @@ public class TestClass : TestClassBase {
     public void TestMethod(int n) { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 }

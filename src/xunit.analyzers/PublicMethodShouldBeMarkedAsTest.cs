@@ -56,7 +56,7 @@ namespace Xunit.Analyzers
 						continue;
 
 					var attributes = method.GetAttributes();
-					var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
+					var isTestMethod = attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType);
 					hasTestMethods = hasTestMethods || isTestMethod;
 
 					if (isTestMethod ||

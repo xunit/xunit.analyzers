@@ -12,7 +12,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -28,7 +28,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -44,7 +44,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -63,6 +63,6 @@ public class TestClass {{
 				.Diagnostic()
 				.WithSpan(4, 17, 4, 27);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

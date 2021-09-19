@@ -44,7 +44,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
+				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.V2Core.MemberDataAttributeType))
 					return;
 
 				var propertyAttributeParameters =

@@ -31,6 +31,6 @@ class TestClass {{
 				.WithArguments($"Assert.{method}()", replacement),
 		};
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

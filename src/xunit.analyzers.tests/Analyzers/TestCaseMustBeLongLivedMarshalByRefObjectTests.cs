@@ -36,7 +36,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class Foo { }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -44,7 +44,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class MyTestCase: Xunit.Sdk.XunitTestCase { }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -55,7 +55,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = string.Format(Template, $"{baseClass}, {@interface}");
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -69,7 +69,7 @@ public class MyTestCase: {0} {{ }}";
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -83,6 +83,6 @@ public class MyTestCase: {0} {{ }}";
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

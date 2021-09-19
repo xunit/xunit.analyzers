@@ -24,7 +24,7 @@ namespace Xunit.Analyzers
 
 				var doesClassContainCollectionDefinitionAttribute = classSymbol
 					.GetAttributes()
-					.Any(a => xunitContext.Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
+					.Any(a => xunitContext.V2Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
 
 				if (!doesClassContainCollectionDefinitionAttribute)
 					return;

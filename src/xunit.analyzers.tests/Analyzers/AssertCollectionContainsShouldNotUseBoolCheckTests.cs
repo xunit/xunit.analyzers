@@ -32,7 +32,7 @@ class TestClass {{
 				.WithSpan(4, 9, 4, 40 + collection.Length)
 				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -51,7 +51,7 @@ class TestClass {{
 				.WithSpan(4, 9, 4, 41 + collection.Length)
 				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -72,7 +72,7 @@ class TestClass {{
 				.WithSpan(6, 9, 6, 40 + enumerable.Length)
 				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -93,7 +93,7 @@ class TestClass {{
 				.WithSpan(6, 9, 6, 98 + enumerable.Length)
 				.WithArguments("Assert.True()", Constants.Asserts.Contains);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -114,7 +114,7 @@ class TestClass {{
 				.WithSpan(6, 9, 6, 41 + enumerable.Length)
 				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -135,7 +135,7 @@ class TestClass {{
 				.WithSpan(6, 9, 6, 99 + enumerable.Length)
 				.WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -149,7 +149,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -163,7 +163,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -179,7 +179,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -195,7 +195,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -212,7 +212,7 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -227,6 +227,6 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 }

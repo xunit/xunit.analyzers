@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodCannotHaveDefaultParameter>;
-using Verify_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterTests.Analyzer_Pre220>;
+using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterTests.Analyzer_v2_Pre220>;
 
 public class TheoryMethodCannotHaveDefaultParameterTests
 {
@@ -16,13 +17,13 @@ class TestClass {
     public void TestMethod(int a, string b, string c = """") { }
 }";
 		var expected =
-			Verify_Pre220
+			Verify_v2_Pre220
 				.Diagnostic()
 				.WithSpan(4, 54, 4, 58)
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("TestMethod", "TestClass", "c");
 
-		await Verify_Pre220.VerifyAnalyzerAsync(source, expected);
+		await Verify_v2_Pre220.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Fact]
@@ -34,13 +35,12 @@ class TestClass {
     public void TestMethod(int a, string b, string c = """") { }
 }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
-	internal class Analyzer_Pre220 : TheoryMethodCannotHaveDefaultParameter
+	internal class Analyzer_v2_Pre220 : TheoryMethodCannotHaveDefaultParameter
 	{
-		public Analyzer_Pre220()
-			: base("2.1.999")
-		{ }
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2(compilation, new Version(2, 1, 999));
 	}
 }

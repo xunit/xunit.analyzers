@@ -27,7 +27,7 @@ public class TestClass {
     public void TestMethod2() { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -43,6 +43,6 @@ public class TestClass {
     internal void TestMethod2() { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after, 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, 1);
 	}
 }

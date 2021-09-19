@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
-				if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+				if (!xunitContext.V2Core.FactAttributeType.IsAssignableFrom(attributeType))
 					return;
 
 				context.ReportDiagnostic(

@@ -21,11 +21,11 @@ namespace Xunit.Analyzers
 				if (namedType.TypeKind != TypeKind.Class)
 					return;
 
-				var isTestCase = xunitContext.Abstractions.ITestCaseType?.IsAssignableFrom(namedType) ?? false;
+				var isTestCase = xunitContext.V2Abstractions.ITestCaseType?.IsAssignableFrom(namedType) ?? false;
 				if (!isTestCase)
 					return;
 
-				var hasMBRO = xunitContext.Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(namedType) ?? false;
+				var hasMBRO = xunitContext.V2Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(namedType) ?? false;
 				if (hasMBRO)
 					return;
 
@@ -40,6 +40,6 @@ namespace Xunit.Analyzers
 		}
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.HasAbstractionsReference && xunitContext.HasExecutionReference;
+			xunitContext.V2Abstractions != null && xunitContext.V2Execution != null;
 	}
 }

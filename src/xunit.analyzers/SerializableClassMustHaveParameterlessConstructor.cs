@@ -21,7 +21,7 @@ namespace Xunit.Analyzers
 				if (namedType.TypeKind != TypeKind.Class)
 					return;
 
-				var isXunitSerializable = xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) ?? false;
+				var isXunitSerializable = xunitContext.V2Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) ?? false;
 				if (!isXunitSerializable)
 					return;
 
@@ -40,6 +40,6 @@ namespace Xunit.Analyzers
 		}
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.HasAbstractionsReference;
+			xunitContext.V2Abstractions != null;
 	}
 }

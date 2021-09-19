@@ -29,7 +29,7 @@ public class TestClass: {@interface}<FixtureData> {{
 				.WithSpan(4, 14, 4, 23)
 				.WithArguments("TestClass", "FixtureData");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -48,6 +48,6 @@ public class TestClass: {@interface}<FixtureData> {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 }

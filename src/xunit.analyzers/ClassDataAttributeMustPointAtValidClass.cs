@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
+				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.V2Core.ClassDataAttributeType))
 					return;
 
 				var classType = (INamedTypeSymbol)semanticModel.GetTypeInfo(argumentExpression.Type).Type;

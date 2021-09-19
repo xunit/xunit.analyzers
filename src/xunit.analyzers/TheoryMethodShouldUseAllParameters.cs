@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 
 				var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
 				var attributes = methodSymbol.GetAttributes();
-				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
 					return;
 
 				AnalyzeTheoryParameters(context, methodSyntax, methodSymbol);

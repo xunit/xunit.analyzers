@@ -36,7 +36,7 @@ namespace Xunit.Analyzers
 
 					var methods = grouping.ToList();
 					var methodName = grouping.Key;
-					if (methods.Count == 1 || !methods.Any(m => m.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType)))
+					if (methods.Count == 1 || !methods.Any(m => m.GetAttributes().ContainsAttributeType(xunitContext.V2Core.FactAttributeType)))
 						continue;
 
 					var methodsWithoutOverloads = new List<IMethodSymbol>(methods.Count);

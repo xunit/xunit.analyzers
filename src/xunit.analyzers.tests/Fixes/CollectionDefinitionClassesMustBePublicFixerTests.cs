@@ -16,7 +16,7 @@ public class CollectionDefinitionClassesMustBePublicFixerTests
 [Xunit.CollectionDefinition(""MyCollection"")]
 public class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Theory]
@@ -36,6 +36,6 @@ public partial class CollectionDefinitionClass { }
 
 partial class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

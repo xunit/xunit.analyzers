@@ -24,16 +24,16 @@ public class CSharpVerifier<TAnalyzer>
 	public static DiagnosticResult CompilerError(string errorIdentifier) =>
 		new(errorIdentifier, DiagnosticSeverity.Error);
 
-	public static Task VerifyAnalyzerAsync(
+	public static Task VerifyAnalyzerAsyncV2(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsync(new[] { source }, diagnostics);
+			VerifyAnalyzerAsyncV2(new[] { source }, diagnostics);
 
-	public static Task VerifyAnalyzerAsync(
+	public static Task VerifyAnalyzerAsyncV2(
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		var test = new Test();
+		var test = new TestV2();
 
 		foreach (var source in sources)
 			test.TestState.Sources.Add(source);
@@ -42,32 +42,32 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyAnalyzerAsync(
+	public static Task VerifyAnalyzerAsyncV2(
 		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		var test = new Test();
+		var test = new TestV2();
 		test.TestState.Sources.AddRange(sources.Select(s => (s.filename, SourceText.From(s.content))));
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		return test.RunAsync();
 	}
 
-	public static Task VerifyCodeFixAsync(
+	public static Task VerifyCodeFixAsyncV2(
 		string before,
 		string after,
 		int? codeActionIndex = null) =>
-			new Test
+			new TestV2
 			{
 				TestCode = before,
 				FixedCode = after,
 				CodeActionIndex = codeActionIndex
 			}.RunAsync();
 
-	public class Test : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
+	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
 	{
-		public Test()
+		public TestV2()
 		{
-			ReferenceAssemblies = CodeAnalyzerHelper.CurrentXunit;
+			ReferenceAssemblies = CodeAnalyzerHelper.CurrentXunitV2;
 
 			// xunit diagnostics are reported in both normal and generated code
 			TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;

@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 					classSymbol
 						.GetMembers()
 						.OfType<IMethodSymbol>()
-						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+						.Any(m => m.GetAttributes().Any(a => xunitContext.V2Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;

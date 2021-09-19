@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
-using Verify_Pre240 = CSharpVerifier<InlineDataMustMatchTheoryParametersTests.Analyzer_Pre240>;
+using Verify_v2_Pre240 = CSharpVerifier<InlineDataMustMatchTheoryParametersTests.Analyzer_v2_Pre240>;
 
 public class InlineDataMustMatchTheoryParametersTests
 {
@@ -21,7 +22,7 @@ public class TestClass {
     public void TestMethod(params string[] args) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -34,7 +35,7 @@ public class TestClass {
     public void TestMethod(string first, params string[] args) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -47,7 +48,7 @@ public class TestClass {
     public void TestMethod(string first, params string[] args) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -60,7 +61,7 @@ public class TestClass {
     public void TestMethod(string a, int b, object c) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -73,7 +74,7 @@ public class TestClass {
     public void TestMethod(string a, string b = ""default"", string c = null) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -86,7 +87,7 @@ public class TestClass {
     public void TestMethod(string a, string b = ""default"", string c = null, params string[] d) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -99,7 +100,7 @@ public class TestClass {
     public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -115,7 +116,7 @@ public class TestClass {
                            [System.Runtime.InteropServices.Optional] string b) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -128,7 +129,7 @@ public class TestClass {
     public void TestMethod(string a, int b, object c) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -141,7 +142,7 @@ public class TestClass {
     public void TestMethod(string a, int b, object c) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -154,7 +155,7 @@ public class TestClass {
     public void TestMethod(string a, int b, object c) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -167,7 +168,7 @@ public class TestClass {
     public void TestMethod(string a, int b, object c) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -180,7 +181,7 @@ public class TestClass {
     public void TestMethod(byte[] input) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 	}
 
@@ -196,7 +197,7 @@ public class TestClass {
     public void TestMethod(string a) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Theory]
@@ -216,7 +217,7 @@ public class TestClass {{
 					.WithSpan(4, 6, 4, 6 + attribute.Length)
 					.WithSeverity(DiagnosticSeverity.Error);
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 
 		[Fact]
@@ -234,7 +235,7 @@ public class TestClass {
 					.WithSpan(4, 6, 4, 25)
 					.WithSeverity(DiagnosticSeverity.Error);
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 
 		[Fact]
@@ -252,7 +253,7 @@ public class TestClass {
 					.WithSpan(4, 6, 4, 25)
 					.WithSeverity(DiagnosticSeverity.Error);
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 	}
 
@@ -298,7 +299,7 @@ public class TestClass {{
     public void TestMethod({type} a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -314,7 +315,7 @@ public class TestClass {{
     public void TestMethod({type}? a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -335,7 +336,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", type);
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -349,7 +350,7 @@ public class TestClass {{
     public void TestMethod({type} a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -368,7 +369,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 63)
 						.WithArguments("a", type);
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -385,7 +386,7 @@ public class TestClass {{
     public void TestMethod(bool a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -399,7 +400,7 @@ public class TestClass {{
     public void TestMethod(bool? a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -422,7 +423,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "bool");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -440,7 +441,7 @@ public class TestClass {{
     public void TestMethod(char a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -455,7 +456,7 @@ public class TestClass {{
     public void TestMethod(char? a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -478,7 +479,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "char");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -494,7 +495,7 @@ public class TestClass {
     public void TestMethod(System.StringComparison a) { }
 }";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Fact]
@@ -507,7 +508,7 @@ public class TestClass {
     public void TestMethod(System.StringComparison? a) { }
 }";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -530,7 +531,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "System.StringComparison");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -548,7 +549,7 @@ public class TestClass {{
     public void TestMethod(System.Type a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -563,7 +564,7 @@ public class TestClass {{
     public void TestMethod(params System.Type[] a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -587,7 +588,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "System.Type");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -610,7 +611,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "System.Type");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -628,7 +629,7 @@ public class TestClass {{
     public void TestMethod(string a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -651,7 +652,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "string");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -670,7 +671,7 @@ public class TestClass {{
     public void TestMethod(System.IFormattable a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -692,7 +693,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "System.IFormattable");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 		}
 
@@ -715,7 +716,7 @@ public class TestClass {{
     public void TestMethod(object a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -735,7 +736,7 @@ public class TestClass {{
     public void TestMethod(params object[] a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 		}
 
@@ -758,7 +759,7 @@ public class TestClass {{
     public void TestMethod<T>(T a) {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -775,7 +776,7 @@ public class TestClass {{
     public void TestMethod<T>(T a) where T: struct {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -795,7 +796,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "T");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -811,7 +812,7 @@ public class TestClass {{
     public void TestMethod<T>(T a) where T: class {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -833,7 +834,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "T");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -849,7 +850,7 @@ public class TestClass {{
     public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
 }}";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -871,7 +872,7 @@ public class TestClass {{
 						.WithSpan(4, 23, 4, 23 + value.Length)
 						.WithArguments("a", "T");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Fact]
@@ -889,7 +890,7 @@ public class TestClass {
 						.WithSpan(4, 35, 4, 36)
 						.WithArguments("a", "T");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Fact]
@@ -902,7 +903,7 @@ public class TestClass {
     public void TestMethod<T>(T[] a) { }
 }";
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 		}
 
@@ -946,7 +947,7 @@ public class TestClass
 						.WithSpan(7, 23, 7, 23 + data.Length)
 						.WithArguments("parameter", parameterType);
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -955,7 +956,7 @@ public class TestClass
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTime");
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -964,7 +965,7 @@ public class TestClass
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -973,12 +974,12 @@ public class TestClass
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
 				var expected =
-					Verify_Pre240
+					Verify_v2_Pre240
 						.Diagnostic("xUnit1010")
 						.WithSpan(7, 23, 7, 23 + data.Length)
 						.WithArguments("parameter", "System.DateTimeOffset");
 
-				await Verify_Pre240.VerifyAnalyzerAsync(source, expected);
+				await Verify_v2_Pre240.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			static string CreateSourceWithStringConst(
@@ -1025,7 +1026,7 @@ public class TestClass
 						.WithSpan(7, 23, 7, 23 + data.Length)
 						.WithArguments("parameter", "System.Guid");
 
-				await Verify.VerifyAnalyzerAsync(source, expected);
+				await Verify.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			[Theory]
@@ -1034,7 +1035,7 @@ public class TestClass
 			{
 				var source = CreateSource(inlineData);
 
-				await Verify.VerifyAnalyzerAsync(source);
+				await Verify.VerifyAnalyzerAsyncV2(source);
 			}
 
 			[Theory]
@@ -1043,12 +1044,12 @@ public class TestClass
 			{
 				var source = CreateSource(data);
 				var expected =
-					Verify_Pre240
+					Verify_v2_Pre240
 						.Diagnostic("xUnit1010")
 						.WithSpan(5, 23, 5, 23 + data.Length)
 						.WithArguments("parameter", "System.Guid");
 
-				await Verify_Pre240.VerifyAnalyzerAsync(source, expected);
+				await Verify_v2_Pre240.VerifyAnalyzerAsyncV2(source, expected);
 			}
 
 			static string CreateSource(string data) => $@"
@@ -1117,7 +1118,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Fact]
@@ -1143,7 +1144,7 @@ public class TestClass {
 						.WithArguments("\"abc\""),
 				};
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 	}
 
@@ -1159,7 +1160,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Theory]
@@ -1180,7 +1181,7 @@ public class TestClass {{
 					.WithSeverity(DiagnosticSeverity.Warning)
 					.WithArguments("a", "int");
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 
 		[Theory]
@@ -1207,7 +1208,7 @@ public class TestClass {{
 						.WithArguments("c", type),
 				};
 
-			await Verify.VerifyAnalyzerAsync(source, expected);
+			await Verify.VerifyAnalyzerAsyncV2(source, expected);
 		}
 
 		[Theory]
@@ -1221,7 +1222,7 @@ public class TestClass {{
     public void TestMethod(int a, {type}? b) {{ }}
 }}";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		[Theory]
@@ -1237,7 +1238,7 @@ public class TestClass {{
     public void TestMethod(int a, {type} b) {{ }}
 }}";
 
-			await Verify.VerifyAnalyzerAsync(source);
+			await Verify.VerifyAnalyzerAsyncV2(source);
 		}
 
 		public static TheoryData<string> ValueTypes = new()
@@ -1260,10 +1261,9 @@ public class TestClass {{
 		};
 	}
 
-	internal class Analyzer_Pre240 : InlineDataMustMatchTheoryParameters
+	internal class Analyzer_v2_Pre240 : InlineDataMustMatchTheoryParameters
 	{
-		public Analyzer_Pre240()
-			: base("2.3.1")
-		{ }
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2(compilation, new Version(2, 3, 999));
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,19 +8,11 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TheoryMethodCannotHaveParamsArray : XunitDiagnosticAnalyzer
 	{
-		public TheoryMethodCannotHaveParamsArray()
-		{ }
-
-		/// <summary>For testing purposes only.</summary>
-		protected TheoryMethodCannotHaveParamsArray(string assemblyVersion)
-			: base(new Version(assemblyVersion))
-		{ }
-
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1022_TheoryMethodCannotHaveParameterArray);
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.HasCoreReference && !xunitContext.Core.TheorySupportsParameterArrays;
+			xunitContext.V2Core != null && !xunitContext.V2Core.TheorySupportsParameterArrays;
 
 		public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 		{
@@ -33,7 +24,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributes = method.GetAttributes();
-				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+				if (attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1022_TheoryMethodCannotHaveParameterArray,

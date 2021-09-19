@@ -107,7 +107,7 @@
 			public const string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
 			public const string XunitTheoryAttribute = "Xunit.TheoryAttribute";
 
-			// Xunit.Absrtactions
+			// Xunit.Abstractions
 			public const string XunitAbstractionsITestCase = "Xunit.Abstractions.ITestCase";
 			public const string XunitAbstractionsIXunitSerializableType = "Xunit.Abstractions.IXunitSerializable";
 

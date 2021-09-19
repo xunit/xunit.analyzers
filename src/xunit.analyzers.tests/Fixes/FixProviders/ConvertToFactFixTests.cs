@@ -23,7 +23,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify_X1003.VerifyCodeFixAsync(before, after);
+		await Verify_X1003.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -45,6 +45,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify_X1006.VerifyCodeFixAsync(before, after);
+		await Verify_X1006.VerifyCodeFixAsyncV2(before, after);
 	}
 }

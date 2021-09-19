@@ -20,9 +20,9 @@ namespace Xunit.Analyzers
 				var symbol = (IMethodSymbol)context.Symbol;
 				var attributes = symbol.GetAttributes();
 				if (attributes.Length > 1 &&
-					attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true) &&
-					!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
-					attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
+					attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType, exactMatch: true) &&
+					!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType) &&
+					attributes.ContainsAttributeType(xunitContext.V2Core.DataAttributeType))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(

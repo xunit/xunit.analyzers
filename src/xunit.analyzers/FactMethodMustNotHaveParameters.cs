@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributes = symbol.GetAttributes();
-				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true))
+				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType, exactMatch: true))
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1001_FactMethodMustNotHaveParameters,

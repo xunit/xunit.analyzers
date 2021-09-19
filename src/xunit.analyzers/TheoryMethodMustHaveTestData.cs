@@ -19,8 +19,8 @@ namespace Xunit.Analyzers
 			{
 				var symbol = (IMethodSymbol)context.Symbol;
 				var attributes = symbol.GetAttributes();
-				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
-					(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType)))
+				if (attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType) &&
+					(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.V2Core.DataAttributeType)))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(

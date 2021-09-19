@@ -24,6 +24,6 @@ public class TestClass {{
 		var before = string.Format(template, $@"[|Assert.{assert}<string>(""foo"", result)|]");
 		var after = string.Format(template, @"Assert.Equal(""foo"", result)");
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

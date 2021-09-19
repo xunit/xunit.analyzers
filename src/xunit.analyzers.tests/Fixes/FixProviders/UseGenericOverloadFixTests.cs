@@ -31,7 +31,7 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2007.VerifyCodeFixAsync(before, after);
+		await Verify_X2007.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -63,6 +63,6 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2015.VerifyCodeFixAsync(before, after);
+		await Verify_X2015.VerifyCodeFixAsyncV2(before, after);
 	}
 }

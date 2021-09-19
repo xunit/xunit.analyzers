@@ -36,6 +36,6 @@ public class TestClass {{
 		var before = string.Format(template, beforeAssert);
 		var after = string.Format(template, afterAssert);
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

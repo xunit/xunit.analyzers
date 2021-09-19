@@ -1,6 +1,8 @@
-﻿using Xunit;
+﻿using System;
+using Microsoft.CodeAnalysis;
+using Xunit;
 using Xunit.Analyzers;
-using Verify = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterFixerTests.Analyzer>;
+using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterFixerTests.Analyzer_v2_Pre220>;
 
 public class TheoryMethodCannotHaveDefaultParameterFixerTests
 {
@@ -25,13 +27,12 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify_v2_Pre220.VerifyCodeFixAsyncV2(before, after);
 	}
 
-	internal class Analyzer : TheoryMethodCannotHaveDefaultParameter
+	internal class Analyzer_v2_Pre220 : TheoryMethodCannotHaveDefaultParameter
 	{
-		public Analyzer()
-			: base("2.1.99")
-		{ }
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2(compilation, new Version(2, 1, 999));
 	}
 }

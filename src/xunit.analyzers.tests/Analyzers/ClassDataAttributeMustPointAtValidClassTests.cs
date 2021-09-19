@@ -24,7 +24,7 @@ class DataClass: IEnumerable<object[]> {
     IEnumerator IEnumerable.GetEnumerator() => null;
 }";
 
-		await Verify.VerifyAnalyzerAsync(new[] { TestMethodSource, dataClassSource });
+		await Verify.VerifyAnalyzerAsyncV2(new[] { TestMethodSource, dataClassSource });
 	}
 
 	public static TheoryData<string> FailureCases = new()
@@ -89,6 +89,6 @@ class DataClass: IEnumerable<object[]> {
 				.WithSpan(6, 23, 6, 32)
 				.WithArguments("DataClass");
 
-		await Verify.VerifyAnalyzerAsync(new[] { TestMethodSource, dataClassSource }, expected);
+		await Verify.VerifyAnalyzerAsyncV2(new[] { TestMethodSource, dataClassSource }, expected);
 	}
 }

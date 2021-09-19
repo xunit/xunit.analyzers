@@ -24,7 +24,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Theory]
@@ -52,7 +52,7 @@ public class TestClass {{
     public void TestMethod(int a, {valueType} p) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsync(before, after, codeActionIndex: 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, codeActionIndex: 1);
 	}
 
 	[Fact]
@@ -76,6 +76,6 @@ public class TestClass {{
     public void TestMethod(int p, double p_2) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsync(before, after, codeActionIndex: 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, codeActionIndex: 1);
 	}
 }

@@ -25,7 +25,7 @@ public class Foo : {0}
 	{
 		var source = string.Format(Template, @interface, "");
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -39,7 +39,7 @@ public class Foo : {0}
 				.WithSpan(5, 14, 5, 17)
 				.WithArguments("Foo");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -53,7 +53,7 @@ public class Foo : {0}
 				.WithSpan(5, 14, 5, 17)
 				.WithArguments("Foo");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -62,6 +62,6 @@ public class Foo : {0}
 	{
 		var source = string.Format(Template, @interface, "public Foo() { }");
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 }

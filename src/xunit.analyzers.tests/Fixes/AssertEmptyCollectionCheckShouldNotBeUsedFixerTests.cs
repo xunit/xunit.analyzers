@@ -30,7 +30,7 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after, 0);
+		await Verify.VerifyCodeFixAsyncV2(before, after, 0);
 	}
 
 	[Fact]
@@ -48,6 +48,6 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after, 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, 1);
 	}
 }

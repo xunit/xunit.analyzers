@@ -27,7 +27,7 @@ public class Tests {
     }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -68,6 +68,6 @@ namespace XUnitTestProject1 {
     }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

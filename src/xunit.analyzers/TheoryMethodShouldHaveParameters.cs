@@ -22,7 +22,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributes = symbol.GetAttributes();
-				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+				if (attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1006_TheoryMethodShouldHaveParameters,

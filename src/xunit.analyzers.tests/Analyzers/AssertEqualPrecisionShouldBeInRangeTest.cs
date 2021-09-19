@@ -24,7 +24,7 @@ class TestClass {{
 			$"double num = 0.133d; Xunit.Assert.Equal(0.13d, num, {precision});"
 		);
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -47,7 +47,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("[0..15]", "double");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -63,7 +63,7 @@ class TestClass {{
 			$"decimal num = 0.133m; Xunit.Assert.Equal(0.13m, num, {precision});"
 		);
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -86,6 +86,6 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("[0..28]", "decimal");
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

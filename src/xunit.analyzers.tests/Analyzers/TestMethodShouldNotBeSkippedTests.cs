@@ -15,7 +15,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -34,6 +34,6 @@ class TestClass {{
 				.WithSpan(3, 13 + attribute.Length, 3, 24 + attribute.Length)
 				.WithSeverity(DiagnosticSeverity.Info);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

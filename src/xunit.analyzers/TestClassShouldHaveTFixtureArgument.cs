@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 					classSymbol
 						.GetMembers()
 						.OfType<IMethodSymbol>()
-						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+						.Any(m => m.GetAttributes().Any(a => xunitContext.V2Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;
@@ -33,8 +33,8 @@ namespace Xunit.Analyzers
 				foreach (var interfaceOnTestClass in classSymbol.AllInterfaces)
 				{
 					var isFixtureInterface =
-						interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.Core.IClassFixtureType)
-						|| interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.Core.ICollectionFixtureType);
+						interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.V2Core.IClassFixtureType)
+						|| interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.V2Core.ICollectionFixtureType);
 
 					if (isFixtureInterface && interfaceOnTestClass.TypeArguments[0] is INamedTypeSymbol tFixtureDataType)
 					{

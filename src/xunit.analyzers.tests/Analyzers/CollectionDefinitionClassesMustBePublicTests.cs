@@ -10,7 +10,7 @@ public class CollectionDefinitionClassesMustBePublicTests
 [Xunit.CollectionDefinition(""MyCollection"")]
 public class CollectionDefinitionClass { }";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -26,7 +26,7 @@ public class CollectionDefinitionClass { }";
 				.Diagnostic()
 				.WithSpan(3, 7 + classAccessModifier.Length, 3, 32 + classAccessModifier.Length);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -39,7 +39,7 @@ public class CollectionDefinitionClass { }";
 public partial class CollectionDefinitionClass {{ }}
 {otherPartAccessModifier}partial class CollectionDefinitionClass {{ }}";
 
-		await Verify.VerifyAnalyzerAsync(source);
+		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -60,6 +60,6 @@ public partial class CollectionDefinitionClass {{ }}
 				.WithSpan(3, 15 + part1AccessModifier.Length, 3, 40 + part1AccessModifier.Length)
 				.WithSpan(4, 15 + part2AccessModifier.Length, 4, 40 + part2AccessModifier.Length);
 
-		await Verify.VerifyAnalyzerAsync(source, expected);
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 }

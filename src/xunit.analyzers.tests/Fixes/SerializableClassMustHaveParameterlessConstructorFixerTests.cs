@@ -23,7 +23,7 @@ public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
     void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -52,7 +52,7 @@ public class MyTestCase: IXunitSerializable {
     void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Fact]
@@ -82,6 +82,6 @@ public class MyTestCase: IXunitSerializable {
     void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

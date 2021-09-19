@@ -22,6 +22,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after, 0);
+		await Verify.VerifyCodeFixAsyncV2(before, after, 0);
 	}
 }

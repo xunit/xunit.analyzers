@@ -34,6 +34,6 @@ public class TestClass
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }

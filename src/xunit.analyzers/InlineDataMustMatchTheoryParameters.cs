@@ -12,14 +12,6 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 	{
-		public InlineDataMustMatchTheoryParameters()
-		{ }
-
-		/// <summary>For testing purposes only.</summary>
-		protected InlineDataMustMatchTheoryParameters(string assemblyVersion)
-			: base(new Version(assemblyVersion))
-		{ }
-
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(
 				Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
@@ -32,8 +24,8 @@ namespace Xunit.Analyzers
 			CompilationStartAnalysisContext context,
 			XunitContext xunitContext)
 		{
-			var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
-			var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
+			var xunitSupportsParameterArrays = xunitContext.V2Core.TheorySupportsParameterArrays;
+			var xunitSupportsDefaultParameterValues = xunitContext.V2Core.TheorySupportsDefaultParameterValues;
 			var compilation = context.Compilation;
 			var systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
 			var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
@@ -43,14 +35,14 @@ namespace Xunit.Analyzers
 				var method = (IMethodSymbol)context.Symbol;
 
 				var attributes = method.GetAttributes();
-				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
 					return;
 
 				foreach (var attribute in attributes)
 				{
 					context.CancellationToken.ThrowIfCancellationRequested();
 
-					if (!attribute.AttributeClass.Equals(xunitContext.Core.InlineDataAttributeType))
+					if (!attribute.AttributeClass.Equals(xunitContext.V2Core.InlineDataAttributeType))
 						continue;
 
 					// Check if the semantic model indicates there are no syntax/compilation errors
@@ -244,7 +236,7 @@ namespace Xunit.Analyzers
 					return IsConvertibleNumeric(source, destination);
 
 				if (destination.SpecialType == SpecialType.System_DateTime
-					|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid && IsDateTimeOffsetOrGuid(destination)))
+					|| (xunitContext.V2Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid && IsDateTimeOffsetOrGuid(destination)))
 				{
 					// Allow all conversions from strings. All parsing issues will be reported at runtime.
 					return source.SpecialType == SpecialType.System_String;

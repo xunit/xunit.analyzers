@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 				foreach (var attribute in symbol.GetAttributes())
 				{
 					var attributeType = attribute.AttributeClass;
-					if (xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+					if (xunitContext.V2Core.FactAttributeType.IsAssignableFrom(attributeType))
 					{
 						attributeTypes.Add(attributeType);
 						count++;

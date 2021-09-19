@@ -47,7 +47,7 @@ public class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 
 	[Theory]
@@ -86,6 +86,6 @@ public class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyCodeFixAsync(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after);
 	}
 }
