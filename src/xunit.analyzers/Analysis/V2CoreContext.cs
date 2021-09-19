@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -88,7 +86,7 @@ namespace Xunit.Analyzers
 					.FirstOrDefault(a => a.Name.Equals("xunit.core", StringComparison.OrdinalIgnoreCase))
 					?.Version;
 
-			return version == null ? null : new(compilation, version);
+			return version is null ? null : new(compilation, version);
 		}
 	}
 }

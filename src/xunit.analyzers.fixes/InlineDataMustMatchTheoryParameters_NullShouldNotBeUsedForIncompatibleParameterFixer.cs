@@ -27,10 +27,16 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var node = root.FindNode(context.Span);
-			var diagnostic = context.Diagnostics.Single();
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.ParameterIndex, out var parameterIndexText))
+				return;
+			if (!int.TryParse(parameterIndexText, out var parameterIndex))
+				return;
+
 			var diagnosticId = diagnostic.Id;
 			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			var parameterIndex = int.Parse(diagnostic.Properties[Constants.Properties.ParameterIndex]);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -49,12 +55,16 @@ namespace Xunit.Analyzers
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var param = method.ParameterList.Parameters[parameterIndex];
-			var semanticModel = editor.SemanticModel;
-			var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
-			var nullable = nullableT.Construct(semanticModel.GetTypeInfo(param.Type, cancellationToken).Type);
 
-			editor.SetType(param, editor.Generator.TypeExpression(nullable));
+			if (method.ParameterList.Parameters.Count > parameterIndex)
+			{
+				var param = method.ParameterList.Parameters[parameterIndex];
+				var semanticModel = editor.SemanticModel;
+				var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
+				var nullable = nullableT.Construct(semanticModel.GetTypeInfo(param.Type, cancellationToken).Type);
+
+				editor.SetType(param, editor.Generator.TypeExpression(nullable));
+			}
 
 			return editor.GetChangedDocument();
 		}

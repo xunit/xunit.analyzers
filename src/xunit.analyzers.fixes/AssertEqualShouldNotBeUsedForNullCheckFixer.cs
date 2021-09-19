@@ -27,13 +27,18 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
 
-			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
+			if (invocation.Expression is MemberAccessExpressionSyntax)
 			{
 				var title = string.Format(titleTemplate, replacement);
+
 				context.RegisterCodeFix(
 					CodeAction.Create(
 						title,
@@ -48,17 +53,18 @@ namespace Xunit.Analyzers
 		static async Task<Document> UseNullCheckAsync(
 			Document document,
 			InvocationExpressionSyntax invocation,
-			string replacementMethod,
+			string replacement,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-			editor.ReplaceNode(
-				invocation,
-				invocation
-					.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(invocation.ArgumentList.Arguments[1])))
-					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)))
-			);
+
+			if (invocation.ArgumentList.Arguments.Count > 1 && invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+				editor.ReplaceNode(
+					invocation,
+					invocation
+						.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(invocation.ArgumentList.Arguments[1])))
+						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
+				);
 
 			return editor.GetChangedDocument();
 		}

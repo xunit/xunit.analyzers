@@ -17,10 +17,13 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
+				if (xunitContext.V2Core?.FactAttributeType is null)
+					return;
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;
+				if (context.Symbol is not INamedTypeSymbol classSymbol)
+					return;
 
-				var classSymbol = (INamedTypeSymbol)context.Symbol;
 				var doesClassContainTests =
 					classSymbol
 						.GetMembers()

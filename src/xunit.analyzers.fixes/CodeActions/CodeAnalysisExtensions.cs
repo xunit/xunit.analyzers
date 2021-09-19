@@ -150,16 +150,21 @@ namespace Xunit.Analyzers.CodeActions
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var generator = editor.Generator;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var baseTypeNode = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName(baseType));
-			var baseTypes = generator.GetBaseAndInterfaceTypes(declaration);
+			var baseTypeMetadata = semanticModel.Compilation.GetTypeByMetadataName(baseType);
+			if (baseTypeMetadata is not null)
+			{
+				var baseTypeNode = generator.TypeExpression(baseTypeMetadata);
+				var baseTypes = generator.GetBaseAndInterfaceTypes(declaration);
 
-			SyntaxNode updatedDeclaration;
-			if (baseTypes?.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class)
-				updatedDeclaration = generator.AddBaseType(declaration, baseTypeNode);
-			else
-				updatedDeclaration = generator.ReplaceNode(declaration, baseTypes[0], baseTypeNode);
+				SyntaxNode updatedDeclaration;
+				if (baseTypes is null || baseTypes.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class)
+					updatedDeclaration = generator.AddBaseType(declaration, baseTypeNode);
+				else
+					updatedDeclaration = generator.ReplaceNode(declaration, baseTypes[0], baseTypeNode);
 
-			editor.ReplaceNode(declaration, updatedDeclaration);
+				editor.ReplaceNode(declaration, updatedDeclaration);
+			}
+
 			return editor.GetChangedDocument();
 		}
 	}

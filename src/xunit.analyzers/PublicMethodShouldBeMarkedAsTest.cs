@@ -26,19 +26,22 @@ namespace Xunit.Analyzers
 
 			context.RegisterSymbolAction(context =>
 			{
-				var type = (INamedTypeSymbol)context.Symbol;
+				if (xunitContext.V2Core?.FactAttributeType is null)
+					return;
+				if (context.Symbol is not INamedTypeSymbol type)
+					return;
 
 				if (type.TypeKind != TypeKind.Class ||
-					type.DeclaredAccessibility != Accessibility.Public ||
-					type.IsAbstract)
+						type.DeclaredAccessibility != Accessibility.Public ||
+						type.IsAbstract)
 					return;
 
 				var methodsToIgnore =
 					interfacesToIgnore
-						.Where(i => i != null && type.AllInterfaces.Contains(i))
+						.Where(i => i is not null && type.AllInterfaces.Contains(i))
 						.SelectMany(i => i.GetMembers())
 						.Select(m => type.FindImplementationForInterfaceMember(m))
-						.Where(s => s != null)
+						.Where(s => s is not null)
 						.ToList();
 
 				var hasTestMethods = false;
@@ -51,7 +54,8 @@ namespace Xunit.Analyzers
 					// twice to enable better diagnostics during code editing. It is useful with
 					// incomplete code for abstract types - missing abstract keyword on type
 					// or on abstract method
-					var method = (IMethodSymbol)member;
+					if (member is not IMethodSymbol method)
+						continue;
 					if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
 						continue;
 
@@ -67,8 +71,8 @@ namespace Xunit.Analyzers
 
 					if (method.DeclaredAccessibility == Accessibility.Public &&
 						(method.ReturnsVoid ||
-						 (taskType != null && Equals(method.ReturnType, taskType)) ||
-						 (configuredTaskAwaitableType != null && Equals(method.ReturnType, configuredTaskAwaitableType))))
+						 (taskType is not null && Equals(method.ReturnType, taskType)) ||
+						 (configuredTaskAwaitableType is not null && Equals(method.ReturnType, configuredTaskAwaitableType))))
 					{
 						var shouldIgnore = false;
 						while (!shouldIgnore || method.IsOverride)
@@ -80,14 +84,14 @@ namespace Xunit.Analyzers
 								break;
 
 							method = method.OverriddenMethod;
-							if (method == null)
+							if (method is null)
 							{
 								shouldIgnore = true;
 								break;
 							}
 						}
 
-						if (!shouldIgnore)
+						if (method is not null && !shouldIgnore)
 							violations.Add(method);
 					}
 				}

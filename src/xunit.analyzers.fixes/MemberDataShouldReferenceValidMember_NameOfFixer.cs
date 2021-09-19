@@ -24,33 +24,38 @@ namespace Xunit.Analyzers
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
-			var diagnosticId = context.Diagnostics.Single().Id;
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+
+			var diagnosticId = diagnostic.Id;
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var attributeArgument = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeArgumentSyntax>();
-			var memberNameExpression = (LiteralExpressionSyntax)attributeArgument.Expression;
-			var diagnostic = context.Diagnostics.First();
-			INamedTypeSymbol memberType = null;
 
-			if (diagnostic.Properties.TryGetValue(Constants.AttributeProperties.DeclaringType, out string memberTypeName))
+			if (attributeArgument.Expression is LiteralExpressionSyntax memberNameExpression)
 			{
-				var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
-				memberType = semanticModel.Compilation.GetTypeByMetadataName(memberTypeName);
-			}
+				var memberType = default(INamedTypeSymbol);
+				if (diagnostic.Properties.TryGetValue(Constants.AttributeProperties.DeclaringType, out var memberTypeName))
+				{
+					var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+					memberType = semanticModel.Compilation.GetTypeByMetadataName(memberTypeName);
+				}
 
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseNameOf(context.Document, memberNameExpression, memberType, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
+				context.RegisterCodeFix(
+					CodeAction.Create(
+						title,
+						createChangedDocument: ct => UseNameOf(context.Document, memberNameExpression, memberType, ct),
+						equivalenceKey: title
+					),
+					context.Diagnostics
+				);
+			}
 		}
 
 		async Task<Document> UseNameOf(
 			Document document,
 			LiteralExpressionSyntax memberNameExpression,
-			INamedTypeSymbol memberType,
+			INamedTypeSymbol? memberType,
 			CancellationToken cancellationToken)
 		{
 			var documentEditor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
@@ -60,8 +65,10 @@ namespace Xunit.Analyzers
 				(node, generator) =>
 				{
 					var nameofParam = generator.IdentifierName(memberNameExpression.Token.ValueText);
-					if (memberType != null)
+
+					if (memberType is not null)
 						nameofParam = generator.MemberAccessExpression(generator.TypeExpression(memberType), nameofParam);
+
 					return generator.InvocationExpression(generator.IdentifierName("nameof"), nameofParam);
 				}
 			);

@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
 
 			var argumentValue = invocationOperation.Arguments[0].Value.WalkDownImplicitConversions();
 			var argumentType = argumentValue.Type;
-			if (argumentType == null || IsArgumentTypeRecognizedAsReferenceType(argumentType))
+			if (argumentType is null || IsArgumentTypeRecognizedAsReferenceType(argumentType))
 				return;
 
 			context.ReportDiagnostic(

@@ -27,11 +27,16 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var assertMethodName = diagnostic.Properties[Constants.Properties.AssertMethodName];
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.AssertMethodName, out var assertMethodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
 
 			var title = string.Format(titleTemplate, replacement);
+
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
@@ -45,21 +50,24 @@ namespace Xunit.Analyzers
 		static async Task<Document> UseContainsCheck(
 			Document document,
 			InvocationExpressionSyntax invocation,
-			string replacementMethod,
+			string replacement,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-			var invocationExpressionSyntax = (InvocationExpressionSyntax)invocation.ArgumentList.Arguments[0].Expression;
-			var anyMethodInvocation = (MemberAccessExpressionSyntax)invocationExpressionSyntax.Expression;
-			var anyTarget = anyMethodInvocation.Expression;
 
-			editor.ReplaceNode(
-				invocation,
-				invocation
-					.WithArgumentList(ArgumentList(SeparatedList(invocationExpressionSyntax.ArgumentList.Arguments.Insert(0, Argument(anyTarget)))))
-					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)))
-			);
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+				if (invocation.ArgumentList.Arguments.Count > 0 && invocation.ArgumentList.Arguments[0].Expression is InvocationExpressionSyntax invocationExpressionSyntax)
+					if (invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax anyMethodInvocation)
+					{
+						var anyTarget = anyMethodInvocation.Expression;
+
+						editor.ReplaceNode(
+							invocation,
+							invocation
+								.WithArgumentList(ArgumentList(SeparatedList(invocationExpressionSyntax.ArgumentList.Arguments.Insert(0, Argument(anyTarget)))))
+								.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
+						);
+					}
 
 			return editor.GetChangedDocument();
 		}

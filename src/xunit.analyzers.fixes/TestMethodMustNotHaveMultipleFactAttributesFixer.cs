@@ -27,7 +27,11 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			var attributeTypes = context.Diagnostics.First().Properties.Keys.ToList();
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+
+			var attributeTypes = diagnostic.Properties.Keys.ToList();
 
 			foreach (var attributeType in attributeTypes)
 			{
@@ -66,11 +70,10 @@ namespace Xunit.Analyzers
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var oneKept = false;
 
 			foreach (var attributeList in methodDeclaration.AttributeLists)
-			{
 				foreach (var attribute in attributeList.Attributes)
 				{
 					var attributeType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type.ToDisplayString();
@@ -81,10 +84,10 @@ namespace Xunit.Analyzers
 							oneKept = true;
 							continue;
 						}
+
 						editor.RemoveNode(attribute);
 					}
 				}
-			}
 
 			return editor.GetChangedDocument();
 		}

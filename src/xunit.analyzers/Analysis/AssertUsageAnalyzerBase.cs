@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -37,17 +35,19 @@ namespace Xunit.Analyzers
 			context.RegisterCompilationStartAction(context =>
 			{
 				var assertType = context.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
-				if (assertType == null)
+				if (assertType is null)
 					return;
 
 				context.RegisterOperationAction(context =>
 				{
-					var invocationOperation = (IInvocationOperation)context.Operation;
-					var methodSymbol = invocationOperation.TargetMethod;
-					if (methodSymbol.MethodKind != MethodKind.Ordinary || !Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
-						return;
+					if (context.Operation is IInvocationOperation invocationOperation)
+					{
+						var methodSymbol = invocationOperation.TargetMethod;
+						if (methodSymbol.MethodKind != MethodKind.Ordinary || !Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
+							return;
 
-					Analyze(context, invocationOperation, methodSymbol);
+						Analyze(context, invocationOperation, methodSymbol);
+					}
 				}, OperationKind.Invocation);
 			});
 		}

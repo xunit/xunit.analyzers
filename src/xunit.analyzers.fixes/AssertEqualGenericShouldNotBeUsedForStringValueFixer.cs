@@ -45,12 +45,12 @@ namespace Xunit.Analyzers
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
 
-			editor.ReplaceNode(
-				memberAccess,
-				memberAccess.WithName(IdentifierName(Constants.Asserts.Equal))
-			);
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+				editor.ReplaceNode(
+					memberAccess,
+					memberAccess.WithName(IdentifierName(Constants.Asserts.Equal))
+				);
 
 			return editor.GetChangedDocument();
 		}

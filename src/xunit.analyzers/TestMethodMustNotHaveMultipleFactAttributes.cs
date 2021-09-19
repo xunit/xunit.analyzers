@@ -18,7 +18,11 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				var symbol = (IMethodSymbol)context.Symbol;
+				if (xunitContext.V2Core?.FactAttributeType is null)
+					return;
+				if (context.Symbol is not IMethodSymbol symbol)
+					return;
+
 				var attributeTypes = new HashSet<INamedTypeSymbol>();
 				var count = 0;
 

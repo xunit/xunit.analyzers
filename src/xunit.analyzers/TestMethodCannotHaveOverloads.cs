@@ -18,7 +18,10 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				var typeSymbol = (INamedTypeSymbol)context.Symbol;
+				if (xunitContext.V2Core?.FactAttributeType is null)
+					return;
+				if (context.Symbol is not INamedTypeSymbol typeSymbol)
+					return;
 				if (typeSymbol.TypeKind != TypeKind.Class)
 					return;
 

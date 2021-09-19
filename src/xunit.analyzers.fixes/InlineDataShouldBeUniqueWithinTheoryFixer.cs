@@ -28,18 +28,17 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var reportedNode = root.FindNode(context.Span);
-			var attributeDuplicate = reportedNode as AttributeSyntax;
 
-			if (attributeDuplicate != null)
+			var reportedNode = root.FindNode(context.Span);
+			if (reportedNode is AttributeSyntax attributeDuplicate)
 				context.RegisterCodeFix(
 					CodeAction.Create(
-					title,
-					ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
+						title,
+						ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
+						equivalenceKey: title
+					),
+					context.Diagnostics
+				);
 		}
 
 		static async Task<Document> RemoveInlineDataDuplicate(

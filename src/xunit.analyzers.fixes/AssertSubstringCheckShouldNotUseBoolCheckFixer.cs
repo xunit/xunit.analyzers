@@ -27,10 +27,16 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var assertMethodName = diagnostic.Properties[Constants.Properties.AssertMethodName];
-			var substringMethodName = diagnostic.Properties[Constants.Properties.SubstringMethodName];
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.AssertMethodName, out var assertMethodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.SubstringMethodName, out var substringMethodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
+
 			var title = string.Format(titleTemplate, replacement);
 
 			context.RegisterCodeFix(
@@ -46,21 +52,24 @@ namespace Xunit.Analyzers
 		static async Task<Document> UseSubstringCheckAsync(
 			Document document,
 			InvocationExpressionSyntax invocation,
-			string replacementMethod,
+			string replacement,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-			var substringInvocation = (InvocationExpressionSyntax)invocation.ArgumentList.Arguments[0].Expression;
-			var substringMethodInvocation = (MemberAccessExpressionSyntax)substringInvocation.Expression;
-			var substringTarget = substringMethodInvocation.Expression;
 
-			editor.ReplaceNode(
-				invocation,
-				invocation
-					.WithArgumentList(ArgumentList(SeparatedList(substringInvocation.ArgumentList.Arguments.Insert(1, Argument(substringTarget)))))
-					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)))
-			);
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+				if (invocation.ArgumentList.Arguments.Count > 0 && invocation.ArgumentList.Arguments[0].Expression is InvocationExpressionSyntax substringInvocation)
+					if (substringInvocation.Expression is MemberAccessExpressionSyntax substringMethodInvocation)
+					{
+						var substringTarget = substringMethodInvocation.Expression;
+
+						editor.ReplaceNode(
+							invocation,
+							invocation
+								.WithArgumentList(ArgumentList(SeparatedList(substringInvocation.ArgumentList.Arguments.Insert(1, Argument(substringTarget)))))
+								.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
+						);
+					}
 
 			return editor.GetChangedDocument();
 		}

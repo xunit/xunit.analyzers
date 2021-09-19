@@ -27,10 +27,16 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var sizeValue = diagnostic.Properties[Constants.Properties.SizeValue];
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.SizeValue, out var sizeValue))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
+
 			var title = string.Format(titleTemplate, replacement);
 
 			context.RegisterCodeFix(
@@ -46,27 +52,34 @@ namespace Xunit.Analyzers
 		static async Task<Document> UseCollectionSizeAssertionAsync(
 			Document document,
 			InvocationExpressionSyntax invocation,
-			string replacementMethod,
+			string replacement,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-			var expression = GetExpressionSyntax(invocation);
 
-			editor.ReplaceNode(
-				invocation,
-				invocation
-					.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(Argument(expression))))
-					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)))
-			);
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+			{
+				var expression = GetExpressionSyntax(invocation);
+
+				if (expression is not null)
+					editor.ReplaceNode(
+						invocation,
+						invocation
+							.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(Argument(expression))))
+							.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
+					);
+			}
 
 			return editor.GetChangedDocument();
 		}
 
-		private static ExpressionSyntax GetExpressionSyntax(InvocationExpressionSyntax invocation)
+		static ExpressionSyntax? GetExpressionSyntax(InvocationExpressionSyntax invocation)
 		{
+			if (invocation.ArgumentList.Arguments.Count < 2)
+				return null;
+
 			if (invocation.ArgumentList.Arguments[1].Expression is InvocationExpressionSyntax sizeInvocation)
-				return ((MemberAccessExpressionSyntax)sizeInvocation.Expression).Expression;
+				return (sizeInvocation.Expression as MemberAccessExpressionSyntax)?.Expression;
 
 			var sizeMemberAccess = invocation.ArgumentList.Arguments[1].Expression as MemberAccessExpressionSyntax;
 			return sizeMemberAccess?.Expression;

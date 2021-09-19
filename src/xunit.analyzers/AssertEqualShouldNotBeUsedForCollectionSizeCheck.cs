@@ -48,26 +48,26 @@ namespace Xunit.Analyzers
 			if (sizeValue.Value is not int size)
 				return;
 
-			if (size < 0 || size > 1 || size == 1 && method.Name != Constants.Asserts.Equal)
+			if (size < 0 || size > 1 || (size == 1 && method.Name != Constants.Asserts.Equal))
 				return;
 
 			var otherArgument = invocationOperation.Arguments.FirstOrDefault(arg => !arg.Parameter.Equals(method.Parameters[0]));
 
-			ISymbol symbol = otherArgument?.Value switch
+			var symbol = otherArgument?.Value switch
 			{
 				IInvocationOperation o => o.TargetMethod,
 				IPropertyReferenceOperation p => p.Property,
-				_ => null,
+				_ => default(ISymbol),
 			};
 
-			if (symbol == null)
+			if (symbol is null)
 				return;
 
 			if (IsCollectionsWithExceptionThrowingGetEnumeratorMethod(symbol) ||
-				!IsWellKnownSizeMethod(symbol) &&
-				!IsICollectionCountProperty(context, symbol) &&
-				!IsICollectionOfTCountProperty(context, symbol) &&
-				!IsIReadOnlyCollectionOfTCountProperty(context, symbol))
+					!IsWellKnownSizeMethod(symbol) &&
+					!IsICollectionCountProperty(context, symbol) &&
+					!IsICollectionOfTCountProperty(context, symbol) &&
+					!IsIReadOnlyCollectionOfTCountProperty(context, symbol))
 				return;
 
 			var replacement = GetReplacementMethodName(method.Name, size);
@@ -140,7 +140,8 @@ namespace Xunit.Analyzers
 		{
 			var containingType = symbol.ContainingType;
 			var concreteCollectionType = containingType.GetGenericInterfaceImplementation(openCollectionType);
-			return concreteCollectionType != null && IsCountPropertyOf(concreteCollectionType, symbol);
+
+			return concreteCollectionType is not null && IsCountPropertyOf(concreteCollectionType, symbol);
 		}
 
 		static bool IsCountPropertyOf(
@@ -151,6 +152,7 @@ namespace Xunit.Analyzers
 			var containingType = memberSymbol.ContainingType;
 			var countSymbol = collectionType.GetMember(nameof(ICollection.Count));
 			var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
+
 			return countSymbolImplementation?.Equals(memberSymbol) ?? false;
 		}
 	}

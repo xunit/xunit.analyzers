@@ -23,14 +23,19 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var diagnostic = context.Diagnostics.First();
-			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
 
-			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
+			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation.Expression is MemberAccessExpressionSyntax)
 			{
 				var title = string.Format(titleTemplate, replacement);
+
 				context.RegisterCodeFix(
 					new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
 					context.Diagnostics

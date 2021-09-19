@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
 		{
 			var type = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault();
 			var typeKind = GetAbstractTypeKind(type);
-			if (typeKind == null)
+			if (typeKind is null)
 				return;
 
 			var typeName = SymbolDisplay.ToDisplayString(type);
@@ -43,9 +43,9 @@ namespace Xunit.Analyzers
 			);
 		}
 
-		static string GetAbstractTypeKind(ITypeSymbol typeSymbol)
+		static string? GetAbstractTypeKind(ITypeSymbol? typeSymbol)
 		{
-			switch (typeSymbol.TypeKind)
+			switch (typeSymbol?.TypeKind)
 			{
 				case TypeKind.Class:
 					if (typeSymbol.IsAbstract)

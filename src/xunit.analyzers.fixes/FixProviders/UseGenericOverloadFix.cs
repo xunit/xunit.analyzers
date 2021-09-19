@@ -38,7 +38,7 @@ namespace Xunit.Analyzers.FixProviders
 			if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
 				return;
 
-			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 			var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type);
 			var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type, SymbolDisplayFormat.MinimallyQualifiedFormat);
 			var methodName = memberAccess.Name.Identifier.ValueText;

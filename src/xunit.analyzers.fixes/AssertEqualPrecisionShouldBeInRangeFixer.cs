@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var precisionArgument = root.FindNode(context.Span).FirstAncestorOrSelf<ArgumentSyntax>();
-			if (precisionArgument == null)
+			if (precisionArgument is null)
 				return;
 
 			context.RegisterCodeFix(

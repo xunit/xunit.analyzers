@@ -17,7 +17,10 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				var symbol = (IMethodSymbol)context.Symbol;
+				if (xunitContext.V2Core?.TheoryAttributeType is null)
+					return;
+				if (context.Symbol is not IMethodSymbol symbol)
+					return;
 				if (symbol.Parameters.Length > 0)
 					return;
 

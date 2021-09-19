@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers
@@ -33,13 +31,13 @@ namespace Xunit.Analyzers
 		/// (including abstractions, core, and execution references).
 		/// </summary>
 		public bool HasV2References =>
-			V2Abstractions != null || V2Core != null || V2Execution != null;
+			V2Abstractions is not null || V2Core is not null || V2Execution is not null;
 
 		/// <summary>
 		/// Gets a flag which indicates whether there are any xUnit.net v3 references in the project.
 		/// </summary>
 		public bool HasV3References =>
-			V3Core != null;
+			V3Core is not null;
 
 		/// <summary>
 		/// Gets information about the reference to xunit.abstractions (v2). If the project does

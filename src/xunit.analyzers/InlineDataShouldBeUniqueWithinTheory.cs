@@ -22,7 +22,10 @@ namespace Xunit.Analyzers
 			SymbolAnalysisContext context,
 			XunitContext xunitContext)
 		{
-			var method = (IMethodSymbol)context.Symbol;
+			if (xunitContext.V2Core?.TheoryAttributeType is null)
+				return;
+			if (context.Symbol is not IMethodSymbol method)
+				return;
 
 			var methodAllAttributes = method.GetAttributes();
 			if (!methodAllAttributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
@@ -41,7 +44,9 @@ namespace Xunit.Analyzers
 			SymbolAnalysisContext context,
 			IEnumerable<AttributeData> inlineDataAttributes)
 		{
-			var attributeRelatedMethod = (IMethodSymbol)context.Symbol;
+			if (context.Symbol is not IMethodSymbol attributeRelatedMethod)
+				return;
+
 			var uniqueAttributes = new HashSet<AttributeData>(new InlineDataUniquenessComparer(attributeRelatedMethod));
 
 			foreach (var currentInlineData in inlineDataAttributes)
@@ -64,7 +69,8 @@ namespace Xunit.Analyzers
 			SymbolAnalysisContext context,
 			AttributeData duplicateAttribute)
 		{
-			var method = (IMethodSymbol)context.Symbol;
+			if (context.Symbol is not IMethodSymbol method)
+				return;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
@@ -96,9 +102,12 @@ namespace Xunit.Analyzers
 			}
 
 			public bool Equals(
-				AttributeData x,
-				AttributeData y)
+				AttributeData? x,
+				AttributeData? y)
 			{
+				if (x is null || y is null)
+					return x is null && y is null;
+
 				var xArguments = GetEffectiveTestArguments(x);
 				var yArguments = GetEffectiveTestArguments(y);
 
@@ -193,7 +202,7 @@ namespace Xunit.Analyzers
 				return args[0] switch
 				{
 					TypedConstant xSingleNull when xSingleNull.Kind == TypedConstantKind.Array && xSingleNull.IsNull => true,
-					IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue == null => true,
+					IParameterSymbol xParamDefaultNull when xParamDefaultNull.ExplicitDefaultValue is null => true,
 					_ => false,
 				};
 			}
@@ -215,9 +224,9 @@ namespace Xunit.Analyzers
 				return hash;
 			}
 
-			ImmutableArray<object> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
+			ImmutableArray<object?> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
 			{
-				var results = new List<object>();
+				var results = new List<object?>();
 
 				foreach (var argument in arguments)
 				{

@@ -19,7 +19,11 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				var attribute = (AttributeSyntax)context.Node;
+				if (xunitContext.V2Core?.FactAttributeType is null)
+					return;
+				if (context.Node is not AttributeSyntax attribute)
+					return;
+
 				var skipArgument = attribute.ArgumentList?.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
 				if (skipArgument is null)
 					return;

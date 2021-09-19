@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -29,8 +28,11 @@ namespace Xunit.Analyzers
 			{
 				nameof(object.Equals) => Constants.Asserts.Equal,
 				nameof(object.ReferenceEquals) => Constants.Asserts.Same,
-				_ => throw new InvalidOperationException($"Unexpected method name: {method.Name}")
+				_ => null
 			};
+
+			if (replacement is null)
+				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;

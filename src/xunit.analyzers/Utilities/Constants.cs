@@ -71,10 +71,12 @@
 		public static class Properties
 		{
 			public const string AssertMethodName = "AssertMethodName";
+			public const string DeclaringType = "DeclaringType";
 			public const string IgnoreCase = "IgnoreCase";
 			public const string IsStatic = "IsStatic";
 			public const string IsStaticMethodCall = "IsStaticMethodCall";
 			public const string LiteralValue = "LiteralValue";
+			public const string MemberName = "MemberName";
 			public const string MethodName = "MethodName";
 			public const string ParameterArrayStyle = "ParameterArrayStyle";
 			public const string ParameterIndex = "ParameterIndex";

@@ -33,9 +33,10 @@ namespace Xunit.Analyzers.CodeActions
 		protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
 
-			editor.ReplaceNode(memberAccess, memberAccess.WithName((SimpleNameSyntax)editor.Generator.IdentifierName(replacementMethod)));
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+				if (editor.Generator.IdentifierName(replacementMethod) is SimpleNameSyntax replacementNameSyntax)
+					editor.ReplaceNode(memberAccess, memberAccess.WithName(replacementNameSyntax));
 
 			return editor.GetChangedDocument();
 		}

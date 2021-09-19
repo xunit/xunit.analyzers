@@ -24,15 +24,19 @@ namespace Xunit.Analyzers
 			CompilationStartAnalysisContext context,
 			XunitContext xunitContext)
 		{
+			if (xunitContext.V2Core is null || xunitContext.V2Core.TheoryAttributeType is null)
+				return;
+
 			var xunitSupportsParameterArrays = xunitContext.V2Core.TheorySupportsParameterArrays;
 			var xunitSupportsDefaultParameterValues = xunitContext.V2Core.TheorySupportsDefaultParameterValues;
 			var compilation = context.Compilation;
-			var systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
+			INamedTypeSymbol? systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
 			var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
 			context.RegisterSymbolAction(context =>
 			{
-				var method = (IMethodSymbol)context.Symbol;
+				if (context.Symbol is not IMethodSymbol method)
+					return;
 
 				var attributes = method.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
@@ -49,11 +53,12 @@ namespace Xunit.Analyzers
 					if (attribute.ConstructorArguments.Length != 1 || !objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type))
 						continue;
 
-					var attributeSyntax = (AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
+					if (attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken) is not AttributeSyntax attributeSyntax)
+						return;
 
 					var arrayStyle = ParameterArrayStyleType.Initializer;
 					var dataParameterExpressions = GetParameterExpressionsFromArrayArgument(attributeSyntax);
-					if (dataParameterExpressions == null)
+					if (dataParameterExpressions is null)
 					{
 						arrayStyle = ParameterArrayStyleType.Params;
 						dataParameterExpressions =
@@ -155,7 +160,7 @@ namespace Xunit.Analyzers
 					{
 						var builder = ImmutableDictionary.CreateBuilder<string, string>();
 						builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
-						builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString();
+						builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString() ?? string.Empty;
 
 						context.ReportDiagnostic(
 							Diagnostic.Create(
@@ -179,12 +184,13 @@ namespace Xunit.Analyzers
 				&& !(parameter.IsParams && supportsParamsArray)
 				&& !parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute));
 
-		static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
+		static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
 		{
 			if (attribute.ArgumentList?.Arguments.Count != 1)
 				return null;
 
 			var argumentExpression = attribute.ArgumentList.Arguments.Single().Expression;
+
 			var initializer = argumentExpression.Kind() switch
 			{
 				SyntaxKind.ArrayCreationExpression => ((ArrayCreationExpressionSyntax)argumentExpression).Initializer,
@@ -192,7 +198,7 @@ namespace Xunit.Analyzers
 				_ => null,
 			};
 
-			if (initializer == null)
+			if (initializer is null)
 				return null;
 
 			return initializer.Expressions.ToList();
@@ -236,7 +242,7 @@ namespace Xunit.Analyzers
 					return IsConvertibleNumeric(source, destination);
 
 				if (destination.SpecialType == SpecialType.System_DateTime
-					|| (xunitContext.V2Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid && IsDateTimeOffsetOrGuid(destination)))
+					|| (xunitContext.V2Core?.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
 				{
 					// Allow all conversions from strings. All parsing issues will be reported at runtime.
 					return source.SpecialType == SpecialType.System_String;

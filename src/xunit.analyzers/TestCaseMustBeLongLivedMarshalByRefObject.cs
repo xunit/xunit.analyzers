@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class TestCaseMustBeLongLivedMarshalByRefObject : XunitDiagnosticAnalyzer
+	public class TestCaseMustBeLongLivedMarshalByRefObject : XunitV2DiagnosticAnalyzer
 	{
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject);
@@ -17,15 +17,16 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				var namedType = (INamedTypeSymbol)context.Symbol;
+				if (context.Symbol is not INamedTypeSymbol namedType)
+					return;
 				if (namedType.TypeKind != TypeKind.Class)
 					return;
 
-				var isTestCase = xunitContext.V2Abstractions.ITestCaseType?.IsAssignableFrom(namedType) ?? false;
+				var isTestCase = xunitContext.V2Abstractions?.ITestCaseType?.IsAssignableFrom(namedType) ?? false;
 				if (!isTestCase)
 					return;
 
-				var hasMBRO = xunitContext.V2Execution.LongLivedMarshalByRefObjectType?.IsAssignableFrom(namedType) ?? false;
+				var hasMBRO = xunitContext.V2Execution?.LongLivedMarshalByRefObjectType?.IsAssignableFrom(namedType) ?? false;
 				if (hasMBRO)
 					return;
 
@@ -40,6 +41,6 @@ namespace Xunit.Analyzers
 		}
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.V2Abstractions != null && xunitContext.V2Execution != null;
+			xunitContext.V2Abstractions is not null && xunitContext.V2Execution is not null;
 	}
 }

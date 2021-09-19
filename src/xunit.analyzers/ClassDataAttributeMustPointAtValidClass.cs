@@ -22,16 +22,18 @@ namespace Xunit.Analyzers
 
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				var attribute = (AttributeSyntax)context.Node;
-				if (!(attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression is TypeOfExpressionSyntax argumentExpression))
+				if (context.Node is not AttributeSyntax attribute)
+					return;
+				if (attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression is not TypeOfExpressionSyntax argumentExpression)
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.V2Core.ClassDataAttributeType))
+				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.V2Core?.ClassDataAttributeType))
 					return;
 
-				var classType = (INamedTypeSymbol)semanticModel.GetTypeInfo(argumentExpression.Type).Type;
-				if (classType == null || classType.Kind == SymbolKind.ErrorType)
+				if (semanticModel.GetTypeInfo(argumentExpression.Type).Type is not INamedTypeSymbol classType)
+					return;
+				if (classType.Kind == SymbolKind.ErrorType)
 					return;
 
 				var missingInterface = !iEnumerableOfObjectArray.IsAssignableFrom(classType);

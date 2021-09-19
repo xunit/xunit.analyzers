@@ -20,7 +20,9 @@ namespace Xunit.Analyzers
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)
 		{
-			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
+			if (invocationOperation.Syntax is not InvocationExpressionSyntax invocation)
+				return;
+
 			var arguments = invocation.ArgumentList.Arguments;
 			if (arguments.Count != 1)
 				return;

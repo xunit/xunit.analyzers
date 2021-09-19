@@ -20,7 +20,10 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				var methodSyntax = (MethodDeclarationSyntax)context.Node;
+				if (xunitContext.V2Core?.TheoryAttributeType is null)
+					return;
+				if (context.Node is not MethodDeclarationSyntax methodSyntax)
+					return;
 				if (methodSyntax.ParameterList.Parameters.Count == 0)
 					return;
 
@@ -38,8 +41,8 @@ namespace Xunit.Analyzers
 			MethodDeclarationSyntax methodSyntax,
 			IMethodSymbol methodSymbol)
 		{
-			var methodBody = (SyntaxNode)methodSyntax.Body ?? methodSyntax.ExpressionBody?.Expression;
-			if (methodBody == null)
+			var methodBody = methodSyntax.Body as SyntaxNode ?? methodSyntax.ExpressionBody?.Expression;
+			if (methodBody is null)
 				return;
 
 			var flowAnalysis = context.SemanticModel.AnalyzeDataFlow(methodBody);
@@ -51,6 +54,7 @@ namespace Xunit.Analyzers
 			for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 			{
 				var parameterSymbol = methodSymbol.Parameters[i];
+
 				if (!usedParameters.Contains(parameterSymbol))
 				{
 					var parameterSyntax = methodSyntax.ParameterList.Parameters[i];

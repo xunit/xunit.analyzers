@@ -45,20 +45,23 @@ namespace Xunit.Analyzers
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var arguments = invocation.ArgumentList.Arguments;
 
-			ArgumentSyntax expectedArg, actualArg;
-			if (arguments.All(x => x.NameColon != null))
+			if (arguments.Count >= 2)
 			{
-				expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Expected);
-				actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Actual);
-			}
-			else
-			{
-				expectedArg = arguments[0];
-				actualArg = arguments[1];
-			}
+				ArgumentSyntax expectedArg, actualArg;
+				if (arguments.All(x => x.NameColon is not null))
+				{
+					expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Expected);
+					actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Actual);
+				}
+				else
+				{
+					expectedArg = arguments[0];
+					actualArg = arguments[1];
+				}
 
-			editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
-			editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+				editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
+				editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+			}
 
 			return editor.GetChangedDocument();
 		}

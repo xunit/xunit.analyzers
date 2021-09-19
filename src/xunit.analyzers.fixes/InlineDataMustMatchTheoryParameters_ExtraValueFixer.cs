@@ -29,7 +29,10 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var node = root.FindNode(context.Span);
-			var diagnostic = context.Diagnostics.Single();
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+
 			var diagnosticId = diagnostic.Id;
 			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 

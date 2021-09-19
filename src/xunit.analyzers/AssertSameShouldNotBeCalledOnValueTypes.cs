@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 
 			var firstArgumentType = invocationOperation.Arguments[0].Value.WalkDownImplicitConversions()?.Type;
 			var secondArgumentType = invocationOperation.Arguments[1].Value.WalkDownImplicitConversions()?.Type;
-			if (firstArgumentType == null || secondArgumentType == null)
+			if (firstArgumentType is null || secondArgumentType is null)
 				return;
 
 			if (firstArgumentType.IsReferenceType && secondArgumentType.IsReferenceType)
@@ -42,6 +42,9 @@ namespace Xunit.Analyzers
 				Constants.Asserts.NotSame => Constants.Asserts.NotEqual,
 				_ => null,
 			};
+
+			if (replacement is null)
+				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;

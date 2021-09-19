@@ -28,16 +28,24 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var node = root.FindNode(context.Span);
-			var diagnostic = context.Diagnostics.Single();
+			if (node is not AttributeSyntax attribute)
+				return;
+
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.ParameterArrayStyle, out var arrayStyleText))
+				return;
+
 			var diagnosticId = diagnostic.Id;
 			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
-			Enum.TryParse(diagnostic.Properties[Constants.Properties.ParameterArrayStyle], out InlineDataMustMatchTheoryParameters.ParameterArrayStyleType arrayStyle);
+			Enum.TryParse<InlineDataMustMatchTheoryParameters.ParameterArrayStyleType>(arrayStyleText, out var arrayStyle);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					title,
-					ct => AddDefaultValues(context.Document, (AttributeSyntax)node, method, arrayStyle, ct),
+					ct => AddDefaultValues(context.Document, attribute, method, arrayStyle, ct),
 					title
 				),
 				context.Diagnostics
@@ -52,22 +60,22 @@ namespace Xunit.Analyzers
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			InitializerExpressionSyntax arrayInitializer = null;
+			var arrayInitializer = default(InitializerExpressionSyntax);
 			if (arrayStyle == InlineDataMustMatchTheoryParameters.ParameterArrayStyleType.Initializer)
-				arrayInitializer = (InitializerExpressionSyntax)attribute.DescendantNodes().First(n => n.IsKind(SyntaxKind.ArrayInitializerExpression));
+				arrayInitializer = attribute.DescendantNodes().First(n => n.IsKind(SyntaxKind.ArrayInitializerExpression)) as InitializerExpressionSyntax;
 
 			var originalInitializer = arrayInitializer;
 			var i = originalInitializer?.Expressions.Count ?? attribute.ArgumentList?.Arguments.Count ?? 0;
 			for (; i < method.ParameterList.Parameters.Count; i++)
-			{
-				var defaultExpression = (ExpressionSyntax)CreateDefaultValueSyntax(editor, method.ParameterList.Parameters[i].Type);
-				if (arrayInitializer != null)
-					arrayInitializer = arrayInitializer.AddExpressions(defaultExpression);
-				else
-					editor.AddAttributeArgument(attribute, defaultExpression);
-			}
+				if (CreateDefaultValueSyntax(editor, method.ParameterList.Parameters[i].Type) is ExpressionSyntax defaultExpression)
+				{
+					if (arrayInitializer is not null)
+						arrayInitializer = arrayInitializer.AddExpressions(defaultExpression);
+					else
+						editor.AddAttributeArgument(attribute, defaultExpression);
+				}
 
-			if (arrayInitializer != null)
+			if (arrayInitializer is not null)
 				editor.ReplaceNode(originalInitializer, arrayInitializer);
 
 			return editor.GetChangedDocument();

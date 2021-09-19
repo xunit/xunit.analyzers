@@ -35,11 +35,11 @@ namespace Xunit.Analyzers
 			IMethodSymbol method)
 		{
 			var numericType = GetMethodNumericType(method);
-			if (numericType == null)
+			if (numericType is null)
 				return;
 
 			var precision = GetNumericLiteralValue(invocationOperation);
-			if (precision == null)
+			if (precision is null)
 				return;
 
 			EnsurePrecisionInRange(context, precision.Value.precisionArgument.Value.Syntax.GetLocation(), numericType.Value, precision.Value.value);
@@ -68,12 +68,12 @@ namespace Xunit.Analyzers
 				return null;
 
 			var precisionParameter = invocation.TargetMethod.Parameters[2];
-			var precisionArgument = invocation.Arguments.First(arg => arg.Parameter.Equals(precisionParameter));
+			var precisionArgument = invocation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(precisionParameter));
 			if (precisionArgument is null)
 				return null;
 
 			var constantValue = precisionArgument.Value.ConstantValue;
-			if (!constantValue.HasValue || !(constantValue.Value is int value))
+			if (!constantValue.HasValue || constantValue.Value is not int value)
 				return null;
 
 			return (precisionArgument, value);

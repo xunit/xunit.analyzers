@@ -38,13 +38,21 @@ namespace Xunit.Analyzers
 
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				var attribute = (AttributeSyntax)context.Node;
+				if (xunitContext.V2Core?.MemberDataAttributeType is null)
+					return;
+
+				if (context.Node is not AttributeSyntax attribute)
+					return;
+
 				var memberNameArgument = attribute.ArgumentList?.Arguments.FirstOrDefault();
-				if (memberNameArgument == null)
+				if (memberNameArgument is null)
 					return;
 
 				var semanticModel = context.SemanticModel;
 				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.V2Core.MemberDataAttributeType))
+					return;
+
+				if (attribute.ArgumentList is null)
 					return;
 
 				var propertyAttributeParameters =
@@ -60,7 +68,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var memberTypeArgument = attribute.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
-				ITypeSymbol memberTypeSymbol = null;
+				var memberTypeSymbol = default(ITypeSymbol);
 				if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
 				{
 					var typeSyntax = typeofExpression.Type;
@@ -71,133 +79,53 @@ namespace Xunit.Analyzers
 				var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
 				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
 
-				if (memberSymbol == null)
-				{
-					context.ReportDiagnostic(
-						Diagnostic.Create(
-							Descriptors.X1015_MemberDataMustReferenceExistingMember,
-							attribute.GetLocation(),
-							memberName,
-							SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)
-						)
-					);
-				}
+				if (memberSymbol is null)
+					ReportMissingMember(context, attribute, memberName, declaredMemberTypeSymbol);
+				else if (memberSymbol.Kind != SymbolKind.Field && memberSymbol.Kind != SymbolKind.Property && memberSymbol.Kind != SymbolKind.Method)
+					ReportIncorrectMemberType(context, attribute);
 				else
 				{
-					if (memberSymbol.Kind != SymbolKind.Field &&
-						memberSymbol.Kind != SymbolKind.Property &&
-						memberSymbol.Kind != SymbolKind.Method)
+					if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
+						ReportUseNameof(context, memberNameArgument, memberName, testClassTypeSymbol, memberSymbol);
+
+					var memberProperties = new Dictionary<string, string>
 					{
-						context.ReportDiagnostic(
-							Diagnostic.Create(
-								Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
-								attribute.GetLocation()
-							)
-						);
-					}
-					else
-					{
-						if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
-						{
-							var builder = ImmutableDictionary.CreateBuilder<string, string>();
-							if (!Equals(memberSymbol.ContainingType, testClassTypeSymbol))
-								builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
+						{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
+						{ Constants.AttributeProperties.MemberName, memberName }
+					}.ToImmutableDictionary();
 
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1014_MemberDataShouldUseNameOfOperator,
-									memberNameArgument.Expression.GetLocation(),
-									builder.ToImmutable(),
-									memberName,
-									memberSymbol.ContainingType.ToDisplayString()
-								)
-							);
+					if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
+						ReportNonPublicAccessibility(context, attribute, memberProperties);
+
+					if (!memberSymbol.IsStatic)
+						ReportNonStatic(context, attribute, memberProperties);
+
+					var memberType = GetMemberType(memberSymbol);
+					if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
+						ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, attribute, memberProperties, memberType);
+
+					if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
+						if (memberSymbol is IPropertySymbol propertySymbol)
+						{
+							var getMethod = propertySymbol.GetMethod;
+							if (getMethod is null || getMethod.DeclaredAccessibility != Accessibility.Public)
+								ReportNonPublicPropertyGetter(context, attribute);
 						}
 
-						var memberProperties = new Dictionary<string, string>
-						{
-							{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
-							{ Constants.AttributeProperties.MemberName, memberName }
-						}.ToImmutableDictionary();
+					var extraArguments = attribute.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
+					if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
+						if (extraArguments.Any())
+							ReportIllegalNonMethodArguments(context, attribute, extraArguments);
 
-						if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
-						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1016_MemberDataMustReferencePublicMember,
-									attribute.GetLocation(),
-									memberProperties
-								)
-							);
-						}
-						if (!memberSymbol.IsStatic)
-						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1017_MemberDataMustReferenceStaticMember,
-									attribute.GetLocation(),
-									memberProperties
-								)
-							);
-						}
-						var memberType = GetMemberType(memberSymbol);
-						if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
-						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
-									attribute.GetLocation(),
-									memberProperties,
-									SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType),
-									SymbolDisplay.ToDisplayString(memberType)
-								)
-							);
-						}
-						if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
-						{
-							var getMethod = ((IPropertySymbol)memberSymbol).GetMethod;
-							if (getMethod == null || getMethod.DeclaredAccessibility != Accessibility.Public)
-								context.ReportDiagnostic(
-									Diagnostic.Create(
-										Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-										attribute.GetLocation()
-									)
-								);
-						}
-						var extraArguments = attribute.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals == null).ToList();
-						if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
-						{
-							if (extraArguments.Any())
-							{
-								var span = TextSpan.FromBounds(extraArguments.First().Span.Start, extraArguments.Last().Span.End);
-								context.ReportDiagnostic(
-									Diagnostic.Create(
-										Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
-										Location.Create(attribute.SyntaxTree, span)
-									)
-								);
-							}
-						}
-
-						if (memberSymbol.Kind == SymbolKind.Method)
-						{
-							// TODO: handle method parameter type matching, model after InlineDataMustMatchTheoryParameter
-						}
-					}
+					// TODO: handle method parameter type matching, model after InlineDataMustMatchTheoryParameter
+					//if (memberSymbol.Kind == SymbolKind.Method)
+					//{
+					//}
 				}
 			}, SyntaxKind.Attribute);
 		}
 
-		static ITypeSymbol GetMemberType(ISymbol memberSymbol) =>
-			memberSymbol switch
-			{
-				IPropertySymbol prop => prop.Type,
-				IFieldSymbol field => field.Type,
-				IMethodSymbol method => method.ReturnType,
-				_ => null,
-			};
-
-		static ISymbol FindMemberSymbol(
+		static ISymbol? FindMemberSymbol(
 			string memberName,
 			ITypeSymbol type,
 			int paramsCount)
@@ -205,10 +133,10 @@ namespace Xunit.Analyzers
 			if (paramsCount > 0 && FindMethodSymbol(memberName, type, paramsCount) is ISymbol methodSymbol)
 				return methodSymbol;
 
-			while (type != null)
+			while (type is not null)
 			{
 				var memberSymbol = type.GetMembers(memberName).FirstOrDefault();
-				if (memberSymbol != null)
+				if (memberSymbol is not null)
 					return memberSymbol;
 
 				type = type.BaseType;
@@ -217,13 +145,12 @@ namespace Xunit.Analyzers
 			return null;
 		}
 
-
-		static ISymbol FindMethodSymbol(
+		static ISymbol? FindMethodSymbol(
 			string memberName,
 			ITypeSymbol type,
 			int paramsCount)
 		{
-			while (type != null)
+			while (type is not null)
 			{
 				var methodSymbol =
 					type
@@ -231,13 +158,133 @@ namespace Xunit.Analyzers
 						.OfType<IMethodSymbol>()
 						.FirstOrDefault(x => x.Parameters.Length == paramsCount);
 
-				if (methodSymbol != null)
+				if (methodSymbol is not null)
 					return methodSymbol;
 
 				type = type.BaseType;
 			}
 
 			return null;
+		}
+
+		static ITypeSymbol? GetMemberType(ISymbol memberSymbol) =>
+			memberSymbol switch
+			{
+				IPropertySymbol prop => prop.Type,
+				IFieldSymbol field => field.Type,
+				IMethodSymbol method => method.ReturnType,
+				_ => null,
+			};
+
+		static void ReportIllegalNonMethodArguments(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute,
+			List<AttributeArgumentSyntax> extraArguments)
+		{
+			var span = TextSpan.FromBounds(extraArguments.First().Span.Start, extraArguments.Last().Span.End);
+
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
+					Location.Create(attribute.SyntaxTree, span)
+				)
+			);
+		}
+
+		static void ReportIncorrectMemberType(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
+						attribute.GetLocation()
+					)
+				);
+
+		static void ReportIncorrectReturnType(
+			SyntaxNodeAnalysisContext context,
+			INamedTypeSymbol iEnumerableOfObjectArrayType,
+			AttributeSyntax attribute,
+			ImmutableDictionary<string, string> memberProperties,
+			ITypeSymbol? memberType) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
+						attribute.GetLocation(),
+						memberProperties,
+						SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType),
+						SymbolDisplay.ToDisplayString(memberType)
+					)
+				);
+
+		static void ReportMissingMember(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute,
+			string memberName,
+			ITypeSymbol declaredMemberTypeSymbol) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1015_MemberDataMustReferenceExistingMember,
+						attribute.GetLocation(),
+						memberName,
+						SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)
+					)
+				);
+
+		static void ReportNonPublicAccessibility(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute,
+			ImmutableDictionary<string, string> memberProperties) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1016_MemberDataMustReferencePublicMember,
+						attribute.GetLocation(),
+						memberProperties
+					)
+				);
+
+		static void ReportNonPublicPropertyGetter(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1020_MemberDataPropertyMustHaveGetter,
+						attribute.GetLocation()
+					)
+				);
+
+		static void ReportNonStatic(
+			SyntaxNodeAnalysisContext context,
+			AttributeSyntax attribute,
+			ImmutableDictionary<string, string> memberProperties) =>
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1017_MemberDataMustReferenceStaticMember,
+						attribute.GetLocation(),
+						memberProperties
+					)
+				);
+
+		static void ReportUseNameof(
+			SyntaxNodeAnalysisContext context,
+			AttributeArgumentSyntax memberNameArgument,
+			string memberName,
+			INamedTypeSymbol testClassTypeSymbol,
+			ISymbol memberSymbol)
+		{
+			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			if (!Equals(memberSymbol.ContainingType, testClassTypeSymbol))
+				builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
+
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1014_MemberDataShouldUseNameOfOperator,
+					memberNameArgument.Expression.GetLocation(),
+					builder.ToImmutable(),
+					memberName,
+					memberSymbol.ContainingType.ToDisplayString()
+				)
+			);
 		}
 	}
 }

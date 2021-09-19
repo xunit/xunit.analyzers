@@ -51,6 +51,8 @@ namespace Xunit.Analyzers
 				return;
 
 			var replacement = GetReplacementMethodName(method.Name, isTrue);
+			if (replacement is null)
+				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
@@ -74,7 +76,7 @@ namespace Xunit.Analyzers
 			);
 		}
 
-		static string GetReplacementMethodName(
+		static string? GetReplacementMethodName(
 			string methodName,
 			bool isTrue)
 		{

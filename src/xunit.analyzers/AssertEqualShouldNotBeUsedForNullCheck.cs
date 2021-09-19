@@ -35,13 +35,17 @@ namespace Xunit.Analyzers
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)
 		{
-			var invocation = (InvocationExpressionSyntax)invocationOperation.Syntax;
+			if (invocationOperation.Syntax is not InvocationExpressionSyntax invocation)
+				return;
+
 			var arguments = invocation.ArgumentList.Arguments;
-			var literalFirstArgument = arguments.First().Expression as LiteralExpressionSyntax;
+			var literalFirstArgument = arguments.FirstOrDefault()?.Expression as LiteralExpressionSyntax;
 			if (!literalFirstArgument?.IsKind(SyntaxKind.NullLiteralExpression) ?? true)
 				return;
 
 			var replacement = GetReplacementMethod(method.Name);
+			if (replacement is null)
+				return;
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string>();
 			builder[Constants.Properties.MethodName] = method.Name;
@@ -64,7 +68,7 @@ namespace Xunit.Analyzers
 			);
 		}
 
-		static string GetReplacementMethod(string methodName)
+		static string? GetReplacementMethod(string methodName)
 		{
 			if (equalMethods.Contains(methodName))
 				return Constants.Asserts.Null;

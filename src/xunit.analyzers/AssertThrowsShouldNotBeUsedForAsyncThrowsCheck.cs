@@ -52,15 +52,15 @@ namespace Xunit.Analyzers
 			);
 		}
 
-		static ISymbol GetThrowExpressionSymbol(IInvocationOperation invocationOperation)
+		static ISymbol? GetThrowExpressionSymbol(IInvocationOperation invocationOperation)
 		{
-			var argument = invocationOperation.Arguments.Last().Value;
+			var argument = invocationOperation.Arguments.LastOrDefault()?.Value;
 
 			if (argument is IDelegateCreationOperation delegateCreation)
 			{
 				if (delegateCreation.Target is IAnonymousFunctionOperation anonymousFunction)
 				{
-					IOperation symbolOperation = null;
+					IOperation? symbolOperation = null;
 					if (anonymousFunction.Body.Operations.Length == 2
 						&& anonymousFunction.Body.Operations[0] is IExpressionStatementOperation expressionStatement
 						&& anonymousFunction.Body.Operations[1] is IReturnOperation { ReturnedValue: null })
@@ -88,14 +88,17 @@ namespace Xunit.Analyzers
 		}
 
 		static bool ThrowExpressionReturnsTask(
-			ISymbol symbol,
+			ISymbol? symbol,
 			OperationAnalysisContext context)
 		{
 			if (symbol?.Kind != SymbolKind.Method)
 				return false;
 
 			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-			var returnType = ((IMethodSymbol)symbol).ReturnType;
+			if (symbol is not IMethodSymbol methodSymbol)
+				return false;
+
+			var returnType = methodSymbol.ReturnType;
 			if (taskType.IsAssignableFrom(returnType))
 				return true;
 

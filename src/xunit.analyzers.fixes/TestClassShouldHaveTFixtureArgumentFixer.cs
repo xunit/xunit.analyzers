@@ -25,19 +25,23 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-			var diagnostic = context.Diagnostics.First();
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.TestClassName, out var testClassName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.TFixtureName, out var tFixtureName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.TFixtureDisplayName, out var tFixtureDisplayName))
+				return;
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: string.Format(
-						titleTemplate,
-						diagnostic.Properties[Constants.Properties.TestClassName],
-						diagnostic.Properties[Constants.Properties.TFixtureName]
-					),
+					title: string.Format(titleTemplate, testClassName, tFixtureName),
 					createChangedDocument: ct => context.Document.AddConstructor(
 						classDeclaration,
-						typeDisplayName: diagnostic.Properties[Constants.Properties.TFixtureDisplayName],
-						typeName: diagnostic.Properties[Constants.Properties.TFixtureName],
+						typeDisplayName: tFixtureDisplayName,
+						typeName: tFixtureName,
 						ct
 					),
 					equivalenceKey: titleTemplate

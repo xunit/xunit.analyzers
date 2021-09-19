@@ -39,17 +39,16 @@ namespace Xunit.Analyzers.CodeActions
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 			var fromTypeSymbol = semanticModel.Compilation.GetTypeByMetadataName(fromTypeName);
 
-			foreach (var attributeList in attributeLists)
-			{
-				foreach (var attribute in attributeList.Attributes)
-				{
-					cancellationToken.ThrowIfCancellationRequested();
+			if (fromTypeSymbol is not null)
+				foreach (var attributeList in attributeLists)
+					foreach (var attribute in attributeList.Attributes)
+					{
+						cancellationToken.ThrowIfCancellationRequested();
 
-					var currentType = semanticModel.GetTypeInfo(attribute).Type;
-					if (Equals(currentType, fromTypeSymbol))
-						editor.SetName(attribute, toTypeName);
-				}
-			}
+						var currentType = semanticModel.GetTypeInfo(attribute).Type;
+						if (Equals(currentType, fromTypeSymbol))
+							editor.SetName(attribute, toTypeName);
+					}
 
 			return editor.GetChangedDocument();
 		}

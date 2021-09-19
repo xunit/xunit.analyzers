@@ -29,9 +29,14 @@ namespace Xunit.Analyzers
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
 			var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var methodName = diagnostic.Properties[Constants.Properties.MethodName];
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
+
 			var title = string.Format(TitleTemplate, replacement);
 
 			context.RegisterCodeFix(
@@ -48,22 +53,25 @@ namespace Xunit.Analyzers
 			Document document,
 			InvocationExpressionSyntax invocation,
 			MethodDeclarationSyntax method,
-			string replacementMethod,
+			string replacement,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var memberAccess = (MemberAccessExpressionSyntax)invocation.Expression;
-			var modifiers = GetModifiersWithAsyncKeywordAdded(method);
-			var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken).ConfigureAwait(false);
-			var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacementMethod, memberAccess);
 
-			editor.ReplaceNode(
-				method,
-				method
-					.ReplaceNode(invocation, asyncThrowsInvocation)
-					.WithModifiers(modifiers)
-					.WithReturnType(returnType)
-			);
+			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+			{
+				var modifiers = GetModifiersWithAsyncKeywordAdded(method);
+				var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
+				var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
+
+				editor.ReplaceNode(
+					method,
+					method
+						.ReplaceNode(invocation, asyncThrowsInvocation)
+						.WithModifiers(modifiers)
+						.WithReturnType(returnType)
+				);
+			}
 
 			return editor.GetChangedDocument();
 		}
@@ -96,12 +104,12 @@ namespace Xunit.Analyzers
 
 		static ExpressionSyntax GetAsyncThrowsInvocation(
 			InvocationExpressionSyntax invocation,
-			string replacementMethod,
+			string memberName,
 			MemberAccessExpressionSyntax memberAccess)
 		{
-			ExpressionSyntax asyncThrowsInvocation =
+			var asyncThrowsInvocation =
 				invocation
-					.WithExpression(memberAccess.WithName(GetName(replacementMethod, memberAccess)))
+					.WithExpression(memberAccess.WithName(GetName(memberName, memberAccess)))
 					.WithArgumentList(invocation.ArgumentList);
 
 			if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
@@ -113,13 +121,13 @@ namespace Xunit.Analyzers
 		}
 
 		static SimpleNameSyntax GetName(
-			string replacementMethod,
+			string memberName,
 			MemberAccessExpressionSyntax memberAccess)
 		{
 			if (memberAccess.Name is not GenericNameSyntax genericNameSyntax)
-				return IdentifierName(replacementMethod);
+				return IdentifierName(memberName);
 
-			return GenericName(IdentifierName(replacementMethod).Identifier, genericNameSyntax.TypeArgumentList);
+			return GenericName(IdentifierName(memberName).Identifier, genericNameSyntax.TypeArgumentList);
 		}
 	}
 }

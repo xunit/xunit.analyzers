@@ -12,8 +12,8 @@ namespace Xunit.Analyzers
 		public static TypeHierarchyComparer Instance { get; } = new TypeHierarchyComparer();
 
 		public int Compare(
-			ITypeSymbol x,
-			ITypeSymbol y)
+			ITypeSymbol? x,
+			ITypeSymbol? y)
 		{
 			if (x?.TypeKind != TypeKind.Class)
 				throw new ArgumentException("The argument must be a class", nameof(x));

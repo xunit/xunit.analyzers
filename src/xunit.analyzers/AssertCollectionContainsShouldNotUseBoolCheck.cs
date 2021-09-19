@@ -72,7 +72,7 @@ namespace Xunit.Analyzers
 		}
 
 		static bool IsLinqContainsMethod(IMethodSymbol methodSymbol) =>
-			methodSymbol.OriginalDefinition != null && linqContainsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol.OriginalDefinition));
+			methodSymbol.OriginalDefinition is not null && linqContainsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol.OriginalDefinition));
 
 		static bool IsICollectionContainsMethod(
 			OperationAnalysisContext context,
@@ -81,7 +81,7 @@ namespace Xunit.Analyzers
 			var containingType = methodSymbol.ContainingType;
 			var genericCollectionType = containingType.GetGenericInterfaceImplementation(context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T));
 
-			if (genericCollectionType == null)
+			if (genericCollectionType is null)
 				return false;
 
 			var genericCollectionContainsSymbol =
@@ -89,7 +89,7 @@ namespace Xunit.Analyzers
 					.GetMembers(nameof(ICollection<int>.Contains))
 					.FirstOrDefault();
 
-			if (genericCollectionContainsSymbol == null)
+			if (genericCollectionContainsSymbol is null)
 				return false;
 
 			var genericCollectionSymbolImplementation = containingType.FindImplementationForInterfaceMember(genericCollectionContainsSymbol);

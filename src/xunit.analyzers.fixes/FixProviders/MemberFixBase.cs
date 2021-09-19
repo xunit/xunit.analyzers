@@ -20,20 +20,26 @@ namespace Xunit.Analyzers.FixProviders
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
-			var diagnostic = context.Diagnostics.First();
-
-			var declaringType = semanticModel.Compilation.GetTypeByMetadataName(diagnostic.Properties["DeclaringType"]);
-			if (declaringType == null)
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.DeclaringType, out var declaringTypeName))
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MemberName, out var memberName))
 				return;
 
-			var member = declaringType.GetMembers(diagnostic.Properties["MemberName"]).FirstOrDefault();
-			if (member == null)
+			var declaringType = semanticModel.Compilation.GetTypeByMetadataName(declaringTypeName);
+			if (declaringType is null)
+				return;
+
+			var member = declaringType.GetMembers(memberName).FirstOrDefault();
+			if (member is null)
 				return;
 
 			if (member.Locations.FirstOrDefault()?.IsInMetadata ?? true)
 				return;
 
-			await RegisterCodeFixesAsync(context, member).ConfigureAwait(false);
+			await RegisterCodeFixesAsync(context, member);
 		}
 
 		public abstract Task RegisterCodeFixesAsync(

@@ -23,8 +23,12 @@ namespace Xunit.Analyzers
 
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
-			var diagnosticId = context.Diagnostics.Single().Id;
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+
+			var diagnosticId = diagnostic.Id;
 			var attribute = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeSyntax>();
 
 			context.RegisterCodeFix(

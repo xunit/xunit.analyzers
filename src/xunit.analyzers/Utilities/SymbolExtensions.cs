@@ -12,24 +12,24 @@ namespace Xunit.Analyzers
 			bool exactMatch = false) =>
 				attributes.Any(a => attributeType.IsAssignableFrom(a.AttributeClass, exactMatch));
 
-		public static INamedTypeSymbol GetGenericInterfaceImplementation(
+		public static INamedTypeSymbol? GetGenericInterfaceImplementation(
 			this ITypeSymbol implementingType,
 			INamedTypeSymbol openInterfaceType) =>
 				implementingType.AllInterfaces.FirstOrDefault(i => Equals(i.OriginalDefinition, openInterfaceType));
 
-		public static ISymbol GetMember(
+		public static ISymbol? GetMember(
 			this INamespaceOrTypeSymbol namespaceOrType,
 			string name) =>
 				namespaceOrType.GetMembers(name).FirstOrDefault();
 
 		public static ImmutableArray<ISymbol> GetInheritedAndOwnMembers(
-			this ITypeSymbol symbol,
-			string name = null)
+			this ITypeSymbol? symbol,
+			string? name = null)
 		{
 			var builder = ImmutableArray.CreateBuilder<ISymbol>();
-			while (symbol != null)
+			while (symbol is not null)
 			{
-				builder.AddRange(name == null ? symbol.GetMembers() : symbol.GetMembers(name));
+				builder.AddRange(name is null ? symbol.GetMembers() : symbol.GetMembers(name));
 				symbol = symbol.BaseType;
 			}
 
@@ -37,13 +37,13 @@ namespace Xunit.Analyzers
 		}
 
 		public static bool IsAssignableFrom(
-			this ITypeSymbol targetType,
-			ITypeSymbol sourceType,
+			this ITypeSymbol? targetType,
+			ITypeSymbol? sourceType,
 			bool exactMatch = false)
 		{
-			if (targetType != null)
+			if (targetType is not null)
 			{
-				while (sourceType != null)
+				while (sourceType is not null)
 				{
 					if (sourceType.Equals(targetType))
 						return true;

@@ -50,7 +50,7 @@ namespace Xunit.Analyzers
 			if (!stringEqualsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 				return;
 
-			string ignoreCase = null;
+			string ignoreCase = string.Empty;
 
 			if (methodSymbol.Parameters.Last().Type.TypeKind == TypeKind.Enum)
 			{
@@ -58,11 +58,8 @@ namespace Xunit.Analyzers
 					return;
 
 				var stringComparisonExpression = invocationExpression.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(methodSymbol.Parameters.Last()))?.Value;
-				var stringComparison = (StringComparison?)(int?)(stringComparisonExpression?.ConstantValue.Value);
-				if (stringComparison is null)
-					return;
-
-				if (!supportedStringComparisons.Contains(stringComparison.Value))
+				var stringComparison = (StringComparison?)(stringComparisonExpression?.ConstantValue.Value as int?);
+				if (!stringComparison.HasValue || !supportedStringComparisons.Contains(stringComparison.Value))
 					return;
 
 				ignoreCase = stringComparison == StringComparison.OrdinalIgnoreCase ? bool.TrueString : bool.FalseString;

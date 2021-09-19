@@ -26,15 +26,13 @@ namespace Xunit.Analyzers
 			return false;
 		}
 
-		public static SimpleNameSyntax GetSimpleName(this InvocationExpressionSyntax invocation)
-		{
-			return invocation.Expression switch
+		public static SimpleNameSyntax? GetSimpleName(this InvocationExpressionSyntax invocation) =>
+			invocation.Expression switch
 			{
 				MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
 				SimpleNameSyntax simpleName => simpleName,
 				_ => null,
 			};
-		}
 
 		public static bool IsEnumValueExpression(
 			this ExpressionSyntax expression,
@@ -55,17 +53,16 @@ namespace Xunit.Analyzers
 		{
 			if (!expression.IsKind(SyntaxKind.InvocationExpression))
 				return false;
-
-			var invocation = (InvocationExpressionSyntax)expression;
+			if (expression is not InvocationExpressionSyntax invocation)
+				return false;
 			if (invocation.ArgumentList.Arguments.Count != 1)
 				return false;
-
 			if ((invocation.Expression as IdentifierNameSyntax)?.Identifier.ValueText != "nameof")
 				return false;
 
 			// A real nameof expression doesn't have a matching symbol, but it does have the string type
 			return
-				semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol == null
+				semanticModel.GetSymbolInfo(expression, cancellationToken).Symbol is null
 				&& semanticModel.GetTypeInfo(expression, cancellationToken).Type?.SpecialType == SpecialType.System_String;
 		}
 	}

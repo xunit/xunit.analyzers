@@ -13,16 +13,16 @@ namespace Xunit.Analyzers
 			return iEnumerableOfObjectArray;
 		}
 
-		public static INamedTypeSymbol InlineDataAttribute(Compilation compilation) =>
+		public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 			compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);
 
 		public static IArrayTypeSymbol ObjectArray(Compilation compilation) =>
 			compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
-		public static INamedTypeSymbol ObsoleteAttribute(Compilation compilation) =>
+		public static INamedTypeSymbol? ObsoleteAttribute(Compilation compilation) =>
 			compilation.GetTypeByMetadataName(Constants.Types.SystemObsoleteAttribute);
 
-		public static INamedTypeSymbol TheoryAttribute(Compilation compilation) =>
+		public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 			compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute);
 	}
 }

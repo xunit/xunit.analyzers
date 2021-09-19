@@ -55,21 +55,24 @@ namespace Xunit.Analyzers
 			var generator = editor.Generator;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
-			var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
-
-			var hasObsolete =
-				parameterlessCtor
-					.AttributeLists
-					.SelectMany(al => al.Attributes)
-					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
-
-			if (!hasObsolete)
+			if (parameterlessCtor is not null)
 			{
-				var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
-				updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
-			}
+				var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
-			editor.ReplaceNode(parameterlessCtor, updatedCtor);
+				var hasObsolete =
+					parameterlessCtor
+						.AttributeLists
+						.SelectMany(al => al.Attributes)
+						.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
+
+				if (!hasObsolete)
+				{
+					var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
+					updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
+				}
+
+				editor.ReplaceNode(parameterlessCtor, updatedCtor);
+			}
 
 			return editor.GetChangedDocument();
 		}

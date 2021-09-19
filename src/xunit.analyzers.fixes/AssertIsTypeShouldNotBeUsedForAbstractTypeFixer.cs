@@ -27,13 +27,17 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var methodName = invocation.GetSimpleName()?.Identifier.Text;
+			var simpleNameSyntax = invocation.GetSimpleName();
+			if (simpleNameSyntax is null)
+				return;
+
+			var methodName = simpleNameSyntax.Identifier.Text;
 
 			if (methodName == Constants.Asserts.IsType)
 				context.RegisterCodeFix(
 					CodeAction.Create(
 						title,
-						createChangedDocument: ct => UseIsAssignableFrom(context.Document, invocation, ct),
+						createChangedDocument: ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, ct),
 						equivalenceKey: title
 					),
 					context.Diagnostics
@@ -42,11 +46,10 @@ namespace Xunit.Analyzers
 
 		static async Task<Document> UseIsAssignableFrom(
 			Document document,
-			InvocationExpressionSyntax invocation,
+			SimpleNameSyntax simpleName,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var simpleName = invocation.GetSimpleName();
 
 			editor.ReplaceNode(
 				simpleName,

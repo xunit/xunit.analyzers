@@ -24,10 +24,13 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			var diagnostic = context.Diagnostics.First();
-			var replacement = diagnostic.Properties[Constants.Properties.Replacement];
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic is null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
 
-			if (replacement != null && invocation.Expression is MemberAccessExpressionSyntax)
+			if (invocation.Expression is MemberAccessExpressionSyntax)
 			{
 				var title = string.Format(titleTemplate, replacement);
 

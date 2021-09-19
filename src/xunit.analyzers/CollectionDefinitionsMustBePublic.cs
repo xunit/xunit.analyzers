@@ -17,14 +17,17 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
+				if (xunitContext.V2Core?.CollectionDefinitionAttributeType is null)
+					return;
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;
+				if (context.Symbol is not INamedTypeSymbol classSymbol)
+					return;
 
-				var classSymbol = (INamedTypeSymbol)context.Symbol;
-
-				var doesClassContainCollectionDefinitionAttribute = classSymbol
-					.GetAttributes()
-					.Any(a => xunitContext.V2Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
+				var doesClassContainCollectionDefinitionAttribute =
+					classSymbol
+						.GetAttributes()
+						.Any(a => xunitContext.V2Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
 
 				if (!doesClassContainCollectionDefinitionAttribute)
 					return;

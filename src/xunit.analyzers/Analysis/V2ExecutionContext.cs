@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -38,13 +36,13 @@ namespace Xunit.Analyzers
 					.ReferencedAssemblyNames
 					.FirstOrDefault(a => a.Name.StartsWith(assemblyPrefix, StringComparison.OrdinalIgnoreCase));
 
-			if (assembly == null)
+			if (assembly is null)
 				return null;
 
 			var version = versionOverride ?? assembly.Version;
 			var platform = assembly.Name.Substring(assemblyPrefix.Length);
 
-			return version == null ? null : new(compilation, platform, version);
+			return version is null ? null : new(compilation, platform, version);
 		}
 	}
 }

@@ -36,13 +36,14 @@ namespace Xunit.Analyzers.CodeActions
 		protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var dataAttributeType = semanticModel.Compilation.GetTypeByMetadataName(attributeType);
 
-			foreach (var attributeList in attributeLists)
-				foreach (var attribute in attributeList.Attributes)
-					if (dataAttributeType.IsAssignableFrom(semanticModel.GetTypeInfo(attribute, cancellationToken).Type, exactMatch))
-						editor.RemoveNode(attribute);
+			if (dataAttributeType is not null)
+				foreach (var attributeList in attributeLists)
+					foreach (var attribute in attributeList.Attributes)
+						if (dataAttributeType.IsAssignableFrom(semanticModel.GetTypeInfo(attribute, cancellationToken).Type, exactMatch))
+							editor.RemoveNode(attribute);
 
 			return editor.GetChangedDocument();
 		}
