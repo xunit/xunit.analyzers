@@ -17,10 +17,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core is null
-						|| xunitContext.V2Core.FactAttributeType is null
-						|| xunitContext.V2Core.TheoryAttributeType is null
-						|| xunitContext.V2Core.DataAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.DataAttributeType is null)
 					return;
 
 				if (context.Symbol is not IMethodSymbol symbol)
@@ -28,9 +25,9 @@ namespace Xunit.Analyzers
 
 				var attributes = symbol.GetAttributes();
 				if (attributes.Length > 1 &&
-					attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType, exactMatch: true) &&
-					!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType) &&
-					attributes.ContainsAttributeType(xunitContext.V2Core.DataAttributeType))
+					attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true) &&
+					!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
+					attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(

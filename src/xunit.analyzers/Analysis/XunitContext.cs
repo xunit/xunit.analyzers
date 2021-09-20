@@ -8,6 +8,7 @@ namespace Xunit.Analyzers
 	/// </summary>
 	public class XunitContext
 	{
+		ICoreContext? core;
 		static readonly Version v2AbstractionsVersion = new(2, 0, 3);
 
 		XunitContext()
@@ -27,6 +28,21 @@ namespace Xunit.Analyzers
 		}
 
 		/// <summary>
+		/// Gets a combined view of features available to either v2 tests (linked against xunit.core)
+		/// or v3 tests (linked against xunit.v3.core).
+		/// </summary>
+		public ICoreContext Core
+		{
+			get
+			{
+				if (core == null)
+					core = V3Core ?? (ICoreContext?)V2Core ?? new EmptyCoreContext();
+
+				return core;
+			}
+		}
+
+		/// <summary>
 		/// Gets a flag which indicates whether there are any xUnit.net v2 references in the project
 		/// (including abstractions, core, and execution references).
 		/// </summary>
@@ -43,25 +59,25 @@ namespace Xunit.Analyzers
 		/// Gets information about the reference to xunit.abstractions (v2). If the project does
 		/// not reference v2 Abstractions, then returns <c>null</c>.
 		/// </summary>
-		public V2AbstractionsContext? V2Abstractions { get; set; }
+		public V2AbstractionsContext? V2Abstractions { get; private set; }
 
 		/// <summary>
 		/// Gets information about the reference to xunit.core (v2). If the project does not
 		/// reference v2 Core, then returns <c>null</c>.
 		/// </summary>
-		public V2CoreContext? V2Core { get; set; }
+		public V2CoreContext? V2Core { get; private set; }
 
 		/// <summary>
 		/// Gets information about the reference to xunit.execution.* (v2). If the project does
 		/// not reference v2 Execution, then returns <c>null</c>.
 		/// </summary>
-		public V2ExecutionContext? V2Execution { get; set; }
+		public V2ExecutionContext? V2Execution { get; private set; }
 
 		/// <summary>
 		/// Gets information about the reference to xunit.v3.core (v3). If the project does not
 		/// reference v3 Core, then returns <c>null</c>.
 		/// </summary>
-		public V3CoreContext? V3Core { get; set; }
+		public V3CoreContext? V3Core { get; private set; }
 
 		/// <summary>
 		/// Used to create a context object for testing purposes, which is stuck to a specific version
@@ -89,6 +105,9 @@ namespace Xunit.Analyzers
 		public static XunitContext ForV3(
 			Compilation compilation,
 			Version? v3VersionOverride = null) =>
-				new() { V3Core = V3CoreContext.Get(compilation, v3VersionOverride) };
+				new()
+				{
+					V3Core = V3CoreContext.Get(compilation, v3VersionOverride)
+				};
 	}
 }

@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.FactAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null)
 					return;
 				if (context.Symbol is not INamedTypeSymbol type)
 					return;
@@ -60,7 +60,7 @@ namespace Xunit.Analyzers
 						continue;
 
 					var attributes = method.GetAttributes();
-					var isTestMethod = attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType);
+					var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
 					hasTestMethods = hasTestMethods || isTestMethod;
 
 					if (isTestMethod ||

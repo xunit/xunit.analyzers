@@ -22,20 +22,20 @@ namespace Xunit.Analyzers
 			SymbolAnalysisContext context,
 			XunitContext xunitContext)
 		{
-			if (xunitContext.V2Core?.TheoryAttributeType is null)
+			if (xunitContext.Core.TheoryAttributeType is null)
 				return;
 			if (context.Symbol is not IMethodSymbol method)
 				return;
 
 			var methodAllAttributes = method.GetAttributes();
-			if (!methodAllAttributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
+			if (!methodAllAttributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 				return;
 
 			var objectArrayType = TypeSymbolFactory.ObjectArray(context.Compilation);
 
 			var wellFormedInlineDataAttributes =
 				methodAllAttributes
-					.Where(a => Equals(a.AttributeClass, xunitContext.V2Core.InlineDataAttributeType) && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
+					.Where(a => Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType) && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
 			AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);
 		}

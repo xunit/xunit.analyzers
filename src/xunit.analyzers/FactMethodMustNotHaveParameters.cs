@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.FactAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null)
 					return;
 				if (context.Symbol is not IMethodSymbol symbol)
 					return;
@@ -25,7 +25,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributes = symbol.GetAttributes();
-				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType, exactMatch: true))
+				if (!attributes.IsEmpty && attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true))
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1001_FactMethodMustNotHaveParameters,

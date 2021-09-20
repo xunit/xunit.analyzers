@@ -7,13 +7,13 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class TheoryMethodCannotHaveDefaultParameter : XunitV2DiagnosticAnalyzer
+	public class TheoryMethodCannotHaveDefaultParameter : XunitDiagnosticAnalyzer
 	{
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter);
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.V2Core is not null && !xunitContext.V2Core.TheorySupportsDefaultParameterValues;
+			!xunitContext.Core.TheorySupportsDefaultParameterValues;
 
 		public override void AnalyzeCompilation(
 			CompilationStartAnalysisContext context,
@@ -21,13 +21,13 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.TheoryAttributeType is null)
+				if (xunitContext.Core.TheoryAttributeType is null)
 					return;
 				if (context.Symbol is not IMethodSymbol method)
 					return;
 
 				var attributes = method.GetAttributes();
-				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
 
 				foreach (var parameter in method.Parameters)

@@ -17,10 +17,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core is null
-						|| xunitContext.V2Core.FactAttributeType is null
-						|| xunitContext.V2Core.IClassFixtureType is null
-						|| xunitContext.V2Core.ICollectionFixtureType is null)
+				if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.IClassFixtureType is null || xunitContext.Core.ICollectionFixtureType is null)
 					return;
 
 				if (context.Symbol.DeclaredAccessibility != Accessibility.Public)
@@ -32,7 +29,7 @@ namespace Xunit.Analyzers
 					classSymbol
 						.GetMembers()
 						.OfType<IMethodSymbol>()
-						.Any(m => m.GetAttributes().Any(a => xunitContext.V2Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;
@@ -40,8 +37,8 @@ namespace Xunit.Analyzers
 				foreach (var interfaceOnTestClass in classSymbol.AllInterfaces)
 				{
 					var isFixtureInterface =
-						interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.V2Core.IClassFixtureType)
-						|| interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.V2Core.ICollectionFixtureType);
+						interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.Core.IClassFixtureType)
+						|| interfaceOnTestClass.OriginalDefinition.IsAssignableFrom(xunitContext.Core.ICollectionFixtureType);
 
 					if (isFixtureInterface && interfaceOnTestClass.TypeArguments[0] is INamedTypeSymbol tFixtureDataType)
 					{

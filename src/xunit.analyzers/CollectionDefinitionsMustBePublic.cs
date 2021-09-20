@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.CollectionDefinitionAttributeType is null)
+				if (xunitContext.Core.CollectionDefinitionAttributeType is null)
 					return;
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;
@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 				var doesClassContainCollectionDefinitionAttribute =
 					classSymbol
 						.GetAttributes()
-						.Any(a => xunitContext.V2Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
+						.Any(a => xunitContext.Core.CollectionDefinitionAttributeType.IsAssignableFrom(a.AttributeClass));
 
 				if (!doesClassContainCollectionDefinitionAttribute)
 					return;

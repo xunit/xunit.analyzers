@@ -38,7 +38,7 @@ namespace Xunit.Analyzers
 
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				if (xunitContext.V2Core?.MemberDataAttributeType is null)
+				if (xunitContext.Core.MemberDataAttributeType is null)
 					return;
 
 				if (context.Node is not AttributeSyntax attribute)
@@ -49,7 +49,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.V2Core.MemberDataAttributeType))
+				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
 					return;
 
 				if (attribute.ArgumentList is null)

@@ -17,17 +17,15 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core is null
-						|| xunitContext.V2Core.TheoryAttributeType is null
-						|| xunitContext.V2Core.DataAttributeType is null)
+				if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.DataAttributeType is null)
 					return;
 
 				if (context.Symbol is not IMethodSymbol symbol)
 					return;
 
 				var attributes = symbol.GetAttributes();
-				if (attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType) &&
-					(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.V2Core.DataAttributeType)))
+				if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
+					(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType)))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(

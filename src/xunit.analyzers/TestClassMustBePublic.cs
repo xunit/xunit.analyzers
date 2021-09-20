@@ -17,7 +17,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.FactAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null)
 					return;
 				if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 					return;
@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
 					classSymbol
 						.GetMembers()
 						.OfType<IMethodSymbol>()
-						.Any(m => m.GetAttributes().Any(a => xunitContext.V2Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+						.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 				if (!doesClassContainTests)
 					return;

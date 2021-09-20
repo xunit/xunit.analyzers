@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				if (xunitContext.V2Core?.TheoryAttributeType is null)
+				if (xunitContext.Core.TheoryAttributeType is null)
 					return;
 				if (context.Node is not MethodDeclarationSyntax methodSyntax)
 					return;
@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 
 				var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
 				var attributes = methodSymbol.GetAttributes();
-				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
 
 				AnalyzeTheoryParameters(context, methodSyntax, methodSymbol);

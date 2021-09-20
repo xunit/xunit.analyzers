@@ -19,7 +19,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSyntaxNodeAction(context =>
 			{
-				if (xunitContext.V2Core?.FactAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null)
 					return;
 				if (context.Node is not AttributeSyntax attribute)
 					return;
@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
-				if (!xunitContext.V2Core.FactAttributeType.IsAssignableFrom(attributeType))
+				if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 					return;
 
 				context.ReportDiagnostic(

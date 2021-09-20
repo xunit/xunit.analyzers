@@ -15,9 +15,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core is null
-						|| xunitContext.V2Core.FactAttributeType is null
-						|| xunitContext.V2Core.DataAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.DataAttributeType is null)
 					return;
 
 				if (context.Symbol is not IMethodSymbol methodSymbol)
@@ -29,7 +27,7 @@ namespace Xunit.Analyzers
 
 				// Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
 				// we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
-				if (!attributes.ContainsAttributeType(xunitContext.V2Core.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.V2Core.DataAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1008_DataAttributeShouldBeUsedOnATheory,

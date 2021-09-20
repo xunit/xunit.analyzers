@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
 		{
 			context.RegisterSymbolAction(context =>
 			{
-				if (xunitContext.V2Core?.FactAttributeType is null)
+				if (xunitContext.Core.FactAttributeType is null)
 					return;
 				if (context.Symbol is not IMethodSymbol symbol)
 					return;
@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 				foreach (var attribute in symbol.GetAttributes())
 				{
 					var attributeType = attribute.AttributeClass;
-					if (xunitContext.V2Core.FactAttributeType.IsAssignableFrom(attributeType))
+					if (xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 					{
 						attributeTypes.Add(attributeType);
 						count++;

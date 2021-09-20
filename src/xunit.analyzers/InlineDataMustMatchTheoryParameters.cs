@@ -24,11 +24,11 @@ namespace Xunit.Analyzers
 			CompilationStartAnalysisContext context,
 			XunitContext xunitContext)
 		{
-			if (xunitContext.V2Core is null || xunitContext.V2Core.TheoryAttributeType is null)
+			if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.InlineDataAttributeType is null)
 				return;
 
-			var xunitSupportsParameterArrays = xunitContext.V2Core.TheorySupportsParameterArrays;
-			var xunitSupportsDefaultParameterValues = xunitContext.V2Core.TheorySupportsDefaultParameterValues;
+			var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
+			var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 			var compilation = context.Compilation;
 			INamedTypeSymbol? systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
 			var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
@@ -39,14 +39,14 @@ namespace Xunit.Analyzers
 					return;
 
 				var attributes = method.GetAttributes();
-				if (!attributes.ContainsAttributeType(xunitContext.V2Core.TheoryAttributeType))
+				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
 
 				foreach (var attribute in attributes)
 				{
 					context.CancellationToken.ThrowIfCancellationRequested();
 
-					if (!attribute.AttributeClass.Equals(xunitContext.V2Core.InlineDataAttributeType))
+					if (!attribute.AttributeClass.Equals(xunitContext.Core.InlineDataAttributeType))
 						continue;
 
 					// Check if the semantic model indicates there are no syntax/compilation errors
@@ -242,7 +242,7 @@ namespace Xunit.Analyzers
 					return IsConvertibleNumeric(source, destination);
 
 				if (destination.SpecialType == SpecialType.System_DateTime
-					|| (xunitContext.V2Core?.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
+					|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
 				{
 					// Allow all conversions from strings. All parsing issues will be reported at runtime.
 					return source.SpecialType == SpecialType.System_String;
