@@ -4,6 +4,33 @@ using Verify = CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameter
 public class SerializableClassMustHaveParameterlessConstructorFixerTests
 {
 	[Fact]
+	public async void WithPublicParameteredConstructor_AddsNewConstructor()
+	{
+		var before = @"
+public class [|MyTestCase|]: Xunit.Abstractions.IXunitSerializable {
+    public MyTestCase(int x) { }
+
+    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
+    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
+}";
+
+		var after = @"
+public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
+    [System.Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
+    public MyTestCase()
+    {
+    }
+
+    public MyTestCase(int x) { }
+
+    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
+    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
+}";
+
+		await Verify.VerifyCodeFixAsyncV2(before, after);
+	}
+
+	[Fact]
 	public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
 	{
 		var before = @"

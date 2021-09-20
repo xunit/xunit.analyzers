@@ -16,8 +16,6 @@ namespace Xunit.Analyzers
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class SerializableClassMustHaveParameterlessConstructorFixer : CodeFixProvider
 	{
-		const string title = "Create/update constructor";
-
 		static readonly LiteralExpressionSyntax obsoleteText;
 
 		public override ImmutableArray<string> FixableDiagnosticIds { get; } =
@@ -35,18 +33,19 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+			var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: title,
-					createChangedDocument: ct => AddObsoleteAttribute(context.Document, classDeclaration, ct),
-					equivalenceKey: title
+					title: parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
+					createChangedDocument: ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
+					equivalenceKey: "xUnit3001"
 				),
 				context.Diagnostics
 			);
 		}
 
-		async Task<Document> AddObsoleteAttribute(
+		async Task<Document> CreateOrUpdateConstructor(
 			Document document,
 			ClassDeclarationSyntax declaration,
 			CancellationToken cancellationToken)
@@ -55,7 +54,16 @@ namespace Xunit.Analyzers
 			var generator = editor.Generator;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
-			if (parameterlessCtor is not null)
+
+			if (parameterlessCtor is null)
+			{
+				var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
+				var newCtor = generator.ConstructorDeclaration();
+				newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
+				newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
+				editor.InsertMembers(declaration, 0, new[] { newCtor });
+			}
+			else
 			{
 				var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
