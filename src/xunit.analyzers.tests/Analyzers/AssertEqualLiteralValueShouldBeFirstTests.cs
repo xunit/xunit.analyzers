@@ -109,8 +109,8 @@ class TestClass {{
 
 	[Theory]
 	[InlineData("Equal", "{|CS1739:act|}", "exp")]
-	[InlineData("{|CS1501:Equal|}", "expected", "{|CS1740:expected|}")]
-	[InlineData("{|CS1501:Equal|}", "actual", "{|CS1740:actual|}")]
+	[InlineData("{|CS1501:Equal|}", "expected", "expected")]
+	[InlineData("{|CS1501:Equal|}", "actual", "actual")]
 	[InlineData("Equal", "{|CS1739:foo|}", "bar")]
 	public async void DoesNotFindWarningWhenArgumentsAreNotNamedCorrectly(
 		string methodName,
