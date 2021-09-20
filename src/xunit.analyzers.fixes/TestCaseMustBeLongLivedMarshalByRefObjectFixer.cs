@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -24,6 +25,15 @@ namespace Xunit.Analyzers
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+			var diagnostic = context.Diagnostics.FirstOrDefault();
+			if (diagnostic == null)
+				return;
+			if (!diagnostic.Properties.TryGetValue(Constants.Properties.CanFix, out var canFixText))
+				return;
+
+			bool.TryParse(canFixText, out var canFix);
+			if (!canFix)
+				return;
 
 			context.RegisterCodeFix(
 				CodeAction.Create(

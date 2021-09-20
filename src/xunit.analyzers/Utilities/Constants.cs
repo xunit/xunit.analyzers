@@ -71,6 +71,7 @@
 		public static class Properties
 		{
 			public const string AssertMethodName = "AssertMethodName";
+			public const string CanFix = "CanFix";
 			public const string DeclaringType = "DeclaringType";
 			public const string IgnoreCase = "IgnoreCase";
 			public const string IsStatic = "IsStatic";

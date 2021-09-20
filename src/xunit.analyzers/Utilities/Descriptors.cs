@@ -521,7 +521,7 @@ namespace Xunit.Analyzers
 				"Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject",
 				Extensibility,
 				Error,
-				"Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject."
+				"Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject (in NuGet package xunit.extensibility.execution)."
 			);
 
 		public static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =

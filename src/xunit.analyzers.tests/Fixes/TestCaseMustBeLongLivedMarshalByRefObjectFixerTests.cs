@@ -1,5 +1,8 @@
-﻿using Xunit;
+﻿using Microsoft.CodeAnalysis;
+using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
+using Verify_WithAbstractions = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObjectFixerTests.Analyzer_WithAbstractions>;
 
 public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
 {
@@ -59,5 +62,19 @@ public class Foo { }
 public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
 
 		await Verify.VerifyCodeFixAsyncV2(before, after);
+	}
+
+	[Fact]
+	public async void DoesNotAttemptToFixWithoutExectionReference()
+	{
+		var source = "public class [|MyTestCase|]: {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+
+		await Verify_WithAbstractions.VerifyCodeFixAsyncV2(source, source);
+	}
+
+	public class Analyzer_WithAbstractions : TestCaseMustBeLongLivedMarshalByRefObject
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2Abstractions(compilation);
 	}
 }

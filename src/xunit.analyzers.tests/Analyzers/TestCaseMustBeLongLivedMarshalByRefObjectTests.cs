@@ -1,6 +1,9 @@
 ﻿using System.Linq;
+using Microsoft.CodeAnalysis;
 using Xunit;
-using Verify = CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
+using Xunit.Analyzers;
+using Verify_WithAbstractions = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObjectTests.Analyzer_WithAbstractions>;
+using Verify_WithExecution = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObjectTests.Analyzer_WithExecution>;
 
 public class TestCaseMustBeLongLivedMarshalByRefObjectTests
 {
@@ -36,7 +39,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class Foo { }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Fact]
@@ -44,7 +47,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class MyTestCase: Xunit.Sdk.XunitTestCase { }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -55,7 +58,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = string.Format(Template, $"{baseClass}, {@interface}");
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
 	}
 
 	[Theory]
@@ -64,12 +67,12 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = string.Format(Template, @interface);
 		var expected =
-			Verify
+			Verify_WithExecution
 				.Diagnostic()
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
@@ -78,11 +81,36 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = string.Format(Template, $"Foo, {@interface}");
 		var expected =
-			Verify
+			Verify_WithExecution
 				.Diagnostic()
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source, expected);
+	}
+
+	[Fact]
+	public async void WithOnlyAbstractions_StillTriggersDiagnostic()
+	{
+		var source = "public class MyTestCase : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
+		var expected =
+			Verify_WithAbstractions
+				.Diagnostic()
+				.WithLocation(1, 14)
+				.WithArguments("MyTestCase");
+
+		await Verify_WithAbstractions.VerifyAnalyzerAsyncV2(source, expected);
+	}
+
+	internal class Analyzer_WithAbstractions : TestCaseMustBeLongLivedMarshalByRefObject
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2Abstractions(compilation);
+	}
+
+	internal class Analyzer_WithExecution : TestCaseMustBeLongLivedMarshalByRefObject
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2Execution(compilation);
 	}
 }

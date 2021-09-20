@@ -30,10 +30,14 @@ namespace Xunit.Analyzers
 				if (hasMBRO)
 					return;
 
+				var builder = ImmutableDictionary.CreateBuilder<string, string>();
+				builder[Constants.Properties.CanFix] = (xunitContext.V2Execution != null).ToString();
+
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject,
 						namedType.Locations.First(),
+						builder.ToImmutable(),
 						namedType.Name
 					)
 				);
@@ -41,6 +45,6 @@ namespace Xunit.Analyzers
 		}
 
 		protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-			xunitContext.V2Abstractions is not null && xunitContext.V2Execution is not null;
+			xunitContext.V2Abstractions is not null;
 	}
 }
