@@ -1,5 +1,7 @@
-﻿using Xunit;
-using Verify = CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameterlessConstructor>;
+﻿using Microsoft.CodeAnalysis;
+using Xunit;
+using Xunit.Analyzers;
+using Verify = CSharpVerifier<SerializableClassMustHaveParameterlessConstructorTests.Analyzer>;
 
 public class SerializableClassMustHaveParameterlessConstructorTests
 {
@@ -63,5 +65,11 @@ public class Foo : {0}
 		var source = string.Format(Template, @interface, "public Foo() { }");
 
 		await Verify.VerifyAnalyzerAsyncV2(source);
+	}
+
+	public class Analyzer : SerializableClassMustHaveParameterlessConstructor
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV2Abstractions(compilation);
 	}
 }

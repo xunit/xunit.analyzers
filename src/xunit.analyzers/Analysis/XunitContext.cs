@@ -80,20 +80,45 @@ namespace Xunit.Analyzers
 		public V3CoreContext? V3Core { get; private set; }
 
 		/// <summary>
+		/// Used to create a context object for test purposes, which only contains a reference to
+		/// xunit.abstraction (which is always set to version 2.0.3, since it did not float version).
+		/// </summary>
+		/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+		public static XunitContext ForV2Abstractions(Compilation compilation) =>
+			new()
+			{
+				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
+			};
+
+		/// <summary>
 		/// Used to create a context object for testing purposes, which is stuck to a specific version
-		/// of xunit.core and xunit.execution.* (abstractions is always set to 2.0.3, since it did
-		/// not float versions).
+		/// of xunit.core (xunit.abstractions is always version 2.0.3, since it did not float versions).
 		/// </summary>
 		/// <param name="compilation">The Roslyn compilation object used to look up types</param>
 		/// <param name="v2VersionOverride">The overridden version for xunit.core and xunit.execution.*</param>
-		public static XunitContext ForV2(
+		public static XunitContext ForV2Core(
 			Compilation compilation,
 			Version? v2VersionOverride = null) =>
 				new()
 				{
 					V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
 					V2Core = V2CoreContext.Get(compilation, v2VersionOverride),
-					V2Execution = V2ExecutionContext.Get(compilation, v2VersionOverride)
+				};
+
+		/// <summary>
+		/// Used to create a context object for testing purposes, which is stuck to a specific version
+		/// of xunit.execution.* (xunit.abstractions is always version 2.0.3, since it did not float
+		/// versions).
+		/// </summary>
+		/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+		/// <param name="v2VersionOverride">The overridden version for xunit.execution.*</param>
+		public static XunitContext ForV2Execution(
+			Compilation compilation,
+			Version? v2VersionOverride = null) =>
+				new()
+				{
+					V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
+					V2Execution = V2ExecutionContext.Get(compilation, v2VersionOverride),
 				};
 
 		/// <summary>
