@@ -7,7 +7,7 @@
 
 This project contains source code analysis and cleanup rules for xUnit.net.
 
-**Requirements**: xUnit.net v2.0+ and Visual Studio 2015 Update 2 or later.
+**Requirements**: xUnit.net v2.0+ and Visual Studio 2017 version 15.9 or later.
 
 **Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/rules/
 
@@ -19,7 +19,7 @@ This project contains source code analysis and cleanup rules for xUnit.net.
 
 - xUnit.net 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box. If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.core) instead, you can reference [`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
-- xUnit.net 2.2.0 and earlier: you have to install the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers) explicitly
+- xUnit.net 2.2.0 and earlier: you have to install the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
 ## How to uninstall
 
