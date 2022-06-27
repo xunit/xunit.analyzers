@@ -10,6 +10,6 @@ public static class AnalyzeSource
 	{
 		context.BuildStep("Analyzing source");
 
-		await context.Exec("dotnet", $"format --check --folder --verbosity {context.Verbosity}");
+		await context.Exec("dotnet", $"dotnet-format --check --folder --verbosity {context.Verbosity}");
 	}
 }
