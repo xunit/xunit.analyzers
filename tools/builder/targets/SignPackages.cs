@@ -30,7 +30,7 @@ public static class SignPackages
 		var signClientAppSettings = Path.Combine(context.BaseFolder, "tools", "SignClient", "appsettings.json");
 		foreach (var packageFile in packageFiles)
 		{
-			var args = $"SignClient sign -c \"{signClientAppSettings}\" -r \"{signClientUser}\" -s \"{signClientSecret}\" -n \"xUnit.net\" -d \"xUnit.net\" -u \"https://github.com/xunit/xunit\" -i \"{packageFile}\"";
+			var args = $"SignClient sign --config \"{signClientAppSettings}\" --user \"{signClientUser}\" --secret \"{signClientSecret}\" --name \"xUnit.net\" --description \"xUnit.net\" -u \"https://github.com/xunit/xunit\" --input \"{packageFile}\"";
 			var redactedArgs =
 				args.Replace(signClientUser, "[redacted]")
 					.Replace(signClientSecret, "[redacted]");
