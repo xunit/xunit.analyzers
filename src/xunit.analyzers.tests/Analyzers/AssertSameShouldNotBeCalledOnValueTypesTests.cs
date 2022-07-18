@@ -79,4 +79,47 @@ class TestClass {{
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
+
+	[Theory]
+	[MemberData(nameof(Methods_WithReplacement))]
+	// https://github.com/xunit/xunit/issues/2395
+	public async void DoesNotFindWarningForUserDefinedImplicitConversion(
+		string method,
+		string replacement)
+	{
+		_ = replacement; // Verifies that diagnostic is not issued, so the replacement method is not needed
+
+		var source = $@"
+public class TestClass
+{{
+    public void TestMethod()
+    {{
+		var o = new object();
+
+        Xunit.Assert.{method}((MyBuggyInt)42, o);
+        Xunit.Assert.{method}((MyBuggyInt)(int?)42, o);
+        Xunit.Assert.{method}((MyBuggyIntBase)42, o);
+        Xunit.Assert.{method}((MyBuggyIntBase)(int?)42, o);
+
+        Xunit.Assert.{method}(o, (MyBuggyInt)42);
+        Xunit.Assert.{method}(o, (MyBuggyInt)(int?)42);
+        Xunit.Assert.{method}(o, (MyBuggyIntBase)42);
+        Xunit.Assert.{method}(o, (MyBuggyIntBase)(int?)42);
+    }}
+}}
+
+public abstract class MyBuggyIntBase
+{{
+    public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
+}}
+
+public class MyBuggyInt : MyBuggyIntBase
+{{
+    public MyBuggyInt()
+	{{
+	}}
+}}";
+
+		await Verify.VerifyAnalyzerAsyncV2(source);
+	}
 }
