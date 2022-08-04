@@ -44,7 +44,7 @@ namespace Xunit.Analyzers
 					{
 						var hasConstructorWithTFixtureArg = classSymbol
 							.Constructors
-							.Any(x => x.Parameters.Length == 1 && x.Parameters.Any(p => Equals(p.Type, tFixtureDataType)));
+							.Any(x => x.Parameters.Length > 0 && x.Parameters.Any(p => Equals(p.Type, tFixtureDataType)));
 
 						if (hasConstructorWithTFixtureArg)
 							continue;
