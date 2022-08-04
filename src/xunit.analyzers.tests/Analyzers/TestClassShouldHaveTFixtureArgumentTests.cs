@@ -53,7 +53,7 @@ public class TestClass: {@interface}<FixtureData> {{
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async void ForClassWithIClassFixtureWithMultipleConstructorArg_DonnotFindInfo(
+	public async void ForClassWithIClassFixtureWithConstructorMultipleArg_DonnotFindInfo(
 		string attribute,
 		string @interface)
 	{
