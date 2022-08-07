@@ -50,4 +50,23 @@ public class TestClass: {@interface}<FixtureData> {{
 
 		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
+
+	[Theory]
+	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
+	public async void ForClassWithIClassFixtureWithConstructorMultipleArg_DonnotFindInfo(
+		string attribute,
+		string @interface)
+	{
+		var source = $@"
+public class FixtureData {{ }}
+
+public class TestClass: {@interface}<FixtureData> {{
+    public TestClass(FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper output) {{ }}
+
+    [{attribute}]
+    public void TestMethod() {{ }}
+}}";
+
+		await Verify.VerifyAnalyzerAsyncV2(source);
+	}
 }
