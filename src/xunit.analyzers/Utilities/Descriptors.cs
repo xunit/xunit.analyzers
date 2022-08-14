@@ -297,7 +297,14 @@ namespace Xunit.Analyzers
 
 		// Placeholder for rule X1032
 
-		// Placeholder for rule X1033
+		public static DiagnosticDescriptor X1033_TestClassShouldHaveTFixtureArgument { get; } =
+			Rule(
+				"xUnit1033",
+				"Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture",
+				Usage,
+				Info,
+				"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
+			);
 
 		// Placeholder for rule X1034
 
@@ -310,15 +317,6 @@ namespace Xunit.Analyzers
 		// Placeholder for rule X1038
 
 		// Placeholder for rule X1039
-
-		public static DiagnosticDescriptor X1033_TestClassShouldHaveTFixtureArgument { get; } =
-			Rule(
-				"xUnit1033",
-				"Test classes decorated with 'Xunit.IClassFixture<TFixture>' or 'Xunit.ICollectionFixture<TFixture>' should add a constructor argument of type TFixture",
-				Usage,
-				Info,
-				"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
-			);
 
 		public static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
 			Rule(
