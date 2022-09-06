@@ -10,6 +10,6 @@ public static class Build
 	{
 		context.BuildStep("Compiling binaries");
 
-		await context.Exec("dotnet", $"msbuild -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
+		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
 	}
 }

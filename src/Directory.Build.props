@@ -4,7 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>6.0.0</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>6.0.8</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">embedded</DebugType>
@@ -23,20 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.108">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(AnnotatedReferenceAssemblyVersion)]" />
   </ItemGroup>
 
   <!-- ======================================== -->
