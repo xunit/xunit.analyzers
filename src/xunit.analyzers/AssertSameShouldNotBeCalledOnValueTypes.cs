@@ -29,13 +29,17 @@ namespace Xunit.Analyzers
 
 			var firstArgumentType = invocationOperation.Arguments[0].Value.WalkDownImplicitConversions()?.Type;
 			var secondArgumentType = invocationOperation.Arguments[1].Value.WalkDownImplicitConversions()?.Type;
-			if (firstArgumentType is null || secondArgumentType is null)
+
+			if (firstArgumentType is null && secondArgumentType is null)
 				return;
 
-			if (firstArgumentType.IsReferenceType && secondArgumentType.IsReferenceType)
+			if (firstArgumentType is not null && firstArgumentType.IsReferenceType && secondArgumentType is not null && secondArgumentType.IsReferenceType)
 				return;
 
-			var typeToDisplay = firstArgumentType.IsReferenceType ? secondArgumentType : firstArgumentType;
+			var typeToDisplay = firstArgumentType is null || firstArgumentType.IsReferenceType
+				? secondArgumentType
+				: firstArgumentType;
+
 			var replacement = method.Name switch
 			{
 				Constants.Asserts.Same => Constants.Asserts.Equal,

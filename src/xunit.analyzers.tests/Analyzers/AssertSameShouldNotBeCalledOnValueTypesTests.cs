@@ -79,4 +79,48 @@ class TestClass {{
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
+
+	[Theory]
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarningForFirstValueParametersIfSecondIsNull(
+		string method,
+		string replacement)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.{method}(0, null);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 9, 4, 31 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()", "int", replacement);
+
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(Methods_WithReplacement))]
+	public async void FindsWarningForSecondValueParametersIfFirstIsNull(
+		string method,
+		string replacement)
+	{
+		var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.{method}(null, 0);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(4, 9, 4, 31 + method.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments($"Assert.{method}()", "int", replacement);
+
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+	}
 }
