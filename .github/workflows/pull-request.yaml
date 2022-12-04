@@ -12,10 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-18.04, macOS-latest]
+        os: [windows-2022, ubuntu-22.04, macOS-12]
     steps:
       - name: Clone source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
 
@@ -33,7 +33,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- PR
 
       - name: "Upload artifact: test-${{ matrix.os }}"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: test-${{ matrix.os }}
           path: artifacts/test

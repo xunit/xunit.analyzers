@@ -9,12 +9,12 @@ on:
 jobs:
   build:
     name: "CI Build"
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
 
@@ -36,14 +36,14 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- CI --timing
 
       - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: test
           path: artifacts/test
         if: always()
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: packages
           path: artifacts/packages
