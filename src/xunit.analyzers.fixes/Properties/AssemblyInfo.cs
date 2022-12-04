@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 [assembly: AssemblyCompany(".NET Foundation")]
 [assembly: AssemblyProduct("xUnit.net Testing Framework")]

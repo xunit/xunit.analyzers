@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualsShouldNotBeUsed>;
 
 public class AssertEqualsShouldNotBeUsedFixerTests

@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
 public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixerTests

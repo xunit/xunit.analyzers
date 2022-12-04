@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedForStringValue>;
 

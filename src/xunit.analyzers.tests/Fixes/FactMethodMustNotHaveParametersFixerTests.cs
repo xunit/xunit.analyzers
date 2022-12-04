@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 
 public class FactMethodMustNotHaveParametersFixerTests

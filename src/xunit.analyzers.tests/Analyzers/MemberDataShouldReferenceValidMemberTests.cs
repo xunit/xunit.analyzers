@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;

@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 
 public class TheoryMethodMustHaveTestDataTests

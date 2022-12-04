@@ -1,4 +1,4 @@
-﻿using Xunit;
+using Xunit;
 using Verify_X2007 = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 using Verify_X2015 = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGenericOverloadCheck>;
 

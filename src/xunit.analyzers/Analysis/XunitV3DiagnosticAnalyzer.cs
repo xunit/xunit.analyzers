@@ -1,4 +1,4 @@
-﻿namespace Xunit.Analyzers
+namespace Xunit.Analyzers
 {
 	/// <summary>
 	/// Base class for diagnostic analyzers which support xUnit.net v3 only.

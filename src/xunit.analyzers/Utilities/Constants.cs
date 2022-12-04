@@ -1,4 +1,4 @@
-﻿namespace Xunit.Analyzers
+namespace Xunit.Analyzers
 {
 	public static class Constants
 	{

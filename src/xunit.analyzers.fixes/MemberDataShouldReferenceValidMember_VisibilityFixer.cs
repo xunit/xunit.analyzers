@@ -1,4 +1,4 @@
-﻿using System.Composition;
+using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;

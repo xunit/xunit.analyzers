@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -58,8 +58,8 @@ public class CSharpVerifier<TAnalyzer>
 		int? codeActionIndex = null) =>
 			new TestV2
 			{
-				TestCode = before,
-				FixedCode = after,
+				TestCode = before.Replace("\n", "\r\n"),
+				FixedCode = after.Replace("\n", "\r\n"),
 				CodeActionIndex = codeActionIndex
 			}.RunAsync();
 

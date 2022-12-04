@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 
