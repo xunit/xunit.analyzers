@@ -108,4 +108,36 @@ class Class<T> {{
 
 		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
+
+	[Theory]
+	[MemberData(nameof(Methods))]
+	// https://github.com/xunit/xunit/issues/2395
+	public async void DoesNotFindWarning_ForUserDefinedImplicitConversion(string method)
+	{
+		var source = $@"
+public class TestClass
+{{
+    public void TestMethod()
+    {{
+        Xunit.Assert.{method}((MyBuggyInt)42);
+        Xunit.Assert.{method}((MyBuggyInt)(int?)42);
+        Xunit.Assert.{method}((MyBuggyIntBase)42);
+        Xunit.Assert.{method}((MyBuggyIntBase)(int?)42);
+    }}
+}}
+
+public abstract class MyBuggyIntBase
+{{
+    public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
+}}
+
+public class MyBuggyInt : MyBuggyIntBase
+{{
+    public MyBuggyInt()
+	{{
+	}}
+}}";
+
+		await Verify.VerifyAnalyzerAsyncV2(source);
+	}
 }
