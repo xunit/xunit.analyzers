@@ -46,6 +46,19 @@ class TestClass {{
 		await Verify.VerifyAnalyzerAsyncV2(source);
 	}
 
+	[Fact]
+	public async void DoesNotFindWarningForConstantsUsedInStringConstructorAsFirstArgument()
+	{
+		var source = @"
+class TestClass {
+    void TestMethod() {
+        Xunit.Assert.Equal(new string(' ', 4), ""    "");
+    }
+}";
+
+		await Verify.VerifyAnalyzerAsyncV2(source);
+	}
+
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
 	public async void FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(

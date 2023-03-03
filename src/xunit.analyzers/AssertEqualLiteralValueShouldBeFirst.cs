@@ -59,7 +59,14 @@ namespace Xunit.Analyzers
 			}
 		}
 
-		static bool IsLiteralOrConstant(IOperation operation) =>
-			operation.ConstantValue.HasValue || operation.Kind == OperationKind.TypeOf;
+		static bool IsLiteralOrConstant(IOperation operation)
+		{
+			if (operation.Kind == OperationKind.ObjectCreation && operation.Type.SpecialType == SpecialType.System_String)
+			{
+				return ((IObjectCreationOperation)operation).Arguments.All(arg => arg.Value.ConstantValue.HasValue);
+			}
+
+			return operation.ConstantValue.HasValue || operation.Kind == OperationKind.TypeOf;
+		}
 	}
 }
