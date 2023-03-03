@@ -174,7 +174,7 @@ namespace Xunit.Analyzers
 						case TypedConstant xArgArray when xArgArray.Kind == TypedConstantKind.Array && !xArgArray.IsNull:
 							switch (y)
 							{
-								case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array:
+								case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array && !yArgArray.IsNull:
 									if (!AreArgumentsEqual(xArgArray.Values.Cast<object>().ToImmutableArray(), yArgArray.Values.Cast<object>().ToImmutableArray()))
 										return false;
 									break;
