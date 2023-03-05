@@ -28,6 +28,10 @@ namespace Xunit.Analyzers.FixProviders
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
+			if (parameter == null)
+			{
+				return;
+			}
 			var parameterName = parameter.Identifier.Text;
 
 			context.RegisterCodeFix(

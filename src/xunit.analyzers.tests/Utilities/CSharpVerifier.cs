@@ -55,13 +55,18 @@ public class CSharpVerifier<TAnalyzer>
 	public static Task VerifyCodeFixAsyncV2(
 		string before,
 		string after,
-		int? codeActionIndex = null) =>
-			new TestV2
-			{
-				TestCode = before.Replace("\n", "\r\n"),
-				FixedCode = after.Replace("\n", "\r\n"),
-				CodeActionIndex = codeActionIndex
-			}.RunAsync();
+		int? codeActionIndex = null,
+		params DiagnosticResult[] diagnostics)
+	{
+		var test = new TestV2
+		{
+			TestCode = before.Replace("\n", "\r\n"),
+			FixedCode = after.Replace("\n", "\r\n"),
+			CodeActionIndex = codeActionIndex
+		};
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		return test.RunAsync();
+	}
 
 	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
 	{
