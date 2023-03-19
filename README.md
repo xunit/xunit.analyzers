@@ -1,4 +1,4 @@
-# About the project
+# About This Project
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fxunit%2Fxunit.analyzers%2Fbadge%3Fref%3Dmain&style=flat&label=build)](https://actions-badge.atrox.dev/xunit/xunit.analyzers/goto?ref=main)
 [![NuGet Package](https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/xunit.analyzers/)
