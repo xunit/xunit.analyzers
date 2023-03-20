@@ -152,6 +152,20 @@ public class TestClass {
 		}
 
 		[Fact]
+		public async void DoesNotFindError_WhenNewArrayAndNullDataAttributes()
+		{
+			var source = @"
+public class TestClass{
+    [Xunit.Theory]
+    [Xunit.InlineData(new[] { 0 })]
+    [Xunit.InlineData(null)]
+    public void TestMethod(int[] arr) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
 		public async void DoesNotFindError_WhenFirstArrayIsEqualAndEmptyArraysAreUsed()
 		{
 			// Specially crafted InlineData values that will cause the InlineDataUniquenessComparer
