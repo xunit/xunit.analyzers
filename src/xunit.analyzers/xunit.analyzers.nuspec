@@ -15,8 +15,10 @@ Installing this package provides code analyzers to help developers find and fix 
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit.analyzers" commit="$GitCommitId$" />
 		<tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
+		<readme>_content/README.md</readme>
 	</metadata>
 	<files>
+		<file target="_content\" src="..\..\README.md" />
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 
 		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes\bin\$Configuration$\netstandard1.3\xunit.analyzers.dll" />

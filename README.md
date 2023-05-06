@@ -23,7 +23,7 @@ This project contains source code analysis and cleanup rules for xUnit.net.
 
 ## How to uninstall
 
-If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core` ](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
+If you installed xUnit.net 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core`](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
 
 ## Analysis and Code Fix in Action
 
