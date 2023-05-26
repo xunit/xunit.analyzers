@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    name: "Build for PR"
+    name: "Build"
     runs-on: ${{ matrix.os }}
     env:
       DOTNET_NOLOGO: true
@@ -15,7 +15,7 @@ jobs:
         os: [windows-2022, ubuntu-22.04, macOS-12]
     steps:
       - name: Clone source
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -29,8 +29,8 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: "Build target: PR"
-        run: dotnet run --project tools/builder --no-launch-profile -- PR
+      - name: "Build target: BuildAll"
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll
 
       - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v3.1.1

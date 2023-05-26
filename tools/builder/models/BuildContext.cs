@@ -15,6 +15,7 @@ using SimpleExec;
 [HelpOption("-?|-h|--help")]
 public class BuildContext
 {
+	string? artifactsFolder;
 	string? baseFolder;
 	string? packageOutputFolder;
 	string? testOutputFolder;
@@ -24,6 +25,12 @@ public class BuildContext
 	public static string NuGetVersion => "5.9.1";
 
 	// Calculated properties
+
+	public string ArtifactsFolder
+	{
+		get => artifactsFolder ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(ArtifactsFolder)}");
+		private set => artifactsFolder = value ?? throw new ArgumentNullException(nameof(ArtifactsFolder));
+	}
 
 	public string BaseFolder
 	{
@@ -58,8 +65,8 @@ public class BuildContext
 	[Option("-s|--skip-dependencies", Description = "Do not run targets' dependencies")]
 	public bool SkipDependencies { get; }
 
-	[Argument(0, "targets", Description = "The target(s) to run (default: 'PR'; common values: 'Build', 'CI', 'Packages', 'PR', 'Restore', 'Test', 'TestCore', 'TestFx')")]
-	public BuildTarget[] Targets { get; } = new[] { BuildTarget.PR };
+	[Argument(0, "targets", Description = "The target(s) to run (default: 'BuildAll'; common values: 'Build', 'BuildAll', 'Clean', 'Packages', 'Restore', 'Test', 'TestCore', 'TestFx')")]
+	public BuildTarget[] Targets { get; } = new[] { BuildTarget.BuildAll };
 
 	[Option("-t|--timing", Description = "Emit timing information for each target")]
 	public bool Timing { get; }
@@ -167,10 +174,11 @@ public class BuildContext
 			BaseFolder = baseFolder;
 
 			// Dependent folders
-			PackageOutputFolder = Path.Combine(BaseFolder, "artifacts", "packages");
+			ArtifactsFolder = Path.Combine(BaseFolder, "artifacts");
+			PackageOutputFolder = Path.Combine(ArtifactsFolder, "packages");
 			Directory.CreateDirectory(PackageOutputFolder);
 
-			TestOutputFolder = Path.Combine(BaseFolder, "artifacts", "test");
+			TestOutputFolder = Path.Combine(ArtifactsFolder, "test");
 			Directory.CreateDirectory(TestOutputFolder);
 
 			var homeFolder =
