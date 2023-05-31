@@ -20,7 +20,7 @@ public class FixtureData { }
 public class [|TestClass|]: Xunit.IClassFixture<FixtureData> {
     private readonly FixtureData _fixtureData;
 
-    TestClass(FixtureData fixtureData)
+    public TestClass(FixtureData fixtureData)
     {
         _fixtureData = fixtureData;
     }
@@ -49,7 +49,7 @@ public class FixtureData<T> { }
 public class [|TestClass|]: Xunit.IClassFixture<FixtureData<object>> {
     private readonly FixtureData<object> _fixtureData;
 
-    TestClass(FixtureData<object> fixtureData)
+    public TestClass(FixtureData<object> fixtureData)
     {
         _fixtureData = fixtureData;
     }

@@ -31,6 +31,7 @@ namespace Xunit.Analyzers.CodeActions
 
 			var constructor =
 				ConstructorDeclaration(Identifier(declaration.Identifier.Text))
+				.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
 				.WithParameterList(
 					ParameterList(
 						SingletonSeparatedList(
