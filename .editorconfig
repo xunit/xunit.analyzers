@@ -7,7 +7,7 @@ end_of_line = lf
 insert_final_newline = true
 indent_style = tab
 
-[*.{ps1,sln}]
+[*.sln]
 end_of_line = crlf
 
 # Visual Studio demands 2-spaced project files
@@ -222,4 +222,5 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 #### Roslyn diagnostics ####
 
+dotnet_diagnostic.CA1851.severity = warning
 dotnet_diagnostic.IDE1006.severity = none

@@ -1,13 +1,11 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.BuildTools.Models;
 
-[Target(
-	BuildTarget.Packages,
-	BuildTarget.Build
-)]
-public static class Packages
+namespace Xunit.BuildTools.Targets;
+
+public static partial class Packages
 {
 	public static async Task OnExecute(BuildContext context)
 	{

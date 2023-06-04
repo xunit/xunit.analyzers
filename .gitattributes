@@ -3,7 +3,6 @@
 *.cs text diff=csharp
 *.csproj text merge=union
 *.ico binary
-*.ps1 text eol=crlf
 *.resx text merge=union
 *.sln text eol=crlf merge=union
 *.snk binary
