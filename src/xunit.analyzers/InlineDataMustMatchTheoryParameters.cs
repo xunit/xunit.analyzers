@@ -92,61 +92,74 @@ namespace Xunit.Analyzers
 					{
 						var parameter = method.Parameters[paramIdx];
 
-						// unwrap parameter type when the argument is a parameter list
-						var parameterType =
-							xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
-								? arrayParam.ElementType
-								: parameter.Type;
-
-						if (Equals(parameterType, compilation.ObjectType))
+						// If the parameter type is object, everything is compatible
+						if (Equals(parameter.Type, compilation.ObjectType))
 						{
-							// Everything is assignable to object and 'params object[]' so move on
-							if (xunitSupportsParameterArrays && parameter.IsParams)
-							{
-								valueIdx = values.Length;
-								break;
-							}
-							else
-							{
-								paramIdx++;
-								continue;
-							}
+							paramIdx++;
+							continue;
 						}
 
-						var builder = ImmutableDictionary.CreateBuilder<string, string>();
-						builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
-						builder[Constants.Properties.ParameterName] = parameter.Name;
-						var properties = builder.ToImmutable();
+						// If this is a params array (and we're using a version of xUnit.net that supports params arrays),
+						// get the element type so we can compare it appropriately.
+						var paramsElementType =
+							xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+								? arrayParam.ElementType
+								: null;
+
+						// For params array of object, just consume everything that's left
+						if (paramsElementType != null && Equals(paramsElementType, compilation.ObjectType))
+						{
+							valueIdx = values.Length;
+							break;
+						}
 
 						var value = values[valueIdx];
-						if (!value.IsNull)
+						if (value.IsNull)
 						{
-							var isConvertible = ConversionChecker.IsConvertible(compilation, value.Type, parameterType, xunitContext);
-							if (!isConvertible)
+							var isValueTypeParam =
+								paramsElementType != null
+									? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
+									: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
+
+							if (isValueTypeParam)
+							{
+								var builder = ImmutableDictionary.CreateBuilder<string, string>();
+								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+								builder[Constants.Properties.ParameterName] = parameter.Name;
+
+								context.ReportDiagnostic(
+									Diagnostic.Create(
+										Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
+										dataParameterExpressions[valueIdx].GetLocation(),
+										builder.ToImmutable(),
+										parameter.Name,
+										SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+									)
+								);
+							}
+						}
+						else
+						{
+							var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext);
+							if (!isCompatible && paramsElementType != null)
+								isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext);
+
+							if (!isCompatible)
+							{
+								var builder = ImmutableDictionary.CreateBuilder<string, string>();
+								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+								builder[Constants.Properties.ParameterName] = parameter.Name;
+
 								context.ReportDiagnostic(
 									Diagnostic.Create(
 										Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
 										dataParameterExpressions[valueIdx].GetLocation(),
-										properties,
+										builder.ToImmutable(),
 										parameter.Name,
-										SymbolDisplay.ToDisplayString(parameterType)
+										SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
 									)
 								);
-						}
-
-						if (value.IsNull
-							&& parameterType.IsValueType
-							&& parameterType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
-						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
-									dataParameterExpressions[valueIdx].GetLocation(),
-									properties,
-									parameter.Name,
-									SymbolDisplay.ToDisplayString(parameterType)
-								)
-							);
+							}
 						}
 
 						if (!parameter.IsParams)

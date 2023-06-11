@@ -52,6 +52,71 @@ public class TestClass {
 		}
 
 		[Fact]
+		public async void MethodUsingEmptyArrayForParams()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(new int[] { })]
+    public void VariableArgumentsTest(params int[] sq) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
+		public async void MethodUsingMixedArgumentsAndEmptyArrayForParams()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(21.12, new int[] { })]
+    public void VariableArgumentsTest(double d, params int[] sq) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
+		public async void MethodUsingNonEmptyArrayForParams()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(new int[] { 1, 2, 3 })]
+    public void VariableArgumentsTest(params int[] sq) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
+		public async void MethodUsingMixedArgumentsAndNonEmptyArrayForParams()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
+    public void VariableArgumentsTest(double d, params int[] sq) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
+		public async void MethodUsingIncompatibleExplicitArrayForParams()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
+    public void VariableArgumentsTest(double d, params int[] sq) { }
+}";
+
+			await Verify.VerifyAnalyzerAsyncV2(source);
+		}
+
+		[Fact]
 		public async void UsingParameters()
 		{
 			var source = @"
