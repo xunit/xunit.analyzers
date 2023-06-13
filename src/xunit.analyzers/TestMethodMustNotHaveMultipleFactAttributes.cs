@@ -23,13 +23,14 @@ namespace Xunit.Analyzers
 				if (context.Symbol is not IMethodSymbol symbol)
 					return;
 
-				var attributeTypes = new HashSet<INamedTypeSymbol>();
+				var attributeTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
 				var count = 0;
 
 				foreach (var attribute in symbol.GetAttributes())
 				{
 					var attributeType = attribute.AttributeClass;
-					if (xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+					if (attributeType != null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 					{
 						attributeTypes.Add(attributeType);
 						count++;
@@ -42,7 +43,7 @@ namespace Xunit.Analyzers
 						Diagnostic.Create(
 							Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
 							symbol.Locations.First(),
-							properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => string.Empty)
+							properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => (string?)string.Empty)
 						)
 					);
 				}

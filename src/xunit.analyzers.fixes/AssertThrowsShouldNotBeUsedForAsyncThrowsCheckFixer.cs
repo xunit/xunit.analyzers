@@ -27,14 +27,25 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation is null)
+				return;
+
 			var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (method is null)
+				return;
+
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
 				return;
 			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
 				return;
 			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
+			if (replacement is null)
 				return;
 
 			var title = string.Format(TitleTemplate, replacement);
@@ -64,13 +75,14 @@ namespace Xunit.Analyzers
 				var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
 				var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
 
-				editor.ReplaceNode(
-					method,
-					method
-						.ReplaceNode(invocation, asyncThrowsInvocation)
-						.WithModifiers(modifiers)
-						.WithReturnType(returnType)
-				);
+				if (returnType is not null)
+					editor.ReplaceNode(
+						method,
+						method
+							.ReplaceNode(invocation, asyncThrowsInvocation)
+							.WithModifiers(modifiers)
+							.WithReturnType(returnType)
+					);
 			}
 
 			return editor.GetChangedDocument();
@@ -81,7 +93,7 @@ namespace Xunit.Analyzers
 				? method.Modifiers
 				: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
 
-		static async Task<TypeSyntax> GetReturnType(
+		static async Task<TypeSyntax?> GetReturnType(
 			MethodDeclarationSyntax method,
 			InvocationExpressionSyntax invocation,
 			Document document,
@@ -93,13 +105,18 @@ namespace Xunit.Analyzers
 				return method.ReturnType;
 
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (semanticModel is null)
+				return null;
+
 			var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
-			var taskType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName);
+			var taskType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName!);
+			if (taskType is null)
+				return null;
 
 			if (taskType.IsAssignableFrom(methodSymbol))
 				return method.ReturnType;
 
-			return (TypeSyntax)editor.Generator.TypeExpression(taskType);
+			return editor.Generator.TypeExpression(taskType) as TypeSyntax;
 		}
 
 		static ExpressionSyntax GetAsyncThrowsInvocation(

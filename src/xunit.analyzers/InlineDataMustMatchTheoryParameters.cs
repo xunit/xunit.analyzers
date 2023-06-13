@@ -46,14 +46,14 @@ namespace Xunit.Analyzers
 				{
 					context.CancellationToken.ThrowIfCancellationRequested();
 
-					if (!attribute.AttributeClass.Equals(xunitContext.Core.InlineDataAttributeType))
+					if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, xunitContext.Core.InlineDataAttributeType))
 						continue;
 
 					// Check if the semantic model indicates there are no syntax/compilation errors
-					if (attribute.ConstructorArguments.Length != 1 || !objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type))
+					if (attribute.ConstructorArguments.Length != 1 || !SymbolEqualityComparer.Default.Equals(objectArrayType, attribute.ConstructorArguments.FirstOrDefault().Type))
 						continue;
 
-					if (attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken) is not AttributeSyntax attributeSyntax)
+					if (attribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) is not AttributeSyntax attributeSyntax)
 						return;
 
 					var arrayStyle = ParameterArrayStyleType.Initializer;
@@ -75,7 +75,7 @@ namespace Xunit.Analyzers
 					var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
 					if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues, systemRuntimeInteropServicesOptionalAttribute)))
 					{
-						var builder = ImmutableDictionary.CreateBuilder<string, string>();
+						var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 						builder[Constants.Properties.ParameterArrayStyle] = arrayStyle.ToString();
 
 						context.ReportDiagnostic(
@@ -93,7 +93,7 @@ namespace Xunit.Analyzers
 						var parameter = method.Parameters[paramIdx];
 
 						// If the parameter type is object, everything is compatible
-						if (Equals(parameter.Type, compilation.ObjectType))
+						if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType))
 						{
 							paramIdx++;
 							continue;
@@ -107,7 +107,7 @@ namespace Xunit.Analyzers
 								: null;
 
 						// For params array of object, just consume everything that's left
-						if (paramsElementType != null && Equals(paramsElementType, compilation.ObjectType))
+						if (paramsElementType != null && SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType))
 						{
 							valueIdx = values.Length;
 							break;
@@ -123,7 +123,7 @@ namespace Xunit.Analyzers
 
 							if (isValueTypeParam)
 							{
-								var builder = ImmutableDictionary.CreateBuilder<string, string>();
+								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 								builder[Constants.Properties.ParameterName] = parameter.Name;
 
@@ -140,13 +140,16 @@ namespace Xunit.Analyzers
 						}
 						else
 						{
+							if (value.Type is null)
+								continue;
+
 							var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext);
 							if (!isCompatible && paramsElementType != null)
 								isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext);
 
 							if (!isCompatible)
 							{
-								var builder = ImmutableDictionary.CreateBuilder<string, string>();
+								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 								builder[Constants.Properties.ParameterName] = parameter.Name;
 
@@ -171,7 +174,7 @@ namespace Xunit.Analyzers
 
 					for (; valueIdx < values.Length; valueIdx++)
 					{
-						var builder = ImmutableDictionary.CreateBuilder<string, string>();
+						var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 						builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
 						builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString() ?? string.Empty;
 
@@ -192,10 +195,10 @@ namespace Xunit.Analyzers
 			IParameterSymbol parameter,
 			bool supportsParamsArray,
 			bool supportsDefaultValue,
-			INamedTypeSymbol optionalAttribute) =>
+			INamedTypeSymbol? optionalAttribute) =>
 				!(parameter.HasExplicitDefaultValue && supportsDefaultValue)
 				&& !(parameter.IsParams && supportsParamsArray)
-				&& !parameter.GetAttributes().Any(a => a.AttributeClass.Equals(optionalAttribute));
+				&& !parameter.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, optionalAttribute));
 
 		static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(AttributeSyntax attribute)
 		{

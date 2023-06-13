@@ -44,17 +44,17 @@ namespace Xunit.Analyzers
 
 					var methodsWithoutOverloads = new List<IMethodSymbol>(methods.Count);
 					foreach (var method in methods)
-						if (!methods.Any(m => m.IsOverride && m.OverriddenMethod.Equals(method)))
+						if (!methods.Any(m => m.IsOverride && SymbolEqualityComparer.Default.Equals(m.OverriddenMethod, method)))
 							methodsWithoutOverloads.Add(method);
 
 					if (methodsWithoutOverloads.Count == 1)
 						continue;
 
-					foreach (var method in methodsWithoutOverloads.Where(m => m.ContainingType.Equals(typeSymbol)))
+					foreach (var method in methodsWithoutOverloads.Where(m => SymbolEqualityComparer.Default.Equals(m.ContainingType, typeSymbol)))
 					{
 						var otherType =
 							methodsWithoutOverloads
-								.Where(m => !m.Equals(method))
+								.Where(m => !SymbolEqualityComparer.Default.Equals(m, method))
 								.OrderBy(m => m.ContainingType, TypeHierarchyComparer.Instance)
 								.First()
 								.ContainingType;

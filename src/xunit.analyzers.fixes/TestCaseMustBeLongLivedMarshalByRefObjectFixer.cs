@@ -24,7 +24,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+			if (classDeclaration is null)
+				return;
+
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic == null)
 				return;

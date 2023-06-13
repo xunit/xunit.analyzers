@@ -13,8 +13,12 @@ namespace Xunit.Analyzers
 	{
 		static readonly HashSet<string> linqContainsMethods = new()
 		{
+			// Signatures without nullable variants
 			"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource)",
-			"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource, System.Collections.Generic.IEqualityComparer<TSource>)"
+			// Non-nullable signatures
+			"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource, System.Collections.Generic.IEqualityComparer<TSource>)",
+			// Nullable signatures
+			"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource, System.Collections.Generic.IEqualityComparer<TSource>?)",
 		};
 		static readonly string[] targetMethods =
 		{
@@ -38,7 +42,7 @@ namespace Xunit.Analyzers
 			if (method.Parameters.Length > 1 && method.Parameters[1].Type.SpecialType == SpecialType.System_String)
 				return;
 
-			if (arguments.FirstOrDefault(arg => arg.Parameter.Equals(method.Parameters[0]))?.Value is not IInvocationOperation invocationExpression)
+			if (arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, method.Parameters[0]))?.Value is not IInvocationOperation invocationExpression)
 				return;
 
 			var methodSymbol = invocationExpression.TargetMethod;
@@ -50,7 +54,7 @@ namespace Xunit.Analyzers
 					? Constants.Asserts.Contains
 					: Constants.Asserts.DoesNotContain;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.Replacement] = replacement;
 
@@ -93,7 +97,7 @@ namespace Xunit.Analyzers
 				return false;
 
 			var genericCollectionSymbolImplementation = containingType.FindImplementationForInterfaceMember(genericCollectionContainsSymbol);
-			return genericCollectionSymbolImplementation?.Equals(methodSymbol) ?? false;
+			return SymbolEqualityComparer.Default.Equals(genericCollectionSymbolImplementation, methodSymbol);
 		}
 	}
 }

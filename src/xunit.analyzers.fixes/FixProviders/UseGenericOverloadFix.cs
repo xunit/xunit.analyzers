@@ -30,8 +30,13 @@ namespace Xunit.Analyzers.FixProviders
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var syntaxNode = root.FindNode(context.Span);
 			var invocation = syntaxNode.FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation is null)
+				return;
 
 			if (invocation.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
 				return;
@@ -40,6 +45,9 @@ namespace Xunit.Analyzers.FixProviders
 
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 			var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type);
+			if (typeInfo.Type is null)
+				return;
+
 			var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type, SymbolDisplayFormat.MinimallyQualifiedFormat);
 			var methodName = memberAccess.Name.Identifier.ValueText;
 			var title = string.Format(TitleTemplate, methodName, typeName);

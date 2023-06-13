@@ -30,14 +30,14 @@ namespace Xunit.Analyzers
 			if (parameters.Length != 2)
 				return;
 
-			var typeArgument = invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(parameters[0]));
+			var typeArgument = invocationOperation.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, parameters[0]));
 			if (typeArgument?.Value is not ITypeOfOperation typeOfOperation)
 				return;
 
 			var type = typeOfOperation.TypeOperand;
 			var typeName = SymbolDisplay.ToDisplayString(type);
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.TypeName] = typeName;
 

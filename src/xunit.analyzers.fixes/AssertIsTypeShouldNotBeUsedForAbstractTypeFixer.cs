@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -26,7 +25,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation is null)
+				return;
+
 			var simpleNameSyntax = invocation.GetSimpleName();
 			if (simpleNameSyntax is null)
 				return;

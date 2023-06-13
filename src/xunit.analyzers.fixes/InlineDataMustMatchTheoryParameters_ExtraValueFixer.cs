@@ -28,13 +28,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var node = root.FindNode(context.Span);
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
 				return;
-
-			var diagnosticId = diagnostic.Id;
-			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
 			// Fix #1: remove the extra data from the inline data attribute
 			context.RegisterCodeFix(
@@ -48,24 +48,33 @@ namespace Xunit.Analyzers
 
 			// Fix #2: add a parameter to the theory for the extra data
 			// (only valid for the first item after the supported parameters are exhausted)
-			var parameterIndex = int.Parse(diagnostic.Properties[Constants.Properties.ParameterIndex]);
-			Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType);
+			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (method is null)
+				return;
 
-			var existingParameters = method.ParameterList.Parameters.Select(p => p.Identifier.Text).ToImmutableHashSet();
-			var parameterName = "p";
-			var nextIndex = 2;
-			while (existingParameters.Contains(parameterName))
-				parameterName = $"p_{nextIndex++}";
+			var parameterIndexText = diagnostic.Properties[Constants.Properties.ParameterIndex];
 
-			if (method.ParameterList.Parameters.Count == parameterIndex)
-				context.RegisterCodeFix(
-					CodeAction.Create(
-						addTheoryParameterTitle,
-						ct => AddTheoryParameter(context.Document, method, parameterSpecialType, parameterName, ct),
-						addTheoryParameterTitle
-					),
-					context.Diagnostics
-				);
+			if (parameterIndexText is not null)
+			{
+				var parameterIndex = int.Parse(parameterIndexText);
+				Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType);
+
+				var existingParameters = method.ParameterList.Parameters.Select(p => p.Identifier.Text).ToImmutableHashSet();
+				var parameterName = "p";
+				var nextIndex = 2;
+				while (existingParameters.Contains(parameterName))
+					parameterName = $"p_{nextIndex++}";
+
+				if (method.ParameterList.Parameters.Count == parameterIndex)
+					context.RegisterCodeFix(
+						CodeAction.Create(
+							addTheoryParameterTitle,
+							ct => AddTheoryParameter(context.Document, method, parameterSpecialType, parameterName, ct),
+							addTheoryParameterTitle
+						),
+						context.Diagnostics
+					);
+			}
 		}
 
 		async Task<Document> AddTheoryParameter(

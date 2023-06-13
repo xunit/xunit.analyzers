@@ -15,7 +15,7 @@ namespace Xunit.Analyzers
 		public static INamedTypeSymbol? GetGenericInterfaceImplementation(
 			this ITypeSymbol implementingType,
 			INamedTypeSymbol openInterfaceType) =>
-				implementingType.AllInterfaces.FirstOrDefault(i => Equals(i.OriginalDefinition, openInterfaceType));
+				implementingType.AllInterfaces.FirstOrDefault(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterfaceType));
 
 		public static ISymbol? GetMember(
 			this INamespaceOrTypeSymbol namespaceOrType,
@@ -45,14 +45,14 @@ namespace Xunit.Analyzers
 			{
 				while (sourceType is not null)
 				{
-					if (sourceType.Equals(targetType))
+					if (SymbolEqualityComparer.Default.Equals(sourceType, targetType))
 						return true;
 
 					if (exactMatch)
 						return false;
 
 					if (targetType.TypeKind == TypeKind.Interface)
-						return sourceType.AllInterfaces.Any(i => i.Equals(targetType));
+						return sourceType.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, targetType));
 
 					sourceType = sourceType.BaseType;
 				}

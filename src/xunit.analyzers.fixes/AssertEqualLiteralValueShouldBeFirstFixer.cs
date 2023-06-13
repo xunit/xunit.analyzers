@@ -25,7 +25,12 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation is null)
+				return;
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -43,24 +48,28 @@ namespace Xunit.Analyzers
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var arguments = invocation.ArgumentList.Arguments;
 
-			if (arguments.Count >= 2)
+			if (invocation is not null)
 			{
-				ArgumentSyntax expectedArg, actualArg;
-				if (arguments.All(x => x.NameColon is not null))
-				{
-					expectedArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Expected);
-					actualArg = arguments.Single(x => x.NameColon.Name.Identifier.ValueText == Constants.AssertArguments.Actual);
-				}
-				else
-				{
-					expectedArg = arguments[0];
-					actualArg = arguments[1];
-				}
+				var arguments = invocation.ArgumentList.Arguments;
 
-				editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
-				editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+				if (arguments.Count >= 2)
+				{
+					ArgumentSyntax expectedArg, actualArg;
+					if (arguments.All(x => x.NameColon is not null))
+					{
+						expectedArg = arguments.Single(x => x.NameColon?.Name.Identifier.ValueText == Constants.AssertArguments.Expected);
+						actualArg = arguments.Single(x => x.NameColon?.Name.Identifier.ValueText == Constants.AssertArguments.Actual);
+					}
+					else
+					{
+						expectedArg = arguments[0];
+						actualArg = arguments[1];
+					}
+
+					editor.ReplaceNode(expectedArg, expectedArg.WithExpression(actualArg.Expression));
+					editor.ReplaceNode(actualArg, actualArg.WithExpression(expectedArg.Expression));
+				}
 			}
 
 			return editor.GetChangedDocument();

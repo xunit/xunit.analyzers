@@ -14,10 +14,16 @@ namespace Xunit.Analyzers
 	{
 		static readonly HashSet<string> stringEqualsMethods = new()
 		{
+			// Non-nullable signatures
 			"string.Equals(string)",
 			"string.Equals(string, string)",
 			"string.Equals(string, System.StringComparison)",
-			"string.Equals(string, string, System.StringComparison)"
+			"string.Equals(string, string, System.StringComparison)",
+			// Nullable signatures
+			"string.Equals(string?)",
+			"string.Equals(string?, string?)",
+			"string.Equals(string?, System.StringComparison)",
+			"string.Equals(string?, string?, System.StringComparison)",
 		};
 		static readonly HashSet<StringComparison> supportedStringComparisons = new()
 		{
@@ -57,7 +63,7 @@ namespace Xunit.Analyzers
 				if (method.Name == Constants.Asserts.False)
 					return;
 
-				var stringComparisonExpression = invocationExpression.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(methodSymbol.Parameters.Last()))?.Value;
+				var stringComparisonExpression = invocationExpression.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, methodSymbol.Parameters.Last()))?.Value;
 				var stringComparison = (StringComparison?)(stringComparisonExpression?.ConstantValue.Value as int?);
 				if (!stringComparison.HasValue || !supportedStringComparisons.Contains(stringComparison.Value))
 					return;
@@ -70,7 +76,7 @@ namespace Xunit.Analyzers
 					? Constants.Asserts.Equal
 					: Constants.Asserts.NotEqual;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
 			builder[Constants.Properties.IsStaticMethodCall] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;
 			builder[Constants.Properties.IgnoreCase] = ignoreCase;

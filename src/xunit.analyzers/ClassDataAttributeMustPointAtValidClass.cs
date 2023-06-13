@@ -28,7 +28,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
+				if (!SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(attribute).Type, xunitContext.Core.ClassDataAttributeType))
 					return;
 
 				if (semanticModel.GetTypeInfo(argumentExpression.Type).Type is not INamedTypeSymbol classType)

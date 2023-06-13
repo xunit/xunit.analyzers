@@ -26,6 +26,9 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var node = root.FindNode(context.Span);
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
@@ -37,6 +40,8 @@ namespace Xunit.Analyzers
 
 			var diagnosticId = diagnostic.Id;
 			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (method is null)
+				return;
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -60,10 +65,15 @@ namespace Xunit.Analyzers
 			{
 				var param = method.ParameterList.Parameters[parameterIndex];
 				var semanticModel = editor.SemanticModel;
-				var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
-				var nullable = nullableT.Construct(semanticModel.GetTypeInfo(param.Type, cancellationToken).Type);
 
-				editor.SetType(param, editor.Generator.TypeExpression(nullable));
+				if (semanticModel is not null && param.Type is not null)
+				{
+					var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
+					var paramTypeSymbol = semanticModel.GetTypeInfo(param.Type, cancellationToken).Type;
+
+					if (paramTypeSymbol is not null)
+						editor.SetType(param, editor.Generator.TypeExpression(nullableT.Construct(paramTypeSymbol)));
+				}
 			}
 
 			return editor.GetChangedDocument();

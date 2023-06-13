@@ -27,7 +27,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (methodDeclaration is null)
+				return;
+
 			var looksLikeTheory = methodDeclaration.ParameterList.Parameters.Any();
 			var convertTitle = looksLikeTheory ? convertToTheoryTitle : convertToFactTitle;
 			var convertType = looksLikeTheory ? Constants.Types.XunitTheoryAttribute : Constants.Types.XunitFactAttribute;

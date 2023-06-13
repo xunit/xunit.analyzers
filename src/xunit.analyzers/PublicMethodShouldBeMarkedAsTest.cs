@@ -18,7 +18,7 @@ namespace Xunit.Analyzers
 		{
 			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
 			var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
-			var interfacesToIgnore = new List<INamedTypeSymbol>
+			var interfacesToIgnore = new List<INamedTypeSymbol?>
 			{
 				context.Compilation.GetSpecialType(SpecialType.System_IDisposable),
 				context.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
@@ -38,7 +38,8 @@ namespace Xunit.Analyzers
 
 				var methodsToIgnore =
 					interfacesToIgnore
-						.Where(i => i is not null && type.AllInterfaces.Contains(i))
+						.WhereNotNull()
+						.Where(i => type.AllInterfaces.Contains(i))
 						.SelectMany(i => i.GetMembers())
 						.Select(m => type.FindImplementationForInterfaceMember(m))
 						.Where(s => s is not null)
@@ -64,31 +65,32 @@ namespace Xunit.Analyzers
 					hasTestMethods = hasTestMethods || isTestMethod;
 
 					if (isTestMethod ||
-						attributes.Any(attribute => attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute"))))
+						attributes.Any(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass?.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute") == true)))
 					{
 						continue;
 					}
 
 					if (method.DeclaredAccessibility == Accessibility.Public &&
 						(method.ReturnsVoid ||
-						 (taskType is not null && Equals(method.ReturnType, taskType)) ||
-						 (configuredTaskAwaitableType is not null && Equals(method.ReturnType, configuredTaskAwaitableType))))
+						 (taskType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType)) ||
+						 (configuredTaskAwaitableType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, configuredTaskAwaitableType))))
 					{
 						var shouldIgnore = false;
 						while (!shouldIgnore || method.IsOverride)
 						{
-							if (methodsToIgnore.Any(m => method.Equals(m)))
+							if (methodsToIgnore.Any(m => SymbolEqualityComparer.Default.Equals(method, m)))
 								shouldIgnore = true;
 
 							if (!method.IsOverride)
 								break;
 
-							method = method.OverriddenMethod;
-							if (method is null)
+							if (method.OverriddenMethod is null)
 							{
 								shouldIgnore = true;
 								break;
 							}
+
+							method = method.OverriddenMethod;
 						}
 
 						if (method is not null && !shouldIgnore)

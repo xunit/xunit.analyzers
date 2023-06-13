@@ -25,8 +25,16 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+			if (semanticModel is null)
+				return;
+
 			var typeOfExpression = root.FindNode(context.Span).FirstAncestorOrSelf<TypeOfExpressionSyntax>();
+			if (typeOfExpression is null)
+				return;
 
 			if (semanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol typeSymbol)
 				if (typeSymbol.TypeKind == TypeKind.Class && typeSymbol.Locations.Any(l => l.IsInSource))

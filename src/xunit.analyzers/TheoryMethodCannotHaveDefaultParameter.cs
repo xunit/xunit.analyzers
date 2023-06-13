@@ -43,10 +43,13 @@ namespace Xunit.Analyzers
 								.GetSyntax(context.CancellationToken)
 								.FirstAncestorOrSelf<ParameterSyntax>();
 
+						if (syntaxNode is null)
+							continue;
+
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter,
-								syntaxNode.Default.GetLocation(),
+								syntaxNode.Default?.GetLocation(),
 								method.Name,
 								method.ContainingType.ToDisplayString(),
 								parameter.Name

@@ -44,12 +44,12 @@ namespace Xunit.Analyzers
 					{
 						var hasConstructorWithTFixtureArg = classSymbol
 							.Constructors
-							.Any(x => x.Parameters.Length > 0 && x.Parameters.Any(p => Equals(p.Type, tFixtureDataType)));
+							.Any(x => x.Parameters.Length > 0 && x.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type, tFixtureDataType)));
 
 						if (hasConstructorWithTFixtureArg)
 							continue;
 
-						var propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
+						var propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string?>();
 						propertiesBuilder.Add(Constants.Properties.TFixtureDisplayName, tFixtureDataType.ToDisplayString());
 						propertiesBuilder.Add(Constants.Properties.TFixtureName, tFixtureDataType.Name);
 						propertiesBuilder.Add(Constants.Properties.TestClassName, classSymbol.Name);

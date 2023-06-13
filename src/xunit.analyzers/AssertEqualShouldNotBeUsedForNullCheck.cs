@@ -47,7 +47,7 @@ namespace Xunit.Analyzers
 			if (replacement is null)
 				return;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.Replacement] = replacement;
 

@@ -27,6 +27,9 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var node = root.FindNode(context.Span);
 			if (node is not AttributeSyntax attribute)
 				return;
@@ -39,6 +42,8 @@ namespace Xunit.Analyzers
 
 			var diagnosticId = diagnostic.Id;
 			var method = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (method is null)
+				return;
 
 			Enum.TryParse<InlineDataMustMatchTheoryParameters.ParameterArrayStyleType>(arrayStyleText, out var arrayStyle);
 
@@ -75,7 +80,7 @@ namespace Xunit.Analyzers
 						editor.AddAttributeArgument(attribute, defaultExpression);
 				}
 
-			if (arrayInitializer is not null)
+			if (originalInitializer is not null && arrayInitializer is not null)
 				editor.ReplaceNode(originalInitializer, arrayInitializer);
 
 			return editor.GetChangedDocument();
@@ -83,9 +88,15 @@ namespace Xunit.Analyzers
 
 		SyntaxNode CreateDefaultValueSyntax(
 			DocumentEditor editor,
-			TypeSyntax type)
+			TypeSyntax? type)
 		{
+			if (type is null)
+				return editor.Generator.NullLiteralExpression();
+
 			var t = editor.SemanticModel.GetTypeInfo(type).Type;
+			if (t is null)
+				return editor.Generator.NullLiteralExpression();
+
 			switch (t.SpecialType)
 			{
 				case SpecialType.System_Boolean:

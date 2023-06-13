@@ -40,6 +40,9 @@ namespace Xunit.Analyzers
 				? secondArgumentType
 				: firstArgumentType;
 
+			if (typeToDisplay is null)
+				return;
+
 			var replacement = method.Name switch
 			{
 				Constants.Asserts.Same => Constants.Asserts.Equal,
@@ -50,7 +53,7 @@ namespace Xunit.Analyzers
 			if (replacement is null)
 				return;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.Replacement] = replacement;
 

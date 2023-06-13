@@ -35,7 +35,7 @@ namespace Xunit.Analyzers
 
 			var wellFormedInlineDataAttributes =
 				methodAllAttributes
-					.Where(a => Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType) && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
+					.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, xunitContext.Core.InlineDataAttributeType) && HasAttributeDeclarationNoCompilationErrors(a, objectArrayType));
 
 			AnalyzeInlineDataAttributesWithinTheory(context, wellFormedInlineDataAttributes);
 		}
@@ -60,10 +60,10 @@ namespace Xunit.Analyzers
 			}
 		}
 
-		static AttributeSyntax GetAttributeSyntax(
+		static AttributeSyntax? GetAttributeSyntax(
 			SymbolAnalysisContext context,
 			AttributeData attribute) =>
-				(AttributeSyntax)attribute.ApplicationSyntaxReference.GetSyntax(context.CancellationToken);
+				attribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) as AttributeSyntax;
 
 		static void ReportDuplicate(
 			SymbolAnalysisContext context,
@@ -72,10 +72,14 @@ namespace Xunit.Analyzers
 			if (context.Symbol is not IMethodSymbol method)
 				return;
 
+			var attributeSyntax = GetAttributeSyntax(context, duplicateAttribute);
+			if (attributeSyntax == null)
+				return;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory,
-					GetAttributeSyntax(context, duplicateAttribute).GetLocation(),
+					attributeSyntax.GetLocation(),
 					method.Name,
 					method.ContainingType.Name
 				)
@@ -86,7 +90,7 @@ namespace Xunit.Analyzers
 			AttributeData attribute,
 			IArrayTypeSymbol objectArrayType) =>
 				attribute.ConstructorArguments.Length == 1 &&
-				objectArrayType.Equals(attribute.ConstructorArguments.FirstOrDefault().Type);
+				SymbolEqualityComparer.Default.Equals(objectArrayType, attribute.ConstructorArguments.FirstOrDefault().Type);
 
 		class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
 		{

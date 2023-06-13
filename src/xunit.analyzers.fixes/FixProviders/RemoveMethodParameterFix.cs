@@ -27,11 +27,13 @@ namespace Xunit.Analyzers.FixProviders
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
-			if (parameter == null)
-			{
+			if (root is null)
 				return;
-			}
+
+			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
+			if (parameter is null)
+				return;
+
 			var parameterName = parameter.Identifier.Text;
 
 			context.RegisterCodeFix(

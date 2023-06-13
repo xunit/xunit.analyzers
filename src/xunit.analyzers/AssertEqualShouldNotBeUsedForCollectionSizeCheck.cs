@@ -15,6 +15,7 @@ namespace Xunit.Analyzers
 		static readonly HashSet<string> collectionTypesWithExceptionThrowingGetEnumeratorMethod = new() { "System.ArraySegment<T>" };
 		static readonly HashSet<string> sizeMethods = new()
 		{
+			// Signatures without nullable variants
 			"System.Array.Length",
 			"System.Linq.Enumerable.Count<TSource>(System.Collections.Generic.IEnumerable<TSource>)",
 			"System.Collections.Immutable.ImmutableArray<T>.Length",
@@ -39,7 +40,7 @@ namespace Xunit.Analyzers
 				!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_Int32))
 				return;
 
-			var sizeOperation = invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(method.Parameters[0]))?.Value;
+			var sizeOperation = invocationOperation.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, method.Parameters[0]))?.Value;
 			var sizeValue = sizeOperation?.ConstantValue ?? default;
 			if (!sizeValue.HasValue)
 				return;
@@ -51,7 +52,7 @@ namespace Xunit.Analyzers
 			if (size < 0 || size > 1 || (size == 1 && method.Name != Constants.Asserts.Equal))
 				return;
 
-			var otherArgument = invocationOperation.Arguments.FirstOrDefault(arg => !arg.Parameter.Equals(method.Parameters[0]));
+			var otherArgument = invocationOperation.Arguments.FirstOrDefault(arg => !SymbolEqualityComparer.Default.Equals(arg.Parameter, method.Parameters[0]));
 
 			var symbol = otherArgument?.Value switch
 			{
@@ -72,7 +73,7 @@ namespace Xunit.Analyzers
 
 			var replacement = GetReplacementMethodName(method.Name, size);
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.SizeValue] = size.ToString();
 			builder[Constants.Properties.Replacement] = replacement;
@@ -145,15 +146,21 @@ namespace Xunit.Analyzers
 		}
 
 		static bool IsCountPropertyOf(
-			INamedTypeSymbol collectionType,
+			INamedTypeSymbol? collectionType,
 			ISymbol symbol)
 		{
+			if (collectionType == null)
+				return false;
+
 			var memberSymbol = symbol;
 			var containingType = memberSymbol.ContainingType;
 			var countSymbol = collectionType.GetMember(nameof(ICollection.Count));
+			if (countSymbol == null)
+				return false;
+
 			var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
 
-			return countSymbolImplementation?.Equals(memberSymbol) ?? false;
+			return SymbolEqualityComparer.Default.Equals(countSymbolImplementation, memberSymbol);
 		}
 	}
 }

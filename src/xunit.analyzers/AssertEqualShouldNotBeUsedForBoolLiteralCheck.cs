@@ -41,7 +41,7 @@ namespace Xunit.Analyzers
 				!method.TypeArguments[0].SpecialType.Equals(SpecialType.System_Boolean))
 				return;
 
-			if (arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value is not ILiteralOperation literalFirstArgument)
+			if (arguments.FirstOrDefault(arg => arg.Parameter?.Ordinal == 0)?.Value is not ILiteralOperation literalFirstArgument)
 				return;
 
 			var isTrue = literalFirstArgument.ConstantValue.HasValue && Equals(literalFirstArgument.ConstantValue.Value, true);
@@ -54,7 +54,7 @@ namespace Xunit.Analyzers
 			if (replacement is null)
 				return;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.LiteralValue] = isTrue ? bool.TrueString : bool.FalseString;
 			builder[Constants.Properties.Replacement] = replacement;

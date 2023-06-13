@@ -49,7 +49,7 @@ namespace Xunit.Analyzers
 					return;
 
 				var semanticModel = context.SemanticModel;
-				if (!Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
+				if (!SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
 					return;
 
 				if (attribute.ArgumentList is null)
@@ -75,8 +75,18 @@ namespace Xunit.Analyzers
 					memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
 				}
 
-				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>());
+				var classSyntax = attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+				if (classSyntax is null)
+					return;
+
+				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
+				if (testClassTypeSymbol is null)
+					return;
+
 				var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
+				if (declaredMemberTypeSymbol is null)
+					return;
+
 				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
 
 				if (memberSymbol is null)
@@ -88,7 +98,7 @@ namespace Xunit.Analyzers
 					if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
 						ReportUseNameof(context, memberNameArgument, memberName, testClassTypeSymbol, memberSymbol);
 
-					var memberProperties = new Dictionary<string, string>
+					var memberProperties = new Dictionary<string, string?>
 					{
 						{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
 						{ Constants.AttributeProperties.MemberName, memberName }
@@ -101,7 +111,7 @@ namespace Xunit.Analyzers
 						ReportNonStatic(context, attribute, memberProperties);
 
 					var memberType = GetMemberType(memberSymbol);
-					if (!iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
+					if (memberType is not null && !iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
 						ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, attribute, memberProperties, memberType);
 
 					if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -127,7 +137,7 @@ namespace Xunit.Analyzers
 
 		static ISymbol? FindMemberSymbol(
 			string memberName,
-			ITypeSymbol type,
+			ITypeSymbol? type,
 			int paramsCount)
 		{
 			if (paramsCount > 0 && FindMethodSymbol(memberName, type, paramsCount) is ISymbol methodSymbol)
@@ -147,7 +157,7 @@ namespace Xunit.Analyzers
 
 		static ISymbol? FindMethodSymbol(
 			string memberName,
-			ITypeSymbol type,
+			ITypeSymbol? type,
 			int paramsCount)
 		{
 			while (type is not null)
@@ -205,8 +215,8 @@ namespace Xunit.Analyzers
 			SyntaxNodeAnalysisContext context,
 			INamedTypeSymbol iEnumerableOfObjectArrayType,
 			AttributeSyntax attribute,
-			ImmutableDictionary<string, string> memberProperties,
-			ITypeSymbol? memberType) =>
+			ImmutableDictionary<string, string?> memberProperties,
+			ITypeSymbol memberType) =>
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
@@ -234,7 +244,7 @@ namespace Xunit.Analyzers
 		static void ReportNonPublicAccessibility(
 			SyntaxNodeAnalysisContext context,
 			AttributeSyntax attribute,
-			ImmutableDictionary<string, string> memberProperties) =>
+			ImmutableDictionary<string, string?> memberProperties) =>
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1016_MemberDataMustReferencePublicMember,
@@ -256,7 +266,7 @@ namespace Xunit.Analyzers
 		static void ReportNonStatic(
 			SyntaxNodeAnalysisContext context,
 			AttributeSyntax attribute,
-			ImmutableDictionary<string, string> memberProperties) =>
+			ImmutableDictionary<string, string?> memberProperties) =>
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1017_MemberDataMustReferenceStaticMember,
@@ -272,8 +282,8 @@ namespace Xunit.Analyzers
 			INamedTypeSymbol testClassTypeSymbol,
 			ISymbol memberSymbol)
 		{
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
-			if (!Equals(memberSymbol.ContainingType, testClassTypeSymbol))
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+			if (!SymbolEqualityComparer.Default.Equals(memberSymbol.ContainingType, testClassTypeSymbol))
 				builder.Add("DeclaringType", memberSymbol.ContainingType.ToDisplayString());
 
 			context.ReportDiagnostic(

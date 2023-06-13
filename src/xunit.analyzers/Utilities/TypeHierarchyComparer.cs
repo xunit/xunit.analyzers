@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 			if (y?.TypeKind != TypeKind.Class)
 				throw new ArgumentException("The argument must be a class", nameof(y));
 
-			if (x.Equals(y))
+			if (SymbolEqualityComparer.Default.Equals(x, y))
 				return 0;
 			if (x.IsAssignableFrom(y))
 				return -1;

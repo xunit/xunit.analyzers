@@ -24,12 +24,17 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
 				return;
 
 			var diagnosticId = diagnostic.Id;
 			var attribute = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeSyntax>();
+			if (attribute is null)
+				return;
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -49,9 +54,10 @@ namespace Xunit.Analyzers
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-			foreach (var argument in attribute.ArgumentList.Arguments)
-				if (argument.Span.OverlapsWith(span))
-					editor.RemoveNode(argument);
+			if (attribute.ArgumentList is not null)
+				foreach (var argument in attribute.ArgumentList.Arguments)
+					if (argument.Span.OverlapsWith(span))
+						editor.RemoveNode(argument);
 
 			return editor.GetChangedDocument();
 		}

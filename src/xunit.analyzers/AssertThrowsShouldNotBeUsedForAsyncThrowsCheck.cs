@@ -31,7 +31,7 @@ namespace Xunit.Analyzers
 
 			var replacement = method.Name + "Async";
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.Replacement] = replacement;
 

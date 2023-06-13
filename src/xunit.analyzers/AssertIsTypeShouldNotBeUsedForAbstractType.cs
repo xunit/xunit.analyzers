@@ -27,6 +27,9 @@ namespace Xunit.Analyzers
 			IMethodSymbol method)
 		{
 			var type = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault();
+			if (type is null)
+				return;
+
 			var typeKind = GetAbstractTypeKind(type);
 			if (typeKind is null)
 				return;

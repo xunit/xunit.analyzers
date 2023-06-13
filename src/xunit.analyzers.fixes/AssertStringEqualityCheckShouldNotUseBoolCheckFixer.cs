@@ -28,7 +28,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+			if (invocation is null)
+				return;
+
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
 				return;
@@ -39,6 +45,8 @@ namespace Xunit.Analyzers
 			if (!diagnostic.Properties.TryGetValue(Constants.Properties.IgnoreCase, out var ignoreCaseText))
 				return;
 			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+				return;
+			if (replacement is null)
 				return;
 
 			var ignoreCase = ignoreCaseText switch

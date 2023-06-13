@@ -37,13 +37,17 @@ namespace Xunit.Analyzers.CodeActions
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var dataAttributeType = semanticModel.Compilation.GetTypeByMetadataName(attributeType);
 
-			if (dataAttributeType is not null)
-				foreach (var attributeList in attributeLists)
-					foreach (var attribute in attributeList.Attributes)
-						if (dataAttributeType.IsAssignableFrom(semanticModel.GetTypeInfo(attribute, cancellationToken).Type, exactMatch))
-							editor.RemoveNode(attribute);
+			if (semanticModel is not null)
+			{
+				var dataAttributeType = semanticModel.Compilation.GetTypeByMetadataName(attributeType);
+
+				if (dataAttributeType is not null)
+					foreach (var attributeList in attributeLists)
+						foreach (var attribute in attributeList.Attributes)
+							if (dataAttributeType.IsAssignableFrom(semanticModel.GetTypeInfo(attribute, cancellationToken).Type, exactMatch))
+								editor.RemoveNode(attribute);
+			}
 
 			return editor.GetChangedDocument();
 		}

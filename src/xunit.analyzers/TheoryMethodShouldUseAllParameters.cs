@@ -28,6 +28,9 @@ namespace Xunit.Analyzers
 					return;
 
 				var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
+				if (methodSymbol == null)
+					return;
+
 				var attributes = methodSymbol.GetAttributes();
 				if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
 					return;
@@ -49,7 +52,7 @@ namespace Xunit.Analyzers
 			if (!flowAnalysis.Succeeded)
 				return;
 
-			var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct());
+			var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct(SymbolEqualityComparer.Default), SymbolEqualityComparer.Default);
 
 			for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 			{

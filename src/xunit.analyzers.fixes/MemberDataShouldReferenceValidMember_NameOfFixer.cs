@@ -30,15 +30,21 @@ namespace Xunit.Analyzers
 
 			var diagnosticId = diagnostic.Id;
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var attributeArgument = root.FindNode(context.Span).FirstAncestorOrSelf<AttributeArgumentSyntax>();
+			if (attributeArgument is null)
+				return;
 
 			if (attributeArgument.Expression is LiteralExpressionSyntax memberNameExpression)
 			{
 				var memberType = default(INamedTypeSymbol);
-				if (diagnostic.Properties.TryGetValue(Constants.AttributeProperties.DeclaringType, out var memberTypeName))
+				if (diagnostic.Properties.TryGetValue(Constants.AttributeProperties.DeclaringType, out var memberTypeName) && memberTypeName is not null)
 				{
 					var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
-					memberType = semanticModel.Compilation.GetTypeByMetadataName(memberTypeName);
+					if (semanticModel is not null)
+						memberType = semanticModel.Compilation.GetTypeByMetadataName(memberTypeName);
 				}
 
 				context.RegisterCodeFix(

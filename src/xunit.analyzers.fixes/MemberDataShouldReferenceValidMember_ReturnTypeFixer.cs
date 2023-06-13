@@ -22,6 +22,9 @@ namespace Xunit.Analyzers
 			ISymbol member)
 		{
 			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+			if (semanticModel is null)
+				return;
+
 			var type = TypeSymbolFactory.IEnumerableOfObjectArray(semanticModel.Compilation);
 
 			context.RegisterCodeFix(

@@ -30,8 +30,8 @@ namespace Xunit.Analyzers
 			if (arguments.Length < 2)
 				return;
 
-			var expectedArg = arguments.FirstOrDefault(arg => arg.Parameter.Name == Constants.AssertArguments.Expected);
-			var actualArg = arguments.FirstOrDefault(arg => arg.Parameter.Name == Constants.AssertArguments.Actual);
+			var expectedArg = arguments.FirstOrDefault(arg => arg.Parameter?.Name == Constants.AssertArguments.Expected);
+			var actualArg = arguments.FirstOrDefault(arg => arg.Parameter?.Name == Constants.AssertArguments.Actual);
 			if (expectedArg is null || actualArg is null)
 				return;
 
@@ -61,10 +61,8 @@ namespace Xunit.Analyzers
 
 		static bool IsLiteralOrConstant(IOperation operation)
 		{
-			if (operation.Kind == OperationKind.ObjectCreation && operation.Type.SpecialType == SpecialType.System_String)
-			{
+			if (operation.Kind == OperationKind.ObjectCreation && operation.Type?.SpecialType == SpecialType.System_String)
 				return ((IObjectCreationOperation)operation).Arguments.All(arg => arg.Value.ConstantValue.HasValue);
-			}
 
 			return operation.ConstantValue.HasValue || operation.Kind == OperationKind.TypeOf;
 		}

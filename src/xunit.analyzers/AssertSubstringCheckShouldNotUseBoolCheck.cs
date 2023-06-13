@@ -12,6 +12,7 @@ namespace Xunit.Analyzers
 	{
 		private static readonly HashSet<string> substringMethods = new()
 		{
+			// Signatures without nullable variants
 			"string.Contains(string)",
 			"string.StartsWith(string)",
 			"string.StartsWith(string, System.StringComparison)",
@@ -49,7 +50,7 @@ namespace Xunit.Analyzers
 
 			var replacement = GetReplacementMethodName(method.Name, methodSymbol.Name);
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
 			builder[Constants.Properties.SubstringMethodName] = methodSymbol.Name;
 			builder[Constants.Properties.Replacement] = replacement;

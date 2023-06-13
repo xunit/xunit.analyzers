@@ -30,7 +30,7 @@ namespace Xunit.Analyzers
 				if (hasMBRO)
 					return;
 
-				var builder = ImmutableDictionary.CreateBuilder<string, string>();
+				var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 				builder[Constants.Properties.CanFix] = (xunitContext.V2Execution != null).ToString();
 
 				context.ReportDiagnostic(

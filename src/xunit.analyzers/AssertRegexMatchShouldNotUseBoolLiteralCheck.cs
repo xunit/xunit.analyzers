@@ -12,6 +12,7 @@ namespace Xunit.Analyzers
 	{
 		static readonly HashSet<string> regexIsMatchSymbols = new()
 		{
+			// Signatures without nullable variants
 			"System.Text.RegularExpressions.Regex.IsMatch(string, string)",
 			"System.Text.RegularExpressions.Regex.IsMatch(string)"
 		};
@@ -46,7 +47,7 @@ namespace Xunit.Analyzers
 					? Constants.Asserts.Matches
 					: Constants.Asserts.DoesNotMatch;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.MethodName] = method.Name;
 			builder[Constants.Properties.IsStatic] = methodSymbol.IsStatic ? bool.TrueString : bool.FalseString;
 			builder[Constants.Properties.Replacement] = replacement;

@@ -68,7 +68,7 @@ namespace Xunit.Analyzers
 				return null;
 
 			var precisionParameter = invocation.TargetMethod.Parameters[2];
-			var precisionArgument = invocation.Arguments.FirstOrDefault(arg => arg.Parameter.Equals(precisionParameter));
+			var precisionArgument = invocation.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, precisionParameter));
 			if (precisionArgument is null)
 				return null;
 

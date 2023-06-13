@@ -9,6 +9,7 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck : AssertUsageAnalyzerBase
 	{
+		// Signature without nullable variant
 		const string enumerableAnyExtensionMethod = "System.Linq.Enumerable.Any<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 		static readonly string[] targetMethods =
 		{
@@ -40,7 +41,7 @@ namespace Xunit.Analyzers
 					? Constants.Asserts.Contains
 					: Constants.Asserts.DoesNotContain;
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.AssertMethodName] = method.Name;
 			builder[Constants.Properties.Replacement] = replacement;
 

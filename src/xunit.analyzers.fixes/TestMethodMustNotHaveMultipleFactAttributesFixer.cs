@@ -26,7 +26,13 @@ namespace Xunit.Analyzers
 		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+			if (root is null)
+				return;
+
 			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
+			if (methodDeclaration is null)
+				return;
+
 			var diagnostic = context.Diagnostics.FirstOrDefault();
 			if (diagnostic is null)
 				return;
@@ -71,23 +77,31 @@ namespace Xunit.Analyzers
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var oneKept = false;
 
-			foreach (var attributeList in methodDeclaration.AttributeLists)
-				foreach (var attribute in attributeList.Attributes)
-				{
-					var attributeType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type.ToDisplayString();
-					if (attributeTypesToConsider.Contains(attributeType))
+			if (semanticModel is not null)
+			{
+				var oneKept = false;
+
+				foreach (var attributeList in methodDeclaration.AttributeLists)
+					foreach (var attribute in attributeList.Attributes)
 					{
-						if (attributeType == attributeTypeToKeep && !oneKept)
-						{
-							oneKept = true;
+						var attributeType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type;
+						if (attributeType is null)
 							continue;
-						}
 
-						editor.RemoveNode(attribute);
+						var attributeTypeDisplay = attributeType.ToDisplayString();
+						if (attributeTypesToConsider.Contains(attributeTypeDisplay))
+						{
+							if (attributeTypeDisplay == attributeTypeToKeep && !oneKept)
+							{
+								oneKept = true;
+								continue;
+							}
+
+							editor.RemoveNode(attribute);
+						}
 					}
-				}
+			}
 
 			return editor.GetChangedDocument();
 		}

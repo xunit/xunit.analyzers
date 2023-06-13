@@ -43,7 +43,7 @@ namespace Xunit.Analyzers
 					if (context.Operation is IInvocationOperation invocationOperation)
 					{
 						var methodSymbol = invocationOperation.TargetMethod;
-						if (methodSymbol.MethodKind != MethodKind.Ordinary || !Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
+						if (methodSymbol.MethodKind != MethodKind.Ordinary || !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
 							return;
 
 						Analyze(context, invocationOperation, methodSymbol);
