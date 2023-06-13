@@ -21,8 +21,8 @@ Installing this package provides code analyzers to help developers find and fix 
 		<file target="_content\" src="..\..\README.md" />
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 
-		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes\bin\$Configuration$\netstandard1.3\xunit.analyzers.dll" />
-		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes\bin\$Configuration$\netstandard1.3\xunit.analyzers.fixes.dll" />
+		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
+		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
 
 		<file target="tools\" src="..\xunit.analyzers.fixes\tools\*.ps1" />
 	</files>
