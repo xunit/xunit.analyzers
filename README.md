@@ -7,7 +7,7 @@
 
 This project contains source code analysis and cleanup rules for xUnit.net.
 
-**Requirements**: xUnit.net v2.0+ and Visual Studio 2017 version 15.9 or later.
+**Requirements**: xUnit.net v2.0+ and Visual Studio 2022 or later (early versions of Visual Studio may work but are not officially supported).
 
 **Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/rules/
 
