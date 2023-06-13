@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.CodeAnalysis.Text;
@@ -85,10 +86,12 @@ public class CSharpVerifier<TAnalyzer>
 		int? codeActionIndex = null,
 		params DiagnosticResult[] diagnostics)
 	{
+		var newLine = FormattingOptions.NewLine.DefaultValue;
+
 		var test = new TestV2(languageVersion)
 		{
-			TestCode = before.Replace("\n", "\r\n"),
-			FixedCode = after.Replace("\n", "\r\n"),
+			TestCode = before.Replace("\n", newLine),
+			FixedCode = after.Replace("\n", newLine),
 			CodeActionIndex = codeActionIndex
 		};
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
