@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
@@ -27,13 +28,25 @@ public class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerAsyncV2(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV2(new[] { source }, diagnostics);
+			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, new[] { source }, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV2(
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV2(languageVersion, new[] { source }, diagnostics);
 
 	public static Task VerifyAnalyzerAsyncV2(
 		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, sources, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV2(
+		LanguageVersion languageVersion,
+		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		var test = new TestV2();
+		var test = new TestV2(languageVersion);
 
 		foreach (var source in sources)
 			test.TestState.Sources.Add(source);
@@ -44,9 +57,15 @@ public class CSharpVerifier<TAnalyzer>
 
 	public static Task VerifyAnalyzerAsyncV2(
 		(string filename, string content)[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, sources, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV2(
+		LanguageVersion languageVersion,
+		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		var test = new TestV2();
+		var test = new TestV2(languageVersion);
 		test.TestState.Sources.AddRange(sources.Select(s => (s.filename, SourceText.From(s.content))));
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		return test.RunAsync();
@@ -56,9 +75,17 @@ public class CSharpVerifier<TAnalyzer>
 		string before,
 		string after,
 		int? codeActionIndex = null,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyCodeFixAsyncV2(LanguageVersion.CSharp6, before, after, codeActionIndex, diagnostics);
+
+	public static Task VerifyCodeFixAsyncV2(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		int? codeActionIndex = null,
 		params DiagnosticResult[] diagnostics)
 	{
-		var test = new TestV2
+		var test = new TestV2(languageVersion)
 		{
 			TestCode = before.Replace("\n", "\r\n"),
 			FixedCode = after.Replace("\n", "\r\n"),
@@ -70,8 +97,12 @@ public class CSharpVerifier<TAnalyzer>
 
 	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
 	{
-		public TestV2()
+		readonly LanguageVersion languageVersion;
+
+		public TestV2(LanguageVersion languageVersion)
 		{
+			this.languageVersion = languageVersion;
+
 			ReferenceAssemblies = CodeAnalyzerHelper.CurrentXunitV2;
 
 			// xunit diagnostics are reported in both normal and generated code
@@ -86,5 +117,8 @@ public class CSharpVerifier<TAnalyzer>
 				if (analyzer.SupportedDiagnostics.Any(diagnostic => provider.FixableDiagnosticIds.Contains(diagnostic.Id)))
 					yield return provider;
 		}
+
+		protected override ParseOptions CreateParseOptions() =>
+			new CSharpParseOptions(languageVersion, DocumentationMode.Diagnose);
 	}
 }
