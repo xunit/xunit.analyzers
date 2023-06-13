@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
 </Project>
