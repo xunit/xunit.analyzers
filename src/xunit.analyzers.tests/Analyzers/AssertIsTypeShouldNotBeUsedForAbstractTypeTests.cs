@@ -89,9 +89,7 @@ class TestClass {{
 	[MemberData(nameof(Methods))]
 	public async void DoesNotFindError_NonAbstractClass(
 		string method,
-#pragma warning disable xUnit1026
 		string _)
-#pragma warning restore xUnit1026
 	{
 		var source = $@"
 using Xunit;
