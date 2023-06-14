@@ -19,7 +19,10 @@ public abstract class TestClass {{
 	[Theory]
 	[InlineData("[|Assert.IsType<IDisposable>(data)|]", "Assert.IsAssignableFrom<IDisposable>(data)")]
 	[InlineData("[|Assert.IsType<TestClass>(data)|]", "Assert.IsAssignableFrom<TestClass>(data)")]
-	public async void ConvertsIsTypeToIsAssignableFrom(
+	// TODO: We cannot use this data because we can't reference xUnit.net 2.5.0 due to https://github.com/dotnet/roslyn-sdk/issues/1099
+	//[InlineData("[|Assert.IsNotType<IDisposable>(data)|]", "Assert.IsNotAssignableFrom<IDisposable>(data)")]
+	//[InlineData("[|Assert.IsNotType<TestClass>(data)|]", "Assert.IsNotAssignableFrom<TestClass>(data)")]
+	public async void Conversions(
 		string beforeAssert,
 		string afterAssert)
 	{

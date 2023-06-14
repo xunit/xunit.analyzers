@@ -486,7 +486,7 @@ namespace Xunit.Analyzers
 				"Do not compare an object's exact type to an abstract class or interface",
 				Assertions,
 				Warning,
-				"Do not compare an object's exact type to the {0} '{1}'. Use Assert.IsAssignableFrom instead."
+				"Do not compare an object's exact type to the {0} '{1}'. Use Assert.{2} instead."
 			);
 
 		[Obsolete("This check was unnecessary, as it's already covered by xUnit2014", error: true)]

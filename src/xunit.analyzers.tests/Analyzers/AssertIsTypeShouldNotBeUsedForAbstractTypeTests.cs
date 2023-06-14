@@ -4,15 +4,17 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbst
 
 public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 {
-	public static TheoryData<string> Methods = new()
+	public static TheoryData<string, string> Methods = new()
 	{
-		"IsType",
-		"IsNotType",
+		{ "IsType", "IsAssignableFrom" },
+		{ "IsNotType", "IsNotAssignableFrom" },
 	};
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_Interface(string method)
+	public async void FindsError_Interface(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 using System;
@@ -28,14 +30,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(7, 9, 7, 43 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("interface", "System.IDisposable");
+				.WithArguments("interface", "System.IDisposable", replacement);
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_AbstractClass(string method)
+	public async void FindsError_AbstractClass(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 using System.IO;
@@ -51,14 +55,16 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(7, 9, 7, 38 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("abstract class", "System.IO.Stream");
+				.WithArguments("abstract class", "System.IO.Stream", replacement);
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_UsingStatic(string method)
+	public async void FindsError_UsingStatic(
+		string method,
+		string replacement)
 	{
 		var source = $@"
 using System;
@@ -74,14 +80,18 @@ class TestClass {{
 				.Diagnostic()
 				.WithSpan(7, 9, 7, 36 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("interface", "System.IDisposable");
+				.WithArguments("interface", "System.IDisposable", replacement);
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindError_NonAbstractClass(string method)
+	public async void DoesNotFindError_NonAbstractClass(
+		string method,
+#pragma warning disable xUnit1026
+		string _)
+#pragma warning restore xUnit1026
 	{
 		var source = $@"
 using Xunit;

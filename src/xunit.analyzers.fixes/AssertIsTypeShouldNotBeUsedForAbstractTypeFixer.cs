@@ -14,7 +14,7 @@ namespace Xunit.Analyzers
 	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 	public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : CodeFixProvider
 	{
-		static readonly string title = $"Use Assert.{Constants.Asserts.IsAssignableFrom}";
+		static readonly string titleTemplate = "Use Assert.{0}";
 
 		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
 			ImmutableArray.Create(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType.Id);
@@ -37,28 +37,32 @@ namespace Xunit.Analyzers
 				return;
 
 			var methodName = simpleNameSyntax.Identifier.Text;
+			if (!AssertIsTypeShouldNotBeUsedForAbstractType.ReplacementMethods.TryGetValue(methodName, out var replacementName))
+				return;
 
-			if (methodName == Constants.Asserts.IsType)
-				context.RegisterCodeFix(
-					CodeAction.Create(
-						title,
-						createChangedDocument: ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, ct),
-						equivalenceKey: title
-					),
-					context.Diagnostics
-				);
+			var title = string.Format(titleTemplate, replacementName);
+
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title,
+					createChangedDocument: ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, replacementName, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
 
 		static async Task<Document> UseIsAssignableFrom(
 			Document document,
 			SimpleNameSyntax simpleName,
+			string replacementName,
 			CancellationToken cancellationToken)
 		{
 			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 			editor.ReplaceNode(
 				simpleName,
-				simpleName.WithIdentifier(Identifier(Constants.Asserts.IsAssignableFrom))
+				simpleName.WithIdentifier(Identifier(replacementName))
 			);
 
 			return editor.GetChangedDocument();

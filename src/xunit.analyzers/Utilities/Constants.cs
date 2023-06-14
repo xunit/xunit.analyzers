@@ -26,6 +26,7 @@ namespace Xunit.Analyzers
 			public const string Equal = "Equal";
 			public const string False = "False";
 			public const string IsAssignableFrom = "IsAssignableFrom";
+			public const string IsNotAssignableFrom = "IsNotAssignableFrom";
 			public const string IsNotType = "IsNotType";
 			public const string IsType = "IsType";
 			public const string Matches = "Matches";

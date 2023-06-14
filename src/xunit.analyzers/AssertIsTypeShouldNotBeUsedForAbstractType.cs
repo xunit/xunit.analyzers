@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,16 +10,17 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBase
 	{
-		const string abstractClass = "abstract class";
-		const string @interface = "interface";
-		static readonly string[] targetMethods =
+		public static readonly Dictionary<string, string> ReplacementMethods = new()
 		{
-			Constants.Asserts.IsType,
-			Constants.Asserts.IsNotType
+			{ Constants.Asserts.IsType, Constants.Asserts.IsAssignableFrom },
+			{ Constants.Asserts.IsNotType, Constants.Asserts.IsNotAssignableFrom },
 		};
 
+		const string abstractClass = "abstract class";
+		const string @interface = "interface";
+
 		public AssertIsTypeShouldNotBeUsedForAbstractType()
-			: base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType, targetMethods)
+			: base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType, ReplacementMethods.Keys)
 		{ }
 
 		protected override void Analyze(
@@ -36,12 +38,16 @@ namespace Xunit.Analyzers
 
 			var typeName = SymbolDisplay.ToDisplayString(type);
 
+			if (!ReplacementMethods.TryGetValue(invocationOperation.TargetMethod.Name, out var replacement))
+				return;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType,
 					invocationOperation.Syntax.GetLocation(),
 					typeKind,
-					typeName
+					typeName,
+					replacement
 				)
 			);
 		}
