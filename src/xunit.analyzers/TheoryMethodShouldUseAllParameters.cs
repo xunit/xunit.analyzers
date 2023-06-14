@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,6 +12,8 @@ namespace Xunit.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 	{
+		static readonly Regex discardRegex = new(@"^_\d*$");
+
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 			ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
 
@@ -58,7 +61,7 @@ namespace Xunit.Analyzers
 			{
 				var parameterSymbol = methodSymbol.Parameters[i];
 
-				if (!usedParameters.Contains(parameterSymbol))
+				if (!usedParameters.Contains(parameterSymbol) && !discardRegex.Match(parameterSymbol.Name).Success)
 				{
 					var parameterSyntax = methodSyntax.ParameterList.Parameters[i];
 

@@ -183,6 +183,32 @@ class TestClass {
 	}
 
 	[Fact]
+	public async void DoesNotFindWarning_WhenParameterIsDiscardNamed()
+	{
+		var source = @"
+using System;
+using Xunit;
+
+class TestClass {
+    [Theory]
+    void TestMethod(int used, string _, object _1, DateTime _42, double _a)
+    {
+        Assert.Equal(42, used);
+    }
+}";
+
+		// Only a single warning, for _a; everything else is either used or matches the discard pattern
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(7, 73, 7, 75)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("TestMethod", "TestClass", "_a");
+
+		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+	}
+
+	[Fact]
 	public async void DoesNotCrash_MethodWithoutBody()
 	{
 		var source = @"
