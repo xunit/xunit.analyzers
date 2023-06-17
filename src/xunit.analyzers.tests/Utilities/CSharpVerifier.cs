@@ -15,10 +15,10 @@ public class CSharpVerifier<TAnalyzer>
 	where TAnalyzer : DiagnosticAnalyzer, new()
 {
 	public static DiagnosticResult Diagnostic() =>
-		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>.Diagnostic();
+		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>.Diagnostic();
 
 	public static DiagnosticResult Diagnostic(string diagnosticId) =>
-		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>.Diagnostic(diagnosticId);
+		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>.Diagnostic(diagnosticId);
 
 	public static DiagnosticResult Diagnostic(DiagnosticDescriptor descriptor) =>
 		new(descriptor);
@@ -98,7 +98,7 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XUnitVerifier>
+	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>
 	{
 		readonly LanguageVersion languageVersion;
 
