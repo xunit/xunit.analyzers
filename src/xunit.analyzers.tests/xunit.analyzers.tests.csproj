@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_VISIBILITY_INTERNAL;XUNIT_NULLABLE</DefineConstants>
-    <NoWarn>$(NoWarn);AD0001;xUnit2007;xUnit2015</NoWarn>
+    <!-- Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerApiUsageAnalyzer is throwing a null ref exception sometimes -->
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>net6.0;net472</TargetFrameworks>
   </PropertyGroup>
@@ -16,8 +17,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
     <PackageReference Include="NSubstitute" Version="5.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.assert.source" Version="2.5.0-pre.32" />
-    <PackageReference Include="xunit.core" Version="2.5.0-pre.32" />
+    <PackageReference Include="xunit.assert.source" Version="2.5.0-pre.36" />
+    <PackageReference Include="xunit.core" Version="2.5.0-pre.36" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0-pre.21" />
   </ItemGroup>
 
