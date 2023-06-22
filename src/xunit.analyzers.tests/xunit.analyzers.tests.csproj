@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);XUNIT_VISIBILITY_INTERNAL;XUNIT_NULLABLE</DefineConstants>
     <!-- Microsoft.CodeAnalysis.CSharp.Analyzers.MetaAnalyzers.CSharpDiagnosticAnalyzerApiUsageAnalyzer is throwing a null ref exception sometimes -->
-    <NoWarn>$(NoWarn);AD0001</NoWarn>
+    <NoWarn>$(NoWarn);RS1022</NoWarn>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>net6.0;net472</TargetFrameworks>
   </PropertyGroup>
