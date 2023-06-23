@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 			: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void AnalyzeInvocation(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
 			if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
 				return;

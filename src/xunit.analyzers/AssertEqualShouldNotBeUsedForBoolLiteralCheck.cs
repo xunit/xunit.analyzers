@@ -27,7 +27,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(
+		protected override void AnalyzeInvocation(
 			OperationAnalysisContext context,
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)

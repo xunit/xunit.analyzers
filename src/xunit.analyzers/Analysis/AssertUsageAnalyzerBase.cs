@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers
 {
-	public abstract class AssertUsageAnalyzerBase : DiagnosticAnalyzer
+	public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
 	{
 		readonly HashSet<string> targetMethods;
 
@@ -27,32 +27,28 @@ namespace Xunit.Analyzers
 
 		public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-		public sealed override void Initialize(AnalysisContext context)
+		public sealed override void AnalyzeCompilation(
+			CompilationStartAnalysisContext context,
+			XunitContext xunitContext)
 		{
-			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
-			context.EnableConcurrentExecution();
+			var assertType = context.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
+			if (assertType is null)
+				return;
 
-			context.RegisterCompilationStartAction(context =>
+			context.RegisterOperationAction(context =>
 			{
-				var assertType = context.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
-				if (assertType is null)
-					return;
-
-				context.RegisterOperationAction(context =>
+				if (context.Operation is IInvocationOperation invocationOperation)
 				{
-					if (context.Operation is IInvocationOperation invocationOperation)
-					{
-						var methodSymbol = invocationOperation.TargetMethod;
-						if (methodSymbol.MethodKind != MethodKind.Ordinary || !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
-							return;
+					var methodSymbol = invocationOperation.TargetMethod;
+					if (methodSymbol.MethodKind != MethodKind.Ordinary || !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
+						return;
 
-						Analyze(context, invocationOperation, methodSymbol);
-					}
-				}, OperationKind.Invocation);
-			});
+					AnalyzeInvocation(context, invocationOperation, methodSymbol);
+				}
+			}, OperationKind.Invocation);
 		}
 
-		protected abstract void Analyze(
+		protected abstract void AnalyzeInvocation(
 			OperationAnalysisContext context,
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method);

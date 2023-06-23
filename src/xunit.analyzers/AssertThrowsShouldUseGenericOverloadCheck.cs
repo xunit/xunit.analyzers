@@ -20,7 +20,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2015_AssertThrowsShouldUseGenericOverload, targetMethods)
 		{ }
 
-		protected override void Analyze(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
+		protected override void AnalyzeInvocation(OperationAnalysisContext context, IInvocationOperation invocationOperation, IMethodSymbol method)
 		{
 			var parameters = invocationOperation.TargetMethod.Parameters;
 			if (parameters.Length != 2)

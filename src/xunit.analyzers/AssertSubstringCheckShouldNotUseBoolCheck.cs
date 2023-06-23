@@ -29,7 +29,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2009_AssertSubstringCheckShouldNotUseBoolCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(
+		protected override void AnalyzeInvocation(
 			OperationAnalysisContext context,
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)

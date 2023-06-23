@@ -26,7 +26,7 @@ namespace Xunit.Analyzers
 			: base(Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck, targetMethods)
 		{ }
 
-		protected override void Analyze(
+		protected override void AnalyzeInvocation(
 			OperationAnalysisContext context,
 			IInvocationOperation invocationOperation,
 			IMethodSymbol method)
