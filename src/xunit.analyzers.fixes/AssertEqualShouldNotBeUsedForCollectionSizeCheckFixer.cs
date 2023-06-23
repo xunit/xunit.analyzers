@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -10,87 +9,84 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class AssertEqualShouldNotBeUsedForCollectionSizeCheckFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertEqualShouldNotBeUsedForCollectionSizeCheckFixer : CodeFixProvider
+	const string titleTemplate = "Use Assert.{0}";
+
+	public AssertEqualShouldNotBeUsedForCollectionSizeCheckFixer() :
+		base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string titleTemplate = "Use Assert.{0}";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck.Id);
+		var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+		if (invocation is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.SizeValue, out var sizeValue))
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+			return;
+		if (replacement is null)
+			return;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		var title = string.Format(titleTemplate, replacement);
+
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				title,
+				createChangedDocument: ct => UseCollectionSizeAssertionAsync(context.Document, invocation, replacement, ct),
+				equivalenceKey: title
+			),
+			context.Diagnostics
+		);
+	}
+
+	static async Task<Document> UseCollectionSizeAssertionAsync(
+		Document document,
+		InvocationExpressionSyntax invocation,
+		string replacement,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
+		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+			var expression = GetExpressionSyntax(invocation);
 
-			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			if (invocation is null)
-				return;
-
-			var diagnostic = context.Diagnostics.FirstOrDefault();
-			if (diagnostic is null)
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.SizeValue, out var sizeValue))
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
-				return;
-			if (replacement is null)
-				return;
-
-			var title = string.Format(titleTemplate, replacement);
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseCollectionSizeAssertionAsync(context.Document, invocation, replacement, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
+			if (expression is not null)
+				editor.ReplaceNode(
+					invocation,
+					invocation
+						.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(Argument(expression))))
+						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
+				);
 		}
 
-		static async Task<Document> UseCollectionSizeAssertionAsync(
-			Document document,
-			InvocationExpressionSyntax invocation,
-			string replacement,
-			CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		return editor.GetChangedDocument();
+	}
 
-			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-			{
-				var expression = GetExpressionSyntax(invocation);
+	static ExpressionSyntax? GetExpressionSyntax(InvocationExpressionSyntax invocation)
+	{
+		if (invocation.ArgumentList.Arguments.Count < 2)
+			return null;
 
-				if (expression is not null)
-					editor.ReplaceNode(
-						invocation,
-						invocation
-							.WithArgumentList(invocation.ArgumentList.WithArguments(SingletonSeparatedList(Argument(expression))))
-							.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
-					);
-			}
+		if (invocation.ArgumentList.Arguments[1].Expression is InvocationExpressionSyntax sizeInvocation)
+			return (sizeInvocation.Expression as MemberAccessExpressionSyntax)?.Expression;
 
-			return editor.GetChangedDocument();
-		}
-
-		static ExpressionSyntax? GetExpressionSyntax(InvocationExpressionSyntax invocation)
-		{
-			if (invocation.ArgumentList.Arguments.Count < 2)
-				return null;
-
-			if (invocation.ArgumentList.Arguments[1].Expression is InvocationExpressionSyntax sizeInvocation)
-				return (sizeInvocation.Expression as MemberAccessExpressionSyntax)?.Expression;
-
-			var sizeMemberAccess = invocation.ArgumentList.Arguments[1].Expression as MemberAccessExpressionSyntax;
-			return sizeMemberAccess?.Expression;
-		}
+		var sizeMemberAccess = invocation.ArgumentList.Arguments[1].Expression as MemberAccessExpressionSyntax;
+		return sizeMemberAccess?.Expression;
 	}
 }

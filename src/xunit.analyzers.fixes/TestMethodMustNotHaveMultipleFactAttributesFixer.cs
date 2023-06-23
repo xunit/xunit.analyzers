@@ -10,100 +10,97 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class TestMethodMustNotHaveMultipleFactAttributesFixer : CodeFixProvider
+	const string titleTemplate = "Keep {0} Attribute";
+
+	public TestMethodMustNotHaveMultipleFactAttributesFixer() :
+		base(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string titleTemplate = "Keep {0} Attribute";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id);
+		var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
+		if (methodDeclaration is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		var attributeTypes = diagnostic.Properties.Keys.ToList();
+
+		foreach (var attributeType in attributeTypes)
 		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+			var simpleName = GetAttributeSimpleName(attributeType);
+			var title = string.Format(titleTemplate, simpleName);
 
-			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			if (methodDeclaration is null)
-				return;
-
-			var diagnostic = context.Diagnostics.FirstOrDefault();
-			if (diagnostic is null)
-				return;
-
-			var attributeTypes = diagnostic.Properties.Keys.ToList();
-
-			foreach (var attributeType in attributeTypes)
-			{
-				var simpleName = GetAttributeSimpleName(attributeType);
-				var title = string.Format(titleTemplate, simpleName);
-
-				context.RegisterCodeFix(
-					CodeAction.Create(
-						title: title,
-						createChangedDocument: ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
-						equivalenceKey: title
-					),
-					context.Diagnostics
-				);
-			}
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					title: title,
+					createChangedDocument: ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
+					equivalenceKey: title
+				),
+				context.Diagnostics
+			);
 		}
+	}
 
-		static string GetAttributeSimpleName(string attributeType)
+	static string GetAttributeSimpleName(string attributeType)
+	{
+		var simpleName = attributeType;
+		if (simpleName.Contains("."))
+			simpleName = simpleName.Substring(attributeType.LastIndexOf('.') + 1);
+
+		const string nameSuffix = "Attribute";
+		if (simpleName.EndsWith(nameSuffix))
+			simpleName = simpleName.Substring(0, simpleName.Length - nameSuffix.Length);
+
+		return simpleName;
+	}
+
+	async Task<Document> RemoveAttributes(
+		Document document,
+		MethodDeclarationSyntax methodDeclaration,
+		IReadOnlyList<string> attributeTypesToConsider,
+		string attributeTypeToKeep,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+
+		if (semanticModel is not null)
 		{
-			var simpleName = attributeType;
-			if (simpleName.Contains("."))
-				simpleName = simpleName.Substring(attributeType.LastIndexOf('.') + 1);
+			var oneKept = false;
 
-			const string nameSuffix = "Attribute";
-			if (simpleName.EndsWith(nameSuffix))
-				simpleName = simpleName.Substring(0, simpleName.Length - nameSuffix.Length);
+			foreach (var attributeList in methodDeclaration.AttributeLists)
+				foreach (var attribute in attributeList.Attributes)
+				{
+					var attributeType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type;
+					if (attributeType is null)
+						continue;
 
-			return simpleName;
-		}
-
-		async Task<Document> RemoveAttributes(
-			Document document,
-			MethodDeclarationSyntax methodDeclaration,
-			IReadOnlyList<string> attributeTypesToConsider,
-			string attributeTypeToKeep,
-			CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-
-			if (semanticModel is not null)
-			{
-				var oneKept = false;
-
-				foreach (var attributeList in methodDeclaration.AttributeLists)
-					foreach (var attribute in attributeList.Attributes)
+					var attributeTypeDisplay = attributeType.ToDisplayString();
+					if (attributeTypesToConsider.Contains(attributeTypeDisplay))
 					{
-						var attributeType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type;
-						if (attributeType is null)
-							continue;
-
-						var attributeTypeDisplay = attributeType.ToDisplayString();
-						if (attributeTypesToConsider.Contains(attributeTypeDisplay))
+						if (attributeTypeDisplay == attributeTypeToKeep && !oneKept)
 						{
-							if (attributeTypeDisplay == attributeTypeToKeep && !oneKept)
-							{
-								oneKept = true;
-								continue;
-							}
-
-							editor.RemoveNode(attribute);
+							oneKept = true;
+							continue;
 						}
-					}
-			}
 
-			return editor.GetChangedDocument();
+						editor.RemoveNode(attribute);
+					}
+				}
 		}
+
+		return editor.GetChangedDocument();
 	}
 }

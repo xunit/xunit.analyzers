@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 
 public class FactMethodMustNotHaveParametersFixerTests
@@ -22,6 +23,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, 0);
+		await Verify.VerifyCodeFixAsyncV2(before, after, FactMethodMustNotHaveParametersFixer.RemoveParametersTitle);
 	}
 }

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -11,140 +10,137 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : CodeFixProvider
+	const string TitleTemplate = "Use Assert.{0}";
+
+	public AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer() :
+		base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string TitleTemplate = "Use Assert.{0}";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id);
+		var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+		if (invocation is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+		if (method is null)
+			return;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+			return;
+		if (replacement is null)
+			return;
+
+		var title = string.Format(TitleTemplate, replacement);
+
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				title,
+				createChangedDocument: ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
+				equivalenceKey: title
+			),
+			context.Diagnostics
+		);
+	}
+
+	static async Task<Document> UseAsyncThrowsCheck(
+		Document document,
+		InvocationExpressionSyntax invocation,
+		MethodDeclarationSyntax method,
+		string replacement,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
+		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+			var modifiers = GetModifiersWithAsyncKeywordAdded(method);
+			var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
+			var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
 
-			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			if (invocation is null)
-				return;
-
-			var method = invocation.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			if (method is null)
-				return;
-
-			var diagnostic = context.Diagnostics.FirstOrDefault();
-			if (diagnostic is null)
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
-				return;
-			if (replacement is null)
-				return;
-
-			var title = string.Format(TitleTemplate, replacement);
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
+			if (returnType is not null)
+				editor.ReplaceNode(
+					method,
+					method
+						.ReplaceNode(invocation, asyncThrowsInvocation)
+						.WithModifiers(modifiers)
+						.WithReturnType(returnType)
+				);
 		}
 
-		static async Task<Document> UseAsyncThrowsCheck(
-			Document document,
-			InvocationExpressionSyntax invocation,
-			MethodDeclarationSyntax method,
-			string replacement,
-			CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		return editor.GetChangedDocument();
+	}
 
-			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-			{
-				var modifiers = GetModifiersWithAsyncKeywordAdded(method);
-				var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
-				var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
+	static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method) =>
+		method.Modifiers.Any(SyntaxKind.AsyncKeyword)
+			? method.Modifiers
+			: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
 
-				if (returnType is not null)
-					editor.ReplaceNode(
-						method,
-						method
-							.ReplaceNode(invocation, asyncThrowsInvocation)
-							.WithModifiers(modifiers)
-							.WithReturnType(returnType)
-					);
-			}
+	static async Task<TypeSyntax?> GetReturnType(
+		MethodDeclarationSyntax method,
+		InvocationExpressionSyntax invocation,
+		Document document,
+		DocumentEditor editor,
+		CancellationToken cancellationToken)
+	{
+		// Consider the case where a custom awaiter type is awaited
+		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
+			return method.ReturnType;
 
-			return editor.GetChangedDocument();
-		}
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+		if (semanticModel is null)
+			return null;
 
-		static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method) =>
-			method.Modifiers.Any(SyntaxKind.AsyncKeyword)
-				? method.Modifiers
-				: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
+		var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
+		var taskType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName!);
+		if (taskType is null)
+			return null;
 
-		static async Task<TypeSyntax?> GetReturnType(
-			MethodDeclarationSyntax method,
-			InvocationExpressionSyntax invocation,
-			Document document,
-			DocumentEditor editor,
-			CancellationToken cancellationToken)
-		{
-			// Consider the case where a custom awaiter type is awaited
-			if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
-				return method.ReturnType;
+		if (taskType.IsAssignableFrom(methodSymbol))
+			return method.ReturnType;
 
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (semanticModel is null)
-				return null;
+		return editor.Generator.TypeExpression(taskType) as TypeSyntax;
+	}
 
-			var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
-			var taskType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName!);
-			if (taskType is null)
-				return null;
+	static ExpressionSyntax GetAsyncThrowsInvocation(
+		InvocationExpressionSyntax invocation,
+		string memberName,
+		MemberAccessExpressionSyntax memberAccess)
+	{
+		var asyncThrowsInvocation =
+			invocation
+				.WithExpression(memberAccess.WithName(GetName(memberName, memberAccess)))
+				.WithArgumentList(invocation.ArgumentList);
 
-			if (taskType.IsAssignableFrom(methodSymbol))
-				return method.ReturnType;
+		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
+			return asyncThrowsInvocation;
 
-			return editor.Generator.TypeExpression(taskType) as TypeSyntax;
-		}
+		return
+			AwaitExpression(asyncThrowsInvocation.WithoutLeadingTrivia())
+				.WithLeadingTrivia(invocation.GetLeadingTrivia());
+	}
 
-		static ExpressionSyntax GetAsyncThrowsInvocation(
-			InvocationExpressionSyntax invocation,
-			string memberName,
-			MemberAccessExpressionSyntax memberAccess)
-		{
-			var asyncThrowsInvocation =
-				invocation
-					.WithExpression(memberAccess.WithName(GetName(memberName, memberAccess)))
-					.WithArgumentList(invocation.ArgumentList);
+	static SimpleNameSyntax GetName(
+		string memberName,
+		MemberAccessExpressionSyntax memberAccess)
+	{
+		if (memberAccess.Name is not GenericNameSyntax genericNameSyntax)
+			return IdentifierName(memberName);
 
-			if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
-				return asyncThrowsInvocation;
-
-			return
-				AwaitExpression(asyncThrowsInvocation.WithoutLeadingTrivia())
-					.WithLeadingTrivia(invocation.GetLeadingTrivia());
-		}
-
-		static SimpleNameSyntax GetName(
-			string memberName,
-			MemberAccessExpressionSyntax memberAccess)
-		{
-			if (memberAccess.Name is not GenericNameSyntax genericNameSyntax)
-				return IdentifierName(memberName);
-
-			return GenericName(IdentifierName(memberName).Identifier, genericNameSyntax.TypeArgumentList);
-		}
+		return GenericName(IdentifierName(memberName).Identifier, genericNameSyntax.TypeArgumentList);
 	}
 }

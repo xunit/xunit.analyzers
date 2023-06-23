@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNotBeUsed>;
 
 public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
@@ -30,7 +31,7 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, 0);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.UseAssertEmptyCheckTitle);
 	}
 
 	[Fact]
@@ -48,6 +49,6 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.AddElementInspectorTitle);
 	}
 }

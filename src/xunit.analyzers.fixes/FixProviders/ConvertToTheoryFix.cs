@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -6,42 +5,39 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers.FixProviders
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class ConvertToTheoryFix : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class ConvertToTheoryFix : CodeFixProvider
+	public const string ConvertToTheoryTitle = "Convert to Theory";
+
+	public ConvertToTheoryFix() :
+		base(
+			Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
+			Descriptors.X1005_FactMethodShouldNotHaveTestData.Id
+		)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string title = "Convert to Theory";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(
-				Descriptors.X1001_FactMethodMustNotHaveParameters.Id,
-				Descriptors.X1005_FactMethodShouldNotHaveTestData.Id
-			);
+		var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
+		if (methodDeclaration is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
-
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
-
-			var methodDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<MethodDeclarationSyntax>();
-			if (methodDeclaration is null)
-				return;
-
-			context.RegisterCodeFix(
-				new ConvertAttributeCodeAction(
-					title,
-					context.Document,
-					methodDeclaration.AttributeLists,
-					fromTypeName: Constants.Types.XunitFactAttribute,
-					toTypeName: Constants.Types.XunitTheoryAttribute
-				),
-				context.Diagnostics
-			);
-		}
+		context.RegisterCodeFix(
+			new ConvertAttributeCodeAction(
+				ConvertToTheoryTitle,
+				context.Document,
+				methodDeclaration.AttributeLists,
+				fromTypeName: Constants.Types.XunitFactAttribute,
+				toTypeName: Constants.Types.XunitTheoryAttribute
+			),
+			context.Diagnostics
+		);
 	}
 }

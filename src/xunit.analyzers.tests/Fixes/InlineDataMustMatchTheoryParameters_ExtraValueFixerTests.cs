@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
 
 public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
@@ -24,7 +25,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.RemoveValueTitle);
 	}
 
 	[Theory]
@@ -52,7 +53,7 @@ public class TestClass {{
     public void TestMethod(int a, {valueType} p) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, codeActionIndex: 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.AddTheoryParameterTitle);
 	}
 
 	[Fact]
@@ -76,6 +77,6 @@ public class TestClass {{
     public void TestMethod(int p, double p_2) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, codeActionIndex: 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.AddTheoryParameterTitle);
 	}
 }

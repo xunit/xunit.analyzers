@@ -1,31 +1,35 @@
 using Microsoft.CodeAnalysis;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers;
+
+public class EmptyCoreContext : ICoreContext
 {
-	public class EmptyCoreContext : ICoreContext
-	{
-		public INamedTypeSymbol? ClassDataAttributeType => null;
+	EmptyCoreContext()
+	{ }
 
-		public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
+	public INamedTypeSymbol? ClassDataAttributeType => null;
 
-		public INamedTypeSymbol? DataAttributeType => null;
+	public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
 
-		public INamedTypeSymbol? FactAttributeType => null;
+	public INamedTypeSymbol? DataAttributeType => null;
 
-		public INamedTypeSymbol? IClassFixtureType => null;
+	public INamedTypeSymbol? FactAttributeType => null;
 
-		public INamedTypeSymbol? ICollectionFixtureType => null;
+	public INamedTypeSymbol? IClassFixtureType => null;
 
-		public INamedTypeSymbol? InlineDataAttributeType => null;
+	public INamedTypeSymbol? ICollectionFixtureType => null;
 
-		public INamedTypeSymbol? MemberDataAttributeType => null;
+	public INamedTypeSymbol? InlineDataAttributeType => null;
 
-		public INamedTypeSymbol? TheoryAttributeType => null;
+	public static EmptyCoreContext Instance { get; } = new();
 
-		public bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid => false;
+	public INamedTypeSymbol? MemberDataAttributeType => null;
 
-		public bool TheorySupportsDefaultParameterValues => false;
+	public INamedTypeSymbol? TheoryAttributeType => null;
 
-		public bool TheorySupportsParameterArrays => false;
-	}
+	public bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid => false;
+
+	public bool TheorySupportsDefaultParameterValues => false;
+
+	public bool TheorySupportsParameterArrays => false;
 }

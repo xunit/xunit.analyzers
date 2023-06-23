@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,46 +6,43 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class AssertEqualsShouldNotBeUsedFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertEqualsShouldNotBeUsedFixer : CodeFixProvider
+	const string titleTemplate = "Use Assert.{0}";
+
+	public AssertEqualsShouldNotBeUsedFixer() :
+		base(Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string titleTemplate = "Use Assert.{0}";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id);
+		var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+		if (invocation is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+			return;
+		if (replacement is null)
+			return;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		if (invocation.Expression is MemberAccessExpressionSyntax)
 		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+			var title = string.Format(titleTemplate, replacement);
 
-			var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-			if (invocation is null)
-				return;
-
-			var diagnostic = context.Diagnostics.FirstOrDefault();
-			if (diagnostic is null)
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
-				return;
-			if (replacement is null)
-				return;
-
-			if (invocation.Expression is MemberAccessExpressionSyntax)
-			{
-				var title = string.Format(titleTemplate, replacement);
-
-				context.RegisterCodeFix(
-					new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
-					context.Diagnostics
-				);
-			}
+			context.RegisterCodeFix(
+				new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
+				context.Diagnostics
+			);
 		}
 	}
 }

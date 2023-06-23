@@ -4,118 +4,117 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers;
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 {
-	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+		ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
+
+	public override void AnalyzeCompilation(
+		CompilationStartAnalysisContext context,
+		XunitContext xunitContext)
 	{
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-			ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
-
-		public override void AnalyzeCompilation(
-			CompilationStartAnalysisContext context,
-			XunitContext xunitContext)
+		var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
+		var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
+		var interfacesToIgnore = new List<INamedTypeSymbol?>
 		{
-			var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-			var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
-			var interfacesToIgnore = new List<INamedTypeSymbol?>
+			context.Compilation.GetSpecialType(SpecialType.System_IDisposable),
+			context.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
+		};
+
+		context.RegisterSymbolAction(context =>
+		{
+			if (xunitContext.Core.FactAttributeType is null)
+				return;
+			if (context.Symbol is not INamedTypeSymbol type)
+				return;
+
+			if (type.TypeKind != TypeKind.Class ||
+					type.DeclaredAccessibility != Accessibility.Public ||
+					type.IsAbstract)
+				return;
+
+			var methodsToIgnore =
+				interfacesToIgnore
+					.WhereNotNull()
+					.Where(i => type.AllInterfaces.Contains(i))
+					.SelectMany(i => i.GetMembers())
+					.Select(m => type.FindImplementationForInterfaceMember(m))
+					.Where(s => s is not null)
+					.ToList();
+
+			var hasTestMethods = false;
+			var violations = new List<IMethodSymbol>();
+			foreach (var member in type.GetMembers().Where(m => m.Kind == SymbolKind.Method))
 			{
-				context.Compilation.GetSpecialType(SpecialType.System_IDisposable),
-				context.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
-			};
+				context.CancellationToken.ThrowIfCancellationRequested();
 
-			context.RegisterSymbolAction(context =>
-			{
-				if (xunitContext.Core.FactAttributeType is null)
-					return;
-				if (context.Symbol is not INamedTypeSymbol type)
-					return;
+				// Check for method.IsAbstract and earlier for type.IsAbstract is done
+				// twice to enable better diagnostics during code editing. It is useful with
+				// incomplete code for abstract types - missing abstract keyword on type
+				// or on abstract method
+				if (member is not IMethodSymbol method)
+					continue;
+				if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
+					continue;
 
-				if (type.TypeKind != TypeKind.Class ||
-						type.DeclaredAccessibility != Accessibility.Public ||
-						type.IsAbstract)
-					return;
+				var attributes = method.GetAttributes();
+				var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
+				hasTestMethods = hasTestMethods || isTestMethod;
 
-				var methodsToIgnore =
-					interfacesToIgnore
-						.WhereNotNull()
-						.Where(i => type.AllInterfaces.Contains(i))
-						.SelectMany(i => i.GetMembers())
-						.Select(m => type.FindImplementationForInterfaceMember(m))
-						.Where(s => s is not null)
-						.ToList();
-
-				var hasTestMethods = false;
-				var violations = new List<IMethodSymbol>();
-				foreach (var member in type.GetMembers().Where(m => m.Kind == SymbolKind.Method))
+				if (isTestMethod ||
+					attributes.Any(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass?.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute") == true)))
 				{
-					context.CancellationToken.ThrowIfCancellationRequested();
+					continue;
+				}
 
-					// Check for method.IsAbstract and earlier for type.IsAbstract is done
-					// twice to enable better diagnostics during code editing. It is useful with
-					// incomplete code for abstract types - missing abstract keyword on type
-					// or on abstract method
-					if (member is not IMethodSymbol method)
-						continue;
-					if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
-						continue;
-
-					var attributes = method.GetAttributes();
-					var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
-					hasTestMethods = hasTestMethods || isTestMethod;
-
-					if (isTestMethod ||
-						attributes.Any(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass?.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute") == true)))
+				if (method.DeclaredAccessibility == Accessibility.Public &&
+					(method.ReturnsVoid ||
+						(taskType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType)) ||
+						(configuredTaskAwaitableType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, configuredTaskAwaitableType))))
+				{
+					var shouldIgnore = false;
+					while (!shouldIgnore || method.IsOverride)
 					{
-						continue;
-					}
+						if (methodsToIgnore.Any(m => SymbolEqualityComparer.Default.Equals(method, m)))
+							shouldIgnore = true;
 
-					if (method.DeclaredAccessibility == Accessibility.Public &&
-						(method.ReturnsVoid ||
-						 (taskType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType)) ||
-						 (configuredTaskAwaitableType is not null && SymbolEqualityComparer.Default.Equals(method.ReturnType, configuredTaskAwaitableType))))
-					{
-						var shouldIgnore = false;
-						while (!shouldIgnore || method.IsOverride)
+						if (!method.IsOverride)
+							break;
+
+						if (method.OverriddenMethod is null)
 						{
-							if (methodsToIgnore.Any(m => SymbolEqualityComparer.Default.Equals(method, m)))
-								shouldIgnore = true;
-
-							if (!method.IsOverride)
-								break;
-
-							if (method.OverriddenMethod is null)
-							{
-								shouldIgnore = true;
-								break;
-							}
-
-							method = method.OverriddenMethod;
+							shouldIgnore = true;
+							break;
 						}
 
-						if (method is not null && !shouldIgnore)
-							violations.Add(method);
+						method = method.OverriddenMethod;
 					}
-				}
 
-				if (hasTestMethods)
+					if (method is not null && !shouldIgnore)
+						violations.Add(method);
+				}
+			}
+
+			if (hasTestMethods)
+			{
+				foreach (var method in violations)
 				{
-					foreach (var method in violations)
-					{
-						var testType = method.Parameters.Any() ? Constants.Attributes.Theory : Constants.Attributes.Fact;
+					var testType = method.Parameters.Any() ? Constants.Attributes.Theory : Constants.Attributes.Fact;
 
-						context.ReportDiagnostic(
-							Diagnostic.Create(
-								Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
-								method.Locations.First(),
-								method.Name,
-								method.ContainingType.Name,
-								testType
-							)
-						);
-					}
+					context.ReportDiagnostic(
+						Diagnostic.Create(
+							Descriptors.X1013_PublicMethodShouldBeMarkedAsTest,
+							method.Locations.First(),
+							method.Name,
+							method.ContainingType.Name,
+							testType
+						)
+					);
 				}
-			}, SymbolKind.NamedType);
-		}
+			}
+		}, SymbolKind.NamedType);
 	}
 }

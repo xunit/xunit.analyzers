@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -11,84 +10,79 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class SerializableClassMustHaveParameterlessConstructorFixer : CodeFixProvider
+	static readonly LiteralExpressionSyntax obsoleteText;
+
+	static SerializableClassMustHaveParameterlessConstructorFixer() =>
+		obsoleteText = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"));
+
+	public SerializableClassMustHaveParameterlessConstructorFixer() :
+		base(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		static readonly LiteralExpressionSyntax obsoleteText;
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id);
+		var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		if (classDeclaration is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
 
-		static SerializableClassMustHaveParameterlessConstructorFixer()
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				title: parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
+				createChangedDocument: ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
+				equivalenceKey: "xUnit3001"
+			),
+			context.Diagnostics
+		);
+	}
+
+	async Task<Document> CreateOrUpdateConstructor(
+		Document document,
+		ClassDeclarationSyntax declaration,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		var generator = editor.Generator;
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
+
+		if (parameterlessCtor is null)
 		{
-			obsoleteText = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"));
+			var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
+			var newCtor = generator.ConstructorDeclaration();
+			newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
+			newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
+			editor.InsertMembers(declaration, 0, new[] { newCtor });
 		}
-
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+		else
 		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+			var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
-			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-			if (classDeclaration is null)
-				return;
+			var hasObsolete =
+				parameterlessCtor
+					.AttributeLists
+					.SelectMany(al => al.Attributes)
+					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
 
-			var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title: parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
-					createChangedDocument: ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
-					equivalenceKey: "xUnit3001"
-				),
-				context.Diagnostics
-			);
-		}
-
-		async Task<Document> CreateOrUpdateConstructor(
-			Document document,
-			ClassDeclarationSyntax declaration,
-			CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-			var generator = editor.Generator;
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
-
-			if (parameterlessCtor is null)
+			if (!hasObsolete)
 			{
 				var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
-				var newCtor = generator.ConstructorDeclaration();
-				newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
-				newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
-				editor.InsertMembers(declaration, 0, new[] { newCtor });
-			}
-			else
-			{
-				var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
-
-				var hasObsolete =
-					parameterlessCtor
-						.AttributeLists
-						.SelectMany(al => al.Attributes)
-						.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
-
-				if (!hasObsolete)
-				{
-					var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
-					updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
-				}
-
-				editor.ReplaceNode(parameterlessCtor, updatedCtor);
+				updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
 			}
 
-			return editor.GetChangedDocument();
+			editor.ReplaceNode(parameterlessCtor, updatedCtor);
 		}
+
+		return editor.GetChangedDocument();
 	}
 }

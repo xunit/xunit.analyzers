@@ -75,15 +75,15 @@ public class CSharpVerifier<TAnalyzer>
 	public static Task VerifyCodeFixAsyncV2(
 		string before,
 		string after,
-		int? codeActionIndex = null,
+		string? codeActionEquivalenceKey = null,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyCodeFixAsyncV2(LanguageVersion.CSharp6, before, after, codeActionIndex, diagnostics);
+			VerifyCodeFixAsyncV2(LanguageVersion.CSharp6, before, after, codeActionEquivalenceKey, diagnostics);
 
 	public static Task VerifyCodeFixAsyncV2(
 		LanguageVersion languageVersion,
 		string before,
 		string after,
-		int? codeActionIndex = null,
+		string? codeActionEquivalenceKey = null,
 		params DiagnosticResult[] diagnostics)
 	{
 		var newLine = FormattingOptions.NewLine.DefaultValue;
@@ -92,7 +92,7 @@ public class CSharpVerifier<TAnalyzer>
 		{
 			TestCode = before.Replace("\n", newLine),
 			FixedCode = after.Replace("\n", newLine),
-			CodeActionIndex = codeActionIndex
+			CodeActionEquivalenceKey = codeActionEquivalenceKey,
 		};
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		return test.RunAsync();

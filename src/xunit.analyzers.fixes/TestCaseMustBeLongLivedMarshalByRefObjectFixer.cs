@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,47 +7,44 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : CodeFixProvider
+	const string title = "Set Base Type";
+
+	public TestCaseMustBeLongLivedMarshalByRefObjectFixer() :
+		base(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string title = "Set Base Type";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id);
+		var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		if (classDeclaration is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic == null)
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.CanFix, out var canFixText))
+			return;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+		bool.TryParse(canFixText, out var canFix);
+		if (!canFix)
+			return;
 
-			var classDeclaration = root.FindNode(context.Span).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-			if (classDeclaration is null)
-				return;
-
-			var diagnostic = context.Diagnostics.FirstOrDefault();
-			if (diagnostic == null)
-				return;
-			if (!diagnostic.Properties.TryGetValue(Constants.Properties.CanFix, out var canFixText))
-				return;
-
-			bool.TryParse(canFixText, out var canFix);
-			if (!canFix)
-				return;
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title: title,
-					createChangedDocument: ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
-		}
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				title: title,
+				createChangedDocument: ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
+				equivalenceKey: title
+			),
+			context.Diagnostics
+		);
 	}
 }

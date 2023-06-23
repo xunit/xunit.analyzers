@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -7,43 +6,39 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Analyzers.CodeActions;
 
-namespace Xunit.Analyzers.FixProviders
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class RemoveMethodParameterFix : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class RemoveMethodParameterFix : CodeFixProvider
+	const string titleTemplate = "Remove Parameter '{0}'";
+
+	public RemoveMethodParameterFix() :
+		base(
+			Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
+			Descriptors.X1026_TheoryMethodShouldUseAllParameters.Id
+		)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string titleTemplate = "Remove Parameter '{0}'";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(
-				Descriptors.X1022_TheoryMethodCannotHaveParameterArray.Id,
-				Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id,
-				Descriptors.X1026_TheoryMethodShouldUseAllParameters.Id
-			);
+		var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
+		if (parameter is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		var parameterName = parameter.Identifier.Text;
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
-
-			var parameter = root.FindNode(context.Span).FirstAncestorOrSelf<ParameterSyntax>();
-			if (parameter is null)
-				return;
-
-			var parameterName = parameter.Identifier.Text;
-
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					string.Format(titleTemplate, parameterName),
-					ct => context.Document.RemoveNode(parameter, ct),
-					equivalenceKey: titleTemplate
-				),
-				context.Diagnostics
-			);
-		}
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				string.Format(titleTemplate, parameterName),
+				ct => context.Document.RemoveNode(parameter, ct),
+				equivalenceKey: titleTemplate
+			),
+			context.Diagnostics
+		);
 	}
 }

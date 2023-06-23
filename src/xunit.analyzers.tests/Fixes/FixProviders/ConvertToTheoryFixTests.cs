@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify_X1001 = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 using Verify_X1005 = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
@@ -23,7 +24,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify_X1001.VerifyCodeFixAsyncV2(before, after, 1);
+		await Verify_X1001.VerifyCodeFixAsyncV2(before, after, ConvertToTheoryFix.ConvertToTheoryTitle);
 	}
 
 	[Fact]
@@ -47,6 +48,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify_X1005.VerifyCodeFixAsyncV2(before, after, 1);
+		await Verify_X1005.VerifyCodeFixAsyncV2(before, after, ConvertToTheoryFix.ConvertToTheoryTitle);
 	}
 }

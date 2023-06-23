@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,52 +9,49 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers.Fixes;
+
+[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
+public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-	public class AssertEqualPrecisionShouldBeInRangeFixer : CodeFixProvider
+	const string title = "Use precision 0";
+
+	public AssertEqualPrecisionShouldBeInRangeFixer() :
+		base(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange.Id)
+	{ }
+
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		const string title = "Use precision 0";
+		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+		if (root is null)
+			return;
 
-		public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
-			ImmutableArray.Create(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange.Id);
+		var precisionArgument = root.FindNode(context.Span).FirstAncestorOrSelf<ArgumentSyntax>();
+		if (precisionArgument is null)
+			return;
 
-		public sealed override FixAllProvider GetFixAllProvider() =>
-			WellKnownFixAllProviders.BatchFixer;
+		context.RegisterCodeFix(
+			CodeAction.Create(
+				title,
+				createChangedDocument: ct => UseRecommendedPrecision(context.Document, precisionArgument, ct),
+				equivalenceKey: title
+			),
+			context.Diagnostics
+		);
+	}
 
-		public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-			if (root is null)
-				return;
+	static async Task<Document> UseRecommendedPrecision(
+		Document document,
+		ArgumentSyntax precisionArgument,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-			var precisionArgument = root.FindNode(context.Span).FirstAncestorOrSelf<ArgumentSyntax>();
-			if (precisionArgument is null)
-				return;
+		editor.ReplaceNode(
+			precisionArgument,
+			Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)))
+		);
 
-			context.RegisterCodeFix(
-				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseRecommendedPrecision(context.Document, precisionArgument, ct),
-					equivalenceKey: title
-				),
-				context.Diagnostics
-			);
-		}
-
-		static async Task<Document> UseRecommendedPrecision(
-			Document document,
-			ArgumentSyntax precisionArgument,
-			CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-
-			editor.ReplaceNode(
-				precisionArgument,
-				Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)))
-			);
-
-			return editor.GetChangedDocument();
-		}
+		return editor.GetChangedDocument();
 	}
 }

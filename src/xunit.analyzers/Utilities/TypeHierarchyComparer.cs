@@ -2,32 +2,31 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers;
+
+public class TypeHierarchyComparer : IComparer<ITypeSymbol>
 {
-	public class TypeHierarchyComparer : IComparer<ITypeSymbol>
+	TypeHierarchyComparer()
+	{ }
+
+	public static TypeHierarchyComparer Instance { get; } = new TypeHierarchyComparer();
+
+	public int Compare(
+		ITypeSymbol? x,
+		ITypeSymbol? y)
 	{
-		TypeHierarchyComparer()
-		{ }
+		if (x?.TypeKind != TypeKind.Class)
+			throw new ArgumentException("The argument must be a class", nameof(x));
+		if (y?.TypeKind != TypeKind.Class)
+			throw new ArgumentException("The argument must be a class", nameof(y));
 
-		public static TypeHierarchyComparer Instance { get; } = new TypeHierarchyComparer();
+		if (SymbolEqualityComparer.Default.Equals(x, y))
+			return 0;
+		if (x.IsAssignableFrom(y))
+			return -1;
+		if (y.IsAssignableFrom(x))
+			return 1;
 
-		public int Compare(
-			ITypeSymbol? x,
-			ITypeSymbol? y)
-		{
-			if (x?.TypeKind != TypeKind.Class)
-				throw new ArgumentException("The argument must be a class", nameof(x));
-			if (y?.TypeKind != TypeKind.Class)
-				throw new ArgumentException("The argument must be a class", nameof(y));
-
-			if (SymbolEqualityComparer.Default.Equals(x, y))
-				return 0;
-			if (x.IsAssignableFrom(y))
-				return -1;
-			if (y.IsAssignableFrom(x))
-				return 1;
-
-			throw new InvalidOperationException("Encountered types not in a hierarchy");
-		}
+		throw new InvalidOperationException("Encountered types not in a hierarchy");
 	}
 }

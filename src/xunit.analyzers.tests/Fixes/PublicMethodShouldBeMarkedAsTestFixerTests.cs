@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 
 public class PublicMethodShouldBeMarkedAsTestFixerTests
@@ -27,7 +28,7 @@ public class TestClass {
     public void TestMethod2() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, PublicMethodShouldBeMarkedAsTestFixer.ConvertToFactTitle);
 	}
 
 	[Fact]
@@ -43,6 +44,6 @@ public class TestClass {
     internal void TestMethod2() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, 1);
+		await Verify.VerifyCodeFixAsyncV2(before, after, PublicMethodShouldBeMarkedAsTestFixer.MakeInternalTitle);
 	}
 }

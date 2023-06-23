@@ -5,40 +5,39 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 
-namespace Xunit.Analyzers.CodeActions
+namespace Xunit.Analyzers.CodeActions;
+
+public class UseDifferentMethodCodeAction : CodeAction
 {
-	public class UseDifferentMethodCodeAction : CodeAction
+	readonly Document document;
+	readonly InvocationExpressionSyntax invocation;
+	readonly string replacementMethod;
+
+	public UseDifferentMethodCodeAction(
+		string title,
+		Document document,
+		InvocationExpressionSyntax invocation,
+		string replacementMethod)
 	{
-		readonly Document document;
-		readonly InvocationExpressionSyntax invocation;
-		readonly string replacementMethod;
+		Title = title;
 
-		public UseDifferentMethodCodeAction(
-			string title,
-			Document document,
-			InvocationExpressionSyntax invocation,
-			string replacementMethod)
-		{
-			Title = title;
+		this.document = document;
+		this.invocation = invocation;
+		this.replacementMethod = replacementMethod;
+	}
 
-			this.document = document;
-			this.invocation = invocation;
-			this.replacementMethod = replacementMethod;
-		}
+	public override string EquivalenceKey => Title;
 
-		public override string EquivalenceKey => Title;
+	public override string Title { get; }
 
-		public override string Title { get; }
+	protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-		protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
-		{
-			var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+			if (editor.Generator.IdentifierName(replacementMethod) is SimpleNameSyntax replacementNameSyntax)
+				editor.ReplaceNode(memberAccess, memberAccess.WithName(replacementNameSyntax));
 
-			if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-				if (editor.Generator.IdentifierName(replacementMethod) is SimpleNameSyntax replacementNameSyntax)
-					editor.ReplaceNode(memberAccess, memberAccess.WithName(replacementNameSyntax));
-
-			return editor.GetChangedDocument();
-		}
+		return editor.GetChangedDocument();
 	}
 }

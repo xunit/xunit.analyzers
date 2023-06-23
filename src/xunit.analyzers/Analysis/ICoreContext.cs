@@ -1,31 +1,30 @@
 using Microsoft.CodeAnalysis;
 
-namespace Xunit.Analyzers
+namespace Xunit.Analyzers;
+
+public interface ICoreContext
 {
-	public interface ICoreContext
-	{
-		INamedTypeSymbol? ClassDataAttributeType { get; }
+	INamedTypeSymbol? ClassDataAttributeType { get; }
 
-		INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
+	INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
 
-		INamedTypeSymbol? DataAttributeType { get; }
+	INamedTypeSymbol? DataAttributeType { get; }
 
-		INamedTypeSymbol? FactAttributeType { get; }
+	INamedTypeSymbol? FactAttributeType { get; }
 
-		INamedTypeSymbol? IClassFixtureType { get; }
+	INamedTypeSymbol? IClassFixtureType { get; }
 
-		INamedTypeSymbol? ICollectionFixtureType { get; }
+	INamedTypeSymbol? ICollectionFixtureType { get; }
 
-		INamedTypeSymbol? InlineDataAttributeType { get; }
+	INamedTypeSymbol? InlineDataAttributeType { get; }
 
-		INamedTypeSymbol? MemberDataAttributeType { get; }
+	INamedTypeSymbol? MemberDataAttributeType { get; }
 
-		INamedTypeSymbol? TheoryAttributeType { get; }
+	INamedTypeSymbol? TheoryAttributeType { get; }
 
-		bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid { get; }
+	bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid { get; }
 
-		bool TheorySupportsDefaultParameterValues { get; }
+	bool TheorySupportsDefaultParameterValues { get; }
 
-		bool TheorySupportsParameterArrays { get; }
-	}
+	bool TheorySupportsParameterArrays { get; }
 }
