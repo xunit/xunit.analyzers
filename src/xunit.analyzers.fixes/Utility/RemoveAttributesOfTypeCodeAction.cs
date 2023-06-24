@@ -16,12 +16,14 @@ public class RemoveAttributesOfTypeCodeAction : CodeAction
 
 	public RemoveAttributesOfTypeCodeAction(
 		string title,
+		string equivalenceKey,
 		Document document,
 		SyntaxList<AttributeListSyntax> attributeLists,
 		string attributeType,
 		bool exactMatch = false)
 	{
 		Title = title;
+		EquivalenceKey = equivalenceKey;
 
 		this.attributeLists = attributeLists;
 		this.attributeType = attributeType;
@@ -29,7 +31,7 @@ public class RemoveAttributesOfTypeCodeAction : CodeAction
 		this.exactMatch = exactMatch;
 	}
 
-	public override string EquivalenceKey => Title;
+	public override string EquivalenceKey { get; }
 
 	public override string Title { get; }
 

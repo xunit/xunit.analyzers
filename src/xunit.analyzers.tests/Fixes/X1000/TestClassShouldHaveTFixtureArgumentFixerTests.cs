@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
 
 public class TestClassShouldHaveTFixtureArgumentFixerTests
@@ -29,7 +30,7 @@ public class [|TestClass|]: Xunit.IClassFixture<FixtureData> {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
 	}
 
 	[Fact]
@@ -58,6 +59,6 @@ public class [|TestClass|]: Xunit.IClassFixture<FixtureData<object>> {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
 	}
 }

@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 
 public class TestMethodShouldNotBeSkippedFixerTests
@@ -22,6 +23,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
 	}
 }

@@ -12,7 +12,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class InlineDataShouldBeUniqueWithinTheoryFixer : BatchedCodeFixProvider
 {
-	const string title = "Remove InlineData duplicate";
+	public const string Key_RemoveDuplicateInlineData = "xUnit1025_RemoveDuplicateInlineData";
 
 	public InlineDataShouldBeUniqueWithinTheoryFixer() :
 		base(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory.Id)
@@ -28,9 +28,9 @@ public class InlineDataShouldBeUniqueWithinTheoryFixer : BatchedCodeFixProvider
 		if (reportedNode is AttributeSyntax attributeDuplicate)
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
+					"Remove duplicate InlineData",
 					ct => RemoveInlineDataDuplicate(context.Document, attributeDuplicate, ct),
-					equivalenceKey: title
+					Key_RemoveDuplicateInlineData
 				),
 				context.Diagnostics
 			);

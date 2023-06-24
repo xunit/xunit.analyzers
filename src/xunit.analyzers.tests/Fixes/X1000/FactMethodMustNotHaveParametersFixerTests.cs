@@ -23,6 +23,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, FactMethodMustNotHaveParametersFixer.RemoveParametersTitle);
+		await Verify.VerifyCodeFixAsyncV2(before, after, FactMethodMustNotHaveParametersFixer.Key_RemoveParameters);
 	}
 }

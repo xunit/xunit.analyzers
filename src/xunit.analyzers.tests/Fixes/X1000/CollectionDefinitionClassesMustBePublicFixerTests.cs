@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.CollectionDefinitionClassesMustBePublic>;
 
 public class CollectionDefinitionClassesMustBePublicFixerTests
@@ -16,7 +17,7 @@ public class CollectionDefinitionClassesMustBePublicFixerTests
 [Xunit.CollectionDefinition(""MyCollection"")]
 public class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
 	}
 
 	[Theory]
@@ -36,6 +37,6 @@ public partial class CollectionDefinitionClass { }
 
 partial class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
 	}
 }

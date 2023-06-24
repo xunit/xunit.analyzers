@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class ConvertToTheoryFix : BatchedCodeFixProvider
 {
-	public const string ConvertToTheoryTitle = "Convert to Theory";
+	public const string Key_ConvertToTheory = "xUnit1001_xUnit1005_ConvertToTheory";
 
 	public ConvertToTheoryFix() :
 		base(
@@ -30,7 +30,8 @@ public class ConvertToTheoryFix : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			new ConvertAttributeCodeAction(
-				ConvertToTheoryTitle,
+				"Convert to [Theory]",
+				Key_ConvertToTheory,
 				context.Document,
 				methodDeclaration.AttributeLists,
 				fromTypeName: Constants.Types.XunitFactAttribute,

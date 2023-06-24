@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
 public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixerTests
@@ -34,6 +35,6 @@ public class TestClass
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer.Key_RemoveArgumentsFromMemberData);
 	}
 }

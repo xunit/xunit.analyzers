@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class MemberDataShouldReferenceValidMember_StaticFixer : BatchedMemberFixProvider
 {
-	const string title = "Make Member Static";
+	public const string Key_MakeMemberStatic = "xUnit1017_MakeMemberStatic";
 
 	public MemberDataShouldReferenceValidMember_StaticFixer() :
 		base(Descriptors.X1017_MemberDataMustReferenceStaticMember.Id)
@@ -21,9 +21,9 @@ public sealed class MemberDataShouldReferenceValidMember_StaticFixer : BatchedMe
 	{
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberStaticModifier(member, true, ct),
-				equivalenceKey: title
+				"Make member static",
+				ct => context.Document.Project.Solution.ChangeMemberStaticModifier(member, true, ct),
+				Key_MakeMemberStatic
 			),
 			context.Diagnostics
 		);

@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : BatchedMemberFixProvider
 {
-	const string title = "Make Member Public";
+	public const string Key_MakeMemberPublic = "xUnit1016_MakeMemberPublic";
 
 	public MemberDataShouldReferenceValidMember_VisibilityFixer() :
 		base(Descriptors.X1016_MemberDataMustReferencePublicMember.Id)
@@ -21,9 +21,9 @@ public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : Batch
 	{
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberAccessibility(member, Accessibility.Public, ct),
-				equivalenceKey: title
+				"Make member public",
+				ct => context.Document.Project.Solution.ChangeMemberAccessibility(member, Accessibility.Public, ct),
+				Key_MakeMemberPublic
 			),
 			context.Diagnostics
 		);

@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify_X2007 = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 using Verify_X2015 = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGenericOverloadCheck>;
 
@@ -31,7 +32,7 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2007.VerifyCodeFixAsyncV2(before, after);
+		await Verify_X2007.VerifyCodeFixAsyncV2(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
 
 	[Fact]
@@ -63,6 +64,6 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2015.VerifyCodeFixAsyncV2(before, after);
+		await Verify_X2015.VerifyCodeFixAsyncV2(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
 }

@@ -16,12 +16,14 @@ public class ConvertAttributeCodeAction : CodeAction
 
 	public ConvertAttributeCodeAction(
 		string title,
+		string equivalenceKey,
 		Document document,
 		SyntaxList<AttributeListSyntax> attributeLists,
 		string fromTypeName,
 		string toTypeName)
 	{
 		Title = title;
+		EquivalenceKey = equivalenceKey;
 
 		this.toTypeName = toTypeName;
 		this.fromTypeName = fromTypeName;
@@ -29,9 +31,9 @@ public class ConvertAttributeCodeAction : CodeAction
 		this.document = document;
 	}
 
-	public override string Title { get; }
+	public override string EquivalenceKey { get; }
 
-	public override string EquivalenceKey => Title;
+	public override string Title { get; }
 
 	protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 	{

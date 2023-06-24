@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class CollectionDefinitionClassesMustBePublicFixer : BatchedCodeFixProvider
 {
-	const string title = "Make Public";
+	public const string Key_MakeCollectionDefinitionClassPublic = "xUnit1027_MakeCollectionDefinitionClassPublic";
 
 	public CollectionDefinitionClassesMustBePublicFixer() :
 		base(Descriptors.X1027_CollectionDefinitionClassMustBePublic.Id)
@@ -28,9 +28,9 @@ public class CollectionDefinitionClassesMustBePublicFixer : BatchedCodeFixProvid
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedDocument: ct => context.Document.ChangeAccessibility(classDeclaration, Accessibility.Public, ct),
-				equivalenceKey: title
+				"Make collection definition class public",
+				ct => context.Document.ChangeAccessibility(classDeclaration, Accessibility.Public, ct),
+				Key_MakeCollectionDefinitionClassPublic
 			),
 			context.Diagnostics
 		);

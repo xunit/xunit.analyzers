@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
 
 public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
@@ -27,7 +28,7 @@ public class Tests {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
 	}
 
 	[Fact]
@@ -68,6 +69,6 @@ namespace XUnitTestProject1 {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
 	}
 }

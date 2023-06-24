@@ -12,8 +12,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 {
-	const string MarkAsTheoryTitle = "Mark as Theory";
-	const string removeDataAttributesTitle = "Remove Data Attributes";
+	public const string Key_MarkAsTheory = "xUnit1008_MarkAsTheory";
+	public const string Key_RemoveDataAttributes = "xUnit1008_RemoveDataAttributes";
 
 	public DataAttributeShouldBeUsedOnATheoryFixer() :
 		base(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id)
@@ -31,15 +31,21 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				MarkAsTheoryTitle,
+				"Mark as [Theory]",
 				ct => MarkAsTheoryAsync(context.Document, methodDeclaration, ct),
-				equivalenceKey: MarkAsTheoryTitle
+				Key_MarkAsTheory
 			),
 			context.Diagnostics
 		);
 
 		context.RegisterCodeFix(
-			new RemoveAttributesOfTypeCodeAction(removeDataAttributesTitle, context.Document, methodDeclaration.AttributeLists, Constants.Types.XunitSdkDataAttribute),
+			new RemoveAttributesOfTypeCodeAction(
+				"Remove data attributes",
+				Key_RemoveDataAttributes,
+				context.Document,
+				methodDeclaration.AttributeLists,
+				Constants.Types.XunitSdkDataAttribute
+			),
 			context.Diagnostics
 		);
 	}

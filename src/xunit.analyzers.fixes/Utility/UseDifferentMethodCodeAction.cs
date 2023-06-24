@@ -15,18 +15,20 @@ public class UseDifferentMethodCodeAction : CodeAction
 
 	public UseDifferentMethodCodeAction(
 		string title,
+		string equivalenceKey,
 		Document document,
 		InvocationExpressionSyntax invocation,
 		string replacementMethod)
 	{
 		Title = title;
+		EquivalenceKey = equivalenceKey;
 
 		this.document = document;
 		this.invocation = invocation;
 		this.replacementMethod = replacementMethod;
 	}
 
-	public override string EquivalenceKey => Title;
+	public override string EquivalenceKey { get; }
 
 	public override string Title { get; }
 

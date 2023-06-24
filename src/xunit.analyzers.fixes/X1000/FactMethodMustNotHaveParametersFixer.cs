@@ -12,7 +12,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class FactMethodMustNotHaveParametersFixer : BatchedCodeFixProvider
 {
-	public const string RemoveParametersTitle = "Remove Parameters";
+	public const string Key_RemoveParameters = "xUnit1001_RemoveParameters";
 
 	public FactMethodMustNotHaveParametersFixer() :
 		base(Descriptors.X1001_FactMethodMustNotHaveParameters.Id)
@@ -30,9 +30,9 @@ public class FactMethodMustNotHaveParametersFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: RemoveParametersTitle,
-				createChangedDocument: ct => RemoveParameters(context.Document, methodDeclaration.ParameterList, ct),
-				equivalenceKey: RemoveParametersTitle
+				"Remove parameters",
+				ct => RemoveParameters(context.Document, methodDeclaration.ParameterList, ct),
+				Key_RemoveParameters
 			),
 			context.Diagnostics
 		);

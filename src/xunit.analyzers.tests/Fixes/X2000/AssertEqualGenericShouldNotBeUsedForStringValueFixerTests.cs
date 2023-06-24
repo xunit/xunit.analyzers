@@ -1,5 +1,6 @@
 using Xunit;
 using Xunit.Analyzers;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedForStringValue>;
 
 public class AssertEqualGenericShouldNotBeUsedForStringValueFixerTests
@@ -24,6 +25,6 @@ public class TestClass {{
 		var before = string.Format(template, $@"[|Assert.{assert}<string>(""foo"", result)|]");
 		var after = string.Format(template, @"Assert.Equal(""foo"", result)");
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEqualGenericShouldNotBeUsedForStringValueFixer.Key_UseStringAssertEqual);
 	}
 }

@@ -15,7 +15,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFixProvider
 {
-	const string TitleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2014_UseAlternateAssert";
 
 	public AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer() :
 		base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id)
@@ -45,13 +45,11 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		if (replacement is null)
 			return;
 
-		var title = string.Format(TitleTemplate, replacement);
-
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
-				equivalenceKey: title
+				string.Format("Use Assert.{0}", replacement),
+				ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
+				Key_UseAlternateAssert
 			),
 			context.Diagnostics
 		);

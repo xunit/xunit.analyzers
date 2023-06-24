@@ -11,7 +11,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TestClassShouldHaveTFixtureArgumentFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Generate constructor {0}({1})";
+	public const string Key_GenerateConstructor = "xUnit1033_GenerateConstructor";
 
 	public TestClassShouldHaveTFixtureArgumentFixer() :
 		base(Descriptors.X1033_TestClassShouldHaveTFixtureArgument.Id)
@@ -44,14 +44,14 @@ public class TestClassShouldHaveTFixtureArgumentFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: string.Format(titleTemplate, testClassName, tFixtureName),
-				createChangedDocument: ct => context.Document.AddConstructor(
+				string.Format("Generate constructor '{0}({1})'", testClassName, tFixtureName),
+				ct => context.Document.AddConstructor(
 					classDeclaration,
 					typeDisplayName: tFixtureDisplayName,
 					typeName: tFixtureName,
 					ct
 				),
-				equivalenceKey: titleTemplate
+				Key_GenerateConstructor
 			),
 			context.Diagnostics
 		);

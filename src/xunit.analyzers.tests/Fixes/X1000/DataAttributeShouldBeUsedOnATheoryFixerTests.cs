@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
 
 public class DataAttributeShouldBeUsedOnATheoryFixerTests
@@ -23,6 +24,27 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
+	}
+
+	[Fact]
+	public async void RemovesDataAttributes()
+	{
+		var before = @"
+using Xunit;
+
+public class TestClass {
+    [InlineData]
+    public void [|TestMethod|]() { }
+}";
+
+		var after = @"
+using Xunit;
+
+public class TestClass {
+    public void TestMethod() { }
+}";
+
+		await Verify.VerifyCodeFixAsyncV2(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
 	}
 }

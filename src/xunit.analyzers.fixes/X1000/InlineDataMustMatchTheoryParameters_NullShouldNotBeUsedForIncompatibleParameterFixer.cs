@@ -14,7 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer : BatchedCodeFixProvider
 {
-	const string title = "Make Parameter Nullable";
+	public const string Key_MakeParameterNullable = "xUnit1012_MakeParameterNullable";
 
 	public InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer() :
 		base(Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
@@ -42,9 +42,9 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
+				"Make parameter nullable",
 				ct => MakeParameterNullable(context.Document, method, parameterIndex, ct),
-				title
+				Key_MakeParameterNullable
 			),
 			context.Diagnostics
 		);

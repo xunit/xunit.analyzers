@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualGenericShouldNotBeUsedForStringValueFixer : BatchedCodeFixProvider
 {
-	const string title = "Use string Assert.Equal";
+	public const string Key_UseStringAssertEqual = "xUnit2006_UseStringAssertEqual";
 
 	public AssertEqualGenericShouldNotBeUsedForStringValueFixer() :
 		base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue.Id)
@@ -33,9 +33,9 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueFixer : BatchedCodeF
 		if (invocation.Expression is MemberAccessExpressionSyntax)
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseNonGenericStringEqualCheck(context.Document, invocation, ct),
-					equivalenceKey: title
+					"Use string Assert.Equal",
+					ct => UseNonGenericStringEqualCheck(context.Document, invocation, ct),
+					Key_UseStringAssertEqual
 				),
 				context.Diagnostics
 			);

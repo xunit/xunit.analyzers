@@ -15,6 +15,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCodeFixProvider
 {
+	public const string Key_GenerateOrUpdateConstructor = "xUnit3001_GenerateOrUpdateConstructor";
+
 	static readonly LiteralExpressionSyntax obsoleteText;
 
 	static SerializableClassMustHaveParameterlessConstructorFixer() =>
@@ -38,9 +40,9 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
-				createChangedDocument: ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
-				equivalenceKey: "xUnit3001"
+				parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
+				ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
+				Key_GenerateOrUpdateConstructor
 			),
 			context.Diagnostics
 		);

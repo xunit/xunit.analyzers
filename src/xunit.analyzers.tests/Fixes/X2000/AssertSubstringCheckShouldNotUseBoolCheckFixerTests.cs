@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBoolCheck>;
 
 public class AssertSubstringCheckShouldNotUseBoolCheckFixerTests
@@ -30,6 +31,6 @@ public class TestClass {{
 		var before = string.Format(template, beforeAssert);
 		var after = string.Format(template, afterAssert);
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertSubstringCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
 	}
 }

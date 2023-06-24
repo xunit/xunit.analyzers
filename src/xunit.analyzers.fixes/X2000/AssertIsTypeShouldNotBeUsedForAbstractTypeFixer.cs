@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : BatchedCodeFixProvider
 {
-	static readonly string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2018_UseAlternateAssert";
 
 	public AssertIsTypeShouldNotBeUsedForAbstractTypeFixer() :
 		base(Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType.Id)
@@ -37,13 +37,11 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : BatchedCodeFixPro
 		if (!AssertIsTypeShouldNotBeUsedForAbstractType.ReplacementMethods.TryGetValue(methodName, out var replacementName))
 			return;
 
-		var title = string.Format(titleTemplate, replacementName);
-
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, replacementName, ct),
-				equivalenceKey: title
+				string.Format("Use Assert.{0}", replacementName),
+				ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, replacementName, ct),
+				Key_UseAlternateAssert
 			),
 			context.Diagnostics
 		);

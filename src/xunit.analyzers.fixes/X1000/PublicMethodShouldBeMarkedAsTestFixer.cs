@@ -12,9 +12,9 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
 {
-	public const string ConvertToFactTitle = "Convert to Fact";
-	public const string ConvertToTheoryTitle = "Convert to Theory";
-	public const string MakeInternalTitle = "Make Internal";
+	public const string Key_ConvertToFact = "xUnit1013_ConvertToFact";
+	public const string Key_ConvertToTheory = "xUnit1013_ConvertToTheory";
+	public const string Key_MakeMethodInternal = "xUnit1013_MakeMethodInternal";
 
 	public PublicMethodShouldBeMarkedAsTestFixer() :
 		base(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest.Id)
@@ -30,24 +30,33 @@ public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
 		if (methodDeclaration is null)
 			return;
 
-		var looksLikeTheory = methodDeclaration.ParameterList.Parameters.Any();
-		var convertTitle = looksLikeTheory ? ConvertToTheoryTitle : ConvertToFactTitle;
-		var convertType = looksLikeTheory ? Constants.Types.XunitTheoryAttribute : Constants.Types.XunitFactAttribute;
+		// Fix #1: Offer to convert it to a theory if it has parameters...
+		if (methodDeclaration.ParameterList.Parameters.Any())
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					"Add [Theory]",
+					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.XunitTheoryAttribute, ct),
+					Key_ConvertToTheory
+				),
+				context.Diagnostics
+			);
+		// ...otherwise, offer to convert it to a fact
+		else
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					"Add [Fact]",
+					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.XunitFactAttribute, ct),
+					Key_ConvertToFact
+				),
+				context.Diagnostics
+			);
 
+		// Fix #2: Offer to mark the method as internal
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: convertTitle,
-				createChangedDocument: ct => AddAttribute(context.Document, methodDeclaration, convertType, ct),
-				equivalenceKey: convertTitle
-			),
-			context.Diagnostics
-		);
-
-		context.RegisterCodeFix(
-			CodeAction.Create(
-				title: MakeInternalTitle,
-				createChangedDocument: ct => context.Document.ChangeAccessibility(methodDeclaration, Accessibility.Internal, ct),
-				equivalenceKey: MakeInternalTitle
+				"Make method internal",
+				ct => context.Document.ChangeAccessibility(methodDeclaration, Accessibility.Internal, ct),
+				Key_MakeMethodInternal
 			),
 			context.Diagnostics
 		);

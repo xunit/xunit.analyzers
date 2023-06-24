@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestCaseMustBeLongLivedMarshalByRefObject>;
 using Verify_WithAbstractions = CSharpVerifier<TestCaseMustBeLongLivedMarshalByRefObjectFixerTests.Analyzer_WithAbstractions>;
 
@@ -12,7 +13,7 @@ public class TestCaseMustBeLongLivedMarshalByRefObjectFixerTests
 		var before = "public class [|MyTestCase|]: {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 		var after = "public class MyTestCase: Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestCaseMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
 	}
 
 	[Fact]
@@ -30,7 +31,7 @@ using Xunit.Abstractions;
 
 public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestCaseMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
 	}
 
 	[Fact]
@@ -39,7 +40,7 @@ public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535
 		var before = "public class Foo { } public class [|MyTestCase|]: Foo, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 		var after = "public class Foo { } public class MyTestCase: Xunit.LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestCaseMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
 	}
 
 	[Fact]
@@ -61,7 +62,7 @@ public class Foo { }
 
 public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestCaseMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
 	}
 
 	[Fact]
@@ -69,7 +70,7 @@ public class MyTestCase: LongLivedMarshalByRefObject, {|CS0535:{|CS0535:{|CS0535
 	{
 		var source = "public class [|MyTestCase|]: {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:Xunit.Abstractions.ITestCase|}|}|}|}|}|}|}|}|} { }";
 
-		await Verify_WithAbstractions.VerifyCodeFixAsyncV2(source, source);
+		await Verify_WithAbstractions.VerifyCodeFixAsyncV2(source, source, TestCaseMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
 	}
 
 	public class Analyzer_WithAbstractions : TestCaseMustBeLongLivedMarshalByRefObject

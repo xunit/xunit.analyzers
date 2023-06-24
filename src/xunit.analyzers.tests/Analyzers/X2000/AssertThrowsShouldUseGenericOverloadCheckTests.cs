@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGenericOverloadCheck>;
@@ -26,14 +28,24 @@ class TestClass {{
         Xunit.Assert.{method}(typeof(System.NotImplementedException), ThrowingMethod);
     }}
 }}";
-		var expected =
+		var expected = new List<DiagnosticResult>
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 78 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments(method, "System.NotImplementedException");
+				.WithArguments(method, "System.NotImplementedException"),
+		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		if (method == Constants.Asserts.Throws)
+			expected.Add(
+				DiagnosticResult
+					.CompilerError("CS0619")
+					.WithSpan(8, 9, 8, 78 + method.Length)
+					.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+			);
+
+		await Verify.VerifyAnalyzerAsyncV2(source, expected.ToArray());
 	}
 
 	[Theory]
@@ -46,14 +58,24 @@ class TestClass {{
         Xunit.Assert.{method}(typeof(System.NotImplementedException), () => System.Threading.Tasks.Task.Delay(0));
     }}
 }}";
-		var expected =
+		var expected = new List<DiagnosticResult>
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(4, 9, 4, 106 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments(method, "System.NotImplementedException");
+				.WithArguments(method, "System.NotImplementedException")
+		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		if (method == Constants.Asserts.Throws)
+			expected.Add(
+				DiagnosticResult
+					.CompilerError("CS0619")
+					.WithSpan(4, 9, 4, 106 + method.Length)
+					.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+			);
+
+		await Verify.VerifyAnalyzerAsyncV2(source, expected.ToArray());
 	}
 
 	[Fact]

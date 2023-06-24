@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbstractType>;
 
 public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
@@ -19,9 +20,8 @@ public abstract class TestClass {{
 	[Theory]
 	[InlineData("[|Assert.IsType<IDisposable>(data)|]", "Assert.IsAssignableFrom<IDisposable>(data)")]
 	[InlineData("[|Assert.IsType<TestClass>(data)|]", "Assert.IsAssignableFrom<TestClass>(data)")]
-	// TODO: We cannot use this data because we can't reference xUnit.net 2.5.0 due to https://github.com/dotnet/roslyn-sdk/issues/1099
-	//[InlineData("[|Assert.IsNotType<IDisposable>(data)|]", "Assert.IsNotAssignableFrom<IDisposable>(data)")]
-	//[InlineData("[|Assert.IsNotType<TestClass>(data)|]", "Assert.IsNotAssignableFrom<TestClass>(data)")]
+	[InlineData("[|Assert.IsNotType<IDisposable>(data)|]", "Assert.IsNotAssignableFrom<IDisposable>(data)")]
+	[InlineData("[|Assert.IsNotType<TestClass>(data)|]", "Assert.IsNotAssignableFrom<TestClass>(data)")]
 	public async void Conversions(
 		string beforeAssert,
 		string afterAssert)
@@ -29,6 +29,6 @@ public abstract class TestClass {{
 		var before = string.Format(template, beforeAssert);
 		var after = string.Format(template, afterAssert);
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
 	}
 }

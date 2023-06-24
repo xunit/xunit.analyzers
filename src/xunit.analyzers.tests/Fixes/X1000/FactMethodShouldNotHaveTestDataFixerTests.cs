@@ -24,6 +24,6 @@ public class TestClass {
     public void TestMethod(int x) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, FactMethodShouldNotHaveTestDataFixer.RemoveDataAttributesTitle);
+		await Verify.VerifyCodeFixAsyncV2(before, after, FactMethodShouldNotHaveTestDataFixer.Key_RemoveDataAttributes);
 	}
 }

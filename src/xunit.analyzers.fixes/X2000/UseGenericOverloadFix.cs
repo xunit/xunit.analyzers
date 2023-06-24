@@ -14,8 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class UseGenericOverloadFix : BatchedCodeFixProvider
 {
-	const string TitleTemplate = "Use Assert.{0}<{1}>";
-	const string EquivalenceKeyTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2007_xUnit2015_UseAlternateAssert";
 
 	public UseGenericOverloadFix() :
 		base(
@@ -47,14 +46,12 @@ public class UseGenericOverloadFix : BatchedCodeFixProvider
 
 		var typeName = SymbolDisplay.ToDisplayString(typeInfo.Type, SymbolDisplayFormat.MinimallyQualifiedFormat);
 		var methodName = memberAccess.Name.Identifier.ValueText;
-		var title = string.Format(TitleTemplate, methodName, typeName);
-		var equivalenceKey = string.Format(EquivalenceKeyTemplate, methodName);
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, memberAccess, typeOfExpression, ct),
-				equivalenceKey: equivalenceKey
+				string.Format("Use Assert.{0}<{1}>", methodName, typeName),
+				ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, memberAccess, typeOfExpression, ct),
+				Key_UseAlternateAssert
 			),
 			context.Diagnostics
 		);

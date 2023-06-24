@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class FactMethodShouldNotHaveTestDataFixer : BatchedCodeFixProvider
 {
-	public const string RemoveDataAttributesTitle = "Remove Data Attributes";
+	public const string Key_RemoveDataAttributes = "xUnit1005_RemoveDataAttributes";
 
 	public FactMethodShouldNotHaveTestDataFixer() :
 		base(Descriptors.X1005_FactMethodShouldNotHaveTestData.Id)
@@ -26,7 +26,13 @@ public class FactMethodShouldNotHaveTestDataFixer : BatchedCodeFixProvider
 			return;
 
 		context.RegisterCodeFix(
-			new RemoveAttributesOfTypeCodeAction(RemoveDataAttributesTitle, context.Document, methodDeclaration.AttributeLists, Constants.Types.XunitSdkDataAttribute),
+			new RemoveAttributesOfTypeCodeAction(
+				"Remove data attributes",
+				Key_RemoveDataAttributes,
+				context.Document,
+				methodDeclaration.AttributeLists,
+				Constants.Types.XunitSdkDataAttribute
+			),
 			context.Diagnostics
 		);
 	}

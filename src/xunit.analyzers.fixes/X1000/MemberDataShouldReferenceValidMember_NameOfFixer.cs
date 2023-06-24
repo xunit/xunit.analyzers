@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class MemberDataShouldReferenceValidMember_NameOfFixer : BatchedCodeFixProvider
 {
-	const string title = "Use nameof";
+	public const string Key_UseNameof = "xUnit1014_UseNameof";
 
 	public MemberDataShouldReferenceValidMember_NameOfFixer() :
 		base(Descriptors.X1014_MemberDataShouldUseNameOfOperator.Id)
@@ -46,9 +46,9 @@ public class MemberDataShouldReferenceValidMember_NameOfFixer : BatchedCodeFixPr
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseNameOf(context.Document, memberNameExpression, memberType, ct),
-					equivalenceKey: title
+					"Use nameof",
+					ct => UseNameOf(context.Document, memberNameExpression, memberType, ct),
+					Key_UseNameof
 				),
 				context.Diagnostics
 			);

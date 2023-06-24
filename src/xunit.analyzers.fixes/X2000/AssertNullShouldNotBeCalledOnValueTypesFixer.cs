@@ -14,7 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertNullShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvider
 {
-	const string title = "Remove Call";
+	public const string Key_RemoveAssert = "xUnit2002_RemoveAssert";
 
 	public AssertNullShouldNotBeCalledOnValueTypesFixer() :
 		base(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes.Id)
@@ -32,9 +32,9 @@ public class AssertNullShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => RemoveCall(context.Document, call, ct),
-				equivalenceKey: title
+				"Remove unnecessary assertion",
+				ct => RemoveCall(context.Document, call, ct),
+				Key_RemoveAssert
 			),
 			context.Diagnostics
 		);

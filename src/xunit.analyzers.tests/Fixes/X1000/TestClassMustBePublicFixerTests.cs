@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
 public class TestClassMustBePublicFixerTests
@@ -20,7 +21,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 
 	[Fact]
@@ -48,6 +49,6 @@ partial class TestClass {
     public void TestMethod2() {}
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 }

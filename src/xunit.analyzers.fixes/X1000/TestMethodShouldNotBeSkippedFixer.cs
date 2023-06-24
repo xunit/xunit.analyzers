@@ -12,7 +12,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TestMethodShouldNotBeSkippedFixer : BatchedCodeFixProvider
 {
-	const string title = "Remove Skip Argument";
+	public const string Key_RemoveSkipArgument = "xUnit1004_RemoveSkipArgument";
 
 	public TestMethodShouldNotBeSkippedFixer() :
 		base(Descriptors.X1004_TestMethodShouldNotBeSkipped.Id)
@@ -30,9 +30,9 @@ public class TestMethodShouldNotBeSkippedFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
+				"Remove Skip argument",
 				ct => RemoveArgument(context.Document, argument, ct),
-				equivalenceKey: title
+				Key_RemoveSkipArgument
 			),
 			context.Diagnostics
 		);

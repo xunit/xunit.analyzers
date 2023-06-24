@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
 
 public class InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
@@ -38,6 +39,6 @@ public class TestClass {{
     public void TestMethod({valueType} p) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
 	}
 }

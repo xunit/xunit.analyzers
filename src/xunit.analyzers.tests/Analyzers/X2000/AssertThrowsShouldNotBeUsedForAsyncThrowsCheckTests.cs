@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyncThrowsCheck>;
@@ -86,12 +87,18 @@ class TestClass {{
         Xunit.Assert.Throws(typeof(System.NotImplementedException), {lambda});
     }}
 }}";
-		var expected =
+		var expected = new[]
+		{
+			DiagnosticResult
+				.CompilerError("CS0619")
+				.WithSpan(8, 9, 8, 70 + lambda.Length)
+				.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code."),
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 70 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
+				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
+		};
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}
@@ -145,7 +152,7 @@ class TestClass {{
 			Verify
 				.CompilerError("CS0619")
 				.WithSpan(8, 9, 8, 66 + lambda.Length)
-				.WithMessage("'Assert.Throws<T>(string, Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
+				.WithArguments("Xunit.Assert.Throws<T>(string?, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync<T> (and await the result) when testing async code."),
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 66 + lambda.Length)
@@ -224,12 +231,18 @@ class TestClass {{
         Xunit.Assert.ThrowsAny<System.NotImplementedException>({lambda});
     }}
 }}";
-		var expected =
+		var expected = new[]
+		{
+			DiagnosticResult
+				.CompilerError("CS0619")
+				.WithSpan(8, 9, 8, 65 + lambda.Length)
+				.WithArguments("Xunit.Assert.ThrowsAny<T>(System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAnyAsync<T> (and await the result) when testing async code."),
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 65 + lambda.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync);
+				.WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync),
+		};
 
 		await Verify.VerifyAnalyzerAsyncV2(source, expected);
 	}

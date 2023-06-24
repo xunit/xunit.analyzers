@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -88,13 +89,19 @@ public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
 		var precisionMax = precisionMaxLimits[numericType];
 
 		if (numericValue < 0 || numericValue > precisionMax)
+		{
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+			builder[Constants.Properties.Replacement] = numericValue < 0 ? "0" : precisionMax.ToString();
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X2016_AssertEqualPrecisionShouldBeInRange,
 					location,
+					builder.ToImmutable(),
 					$"[0..{precisionMax}]",
 					typeNames[numericType]
 				)
 			);
+		}
 	}
 }

@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -14,7 +15,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
 {
-	const string title = "Use precision 0";
+	public const string Key_UsePrecision = "xUnit2016_UsePrecision";
 
 	public AssertEqualPrecisionShouldBeInRangeFixer() :
 		base(Descriptors.X2016_AssertEqualPrecisionShouldBeInRange.Id)
@@ -30,11 +31,21 @@ public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
 		if (precisionArgument is null)
 			return;
 
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+			return;
+		if (replacement is null)
+			return;
+		if (!int.TryParse(replacement, out var replacementInt))
+			return;
+
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => UseRecommendedPrecision(context.Document, precisionArgument, ct),
-				equivalenceKey: title
+				string.Format("Use precision {0}", replacementInt),
+				ct => UseRecommendedPrecision(context.Document, precisionArgument, replacementInt, ct),
+				Key_UsePrecision
 			),
 			context.Diagnostics
 		);
@@ -43,13 +54,14 @@ public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
 	static async Task<Document> UseRecommendedPrecision(
 		Document document,
 		ArgumentSyntax precisionArgument,
+		int replacement,
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		editor.ReplaceNode(
 			precisionArgument,
-			Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(0)))
+			Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(replacement)))
 		);
 
 		return editor.GetChangedDocument();

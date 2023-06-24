@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TheoryMethodCannotHaveDefaultParameterFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Remove Parameter '{0}' Default";
+	public const string Key_RemoveParameterDefault = "xUnit1023_RemoveParameterDefault";
 
 	public TheoryMethodCannotHaveDefaultParameterFixer() :
 		base(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter.Id)
@@ -27,13 +27,12 @@ public class TheoryMethodCannotHaveDefaultParameterFixer : BatchedCodeFixProvide
 			return;
 
 		var parameterName = parameter.Identifier.Text;
-		var title = string.Format(titleTemplate, parameterName);
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
+				string.Format("Remove parameter '{0}' default", parameterName),
 				ct => context.Document.RemoveNode(parameter.Default, ct),
-				equivalenceKey: title
+				Key_RemoveParameterDefault
 			),
 			context.Diagnostics
 		);

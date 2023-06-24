@@ -14,7 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2004_UseAlterateAssert";
 
 	public AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer() :
 		base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck.Id)
@@ -43,18 +43,14 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer : BatchedCodeFix
 			return;
 
 		if (invocation.Expression is MemberAccessExpressionSyntax)
-		{
-			var title = string.Format(titleTemplate, replacement);
-
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseBoolCheckAsync(context.Document, invocation, replacement, ct),
-					equivalenceKey: title
+					string.Format("Use Assert.{0}", replacement),
+					ct => UseBoolCheckAsync(context.Document, invocation, replacement, ct),
+					Key_UseAlternateAssert
 				),
 				context.Diagnostics
 			);
-		}
 	}
 
 	static async Task<Document> UseBoolCheckAsync(

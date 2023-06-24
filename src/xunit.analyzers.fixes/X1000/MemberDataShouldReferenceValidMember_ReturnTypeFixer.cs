@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : BatchedMemberFixProvider
 {
-	const string title = "Change Member Return Type";
+	public const string Key_ChangeMemberReturnType = "xUnit1019_ChangeMemberReturnType";
 
 	public MemberDataShouldReferenceValidMember_ReturnTypeFixer() :
 		base(Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id)
@@ -27,9 +27,9 @@ public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : Batch
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedSolution: ct => context.Document.Project.Solution.ChangeMemberType(member, type, ct),
-				equivalenceKey: title
+				"Change return type to IEnumerable<object[]>",
+				ct => context.Document.Project.Solution.ChangeMemberType(member, type, ct),
+				Key_ChangeMemberReturnType
 			),
 			context.Diagnostics
 		);

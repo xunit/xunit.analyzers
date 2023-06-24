@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TestClassMustBePublicFixer : BatchedCodeFixProvider
 {
-	const string title = "Make Public";
+	public const string Key_MakeTestClassPublic = "xUnit1000_MakeTestClassPublic";
 
 	public TestClassMustBePublicFixer() :
 		base(Descriptors.X1000_TestClassMustBePublic.Id)
@@ -28,9 +28,9 @@ public class TestClassMustBePublicFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedDocument: ct => context.Document.ChangeAccessibility(classDeclaration, Accessibility.Public, ct),
-				equivalenceKey: title
+				"Make test class public",
+				ct => context.Document.ChangeAccessibility(classDeclaration, Accessibility.Public, ct),
+				Key_MakeTestClassPublic
 			),
 			context.Diagnostics
 		);

@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class RemoveMethodParameterFix : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Remove Parameter '{0}'";
+	public const string Key_RemoveParameter = "xUnit1022_xUnit1026_RemoveParameter";
 
 	public RemoveMethodParameterFix() :
 		base(
@@ -33,9 +33,9 @@ public class RemoveMethodParameterFix : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format(titleTemplate, parameterName),
+				string.Format("Remove parameter '{0}'", parameterName),
 				ct => context.Document.RemoveNode(parameter, ct),
-				equivalenceKey: titleTemplate
+				Key_RemoveParameter
 			),
 			context.Diagnostics
 		);

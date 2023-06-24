@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvider
 {
-	const string title = "Fix Data Class";
+	public const string Key_FixDataClass = "xUnit1007_FixDataClass";
 
 	public ClassDataAttributeMustPointAtValidClassFixer() :
 		base(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass.Id)
@@ -37,9 +37,9 @@ public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvid
 			if (typeSymbol.TypeKind == TypeKind.Class && typeSymbol.Locations.Any(l => l.IsInSource))
 				context.RegisterCodeFix(
 					CodeAction.Create(
-						title,
-						createChangedSolution: ct => FixClass(context.Document.Project.Solution, typeSymbol, ct),
-						equivalenceKey: title
+						"Fix data class",
+						ct => FixClass(context.Document.Project.Solution, typeSymbol, ct),
+						Key_FixDataClass
 					),
 					context.Diagnostics
 				);

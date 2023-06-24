@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2005_UseAlternateAssert";
 
 	public AssertSameShouldNotBeCalledOnValueTypesFixer() :
 		base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes.Id)
@@ -37,13 +37,15 @@ public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 			return;
 
 		if (invocation.Expression is MemberAccessExpressionSyntax)
-		{
-			var title = string.Format(titleTemplate, replacement);
-
 			context.RegisterCodeFix(
-				new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
+				new UseDifferentMethodCodeAction(
+					string.Format("Use Assert.{0}", replacement),
+					Key_UseAlternateAssert,
+					context.Document,
+					invocation,
+					replacement
+				),
 				context.Diagnostics
 			);
-		}
 	}
 }

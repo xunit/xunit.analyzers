@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualLiteralValueShouldBeFirstFixer : BatchedCodeFixProvider
 {
-	const string title = "Swap Arguments";
+	public const string Key_SwapArguments = "xUnit2000_SwapArguments";
 
 	public AssertEqualLiteralValueShouldBeFirstFixer() :
 		base(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id)
@@ -31,9 +31,9 @@ public class AssertEqualLiteralValueShouldBeFirstFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => SwapArguments(context.Document, invocation, ct),
-				equivalenceKey: title
+				"Swap arguments",
+				ct => SwapArguments(context.Document, invocation, ct),
+				Key_SwapArguments
 			),
 			context.Diagnostics
 		);

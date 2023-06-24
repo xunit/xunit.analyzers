@@ -10,7 +10,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualsShouldNotBeUsedFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2001_UseAlternateAssert";
 
 	public AssertEqualsShouldNotBeUsedFixer() :
 		base(Descriptors.X2001_AssertEqualsShouldNotBeUsed.Id)
@@ -35,13 +35,15 @@ public class AssertEqualsShouldNotBeUsedFixer : BatchedCodeFixProvider
 			return;
 
 		if (invocation.Expression is MemberAccessExpressionSyntax)
-		{
-			var title = string.Format(titleTemplate, replacement);
-
 			context.RegisterCodeFix(
-				new UseDifferentMethodCodeAction(title, context.Document, invocation, replacement),
+				new UseDifferentMethodCodeAction(
+					string.Format("Use Assert.{0}", replacement),
+					Key_UseAlternateAssert,
+					context.Document,
+					invocation,
+					replacement
+				),
 				context.Diagnostics
 			);
-		}
 	}
 }

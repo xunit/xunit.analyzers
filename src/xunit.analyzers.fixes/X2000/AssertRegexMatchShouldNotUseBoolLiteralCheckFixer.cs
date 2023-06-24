@@ -14,7 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2008_UseAlternateAssert";
 
 	public AssertRegexMatchShouldNotUseBoolLiteralCheckFixer() :
 		base(Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck.Id)
@@ -42,13 +42,11 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixer : BatchedCodeFixP
 		if (replacement is null)
 			return;
 
-		var title = string.Format(titleTemplate, replacement);
-
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
-				createChangedDocument: ct => UseRegexCheckAsync(context.Document, invocation, replacement, isStatic == bool.TrueString, ct),
-				equivalenceKey: title
+				string.Format("Use Assert.{0}", replacement),
+				ct => UseRegexCheckAsync(context.Document, invocation, replacement, isStatic == bool.TrueString, ct),
+				Key_UseAlternateAssert
 			),
 			context.Diagnostics
 		);

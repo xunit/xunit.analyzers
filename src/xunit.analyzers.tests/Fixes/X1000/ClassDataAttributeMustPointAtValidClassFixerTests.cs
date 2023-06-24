@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
 
 public class ClassDataAttributeMustPointAtValidClassFixerTests
@@ -33,7 +34,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -75,7 +76,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -121,7 +122,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -159,6 +160,6 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 }

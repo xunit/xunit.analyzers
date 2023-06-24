@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
 public class MemberDataShouldReferenceValidMember_StaticFixerTests
@@ -30,6 +31,6 @@ public class TestClass {
     public void TestMethod(int x) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after);
+		await Verify.VerifyCodeFixAsyncV2(before, after, MemberDataShouldReferenceValidMember_StaticFixer.Key_MakeMemberStatic);
 	}
 }

@@ -15,8 +15,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertStringEqualityCheckShouldNotUseBoolCheckFixer : BatchedCodeFixProvider
 {
-	const string equivalenceKeyTemplate = "Use Assert.{0} for string equality checks";
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2010_UseAlternateAssert";
 
 	public AssertStringEqualityCheckShouldNotUseBoolCheckFixer() :
 		base(Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer.Id)
@@ -55,9 +54,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckFixer : BatchedCodeFi
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format(titleTemplate, replacement),
-				createChangedDocument: ct => UseEqualCheck(context.Document, invocation, replacement, isStaticMethodCall == bool.TrueString, ignoreCase, ct),
-				equivalenceKey: string.Format(equivalenceKeyTemplate, replacement)
+				string.Format("Use Assert.{0}", replacement),
+				ct => UseEqualCheck(context.Document, invocation, replacement, isStaticMethodCall == bool.TrueString, ignoreCase, ct),
+				Key_UseAlternateAssert
 			),
 			context.Diagnostics
 		);

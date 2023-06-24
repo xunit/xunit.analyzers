@@ -14,7 +14,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEqualShouldNotBeUsedForNullCheckFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Use Assert.{0}";
+	public const string Key_UseAlternateAssert = "xUnit2003_UseAlternateAssert";
 
 	public AssertEqualShouldNotBeUsedForNullCheckFixer() :
 		base(Descriptors.X2003_AssertEqualShouldNotUsedForNullCheck.Id)
@@ -41,18 +41,14 @@ public class AssertEqualShouldNotBeUsedForNullCheckFixer : BatchedCodeFixProvide
 			return;
 
 		if (invocation.Expression is MemberAccessExpressionSyntax)
-		{
-			var title = string.Format(titleTemplate, replacement);
-
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title,
-					createChangedDocument: ct => UseNullCheckAsync(context.Document, invocation, replacement, ct),
-					equivalenceKey: title
+					string.Format("Use Assert.{0}", replacement),
+					ct => UseNullCheckAsync(context.Document, invocation, replacement, ct),
+					Key_UseAlternateAssert
 				),
 				context.Diagnostics
 			);
-		}
 	}
 
 	static async Task<Document> UseNullCheckAsync(

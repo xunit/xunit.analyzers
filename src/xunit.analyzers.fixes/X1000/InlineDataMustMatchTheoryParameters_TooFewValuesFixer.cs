@@ -15,7 +15,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCodeFixProvider
 {
-	const string title = "Add Default Values";
+	public const string Key_AddDefaultValues = "xUnit1009_AddDefaultValues";
 
 	public InlineDataMustMatchTheoryParameters_TooFewValuesFixer() :
 		base(Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id)
@@ -46,9 +46,9 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCode
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title,
+				"Add default values",
 				ct => AddDefaultValues(context.Document, attribute, method, arrayStyle, ct),
-				title
+				Key_AddDefaultValues
 			),
 			context.Diagnostics
 		);

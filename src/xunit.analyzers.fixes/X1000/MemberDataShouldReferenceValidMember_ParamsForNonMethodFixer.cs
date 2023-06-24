@@ -14,6 +14,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : BatchedCodeFixProvider
 {
+	public const string Key_RemoveArgumentsFromMemberData = "xUnit1021_RemoveArgumentsFromMemberData";
+
 	public MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer() :
 		base(Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id)
 	{ }
@@ -35,9 +37,9 @@ public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : Batc
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				"Remove Arguments",
-				createChangedDocument: ct => RemoveUnneededArguments(context.Document, attribute, context.Span, ct),
-				equivalenceKey: "Remove MemberData Arguments"
+				"Remove arguments from MemberData",
+				ct => RemoveUnneededArguments(context.Document, attribute, context.Span, ct),
+				Key_RemoveArgumentsFromMemberData
 			),
 			context.Diagnostics
 		);

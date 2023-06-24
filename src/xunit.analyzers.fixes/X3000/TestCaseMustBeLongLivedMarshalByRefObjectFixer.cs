@@ -11,7 +11,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProvider
 {
-	const string title = "Set Base Type";
+	public const string Key_SetBaseType = "xUnit3000_SetBaseType";
 
 	public TestCaseMustBeLongLivedMarshalByRefObjectFixer() :
 		base(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id)
@@ -39,9 +39,9 @@ public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProv
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				title: title,
-				createChangedDocument: ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
-				equivalenceKey: title
+				"Set Base Type",
+				ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
+				Key_SetBaseType
 			),
 			context.Diagnostics
 		);

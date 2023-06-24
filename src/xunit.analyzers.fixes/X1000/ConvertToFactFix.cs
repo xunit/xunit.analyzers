@@ -9,7 +9,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class ConvertToFactFix : BatchedCodeFixProvider
 {
-	const string title = "Convert to Fact";
+	public const string Key_ConvertToFact = "xUnit1003_xUnit1006_ConvertToFact";
 
 	public ConvertToFactFix() :
 		base(
@@ -30,7 +30,8 @@ public class ConvertToFactFix : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			new ConvertAttributeCodeAction(
-				title,
+				"Convert to [Fact]",
+				Key_ConvertToFact,
 				context.Document,
 				methodDeclaration.AttributeLists,
 				fromTypeName: Constants.Types.XunitTheoryAttribute,

@@ -13,8 +13,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEmptyCollectionCheckShouldNotBeUsedFixer : BatchedCodeFixProvider
 {
-	public const string AddElementInspectorTitle = "Add element inspector";
-	public const string UseAssertEmptyCheckTitle = "Use Assert.Empty";
+	public const string Key_AddElementInspector = "xUnit2011_AddElementInspector";
+	public const string Key_UseAssertEmpty = "xUnit2011_UseAssertEmpty";
 
 	public AssertEmptyCollectionCheckShouldNotBeUsedFixer() :
 		base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed.Id)
@@ -32,18 +32,18 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedFixer : BatchedCodeFixProv
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				UseAssertEmptyCheckTitle,
-				createChangedDocument: ct => UseEmptyCheck(context.Document, invocation, ct),
-				equivalenceKey: UseAssertEmptyCheckTitle
+				"Use Assert.Empty",
+				ct => UseEmptyCheck(context.Document, invocation, ct),
+				Key_UseAssertEmpty
 			),
 			context.Diagnostics
 		);
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				AddElementInspectorTitle,
-				createChangedDocument: ct => AddElementInspector(context.Document, invocation, ct),
-				equivalenceKey: AddElementInspectorTitle
+				"Add element inspector",
+				ct => AddElementInspector(context.Document, invocation, ct),
+				Key_AddElementInspector
 			),
 			context.Diagnostics
 		);

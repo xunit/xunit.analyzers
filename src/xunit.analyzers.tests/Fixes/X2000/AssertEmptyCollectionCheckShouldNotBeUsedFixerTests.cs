@@ -31,7 +31,7 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.UseAssertEmptyCheckTitle);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
 	}
 
 	[Fact]
@@ -49,6 +49,6 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.AddElementInspectorTitle);
+		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
 	}
 }

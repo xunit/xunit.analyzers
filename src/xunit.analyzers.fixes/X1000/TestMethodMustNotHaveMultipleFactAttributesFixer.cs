@@ -15,11 +15,12 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixProvider
 {
-	const string titleTemplate = "Keep {0} Attribute";
-
 	public TestMethodMustNotHaveMultipleFactAttributesFixer() :
 		base(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id)
 	{ }
+
+	public static string Key_KeepAttribute(string simpleTypeName) =>
+		string.Format("xUnit1002_KeepAttribute_{0}", simpleTypeName);
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
@@ -40,13 +41,12 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 		foreach (var attributeType in attributeTypes)
 		{
 			var simpleName = GetAttributeSimpleName(attributeType);
-			var title = string.Format(titleTemplate, simpleName);
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					title: title,
-					createChangedDocument: ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
-					equivalenceKey: title
+					string.Format("Keep '{0}' attribute", simpleName),
+					ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
+					Key_KeepAttribute(simpleName)
 				),
 				context.Diagnostics
 			);

@@ -15,8 +15,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFixProvider
 {
-	public const string AddTheoryParameterTitle = "Add Theory Parameter";
-	public const string RemoveValueTitle = "Remove Value";
+	public const string Key_AddTheoryParameter = "xUnit1011_AddTheoryParameter";
+	public const string Key_RemoveExtraDataValue = "xUnit1011_RemoveExtraDataValue";
 
 	public InlineDataMustMatchTheoryParameters_ExtraValueFixer() :
 		base(Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue.Id)
@@ -36,9 +36,9 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFi
 		// Fix #1: remove the extra data from the inline data attribute
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				RemoveValueTitle,
+				"Remove extra data value",
 				ct => context.Document.RemoveNode(node, ct),
-				RemoveValueTitle
+				Key_RemoveExtraDataValue
 			),
 			context.Diagnostics
 		);
@@ -65,9 +65,9 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFi
 			if (method.ParameterList.Parameters.Count == parameterIndex)
 				context.RegisterCodeFix(
 					CodeAction.Create(
-						AddTheoryParameterTitle,
+						"Add theory parameter",
 						ct => AddTheoryParameter(context.Document, method, parameterSpecialType, parameterName, ct),
-						AddTheoryParameterTitle
+						Key_AddTheoryParameter
 					),
 					context.Diagnostics
 				);
