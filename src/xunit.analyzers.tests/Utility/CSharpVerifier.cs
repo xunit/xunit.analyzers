@@ -170,7 +170,8 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public class TestBase : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>
+	class TestBase<TVerifier> : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, TVerifier>
+		where TVerifier : XunitVerifier, new()
 	{
 		protected TestBase(
 			LanguageVersion languageVersion,
@@ -198,14 +199,14 @@ public class CSharpVerifier<TAnalyzer>
 			new CSharpParseOptions(LanguageVersion, DocumentationMode.Diagnose);
 	}
 
-	public class TestV2 : TestBase
+	class TestV2 : TestBase<XunitVerifierV2>
 	{
 		public TestV2(LanguageVersion languageVersion) :
 			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV2)
 		{ }
 	}
 
-	public class TestV3 : TestBase
+	class TestV3 : TestBase<XunitVerifierV3>
 	{
 		public TestV3(LanguageVersion languageVersion) :
 			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV3)

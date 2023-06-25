@@ -108,7 +108,7 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 
 		public virtual IVerifier PushContext(string context)
 		{
-			Assert.IsType<XunitVerifier>(this);
+			Assert.IsAssignableFrom<XunitVerifier>(this);
 
 			return new XunitVerifier(Context.Push(context));
 		}
