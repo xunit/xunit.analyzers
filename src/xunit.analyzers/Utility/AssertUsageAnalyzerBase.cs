@@ -43,13 +43,14 @@ public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
 				if (methodSymbol.MethodKind != MethodKind.Ordinary || !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, assertType) || !targetMethods.Contains(methodSymbol.Name))
 					return;
 
-				AnalyzeInvocation(context, invocationOperation, methodSymbol);
+				AnalyzeInvocation(context, xunitContext, invocationOperation, methodSymbol);
 			}
 		}, OperationKind.Invocation);
 	}
 
 	protected abstract void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method);
 }

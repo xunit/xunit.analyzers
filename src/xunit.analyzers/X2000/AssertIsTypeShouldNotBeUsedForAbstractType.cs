@@ -25,6 +25,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 
 	protected override void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{

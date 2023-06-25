@@ -19,6 +19,7 @@ public class AssertEqualGenericShouldNotBeUsedForStringValue : AssertUsageAnalyz
 
 	protected override void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{

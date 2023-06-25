@@ -28,6 +28,7 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheck : AssertUsageAnalyzerB
 
 	protected override void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{

@@ -23,6 +23,7 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 
 	protected override void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{

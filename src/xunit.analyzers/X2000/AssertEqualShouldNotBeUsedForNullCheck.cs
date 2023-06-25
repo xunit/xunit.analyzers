@@ -32,6 +32,7 @@ public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
 
 	protected override void AnalyzeInvocation(
 		OperationAnalysisContext context,
+		XunitContext xunitContext,
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
