@@ -24,6 +24,7 @@ public static class Constants
 		public const string Empty = "Empty";
 		public const string EndsWith = "EndsWith";
 		public const string Equal = "Equal";
+		public const string Fail = "Fail";
 		public const string False = "False";
 		public const string IsAssignableFrom = "IsAssignableFrom";
 		public const string IsNotAssignableFrom = "IsNotAssignableFrom";

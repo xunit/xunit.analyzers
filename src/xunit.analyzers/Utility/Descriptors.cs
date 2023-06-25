@@ -493,7 +493,14 @@ public static class Descriptors
 	public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
 		=> throw new NotImplementedException();
 
-	// Placeholder for rule X2020
+	public static DiagnosticDescriptor X2020_UseAssertFailInsteadOfBooleanAssert { get; } =
+		Rule(
+			"xUnit2020",
+			"Do not use always-failing boolean assertions",
+			Assertions,
+			Warning,
+			"Do not use Assert.{0}({1}, message) to fail a test. Use Assert.Fail(message) instead."
+		);
 
 	// Placeholder for rule X2021
 
