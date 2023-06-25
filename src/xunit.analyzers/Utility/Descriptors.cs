@@ -287,7 +287,14 @@ public static class Descriptors
 			"Collection definition classes must be public. Add or change the visibility modifier of the collection definition class to public."
 		);
 
-	// Placeholder for rule X1028
+	public static DiagnosticDescriptor X1028_TestMethodHasInvalidReturnType { get; } =
+		Rule(
+			"xUnit1028",
+			"Test method must have valid return type",
+			Usage,
+			Error,
+			"Test methods must have a supported return type. Valid types are: {0}. Change the return type to one of the compatible types."
+		);
 
 	// Placeholder for rule X1029
 

@@ -72,6 +72,52 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
+	public static Task VerifyAnalyzerAsyncV3(
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, new[] { source }, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV3(
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV3(languageVersion, new[] { source }, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV3(
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, sources, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV3(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		var test = new TestV3(languageVersion);
+
+		foreach (var source in sources)
+			test.TestState.Sources.Add(source);
+
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		return test.RunAsync();
+	}
+
+	public static Task VerifyAnalyzerAsyncV3(
+		(string filename, string content)[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, sources, diagnostics);
+
+	public static Task VerifyAnalyzerAsyncV3(
+		LanguageVersion languageVersion,
+		(string filename, string content)[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		var test = new TestV3(languageVersion);
+		test.TestState.Sources.AddRange(sources.Select(s => (s.filename, SourceText.From(s.content))));
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		return test.RunAsync();
+	}
+
 	public static Task VerifyCodeFixAsyncV2(
 		string before,
 		string after,
@@ -98,19 +144,46 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public class TestV2 : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>
+	public static Task VerifyCodeFixAsyncV3(
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyCodeFixAsyncV3(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+
+	public static Task VerifyCodeFixAsyncV3(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics)
 	{
-		readonly LanguageVersion languageVersion;
+		var newLine = FormattingOptions.NewLine.DefaultValue;
 
-		public TestV2(LanguageVersion languageVersion)
+		var test = new TestV3(languageVersion)
 		{
-			this.languageVersion = languageVersion;
+			TestCode = before.Replace("\n", newLine),
+			FixedCode = after.Replace("\n", newLine),
+			CodeActionEquivalenceKey = fixerActionKey,
+		};
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		return test.RunAsync();
+	}
 
-			ReferenceAssemblies = CodeAnalyzerHelper.CurrentXunitV2;
+	public class TestBase : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>
+	{
+		protected TestBase(
+			LanguageVersion languageVersion,
+			ReferenceAssemblies referenceAssemblies)
+		{
+			LanguageVersion = languageVersion;
+			ReferenceAssemblies = referenceAssemblies;
 
-			// xunit diagnostics are reported in both normal and generated code
+			// Diagnostics are reported in both normal and generated code
 			TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;
 		}
+
+		public LanguageVersion LanguageVersion { get; }
 
 		protected override IEnumerable<CodeFixProvider> GetCodeFixProviders()
 		{
@@ -122,6 +195,20 @@ public class CSharpVerifier<TAnalyzer>
 		}
 
 		protected override ParseOptions CreateParseOptions() =>
-			new CSharpParseOptions(languageVersion, DocumentationMode.Diagnose);
+			new CSharpParseOptions(LanguageVersion, DocumentationMode.Diagnose);
+	}
+
+	public class TestV2 : TestBase
+	{
+		public TestV2(LanguageVersion languageVersion) :
+			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV2)
+		{ }
+	}
+
+	public class TestV3 : TestBase
+	{
+		public TestV3(LanguageVersion languageVersion) :
+			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV3)
+		{ }
 	}
 }

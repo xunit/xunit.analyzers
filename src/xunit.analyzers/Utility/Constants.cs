@@ -125,5 +125,7 @@ public static class Constants
 		public const string SystemRuntimeCompilerServicesConfiguredTaskAwaitable = "System.Runtime.CompilerServices.ConfiguredTaskAwaitable";
 		public const string SystemRuntimeInteropServicesOptionalAttribute = "System.Runtime.InteropServices.OptionalAttribute";
 		public const string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
+		public const string SystemThreadingTasksValueTask = "System.Threading.Tasks.ValueTask";
+		public const string SystemVoid = "System.Void";
 	}
 }
