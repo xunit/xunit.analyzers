@@ -32,7 +32,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("interface", "System.IDisposable", replacement);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -57,7 +57,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("abstract class", "System.IO.Stream", replacement);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -82,7 +82,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("interface", "System.IDisposable", replacement);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -100,6 +100,6 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

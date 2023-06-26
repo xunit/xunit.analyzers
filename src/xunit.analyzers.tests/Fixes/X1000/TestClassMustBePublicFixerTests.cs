@@ -21,7 +21,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
+		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 
 	[Fact]
@@ -49,6 +49,6 @@ partial class TestClass {
     public void TestMethod2() {}
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
+		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 }

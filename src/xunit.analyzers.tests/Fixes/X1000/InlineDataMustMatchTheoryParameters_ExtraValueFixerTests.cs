@@ -25,7 +25,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
 	}
 
 	[Theory]
@@ -53,7 +53,7 @@ public class TestClass {{
     public void TestMethod(int a, {valueType} p) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
 	}
 
 	[Fact]
@@ -77,6 +77,6 @@ public class TestClass {{
     public void TestMethod(int p, double p_2) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
 	}
 }

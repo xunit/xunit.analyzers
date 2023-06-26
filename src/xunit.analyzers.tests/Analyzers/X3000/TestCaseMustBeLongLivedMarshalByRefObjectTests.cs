@@ -39,7 +39,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class Foo { }";
 
-		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerV2(source);
 	}
 
 	[Fact]
@@ -47,7 +47,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = "public class MyTestCase: Xunit.Sdk.XunitTestCase { }";
 
-		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerV2(source);
 	}
 
 	[Theory]
@@ -58,7 +58,7 @@ public class MyTestCase: {0} {{ }}";
 	{
 		var source = string.Format(Template, $"{baseClass}, {@interface}");
 
-		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source);
+		await Verify_WithExecution.VerifyAnalyzerV2(source);
 	}
 
 	[Theory]
@@ -72,7 +72,7 @@ public class MyTestCase: {0} {{ }}";
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_WithExecution.VerifyAnalyzerV2(source, expected);
 	}
 
 	[Theory]
@@ -86,7 +86,7 @@ public class MyTestCase: {0} {{ }}";
 				.WithLocation(4, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify_WithExecution.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_WithExecution.VerifyAnalyzerV2(source, expected);
 	}
 
 	[Fact]
@@ -99,7 +99,7 @@ public class MyTestCase: {0} {{ }}";
 				.WithLocation(1, 14)
 				.WithArguments("MyTestCase");
 
-		await Verify_WithAbstractions.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_WithAbstractions.VerifyAnalyzerV2(source, expected);
 	}
 
 	internal class Analyzer_WithAbstractions : TestCaseMustBeLongLivedMarshalByRefObject

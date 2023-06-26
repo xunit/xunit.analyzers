@@ -12,7 +12,13 @@ static class CodeAnalyzerHelper
 	// in order for this list to work most efficiently.
 	static CodeAnalyzerHelper()
 	{
-		CurrentXunitV2 = ReferenceAssemblies.Default.AddPackages(
+#if NET472
+		var defaultAssemblies = ReferenceAssemblies.NetFramework.Net472.Default;
+#else
+		var defaultAssemblies = ReferenceAssemblies.Net.Net60;
+#endif
+
+		CurrentXunitV2 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
@@ -22,14 +28,14 @@ static class CodeAnalyzerHelper
 			)
 		);
 
-		CurrentXunitV3 = ReferenceAssemblies.Default.AddPackages(
+		CurrentXunitV3 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "7.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("System.Text.Json", "7.0.2"),
-				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.248"),
-				new PackageIdentity("xunit.v3.common", "0.1.1-pre.248"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.248")
+				new PackageIdentity("System.Text.Json", "6.0.0"),
+				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.250"),
+				new PackageIdentity("xunit.v3.common", "0.1.1-pre.250"),
+				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.250")
 			)
 		);
 	}

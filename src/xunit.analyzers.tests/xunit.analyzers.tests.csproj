@@ -12,14 +12,14 @@
 
   <ItemGroup>
     <!-- Download packages referenced by CodeAnalyzerHelper -->
-    <PackageDownload Include="Microsoft.Bcl.AsyncInterfaces" Version="[7.0.0]" />
-    <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" />
-    <PackageDownload Include="System.Text.Json" Version="[7.0.2]" />
+    <PackageDownload Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0]" />
+    <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
+    <PackageDownload Include="System.Text.Json" Version="[6.0.0]" />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
     <PackageDownload Include="xunit.assert" Version="[2.5.0-pre.38]" />
-    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.248]" />
-    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.248]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.248]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.250]" />
+    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.250]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.250]" />
   </ItemGroup>
 
   <ItemGroup>

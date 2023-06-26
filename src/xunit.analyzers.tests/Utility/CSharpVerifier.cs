@@ -14,35 +14,159 @@ using Microsoft.CodeAnalysis.Text;
 public class CSharpVerifier<TAnalyzer>
 	where TAnalyzer : DiagnosticAnalyzer, new()
 {
+	/// <summary>
+	/// Creates a diagnostic result for the diagnostic referenced in <see cref="TAnalyzer"/>.
+	/// </summary>
 	public static DiagnosticResult Diagnostic() =>
 		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>.Diagnostic();
 
+	/// <summary>
+	/// Creates a diagnostic result for the given diagnostic ID.
+	/// </summary>
+	/// <param name="diagnosticId">The diagnostic ID</param>
 	public static DiagnosticResult Diagnostic(string diagnosticId) =>
 		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>.Diagnostic(diagnosticId);
 
-	public static DiagnosticResult Diagnostic(DiagnosticDescriptor descriptor) =>
-		new(descriptor);
-
+	/// <summary>
+	/// Creates a diagnostic result for an expected compiler error.
+	/// </summary>
+	/// <param name="errorIdentifier">The compiler error code (e.g., CS0619)</param>
 	public static DiagnosticResult CompilerError(string errorIdentifier) =>
 		new(errorIdentifier, DiagnosticSeverity.Error);
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using C# 6.
+	/// </summary>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(source, diagnostics);
+		await VerifyAnalyzerV3(source, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(languageVersion, source, diagnostics);
+		await VerifyAnalyzerV3(languageVersion, source, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using C# 6.
+	/// </summary>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(sources, diagnostics);
+		await VerifyAnalyzerV3(sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3(languageVersion, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using C# 6.
+	/// </summary>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		(string filename, string content)[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(sources, diagnostics);
+		await VerifyAnalyzerV3(sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzer(
+		LanguageVersion languageVersion,
+		(string filename, string content)[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3(languageVersion, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using C# 6.
+	/// </summary>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, new[] { source }, diagnostics);
+			VerifyAnalyzerV2(LanguageVersion.CSharp6, new[] { source }, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		LanguageVersion languageVersion,
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV2(languageVersion, new[] { source }, diagnostics);
+			VerifyAnalyzerV2(languageVersion, new[] { source }, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using C# 6.
+	/// </summary>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		string[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV2(LanguageVersion.CSharp6, sources, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		LanguageVersion languageVersion,
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -56,12 +180,25 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using C# 6.
+	/// </summary>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV2(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV2(LanguageVersion.CSharp6, sources, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV2(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2(
 		LanguageVersion languageVersion,
 		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -72,23 +209,50 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using C# 6.
+	/// </summary>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, new[] { source }, diagnostics);
+			VerifyAnalyzerV3(LanguageVersion.CSharp6, new[] { source }, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		LanguageVersion languageVersion,
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV3(languageVersion, new[] { source }, diagnostics);
+			VerifyAnalyzerV3(languageVersion, new[] { source }, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using C# 6.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		string[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV3(LanguageVersion.CSharp6, sources, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		LanguageVersion languageVersion,
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -102,12 +266,26 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using C# 6.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerAsyncV3(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV3(LanguageVersion.CSharp6, sources, diagnostics);
 
-	public static Task VerifyAnalyzerAsyncV3(
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3(
 		LanguageVersion languageVersion,
 		(string filename, string content)[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -118,14 +296,67 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyCodeFixAsyncV2(
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v2 and v3, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static async Task VerifyCodeFix(
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyCodeFixV2(before, after, fixerActionKey, diagnostics);
+		await VerifyCodeFixV3(before, after, fixerActionKey, diagnostics);
+	}
+
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v2 and v3, using the
+	/// provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static async Task VerifyCodeFix(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyCodeFixV2(languageVersion, before, after, fixerActionKey, diagnostics);
+		await VerifyCodeFixV3(languageVersion, before, after, fixerActionKey, diagnostics);
+	}
+
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v2, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static Task VerifyCodeFixV2(
 		string before,
 		string after,
 		string fixerActionKey,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyCodeFixAsyncV2(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+			VerifyCodeFixV2(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
 
-	public static Task VerifyCodeFixAsyncV2(
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v2, using the
+	/// provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static Task VerifyCodeFixV2(
 		LanguageVersion languageVersion,
 		string before,
 		string after,
@@ -144,14 +375,30 @@ public class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
-	public static Task VerifyCodeFixAsyncV3(
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v3, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static Task VerifyCodeFixV3(
 		string before,
 		string after,
 		string fixerActionKey,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyCodeFixAsyncV3(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+			VerifyCodeFixV3(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
 
-	public static Task VerifyCodeFixAsyncV3(
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v3, using the
+	/// provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	public static Task VerifyCodeFixV3(
 		LanguageVersion languageVersion,
 		string before,
 		string after,

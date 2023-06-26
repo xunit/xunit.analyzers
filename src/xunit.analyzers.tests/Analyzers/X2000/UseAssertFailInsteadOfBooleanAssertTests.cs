@@ -29,7 +29,7 @@ public class TestClass {{
 				.WithSpan(5, 9, 5, 52)
 				.WithArguments(assertion, targetValue);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -41,7 +41,7 @@ public class TestClass {{
 	{
 		var source = string.Format(codeTemplate, assertion, targetValue);
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -56,7 +56,7 @@ public class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -68,7 +68,7 @@ public class TestClass {
 	{
 		var source = string.Format(codeTemplate, assertion, targetValue);
 
-		await Verify_Unsupported.VerifyAnalyzerAsyncV2(source);
+		await Verify_Unsupported.VerifyAnalyzer(source);
 	}
 
 	internal class Analyzer_Pre25 : UseAssertFailInsteadOfBooleanAssert

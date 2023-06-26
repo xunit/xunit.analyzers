@@ -28,7 +28,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments($"Assert.{method}()", "int");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -43,7 +43,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -58,7 +58,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -72,7 +72,7 @@ class Class<T> where T : class {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -90,7 +90,7 @@ class Class<T> where T : IDo {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -106,7 +106,7 @@ class Class<T> {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -138,6 +138,6 @@ public class MyBuggyInt : MyBuggyIntBase
 	}}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

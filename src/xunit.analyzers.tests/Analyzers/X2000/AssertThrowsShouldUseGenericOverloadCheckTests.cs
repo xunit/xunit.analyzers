@@ -14,137 +14,277 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 		Constants.Asserts.ThrowsAsync,
 	};
 
-	[Theory]
-	[MemberData(nameof(Methods))]
-	public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingMethod(string method)
+	public class WithTask : AssertThrowsShouldUseGenericOverloadCheckTests
 	{
-		var source = $@"
+		[Theory]
+		[MemberData(nameof(Methods))]
+		public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingMethod(string method)
+		{
+			var source = $@"
 class TestClass {{
     System.Threading.Tasks.Task ThrowingMethod() {{
         throw new System.NotImplementedException();
     }}
 
     void TestMethod() {{
-        Xunit.Assert.{method}(typeof(System.NotImplementedException), ThrowingMethod);
+        Xunit.Assert.{method}(typeof(System.NotImplementedException), (System.Func<System.Threading.Tasks.Task>)ThrowingMethod);
     }}
 }}";
-		var expected = new List<DiagnosticResult>
+			var expected = new List<DiagnosticResult>
+			{
+				Verify
+					.Diagnostic()
+					.WithSpan(8, 9, 8, 120 + method.Length)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments(method, "System.NotImplementedException"),
+			};
+
+			if (method == Constants.Asserts.Throws)
+				expected.Add(
+					DiagnosticResult
+						.CompilerError("CS0619")
+						.WithSpan(8, 9, 8, 120 + method.Length)
+						.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+				);
+
+			await Verify.VerifyAnalyzer(source, expected.ToArray());
+		}
+
+		[Theory]
+		[MemberData(nameof(Methods))]
+		public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingLambda(string method)
 		{
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 78 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments(method, "System.NotImplementedException"),
-		};
-
-		if (method == Constants.Asserts.Throws)
-			expected.Add(
-				DiagnosticResult
-					.CompilerError("CS0619")
-					.WithSpan(8, 9, 8, 78 + method.Length)
-					.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
-			);
-
-		await Verify.VerifyAnalyzerAsyncV2(source, expected.ToArray());
-	}
-
-	[Theory]
-	[MemberData(nameof(Methods))]
-	public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingLambda(string method)
-	{
-		var source = $@"
+			var source = $@"
 class TestClass {{
     void TestMethod() {{
         Xunit.Assert.{method}(typeof(System.NotImplementedException), () => System.Threading.Tasks.Task.Delay(0));
     }}
 }}";
-		var expected = new List<DiagnosticResult>
-		{
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 106 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments(method, "System.NotImplementedException")
-		};
-
-		if (method == Constants.Asserts.Throws)
-			expected.Add(
-				DiagnosticResult
-					.CompilerError("CS0619")
+			var expected = new List<DiagnosticResult>
+			{
+				Verify
+					.Diagnostic()
 					.WithSpan(4, 9, 4, 106 + method.Length)
-					.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
-			);
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments(method, "System.NotImplementedException")
+			};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected.ToArray());
-	}
+			if (method == Constants.Asserts.Throws)
+				expected.Add(
+					DiagnosticResult
+						.CompilerError("CS0619")
+						.WithSpan(4, 9, 4, 106 + method.Length)
+						.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+				);
 
-	[Fact]
-	public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
-	{
-		var source = @"
+			await Verify.VerifyAnalyzer(source, expected.ToArray());
+		}
+
+		[Fact]
+		public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
+		{
+			var source = @"
 class TestClass {
     System.Threading.Tasks.Task ThrowingMethod() {
         throw new System.NotImplementedException();
     }
 
     void TestMethod() {
-        Xunit.Assert.Throws<System.NotImplementedException>(ThrowingMethod);
+        Xunit.Assert.Throws<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod);
     }
 }";
-		var expected =
-			Verify
-				.CompilerError("CS0619")
-				.WithSpan(8, 9, 8, 76)
-				.WithMessage($"'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
+			var expected =
+				Verify
+					.CompilerError("CS0619")
+					.WithSpan(8, 9, 8, 118)
+					.WithMessage($"'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
-	}
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 
-	[Fact]
-	public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingMethod()
-	{
-		var source = @"
+		[Fact]
+		public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingMethod()
+		{
+			var source = @"
 class TestClass {
     System.Threading.Tasks.Task ThrowingMethod() {
         throw new System.NotImplementedException();
    }
 
     async System.Threading.Tasks.Task TestMethod() {
-        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>(ThrowingMethod);
+        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod);
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
-	{
-		var source = @"
+		[Fact]
+		public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
+		{
+			var source = @"
 class TestClass {
     void TestMethod() {
         Xunit.Assert.Throws<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
     }
 }";
-		var expected =
-			Verify
-				.CompilerError("CS0619")
-				.WithSpan(4, 9, 4, 104)
-				.WithMessage("'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
+			var expected =
+				Verify
+					.CompilerError("CS0619")
+					.WithSpan(4, 9, 4, 104)
+					.WithMessage("'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
-	}
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 
-	[Fact]
-	public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingLambda()
-	{
-		var source = @"
+		[Fact]
+		public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingLambda()
+		{
+			var source = @"
 class TestClass {
     async System.Threading.Tasks.Task TestMethod() {
         await Xunit.Assert.ThrowsAsync<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+			await Verify.VerifyAnalyzer(source);
+		}
+	}
+
+	public class WithValueTask : AssertThrowsShouldUseGenericOverloadCheckTests
+	{
+		[Theory]
+		[MemberData(nameof(Methods))]
+		public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingMethod(string method)
+		{
+			var source = $@"
+class TestClass {{
+    System.Threading.Tasks.ValueTask ThrowingMethod() {{
+        throw new System.NotImplementedException();
+    }}
+
+    void TestMethod() {{
+        Xunit.Assert.{method}(typeof(System.NotImplementedException), (System.Func<System.Threading.Tasks.ValueTask>)ThrowingMethod);
+    }}
+}}";
+			var expected = new List<DiagnosticResult>
+			{
+				Verify
+					.Diagnostic()
+					.WithSpan(8, 9, 8, 125 + method.Length)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments(method, "System.NotImplementedException"),
+			};
+
+			if (method == Constants.Asserts.Throws)
+				expected.Add(
+					DiagnosticResult
+						.CompilerError("CS0619")
+						.WithSpan(8, 9, 8, 125 + method.Length)
+						.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.ValueTask>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+				);
+
+			await Verify.VerifyAnalyzerV3(source, expected.ToArray());
+		}
+
+		[Theory]
+		[MemberData(nameof(Methods))]
+		public async Task FindsWarning_ForThrowsCheck_WithExceptionParameter_OnThrowingLambda(string method)
+		{
+			var source = $@"
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.{method}(typeof(System.NotImplementedException), () => default(System.Threading.Tasks.ValueTask));
+    }}
+}}";
+			var expected = new List<DiagnosticResult>
+			{
+				Verify
+					.Diagnostic()
+					.WithSpan(4, 9, 4, 111 + method.Length)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments(method, "System.NotImplementedException")
+			};
+
+			if (method == Constants.Asserts.Throws)
+				expected.Add(
+					DiagnosticResult
+						.CompilerError("CS0619")
+						.WithSpan(4, 9, 4, 111 + method.Length)
+						.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.ValueTask>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code.")
+				);
+
+			await Verify.VerifyAnalyzerV3(source, expected.ToArray());
+		}
+
+		[Fact]
+		public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
+		{
+			var source = @"
+class TestClass {
+    System.Threading.Tasks.ValueTask ThrowingMethod() {
+        throw new System.NotImplementedException();
+    }
+
+    void TestMethod() {
+        Xunit.Assert.Throws<System.NotImplementedException>((System.Func<System.Threading.Tasks.ValueTask>)ThrowingMethod);
+    }
+}";
+			var expected =
+				Verify
+					.CompilerError("CS0619")
+					.WithSpan(8, 9, 8, 123)
+					.WithMessage($"'Assert.Throws<T>(Func<ValueTask>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
+
+			await Verify.VerifyAnalyzerV3(source, expected);
+		}
+
+		[Fact]
+		public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingMethod()
+		{
+			var source = @"
+class TestClass {
+    System.Threading.Tasks.ValueTask ThrowingMethod() {
+        throw new System.NotImplementedException();
+   }
+
+    async System.Threading.Tasks.Task TestMethod() {
+        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>((System.Func<System.Threading.Tasks.ValueTask>)ThrowingMethod);
+    }
+}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Fact]
+		public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
+		{
+			var source = @"
+class TestClass {
+    void TestMethod() {
+        Xunit.Assert.Throws<System.NotImplementedException>(() => default(System.Threading.Tasks.ValueTask));
+    }
+}";
+			var expected =
+				Verify
+					.CompilerError("CS0619")
+					.WithSpan(4, 9, 4, 109)
+					.WithMessage("'Assert.Throws<T>(Func<ValueTask>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'");
+
+			await Verify.VerifyAnalyzerV3(source, expected);
+		}
+
+		[Fact]
+		public async void DoesNotFindWarning_ForThrowsAsyncCheck_ValueTask_WithExceptionTypeArgument_OnThrowingLambda()
+		{
+			var source = @"
+class TestClass {
+    async System.Threading.Tasks.Task TestMethod() {
+        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>(() => default(System.Threading.Tasks.ValueTask));
+    }
+}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
 	}
 }

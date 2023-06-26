@@ -28,6 +28,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Fact"));
+		await Verify.VerifyCodeFix(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Fact"));
 	}
 }

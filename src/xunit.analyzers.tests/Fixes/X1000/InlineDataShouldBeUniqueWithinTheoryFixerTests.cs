@@ -26,6 +26,6 @@ public class TestClass {
     public void TestMethod(int x) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
+		await Verify.VerifyCodeFix(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
 	}
 }

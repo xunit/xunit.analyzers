@@ -23,6 +23,6 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

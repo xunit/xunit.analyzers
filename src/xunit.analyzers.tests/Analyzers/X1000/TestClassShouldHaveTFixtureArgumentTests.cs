@@ -29,7 +29,7 @@ public class TestClass: {@interface}<FixtureData> {{
 				.WithSpan(4, 14, 4, 23)
 				.WithArguments("TestClass", "FixtureData");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -48,7 +48,7 @@ public class TestClass: {@interface}<FixtureData> {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -67,6 +67,7 @@ public class TestClass: {@interface}<FixtureData> {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		// This is a v2-only test because of the use of Xunit.Abstractions.ITestOutputHelper
+		await Verify.VerifyAnalyzerV2(source);
 	}
 }

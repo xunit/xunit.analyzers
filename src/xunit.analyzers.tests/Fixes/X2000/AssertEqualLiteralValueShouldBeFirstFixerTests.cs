@@ -32,8 +32,8 @@ public class TestClass {{
 		var after = string.Format(Template, afterAssert);
 
 		if (languageVersion.HasValue)
-			await Verify.VerifyCodeFixAsyncV2(languageVersion.Value, before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
+			await Verify.VerifyCodeFix(languageVersion.Value, before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
 		else
-			await Verify.VerifyCodeFixAsyncV2(before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
+			await Verify.VerifyCodeFix(before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
 	}
 }

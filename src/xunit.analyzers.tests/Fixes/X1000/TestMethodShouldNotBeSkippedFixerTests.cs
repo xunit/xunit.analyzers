@@ -23,6 +23,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
+		await Verify.VerifyCodeFix(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
 	}
 }

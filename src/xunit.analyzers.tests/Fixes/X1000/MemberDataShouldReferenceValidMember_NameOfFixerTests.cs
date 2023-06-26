@@ -33,6 +33,6 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
 	}
 }

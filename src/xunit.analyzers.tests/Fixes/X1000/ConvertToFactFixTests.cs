@@ -24,7 +24,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify_X1003.VerifyCodeFixAsyncV2(before, after, ConvertToFactFix.Key_ConvertToFact);
+		await Verify_X1003.VerifyCodeFix(before, after, ConvertToFactFix.Key_ConvertToFact);
 	}
 
 	[Fact]
@@ -46,6 +46,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify_X1006.VerifyCodeFixAsyncV2(before, after, ConvertToFactFix.Key_ConvertToFact);
+		await Verify_X1006.VerifyCodeFix(before, after, ConvertToFactFix.Key_ConvertToFact);
 	}
 }

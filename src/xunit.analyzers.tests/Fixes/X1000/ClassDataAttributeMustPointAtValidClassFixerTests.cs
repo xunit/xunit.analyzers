@@ -34,7 +34,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -76,7 +76,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -122,7 +122,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -160,6 +160,6 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 }

@@ -13,7 +13,7 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	public static TheoryData<string, string> TypesAndValues = new()
@@ -43,7 +43,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -56,7 +56,7 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -78,7 +78,7 @@ class TestClass {{
 				.WithLocation(5, 9)
 				.WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -95,7 +95,7 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -117,7 +117,7 @@ class TestClass {{
 				.WithLocation(5, 9)
 				.WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -138,6 +138,6 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

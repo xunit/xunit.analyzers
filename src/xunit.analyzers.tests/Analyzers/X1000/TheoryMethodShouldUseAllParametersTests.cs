@@ -21,7 +21,7 @@ class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("TestMethod", "TestClass", "unused");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -45,7 +45,7 @@ class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("TestMethod", "TestClass", "unused");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -77,7 +77,7 @@ class TestClass {
 				.WithArguments("TestMethod", "TestClass", "baz"),
 		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -108,7 +108,7 @@ class TestClass {
 				.WithArguments("TestMethod", "TestClass", "baz"),
 		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -128,7 +128,7 @@ class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("TestMethod", "TestClass", "unused");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -145,7 +145,7 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -165,7 +165,7 @@ class TestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -179,7 +179,7 @@ class TestClass {
     void TestMethod(int used) => Assert.Equal(used, 2 + 2);
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -205,7 +205,7 @@ class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("TestMethod", "TestClass", "_a");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -219,6 +219,6 @@ class TestClass {
     extern void TestMethod(int foo);
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

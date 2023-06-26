@@ -28,7 +28,7 @@ public class TestClass {
     public void TestMethod(int _) { }
 }";
 
-		await Verify_v2_Pre220.VerifyCodeFixAsyncV2(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
+		await Verify_v2_Pre220.VerifyCodeFix(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
 	}
 
 	internal class Analyzer : TheoryMethodCannotHaveDefaultParameter

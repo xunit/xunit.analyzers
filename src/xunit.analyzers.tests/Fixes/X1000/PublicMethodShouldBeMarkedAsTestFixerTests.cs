@@ -37,7 +37,7 @@ public class TestClass {
     public void TestMethod2() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(beforeNoParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact);
+		await Verify.VerifyCodeFix(beforeNoParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact);
 	}
 
 	[Fact]
@@ -54,7 +54,7 @@ public class TestClass {
     public void TestMethod2(int _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(beforeWithParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
+		await Verify.VerifyCodeFix(beforeWithParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
 	}
 
 	[Theory]
@@ -64,6 +64,6 @@ public class TestClass {
 	{
 		var after = before.Replace("public void [|TestMethod2|]", "internal void TestMethod2");
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
+		await Verify.VerifyCodeFix(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
 	}
 }

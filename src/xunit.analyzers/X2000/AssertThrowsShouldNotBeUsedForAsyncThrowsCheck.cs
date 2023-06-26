@@ -30,7 +30,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 			return;
 
 		var throwExpressionSymbol = GetThrowExpressionSymbol(invocationOperation);
-		if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
+		if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context, xunitContext))
 			return;
 
 		var replacement = method.Name + "Async";
@@ -93,18 +93,26 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 
 	static bool ThrowExpressionReturnsTask(
 		ISymbol? symbol,
-		OperationAnalysisContext context)
+		OperationAnalysisContext context,
+		XunitContext xunitContext)
 	{
 		if (symbol?.Kind != SymbolKind.Method)
 			return false;
-
-		var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
 		if (symbol is not IMethodSymbol methodSymbol)
 			return false;
 
 		var returnType = methodSymbol.ReturnType;
+
+		var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
 		if (taskType.IsAssignableFrom(returnType))
 			return true;
+
+		if (xunitContext.HasV3References)
+		{
+			var valueTaskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksValueTask);
+			if (valueTaskType.IsAssignableFrom(returnType))
+				return true;
+		}
 
 		var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
 		if (configuredTaskAwaitableType.IsAssignableFrom(returnType))

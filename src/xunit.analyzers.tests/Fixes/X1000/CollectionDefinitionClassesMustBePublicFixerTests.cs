@@ -17,7 +17,7 @@ public class CollectionDefinitionClassesMustBePublicFixerTests
 [Xunit.CollectionDefinition(""MyCollection"")]
 public class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
+		await Verify.VerifyCodeFix(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
 	}
 
 	[Theory]
@@ -37,6 +37,6 @@ public partial class CollectionDefinitionClass { }
 
 partial class CollectionDefinitionClass { }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
+		await Verify.VerifyCodeFix(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
 	}
 }

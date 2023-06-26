@@ -32,7 +32,7 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2007.VerifyCodeFixAsyncV2(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
+		await Verify_X2007.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
 
 	[Fact]
@@ -64,6 +64,6 @@ public class TestClass {
     }
 }";
 
-		await Verify_X2015.VerifyCodeFixAsyncV2(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
+		await Verify_X2015.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
 }

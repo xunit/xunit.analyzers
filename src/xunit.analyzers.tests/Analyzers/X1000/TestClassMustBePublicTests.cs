@@ -19,7 +19,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -38,7 +38,7 @@ public class TestClass {
 				.Diagnostic()
 				.WithSpan(2, 8 + modifier.Length, 2, 17 + modifier.Length);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -57,7 +57,7 @@ public partial class TestClass {{
     public void Test2() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -76,7 +76,7 @@ public partial class TestClass {
     public void Test2() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 });
+		await Verify.VerifyAnalyzer(new[] { source1, source2 });
 	}
 
 	[Theory]
@@ -103,7 +103,7 @@ public partial class TestClass {
 				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
 				.WithSpan(7, 16 + modifier2.Length, 7, 25 + modifier2.Length);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -130,6 +130,6 @@ public partial class TestClass {
 				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
 				.WithSpan("/0/Test1.cs", 2, 16 + modifier2.Length, 2, 25 + modifier2.Length);
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
 	}
 }

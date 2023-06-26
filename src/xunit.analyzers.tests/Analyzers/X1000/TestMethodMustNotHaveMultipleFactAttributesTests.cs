@@ -14,7 +14,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -31,7 +31,7 @@ public class TestClass {
 				.Diagnostic()
 				.WithSpan(5, 17, 5, 27);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -49,6 +49,6 @@ public class TestClass {
 				.Diagnostic()
 				.WithSpan(5, 17, 5, 27);
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
 	}
 }

@@ -14,8 +14,7 @@ public class NonTestClass {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
-		await Verify.VerifyAnalyzerAsyncV3(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -42,7 +41,7 @@ public class TestClass {{
 				.WithSpan(6, 13 + returnType.Length, 6, 23 + returnType.Length)
 				.WithArguments("void, Task");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expectedV2);
+		await Verify.VerifyAnalyzerV2(source, expectedV2);
 
 		// v3
 		var expectedV3 =
@@ -51,7 +50,7 @@ public class TestClass {{
 				.WithSpan(6, 13 + returnType.Length, 6, 23 + returnType.Length)
 				.WithArguments("void, Task, ValueTask");
 
-		await Verify.VerifyAnalyzerAsyncV3(source, expectedV3);
+		await Verify.VerifyAnalyzerV3(source, expectedV3);
 	}
 
 	[Fact]
@@ -73,8 +72,8 @@ public class TestClass {
 				.Diagnostic()
 				.WithSpan(7, 22, 7, 32)
 				.WithArguments("void, Task");
-		await Verify.VerifyAnalyzerAsyncV2(LanguageVersion.CSharp7, source, expectedV2);
+		await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp7, source, expectedV2);
 
-		await Verify.VerifyAnalyzerAsyncV3(LanguageVersion.CSharp7, source);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
 	}
 }

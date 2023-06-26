@@ -25,6 +25,6 @@ public class TestClass {
     public void TestMethod(int a, int? b) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 }

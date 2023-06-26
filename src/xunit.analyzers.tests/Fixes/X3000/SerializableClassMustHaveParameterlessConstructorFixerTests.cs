@@ -28,7 +28,7 @@ public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
     void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
@@ -51,7 +51,7 @@ public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
     void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
@@ -80,7 +80,7 @@ public class MyTestCase: IXunitSerializable {
     void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
@@ -110,6 +110,6 @@ public class MyTestCase: IXunitSerializable {
     void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 }

@@ -28,7 +28,7 @@ class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("int");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -42,6 +42,6 @@ class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

@@ -39,6 +39,6 @@ public class TestClass {{
     public void TestMethod({valueType} p) {{ }}
 }}";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
 	}
 }

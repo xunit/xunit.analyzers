@@ -29,7 +29,7 @@ public class TestClass {
 				.WithArguments("TestMethod", "TestClass", "TestClass"),
 		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -57,7 +57,7 @@ public static class TestClass {
 				.WithArguments("TestMethod", "TestClass", "TestClass"),
 		};
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -89,7 +89,7 @@ public class BaseClass {
 				.WithArguments("TestMethod", "TestClass", "BaseClass"),
 		};
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
 	}
 
 	[Fact]
@@ -112,7 +112,7 @@ public class BaseClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("TestMethod", "TestClass", "BaseClass");
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
 	}
 
 	[Fact]
@@ -129,6 +129,6 @@ public class TestClass : BaseClass {
     public override void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(new[] { source1, source2 });
+		await Verify.VerifyAnalyzer(new[] { source1, source2 });
 	}
 }

@@ -30,7 +30,7 @@ public class [|TestClass|]: Xunit.IClassFixture<FixtureData> {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
+		await Verify.VerifyCodeFix(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
 	}
 
 	[Fact]
@@ -59,6 +59,6 @@ public class [|TestClass|]: Xunit.IClassFixture<FixtureData<object>> {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
+		await Verify.VerifyCodeFix(before, after, TestClassShouldHaveTFixtureArgumentFixer.Key_GenerateConstructor);
 	}
 }

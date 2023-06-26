@@ -24,7 +24,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
+		await Verify.VerifyCodeFix(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
 	}
 
 	[Fact]
@@ -45,6 +45,6 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
+		await Verify.VerifyCodeFix(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
 	}
 }

@@ -28,6 +28,6 @@ public class TestClass {{
 		var before = string.Format(template, beforeAssert);
 		var after = string.Format(template, afterAssert);
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertEqualShouldNotBeUsedForCollectionSizeCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertEqualShouldNotBeUsedForCollectionSizeCheckFixer.Key_UseAlternateAssert);
 	}
 }

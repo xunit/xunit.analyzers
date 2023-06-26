@@ -27,7 +27,7 @@ public class Foo : {0}
 	{
 		var source = string.Format(Template, @interface, "");
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzerV2(source);
 	}
 
 	[Theory]
@@ -41,7 +41,7 @@ public class Foo : {0}
 				.WithSpan(5, 14, 5, 17)
 				.WithArguments("Foo");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzerV2(source, expected);
 	}
 
 	[Theory]
@@ -55,7 +55,7 @@ public class Foo : {0}
 				.WithSpan(5, 14, 5, 17)
 				.WithArguments("Foo");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzerV2(source, expected);
 	}
 
 	[Theory]
@@ -64,7 +64,7 @@ public class Foo : {0}
 	{
 		var source = string.Format(Template, @interface, "public Foo() { }");
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzerV2(source);
 	}
 
 	public class Analyzer : SerializableClassMustHaveParameterlessConstructor

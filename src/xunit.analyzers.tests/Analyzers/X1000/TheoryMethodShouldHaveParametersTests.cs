@@ -12,7 +12,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -24,7 +24,7 @@ public class TestClass {
     public void TestMethod(string s) { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -40,6 +40,6 @@ class TestClass {
 				.Diagnostic()
 				.WithSpan(4, 17, 4, 27);
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 }

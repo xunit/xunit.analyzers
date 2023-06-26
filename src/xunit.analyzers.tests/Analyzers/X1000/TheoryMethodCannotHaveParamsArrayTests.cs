@@ -23,7 +23,7 @@ class TestClass {
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("TestMethod", "TestClass", "c");
 
-		await Verify_v2_Pre220.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify_v2_Pre220.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -35,7 +35,7 @@ class TestClass {
     public void TestMethod(int a, string b, params string[] c) { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -47,7 +47,7 @@ class TestClass {
     public void TestMethod(int a, string b, string[] c) { }
 }";
 
-		await Verify_v2_Pre220.VerifyAnalyzerAsyncV2(source);
+		await Verify_v2_Pre220.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -59,7 +59,7 @@ class TestClass {
     public void TestMethod(int a, string b, string[] c) { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	internal class Analyzer_v2_Pre220 : TheoryMethodCannotHaveParamsArray

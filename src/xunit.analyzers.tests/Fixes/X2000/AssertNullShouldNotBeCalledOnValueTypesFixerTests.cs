@@ -28,7 +28,7 @@ public class Tests {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
+		await Verify.VerifyCodeFix(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
 	}
 
 	[Fact]
@@ -69,6 +69,6 @@ namespace XUnitTestProject1 {
     }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
+		await Verify.VerifyCodeFix(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
 	}
 }

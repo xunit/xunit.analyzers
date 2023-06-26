@@ -31,6 +31,6 @@ public class TestClass {{
 		var before = string.Format(template, beforeAssert);
 		var after = string.Format(template, afterAssert);
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, AssertSubstringCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertSubstringCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
 	}
 }

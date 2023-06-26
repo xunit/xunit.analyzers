@@ -12,7 +12,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
@@ -26,7 +26,7 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -40,7 +40,7 @@ public class TestClass: System.IDisposable {
     public void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -54,7 +54,7 @@ public abstract class TestClass {
     public abstract void AbstractMethod();
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -69,7 +69,7 @@ public abstract class TestClass {
     public abstract void AbstractMethod();
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -87,7 +87,7 @@ public class TestClass: BaseClass {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -105,7 +105,7 @@ public class TestClass: BaseClass, System.IDisposable {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -125,11 +125,11 @@ public class TestClass: IntermediateClass {
     public override void Dispose() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIAsyncLifetimeMethods()
+	public async void DoesNotFindErrorForIAsyncLifetimeMethods_V2()
 	{
 		var source = @"
 public class TestClass: Xunit.IAsyncLifetime {
@@ -147,7 +147,29 @@ public class TestClass: Xunit.IAsyncLifetime {
     }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzerV2(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindErrorForIAsyncLifetimeMethods_V3()
+	{
+		var source = @"
+public class TestClass: Xunit.IAsyncLifetime {
+    [Xunit.Fact]
+    public void TestMethod() { }
+
+    public System.Threading.Tasks.ValueTask DisposeAsync()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public System.Threading.Tasks.ValueTask InitializeAsync()
+    {
+        throw new System.NotImplementedException();
+    }
+}";
+
+		await Verify.VerifyAnalyzerV3(source);
 	}
 
 	[Fact]
@@ -167,7 +189,7 @@ public class TestClass {
     public void CustomTestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzerAsyncV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -195,7 +217,7 @@ public class TestClass {
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("CustomTestMethod", "TestClass", "Fact");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -217,7 +239,7 @@ public class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("Method", "TestClass", "Fact");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -239,7 +261,7 @@ public class TestClass {{
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("Method", "TestClass", "Theory");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
@@ -260,6 +282,6 @@ public class TestClass {{
 				.WithSpan(6, 26, 6, 32)
 				.WithMessage("'TestClass.Method()': no suitable method found to override");
 
-		await Verify.VerifyAnalyzerAsyncV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 }

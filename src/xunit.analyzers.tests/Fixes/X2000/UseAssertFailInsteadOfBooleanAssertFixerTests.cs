@@ -22,6 +22,6 @@ public class TestClass {{
 		var before = string.Format(template, badAssert);
 		var after = string.Format(template, @"Assert.Fail(""message"")");
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
+		await Verify.VerifyCodeFix(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
 	}
 }

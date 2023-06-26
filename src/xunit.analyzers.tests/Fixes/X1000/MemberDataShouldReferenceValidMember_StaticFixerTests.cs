@@ -31,6 +31,6 @@ public class TestClass {
     public void TestMethod(int x) { }
 }";
 
-		await Verify.VerifyCodeFixAsyncV2(before, after, MemberDataShouldReferenceValidMember_StaticFixer.Key_MakeMemberStatic);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_StaticFixer.Key_MakeMemberStatic);
 	}
 }

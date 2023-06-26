@@ -29,7 +29,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify_X1022.VerifyCodeFixAsyncV2(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
+		await Verify_X1022.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
 	}
 
 	[Fact]
@@ -53,7 +53,7 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify_X1026.VerifyCodeFixAsyncV2(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
+		await Verify_X1026.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
 	}
 
 	[Fact]
@@ -100,7 +100,7 @@ public class TestClass {
 				.WithMessage("Type expected"),
 		};
 
-		await Verify_X1026.VerifyCodeFixAsyncV2(before, after, RemoveMethodParameterFix.Key_RemoveParameter, expected);
+		await Verify_X1026.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter, expected);
 	}
 
 	internal class Analyzer_X1022 : TheoryMethodCannotHaveParamsArray
