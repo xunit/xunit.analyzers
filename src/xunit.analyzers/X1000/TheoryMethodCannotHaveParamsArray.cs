@@ -14,7 +14,9 @@ public class TheoryMethodCannotHaveParamsArray : XunitDiagnosticAnalyzer
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
 		!xunitContext.Core.TheorySupportsParameterArrays;
 
-	public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+	public override void AnalyzeCompilation(
+		CompilationStartAnalysisContext context,
+		XunitContext xunitContext)
 	{
 		context.RegisterSymbolAction(context =>
 		{
