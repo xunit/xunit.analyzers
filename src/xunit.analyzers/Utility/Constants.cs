@@ -108,6 +108,7 @@ public static class Constants
 		public const string XunitIClassFixtureFixture = "Xunit.IClassFixture`1";
 		public const string XunitICollectionFixtureFixture = "Xunit.ICollectionFixture`1";
 		public const string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
+		public const string XunitITheoryDataRow = "Xunit.ITheoryDataRow";
 		public const string XunitLongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
 		public const string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
 		public const string XunitTheoryAttribute = "Xunit.TheoryAttribute";

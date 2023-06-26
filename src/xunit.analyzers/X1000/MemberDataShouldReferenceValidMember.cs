@@ -30,8 +30,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	{
 		var compilation = context.Compilation;
 
-		var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
-
 		var supportsNameofOperator =
 			compilation is CSharpCompilation cSharpCompilation
 			&& cSharpCompilation.LanguageVersion >= LanguageVersion.CSharp6;
@@ -118,8 +116,21 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					_ => null,
 				};
 
-				if (memberType is not null && !iEnumerableOfObjectArrayType.IsAssignableFrom(memberType))
-					ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, attribute, memberProperties, memberType);
+				if (memberType is not null)
+				{
+					var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+					var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+					var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
+
+					if (!valid && xunitContext.HasV3References)
+					{
+						if (iEnumerableOfTheoryDataRowType is not null)
+							valid = iEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
+					}
+
+					if (!valid)
+						ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attribute, memberProperties, memberType);
+				}
 
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
 					if (memberSymbol is IPropertySymbol propertySymbol)
@@ -212,18 +223,26 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	static void ReportIncorrectReturnType(
 		SyntaxNodeAnalysisContext context,
 		INamedTypeSymbol iEnumerableOfObjectArrayType,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
 		AttributeSyntax attribute,
 		ImmutableDictionary<string, string?> memberProperties,
-		ITypeSymbol memberType) =>
-			context.ReportDiagnostic(
-				Diagnostic.Create(
-					Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
-					attribute.GetLocation(),
-					memberProperties,
-					SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType),
-					SymbolDisplay.ToDisplayString(memberType)
-				)
-			);
+		ITypeSymbol memberType)
+	{
+		var validSymbols = "'" + SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType) + "'";
+
+		if (iEnumerableOfTheoryDataRowType is not null)
+			validSymbols += " or '" + SymbolDisplay.ToDisplayString(iEnumerableOfTheoryDataRowType) + "'";
+
+		context.ReportDiagnostic(
+			Diagnostic.Create(
+				Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
+				attribute.GetLocation(),
+				memberProperties,
+				validSymbols,
+				SymbolDisplay.ToDisplayString(memberType)
+			)
+		);
+	}
 
 	static void ReportMissingMember(
 		SyntaxNodeAnalysisContext context,

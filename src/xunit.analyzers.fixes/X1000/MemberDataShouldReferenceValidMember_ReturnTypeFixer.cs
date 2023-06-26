@@ -9,7 +9,8 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : BatchedMemberFixProvider
 {
-	public const string Key_ChangeMemberReturnType = "xUnit1019_ChangeMemberReturnType";
+	public const string Key_ChangeMemberReturnType_ObjectArray = "xUnit1019_ChangeMemberReturnType_ObjectArray";
+	public const string Key_ChangeMemberReturnType_ITheoryDataRow = "xUnit1019_ChangeMemberReturnType_ITheoryDataRow";
 
 	public MemberDataShouldReferenceValidMember_ReturnTypeFixer() :
 		base(Descriptors.X1019_MemberDataMustReferenceMemberOfValidType.Id)
@@ -23,15 +24,27 @@ public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : Batch
 		if (semanticModel is null)
 			return;
 
-		var type = TypeSymbolFactory.IEnumerableOfObjectArray(semanticModel.Compilation);
+		var objectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(semanticModel.Compilation);
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				"Change return type to IEnumerable<object[]>",
-				ct => context.Document.Project.Solution.ChangeMemberType(member, type, ct),
-				Key_ChangeMemberReturnType
+				ct => context.Document.Project.Solution.ChangeMemberType(member, objectArrayType, ct),
+				Key_ChangeMemberReturnType_ObjectArray
 			),
 			context.Diagnostics
 		);
+
+		var theoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(semanticModel.Compilation);
+
+		if (theoryDataRowType is not null)
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					"Change return type to IEnumerable<ITheoryDataRow>",
+					ct => context.Document.Project.Solution.ChangeMemberType(member, theoryDataRowType, ct),
+					Key_ChangeMemberReturnType_ITheoryDataRow
+				),
+				context.Diagnostics
+			);
 	}
 }

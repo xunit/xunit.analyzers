@@ -13,6 +13,16 @@ public class TypeSymbolFactory
 		return iEnumerableOfObjectArray;
 	}
 
+	public static INamedTypeSymbol? IEnumerableOfITheoryDataRow(Compilation compilation)
+	{
+		var iTheoryDataRow = compilation.GetTypeByMetadataName(Constants.Types.XunitITheoryDataRow);
+		if (iTheoryDataRow is null)
+			return null;
+
+		var iEnumerableOfT = compilation.GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
+		return iEnumerableOfT.Construct(iTheoryDataRow);
+	}
+
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute);
 

@@ -212,7 +212,7 @@ public static class Descriptors
 			"MemberData must reference a member providing a valid data type",
 			Usage,
 			Error,
-			"MemberData must reference a data type assignable to '{0}'. The referenced type '{1}' is not valid."
+			"MemberData must reference a data type assignable to {0}. The referenced type '{1}' is not valid."
 		);
 
 	public static DiagnosticDescriptor X1020_MemberDataPropertyMustHaveGetter { get; } =

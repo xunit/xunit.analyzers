@@ -306,14 +306,23 @@ public class TestClass {{
     [Xunit.MemberData(nameof(Data))]
     public void TestMethod() {{ }}
 }}";
-		var expected =
+		var expectedV2 =
 			Verify
 				.Diagnostic("xUnit1019")
 				.WithSpan(5, 6, 5, 36)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("System.Collections.Generic.IEnumerable<object[]>", memberType);
+				.WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzerV2(source, expectedV2);
+
+		var expectedV3 =
+			Verify
+				.Diagnostic("xUnit1019")
+				.WithSpan(5, 6, 5, 36)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments("'System.Collections.Generic.IEnumerable<object[]>' or 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>'", memberType);
+
+		await Verify.VerifyAnalyzerV3(source, expectedV3);
 	}
 
 	[Theory]
@@ -331,6 +340,32 @@ public class TestClass {{
 }}";
 
 		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindError_ForITheoryDataRow_V3()
+	{
+		var source = @"
+using System.Collections.Generic;
+using Xunit;
+using Xunit.Sdk;
+
+public class TestClass
+{
+    [Theory]
+    [MemberData(nameof(DataRowSource))]
+    public void SkippedDataRow(int x, string y)
+    { }
+
+    public static List<TheoryDataRow> DataRowSource() =>
+        new List<TheoryDataRow>()
+        {
+            new TheoryDataRow(42, ""Hello, world!""),
+            new TheoryDataRow(0, null) { Skip = ""Don't run this!"" },
+        };
+}";
+
+		await Verify.VerifyAnalyzerV3(source);
 	}
 
 	[Fact]
