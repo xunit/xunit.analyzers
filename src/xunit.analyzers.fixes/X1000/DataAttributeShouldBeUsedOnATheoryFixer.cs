@@ -44,7 +44,7 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 				Key_RemoveDataAttributes,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				Constants.Types.XunitSdkDataAttribute
+				Constants.Types.Xunit.Sdk.DataAttribute
 			),
 			context.Diagnostics
 		);
@@ -59,7 +59,7 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 
 		editor.ReplaceNode(
 			methodDeclaration,
-			(node, generator) => generator.InsertAttributes(node, 0, generator.Attribute(Constants.Types.XunitTheoryAttribute))
+			(node, generator) => generator.InsertAttributes(node, 0, generator.Attribute(Constants.Types.Xunit.TheoryAttribute))
 		);
 
 		return editor.GetChangedDocument();

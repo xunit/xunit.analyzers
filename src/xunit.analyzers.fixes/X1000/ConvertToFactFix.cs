@@ -34,8 +34,8 @@ public class ConvertToFactFix : BatchedCodeFixProvider
 				Key_ConvertToFact,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				fromTypeName: Constants.Types.XunitTheoryAttribute,
-				toTypeName: Constants.Types.XunitFactAttribute
+				fromTypeName: Constants.Types.Xunit.TheoryAttribute,
+				toTypeName: Constants.Types.Xunit.FactAttribute
 			),
 			context.Diagnostics
 		);

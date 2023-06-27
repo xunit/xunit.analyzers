@@ -31,7 +31,7 @@ public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
-		var assertType = context.Compilation.GetTypeByMetadataName(Constants.Types.XunitAssert);
+		var assertType = TypeSymbolFactory.Assert(context.Compilation);
 		if (assertType is null)
 			return;
 

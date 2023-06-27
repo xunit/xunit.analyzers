@@ -35,7 +35,7 @@ public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					"Add [Theory]",
-					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.XunitTheoryAttribute, ct),
+					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.Xunit.TheoryAttribute, ct),
 					Key_ConvertToTheory
 				),
 				context.Diagnostics
@@ -45,7 +45,7 @@ public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
 			context.RegisterCodeFix(
 				CodeAction.Create(
 					"Add [Fact]",
-					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.XunitFactAttribute, ct),
+					ct => AddAttribute(context.Document, methodDeclaration, Constants.Types.Xunit.FactAttribute, ct),
 					Key_ConvertToFact
 				),
 				context.Diagnostics

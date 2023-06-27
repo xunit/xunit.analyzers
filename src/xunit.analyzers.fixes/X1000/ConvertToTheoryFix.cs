@@ -34,8 +34,8 @@ public class ConvertToTheoryFix : BatchedCodeFixProvider
 				Key_ConvertToTheory,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				fromTypeName: Constants.Types.XunitFactAttribute,
-				toTypeName: Constants.Types.XunitTheoryAttribute
+				fromTypeName: Constants.Types.Xunit.FactAttribute,
+				toTypeName: Constants.Types.Xunit.TheoryAttribute
 			),
 			context.Diagnostics
 		);

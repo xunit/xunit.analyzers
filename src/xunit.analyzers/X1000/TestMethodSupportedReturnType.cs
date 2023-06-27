@@ -63,11 +63,11 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 				result!.Add(symbol);
 		}
 
-		Add(compilation.GetTypeByMetadataName(Constants.Types.SystemVoid));
-		Add(compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask));
+		Add(TypeSymbolFactory.Void(compilation));
+		Add(TypeSymbolFactory.Task(compilation));
 
 		if (xunitContext.HasV3References)
-			Add(compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksValueTask));
+			Add(TypeSymbolFactory.ValueTask(compilation));
 
 		return result;
 	}

@@ -65,7 +65,7 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 
 			if (semanticModel is not null && param.Type is not null)
 			{
-				var nullableT = semanticModel.Compilation.GetSpecialType(SpecialType.System_Nullable_T);
+				var nullableT = TypeSymbolFactory.NullableOfT(semanticModel.Compilation);
 				var paramTypeSymbol = semanticModel.GetTypeInfo(param.Type, cancellationToken).Type;
 
 				if (paramTypeSymbol is not null)

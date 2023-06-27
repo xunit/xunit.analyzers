@@ -40,7 +40,7 @@ public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProv
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				"Set Base Type",
-				ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.XunitLongLivedMarshalByRefObject, ct),
+				ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.Xunit.LongLivedMarshalByRefObject, ct),
 				Key_SetBaseType
 			),
 			context.Diagnostics

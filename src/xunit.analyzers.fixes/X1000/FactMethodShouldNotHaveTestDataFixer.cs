@@ -31,7 +31,7 @@ public class FactMethodShouldNotHaveTestDataFixer : BatchedCodeFixProvider
 				Key_RemoveDataAttributes,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				Constants.Types.XunitSdkDataAttribute
+				Constants.Types.Xunit.Sdk.DataAttribute
 			),
 			context.Diagnostics
 		);

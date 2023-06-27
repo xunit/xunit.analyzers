@@ -30,7 +30,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 		var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 		var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 		var compilation = context.Compilation;
-		INamedTypeSymbol? systemRuntimeInteropServicesOptionalAttribute = compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeInteropServicesOptionalAttribute);
+		INamedTypeSymbol? systemRuntimeInteropServicesOptionalAttribute = TypeSymbolFactory.OptionalAttribute(compilation);
 		var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
 		context.RegisterSymbolAction(context =>

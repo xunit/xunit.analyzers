@@ -84,7 +84,7 @@ public class AssertCollectionContainsShouldNotUseBoolCheck : AssertUsageAnalyzer
 		IMethodSymbol methodSymbol)
 	{
 		var containingType = methodSymbol.ContainingType;
-		var genericCollectionType = containingType.GetGenericInterfaceImplementation(context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T));
+		var genericCollectionType = containingType.GetGenericInterfaceImplementation(TypeSymbolFactory.ICollectionOfT(context.Compilation));
 
 		if (genericCollectionType is null)
 			return false;

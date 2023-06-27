@@ -17,7 +17,7 @@ public class V2ExecutionContext
 		Platform = platform;
 		Version = version;
 
-		lazyLongLivedMarshalByRefObjectType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitLongLivedMarshalByRefObject));
+		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject(compilation));
 	}
 
 	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>

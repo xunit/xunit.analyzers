@@ -16,12 +16,12 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
-		var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
-		var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
+		var taskType = TypeSymbolFactory.Task(context.Compilation);
+		var configuredTaskAwaitableType = TypeSymbolFactory.ConfiguredTaskAwaitable(context.Compilation);
 		var interfacesToIgnore = new List<INamedTypeSymbol?>
 		{
-			context.Compilation.GetSpecialType(SpecialType.System_IDisposable),
-			context.Compilation.GetTypeByMetadataName(Constants.Types.XunitIAsyncLifetime),
+			TypeSymbolFactory.IDisposable(context.Compilation),
+			TypeSymbolFactory.IAsyncLifetime(context.Compilation),
 		};
 
 		context.RegisterSymbolAction(context =>

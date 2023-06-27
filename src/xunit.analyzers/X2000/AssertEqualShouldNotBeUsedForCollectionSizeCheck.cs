@@ -118,36 +118,17 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 	static bool IsICollectionCountProperty(
 		OperationAnalysisContext context,
 		ISymbol symbol) =>
-			IsCountPropertyOf(
-				context.Compilation.GetTypeByMetadataName(Constants.Types.SystemCollectionsICollection),
-				symbol
-			);
+			IsCountPropertyOf(TypeSymbolFactory.ICollection(context.Compilation), symbol);
 
 	static bool IsICollectionOfTCountProperty(
 		OperationAnalysisContext context,
 		ISymbol symbol) =>
-			IsCountPropertyOfGenericType(
-				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T),
-				symbol
-			);
+			IsCountPropertyOfGenericType(TypeSymbolFactory.ICollectionOfT(context.Compilation), symbol);
 
 	static bool IsIReadOnlyCollectionOfTCountProperty(
 		OperationAnalysisContext context,
 		ISymbol symbol) =>
-			IsCountPropertyOfGenericType(
-				context.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T),
-				symbol
-			);
-
-	static bool IsCountPropertyOfGenericType(
-		INamedTypeSymbol openCollectionType,
-		ISymbol symbol)
-	{
-		var containingType = symbol.ContainingType;
-		var concreteCollectionType = containingType.GetGenericInterfaceImplementation(openCollectionType);
-
-		return concreteCollectionType is not null && IsCountPropertyOf(concreteCollectionType, symbol);
-	}
+			IsCountPropertyOfGenericType(TypeSymbolFactory.IReadOnlyCollectionOfT(context.Compilation), symbol);
 
 	static bool IsCountPropertyOf(
 		INamedTypeSymbol? collectionType,
@@ -165,5 +146,15 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
 
 		return SymbolEqualityComparer.Default.Equals(countSymbolImplementation, memberSymbol);
+	}
+
+	static bool IsCountPropertyOfGenericType(
+		INamedTypeSymbol openCollectionType,
+		ISymbol symbol)
+	{
+		var containingType = symbol.ContainingType;
+		var concreteCollectionType = containingType.GetGenericInterfaceImplementation(openCollectionType);
+
+		return concreteCollectionType is not null && IsCountPropertyOf(concreteCollectionType, symbol);
 	}
 }

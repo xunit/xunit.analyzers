@@ -104,7 +104,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 			return null;
 
 		var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
-		var taskType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Task).FullName!);
+		var taskType = TypeSymbolFactory.Task(semanticModel.Compilation);
 		if (taskType is null)
 			return null;
 

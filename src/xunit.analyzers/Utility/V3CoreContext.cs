@@ -22,15 +22,15 @@ public class V3CoreContext : ICoreContext
 	{
 		Version = version;
 
-		lazyClassDataAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitClassDataAttribute));
-		lazyCollectionDefinitionAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitCollectionDefinitionAttribute));
-		lazyDataAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitSdkDataAttribute));
-		lazyFactAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitFactAttribute));
-		lazyIClassFixtureType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitIClassFixtureFixture));
-		lazyICollectionFixtureType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitICollectionFixtureFixture));
-		lazyInlineDataAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitInlineDataAttribute));
-		lazyMemberDataAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitMemberDataAttribute));
-		lazyTheoryAttributeType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitTheoryAttribute));
+		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
+		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
+		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute(compilation));
+		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
+		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
+		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
+		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
+		lazyMemberDataAttributeType = new(() => TypeSymbolFactory.MemberDataAttribute(compilation));
+		lazyTheoryAttributeType = new(() => TypeSymbolFactory.TheoryAttribute(compilation));
 	}
 
 	public INamedTypeSymbol? ClassDataAttributeType =>

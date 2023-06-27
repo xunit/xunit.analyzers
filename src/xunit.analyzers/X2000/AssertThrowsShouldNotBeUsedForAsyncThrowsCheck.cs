@@ -103,18 +103,18 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 
 		var returnType = methodSymbol.ReturnType;
 
-		var taskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksTask);
+		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		if (taskType.IsAssignableFrom(returnType))
 			return true;
 
 		if (xunitContext.HasV3References)
 		{
-			var valueTaskType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemThreadingTasksValueTask);
+			var valueTaskType = TypeSymbolFactory.ValueTask(context.Compilation);
 			if (valueTaskType.IsAssignableFrom(returnType))
 				return true;
 		}
 
-		var configuredTaskAwaitableType = context.Compilation.GetTypeByMetadataName(Constants.Types.SystemRuntimeCompilerServicesConfiguredTaskAwaitable);
+		var configuredTaskAwaitableType = TypeSymbolFactory.ConfiguredTaskAwaitable(context.Compilation);
 		if (configuredTaskAwaitableType.IsAssignableFrom(returnType))
 			return true;
 

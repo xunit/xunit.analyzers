@@ -60,7 +60,7 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 
 		if (parameterlessCtor is null)
 		{
-			var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
+			var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
 			var newCtor = generator.ConstructorDeclaration();
 			newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
 			newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
@@ -74,11 +74,11 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 				parameterlessCtor
 					.AttributeLists
 					.SelectMany(al => al.Attributes)
-					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.SystemObsoleteAttribute);
+					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.System.ObsoleteAttribute);
 
 			if (!hasObsolete)
 			{
-				var obsoleteAttribute = generator.Attribute(Constants.Types.SystemObsoleteAttribute, obsoleteText);
+				var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
 				updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
 			}
 

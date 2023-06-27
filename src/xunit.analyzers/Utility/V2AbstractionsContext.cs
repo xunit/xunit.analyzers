@@ -15,8 +15,8 @@ public class V2AbstractionsContext
 	{
 		Version = version;
 
-		lazyITestCaseType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitAbstractionsITestCase));
-		lazyIXunitSerializableType = new(() => compilation.GetTypeByMetadataName(Constants.Types.XunitAbstractionsIXunitSerializableType));
+		lazyITestCaseType = new(() => TypeSymbolFactory.ITestCase(compilation));
+		lazyIXunitSerializableType = new(() => TypeSymbolFactory.IXunitSerializable(compilation));
 	}
 
 	public INamedTypeSymbol? ITestCaseType =>

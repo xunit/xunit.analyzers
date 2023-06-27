@@ -99,34 +99,21 @@ public static class Constants
 	/// </summary>
 	public static class Types
 	{
-		// Xunit
-		public const string XunitAssert = "Xunit.Assert";
-		public const string XunitClassDataAttribute = "Xunit.ClassDataAttribute";
-		public const string XunitCollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
-		public const string XunitFactAttribute = "Xunit.FactAttribute";
-		public const string XunitIAsyncLifetime = "Xunit.IAsyncLifetime";
-		public const string XunitIClassFixtureFixture = "Xunit.IClassFixture`1";
-		public const string XunitICollectionFixtureFixture = "Xunit.ICollectionFixture`1";
-		public const string XunitInlineDataAttribute = "Xunit.InlineDataAttribute";
-		public const string XunitITheoryDataRow = "Xunit.ITheoryDataRow";
-		public const string XunitLongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
-		public const string XunitMemberDataAttribute = "Xunit.MemberDataAttribute";
-		public const string XunitTheoryAttribute = "Xunit.TheoryAttribute";
+		public static class System
+		{
+			public const string ObsoleteAttribute = "System.ObsoleteAttribute";
+		}
 
-		// Xunit.Abstractions
-		public const string XunitAbstractionsITestCase = "Xunit.Abstractions.ITestCase";
-		public const string XunitAbstractionsIXunitSerializableType = "Xunit.Abstractions.IXunitSerializable";
+		public static class Xunit
+		{
+			public const string FactAttribute = "Xunit.FactAttribute";
+			public const string LongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
+			public const string TheoryAttribute = "Xunit.TheoryAttribute";
 
-		// Xunit.Sdk
-		public const string XunitSdkDataAttribute = "Xunit.Sdk.DataAttribute";
-
-		// .NET types
-		public const string SystemCollectionsICollection = "System.Collections.ICollection";
-		public const string SystemObsoleteAttribute = "System.ObsoleteAttribute";
-		public const string SystemRuntimeCompilerServicesConfiguredTaskAwaitable = "System.Runtime.CompilerServices.ConfiguredTaskAwaitable";
-		public const string SystemRuntimeInteropServicesOptionalAttribute = "System.Runtime.InteropServices.OptionalAttribute";
-		public const string SystemThreadingTasksTask = "System.Threading.Tasks.Task";
-		public const string SystemThreadingTasksValueTask = "System.Threading.Tasks.ValueTask";
-		public const string SystemVoid = "System.Void";
+			public static class Sdk
+			{
+				public const string DataAttribute = "Xunit.Sdk.DataAttribute";
+			}
+		}
 	}
 }
