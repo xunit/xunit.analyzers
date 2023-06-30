@@ -267,6 +267,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 			// Rules of last resort
 			return conversion.IsImplicit
 				|| conversion.IsUnboxing
+				|| (conversion.IsExplicit && conversion.IsUserDefined)
 				|| (conversion.IsExplicit && conversion.IsNullable);
 		}
 

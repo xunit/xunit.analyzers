@@ -1130,6 +1130,51 @@ public class TestClass
 }}";
 		}
 
+		public class UserDefinedConversionOperators : X1010_IncompatibleValueType
+		{
+			[Fact]
+			public async void SupportsImplicitConversion()
+			{
+				var source = @"
+using Xunit;
+
+public class TestClass {
+    [Theory]
+    [InlineData(""abc"")]
+    public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal(""abc"", i.Value);
+
+    public class Implicit {
+        public string Value { get; set; }
+        public static implicit operator Implicit(string value) => new Implicit() { Value = value };
+        public static implicit operator string(Implicit i) => i.Value;
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SupportsExplicitConversion()
+			{
+				var source = @"
+using Xunit;
+
+public class TestClass {
+    [Theory]
+    [InlineData(""abc"")]
+    public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal(""abc"", i.Value);
+
+    public class Explicit {
+        public string Value { get; set; }
+        public static explicit operator Explicit(string value) => new Explicit() { Value = value };
+        public static explicit operator string(Explicit i) => i.Value;
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+		}
+
 		// Note: decimal literal 42M is not valid as an attribute argument
 
 		public static TheoryData<string> BoolValues = new()
