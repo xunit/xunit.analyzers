@@ -34,6 +34,13 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 		{ "System.Linq.Enumerable.Empty<int>().Count()", 354 },
 	};
 
+	public static TheoryData<string> CollectionInterfaces = new()
+	{
+		"ICollection",
+		"ICollection<string>",
+		"IReadOnlyCollection<string>",
+	};
+
 	[Theory]
 	[MemberData(nameof(CollectionsWithExceptionThrowingGetEnumeratorMethod))]
 	public async void DoesNotFindWarningForCollectionsWithExceptionThrowingGetEnumeratorMethod(string collection)
@@ -68,6 +75,54 @@ class TestClass {{
 				.WithSpan(6, 9, 6, 32 + collection.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("Assert.Equal()", Constants.Asserts.Empty);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(CollectionInterfaces))]
+	public async void FindsWarningForCollectionInterface_Empty(string @interface)
+	{
+		var source = $@"
+using System.Collections;
+using System.Collections.Generic;
+
+class TestClass {{
+    void TestMethod() {{
+        {@interface} collection = null;
+        Xunit.Assert.Equal(0, collection.Count);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(8, 9, 8, 48)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.Equal()", Constants.Asserts.Empty);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(CollectionInterfaces))]
+	public async void FindsWarningForCollectionInterface_Single(string @interface)
+	{
+		var source = $@"
+using System.Collections;
+using System.Collections.Generic;
+
+class TestClass {{
+    void TestMethod() {{
+        {@interface} collection = null;
+        Xunit.Assert.Equal(1, collection.Count);
+    }}
+}}";
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(8, 9, 8, 48)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

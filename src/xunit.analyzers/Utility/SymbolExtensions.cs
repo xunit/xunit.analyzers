@@ -30,8 +30,13 @@ public static class SymbolExtensions
 
 	public static INamedTypeSymbol? GetGenericInterfaceImplementation(
 		this ITypeSymbol implementingType,
-		INamedTypeSymbol openInterfaceType) =>
-			implementingType.AllInterfaces.FirstOrDefault(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterfaceType));
+		INamedTypeSymbol openInterfaceType)
+	{
+		if (SymbolEqualityComparer.Default.Equals(implementingType.OriginalDefinition, openInterfaceType))
+			return implementingType as INamedTypeSymbol;
+
+		return implementingType.AllInterfaces.FirstOrDefault(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, openInterfaceType));
+	}
 
 	public static ISymbol? GetMember(
 		this INamespaceOrTypeSymbol namespaceOrType,

@@ -143,6 +143,9 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		if (countSymbol == null)
 			return false;
 
+		if (SymbolEqualityComparer.Default.Equals(countSymbol, symbol))
+			return true;
+
 		var countSymbolImplementation = containingType.FindImplementationForInterfaceMember(countSymbol);
 
 		return SymbolEqualityComparer.Default.Equals(countSymbolImplementation, memberSymbol);
