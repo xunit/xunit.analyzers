@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,8 +9,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1028_TestMethodHasInvalidReturnType);
+	public TestMethodSupportedReturnType() :
+		base(Descriptors.X1028_TestMethodHasInvalidReturnType)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

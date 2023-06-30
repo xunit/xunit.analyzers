@@ -8,8 +8,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TestCaseMustBeLongLivedMarshalByRefObject : XunitV2DiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject);
+	public TestCaseMustBeLongLivedMarshalByRefObject() :
+		base(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

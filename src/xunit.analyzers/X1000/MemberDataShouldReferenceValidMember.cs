@@ -12,8 +12,8 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(
+	public MemberDataShouldReferenceValidMember() :
+		base(
 			Descriptors.X1014_MemberDataShouldUseNameOfOperator,
 			Descriptors.X1015_MemberDataMustReferenceExistingMember,
 			Descriptors.X1016_MemberDataMustReferencePublicMember,
@@ -22,7 +22,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 			Descriptors.X1020_MemberDataPropertyMustHaveGetter,
 			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters
-		);
+		)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

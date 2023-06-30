@@ -12,13 +12,14 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(
+	public InlineDataMustMatchTheoryParameters() :
+		base(
 			Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues,
 			Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
 			Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
 			Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter
-		);
+		)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

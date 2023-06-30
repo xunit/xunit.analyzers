@@ -8,8 +8,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TestClassShouldHaveTFixtureArgument : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1033_TestClassShouldHaveTFixtureArgument);
+	public TestClassShouldHaveTFixtureArgument() :
+		base(Descriptors.X1033_TestClassShouldHaveTFixtureArgument)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

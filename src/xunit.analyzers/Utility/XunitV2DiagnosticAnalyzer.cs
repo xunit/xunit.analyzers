@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace Xunit.Analyzers;
 
 /// <summary>
@@ -5,6 +7,10 @@ namespace Xunit.Analyzers;
 /// </summary>
 public abstract class XunitV2DiagnosticAnalyzer : XunitDiagnosticAnalyzer
 {
+	public XunitV2DiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) :
+		base(descriptors)
+	{ }
+
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
 		xunitContext.HasV2References;
 }

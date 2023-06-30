@@ -55,5 +55,5 @@ public class UseAssertFailInsteadOfBooleanAssert : AssertUsageAnalyzerBase
 	}
 
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		xunitContext.Assert.SupportsAssertFail;
+		base.ShouldAnalyze(xunitContext) && xunitContext.Assert.SupportsAssertFail;
 }

@@ -10,8 +10,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory);
+	public InlineDataShouldBeUniqueWithinTheory() :
+		base(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

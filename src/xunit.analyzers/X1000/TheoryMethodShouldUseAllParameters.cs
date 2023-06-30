@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -14,8 +13,9 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 {
 	static readonly Regex discardRegex = new(@"^_\d*$");
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1026_TheoryMethodShouldUseAllParameters);
+	public TheoryMethodShouldUseAllParameters() :
+		base(Descriptors.X1026_TheoryMethodShouldUseAllParameters)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

@@ -9,8 +9,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes);
+	public TestMethodMustNotHaveMultipleFactAttributes() :
+		base(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
@@ -38,7 +39,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			}
 
 			if (count > 1)
-			{
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
@@ -46,7 +46,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 						properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => (string?)string.Empty)
 					)
 				);
-			}
 		}, SymbolKind.Method);
 	}
 }

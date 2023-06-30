@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -8,8 +7,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory);
+	public DataAttributeShouldBeUsedOnATheory() :
+		base(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory)
+	{ }
 
 	public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
 	{

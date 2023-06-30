@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,8 +8,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-		ImmutableArray.Create(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest);
+	public PublicMethodShouldBeMarkedAsTest() :
+		base(Descriptors.X1013_PublicMethodShouldBeMarkedAsTest)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
@@ -99,7 +99,6 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 			}
 
 			if (hasTestMethods)
-			{
 				foreach (var method in violations)
 				{
 					var testType = method.Parameters.Any() ? Constants.Attributes.Theory : Constants.Attributes.Fact;
@@ -114,7 +113,6 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 						)
 					);
 				}
-			}
 		}, SymbolKind.NamedType);
 	}
 }

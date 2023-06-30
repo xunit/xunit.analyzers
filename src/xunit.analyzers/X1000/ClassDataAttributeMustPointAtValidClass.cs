@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,8 +9,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-	   ImmutableArray.Create(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass);
+	public ClassDataAttributeMustPointAtValidClass() :
+		base(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass)
+	{ }
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

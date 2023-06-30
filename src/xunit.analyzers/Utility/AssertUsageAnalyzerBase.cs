@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -18,14 +17,10 @@ public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
 	{ }
 
 	protected AssertUsageAnalyzerBase(
-		IEnumerable<DiagnosticDescriptor> descriptors,
-		IEnumerable<string> methods)
-	{
-		SupportedDiagnostics = ImmutableArray.CreateRange(descriptors);
-		targetMethods = new HashSet<string>(methods, StringComparer.Ordinal);
-	}
-
-	public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+		DiagnosticDescriptor[] descriptors,
+		IEnumerable<string> methods) :
+			base(descriptors) =>
+				targetMethods = new HashSet<string>(methods, StringComparer.Ordinal);
 
 	public sealed override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

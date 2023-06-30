@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -8,6 +9,12 @@ namespace Xunit.Analyzers;
 /// </summary>
 public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
 {
+	public XunitDiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) =>
+		SupportedDiagnostics = descriptors.ToImmutableArray();
+
+	/// <inheritdoc/>
+	public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+
 	/// <summary>
 	/// Analyzes compilation to discover diagnostics.
 	/// </summary>
