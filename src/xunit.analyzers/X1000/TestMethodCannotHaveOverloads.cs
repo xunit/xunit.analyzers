@@ -25,6 +25,7 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 			if (typeSymbol.TypeKind != TypeKind.Class)
 				return;
 
+#pragma warning disable RS1024 // Compare symbols correctly
 			var methodsByName =
 				typeSymbol
 					.GetInheritedAndOwnMembers()
@@ -32,6 +33,7 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 					.Cast<IMethodSymbol>()
 					.Where(m => m.MethodKind == MethodKind.Ordinary)
 					.GroupBy(m => m.Name);
+#pragma warning restore RS1024 // Compare symbols correctly
 
 			foreach (var grouping in methodsByName)
 			{

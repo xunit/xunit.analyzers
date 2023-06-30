@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\xunit.analyzers\xunit.analyzers.csproj" />
   </ItemGroup>
 
