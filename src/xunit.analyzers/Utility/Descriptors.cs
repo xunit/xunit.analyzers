@@ -296,7 +296,14 @@ public static class Descriptors
 			"Test methods must have a supported return type. Valid types are: {0}. Change the return type to one of the compatible types."
 		);
 
-	// Placeholder for rule X1029
+	public static DiagnosticDescriptor X1029_LocalFunctionsCannotBeTestFunctions { get; } =
+		Rule(
+			"xUnit1029",
+			"Local functions cannot be test functions",
+			Usage,
+			Error,
+			"Local functions cannot be test functions. Remove '{0}'."
+		);
 
 	// Placeholder for rule X1030
 
