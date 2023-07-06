@@ -16,20 +16,20 @@
     <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
     <PackageDownload Include="System.Text.Json" Version="[6.0.0]" />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
-    <PackageDownload Include="xunit.assert" Version="[2.5.0-pre.38]" />
-    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.250]" />
-    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.250]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.250]" />
+    <PackageDownload Include="xunit.assert" Version="[2.5.0-pre.45]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.253]" />
+    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.253]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.253]" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
     <PackageReference Include="NSubstitute" Version="5.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.assert.source" Version="2.5.0-pre.38" />
-    <PackageReference Include="xunit.core" Version="2.5.0-pre.38" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0-pre.22" />
+    <PackageReference Include="xunit.assert.source" Version="2.5.0-pre.45" />
+    <PackageReference Include="xunit.core" Version="2.5.0-pre.45" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0-pre.27" />
   </ItemGroup>
 
   <ItemGroup>
