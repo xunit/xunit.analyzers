@@ -16,6 +16,7 @@ Installing this package provides code analyzers to help developers find and fix 
 		<repository type="git" url="https://github.com/xunit/xunit.analyzers" commit="$GitCommitId$" />
 		<tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
 		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/analyzers/$PackageVersion$</releaseNotes>
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\README.md" />
