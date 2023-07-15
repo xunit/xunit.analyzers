@@ -17,20 +17,14 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
-		var factAttributeSymbol = TypeSymbolFactory.FactAttribute(context.Compilation);
-		var theoryAttributeSymbol = TypeSymbolFactory.TheoryAttribute(context.Compilation);
-		if (factAttributeSymbol is null || theoryAttributeSymbol is null)
-		{
+		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
 			return;
-		}
 
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol is not IMethodSymbol method)
 				return;
-			if (!method.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(factAttributeSymbol, a.AttributeClass) || SymbolEqualityComparer.Default.Equals(theoryAttributeSymbol, a.AttributeClass)))
+			if (!method.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(xunitContext.Core.FactAttributeType, a.AttributeClass) || SymbolEqualityComparer.Default.Equals(xunitContext.Core.TheoryAttributeType, a.AttributeClass)))
 				return;
 
 			var validReturnTypes = GetValidReturnTypes(context.Compilation, xunitContext);
