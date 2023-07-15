@@ -17,8 +17,8 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
-		var factAttributeSymbol = context.Compilation.GetTypeByMetadataName("Xunit.FactAttribute");
-		var theoryAttributeSymbol = context.Compilation.GetTypeByMetadataName("Xunit.TheoryAttribute");
+		var factAttributeSymbol = TypeSymbolFactory.FactAttribute(context.Compilation);
+		var theoryAttributeSymbol = TypeSymbolFactory.TheoryAttribute(context.Compilation);
 		if (factAttributeSymbol is null || theoryAttributeSymbol is null)
 		{
 			return;
