@@ -76,4 +76,26 @@ public class TestClass {
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
 	}
+
+	[Theory]
+	[InlineData("MyTest")]
+	[InlineData("MyTestAttribute")]
+	public async void CustomTestAttribute(string attribute)
+	{
+		var sourceTemplate = @"
+using Xunit;
+
+class MyTestAttribute : FactAttribute {{ }}
+
+public class TestClass {{
+    [{0}]
+    public int TestMethod() {{
+        return 0;
+	}}
+}}";
+
+		var source = string.Format(sourceTemplate, attribute);
+
+		await Verify.VerifyAnalyzer(source);
+	}
 }
