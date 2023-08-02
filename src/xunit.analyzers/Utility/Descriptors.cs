@@ -305,7 +305,14 @@ public static class Descriptors
 			"Local functions cannot be test functions. Remove '{0}'."
 		);
 
-	// Placeholder for rule X1030
+	public static DiagnosticDescriptor X1030_DoNotUseConfigureAwait { get; } =
+		Rule(
+			"xUnit1030",
+			"Do not call ConfigureAwait in test method",
+			Usage,
+			Warning,
+			"Test methods should not call ConfigureAwait(), as it may bypass parallelization limits."
+		);
 
 	// Placeholder for rule X1031
 
