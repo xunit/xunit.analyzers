@@ -95,11 +95,17 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? Task(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
 
+	public static INamedTypeSymbol? TaskOfT(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
+
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
 
 	public static INamedTypeSymbol? ValueTask(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask");
+
+	public static INamedTypeSymbol? ValueTaskOfT(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1");
 
 	public static INamedTypeSymbol Void(Compilation compilation) =>
 		compilation.GetSpecialType(SpecialType.System_Void);

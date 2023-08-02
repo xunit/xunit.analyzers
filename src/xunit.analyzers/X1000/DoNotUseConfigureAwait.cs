@@ -19,6 +19,9 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 		XunitContext xunitContext)
 	{
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
+		var taskOfTType = TypeSymbolFactory.TaskOfT(context.Compilation)?.ConstructUnboundGenericType();
+		var valueTaskType = TypeSymbolFactory.ValueTask(context.Compilation);
+		var valueTaskOfTType = TypeSymbolFactory.ValueTaskOfT(context.Compilation)?.ConstructUnboundGenericType();
 
 		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
 			return;
@@ -29,7 +32,25 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 				return;
 
 			var methodSymbol = invocation.TargetMethod;
-			if (methodSymbol.MethodKind != MethodKind.Ordinary || !SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, taskType) || methodSymbol.Name != nameof(Task.ConfigureAwait))
+			if (methodSymbol.MethodKind != MethodKind.Ordinary || methodSymbol.Name != nameof(Task.ConfigureAwait))
+				return;
+
+			bool match;
+
+			if (methodSymbol.ContainingType.IsGenericType)
+			{
+				var unboundGeneric = methodSymbol.ContainingType.ConstructUnboundGenericType();
+
+				match =
+					SymbolEqualityComparer.Default.Equals(unboundGeneric, taskOfTType) ||
+					SymbolEqualityComparer.Default.Equals(unboundGeneric, valueTaskOfTType);
+			}
+			else
+				match =
+					SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, taskType) ||
+					SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, valueTaskType);
+
+			if (!match)
 				return;
 
 			if (!invocation.IsInTestMethod(xunitContext))
