@@ -37,6 +37,9 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol ICollectionOfT(Compilation compilation) =>
 		compilation.GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T);
 
+	public static INamedTypeSymbol? ICriticalNotifyCompletion(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.ICriticalNotifyCompletion");
+
 	public static INamedTypeSymbol IDisposable(Compilation compilation) =>
 		compilation.GetSpecialType(SpecialType.System_IDisposable);
 
@@ -61,6 +64,12 @@ public class TypeSymbolFactory
 
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.InlineDataAttribute");
+
+	public static INamedTypeSymbol? IValueTaskSource(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource");
+
+	public static INamedTypeSymbol? IValueTaskSourceOfT(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource`1");
 
 	public static INamedTypeSymbol IReadOnlyCollectionOfT(Compilation compilation) =>
 		compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T);

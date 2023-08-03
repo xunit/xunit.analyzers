@@ -314,7 +314,14 @@ public static class Descriptors
 			"Test methods should not call ConfigureAwait(), as it may bypass parallelization limits."
 		);
 
-	// Placeholder for rule X1031
+	public static DiagnosticDescriptor X1031_DoNotUseBlockingTaskOperations { get; } =
+		Rule(
+			"xUnit1031",
+			"Do not use blocking task operations in test method",
+			Usage,
+			Error,
+			"Test methods must not use blocking task operations, as they can cause deadlocks. Use an async test method and await instead."
+		);
 
 	// Placeholder for rule X1032
 
