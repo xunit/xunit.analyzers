@@ -322,8 +322,14 @@ public static class Descriptors
 			Error,
 			"Test methods must not use blocking task operations, as they can cause deadlocks. Use an async test method and await instead."
 		);
-
-	// Placeholder for rule X1032
+	public static DiagnosticDescriptor X1032_TestClassCannotBeNestedInGenericClass { get; } =
+		Rule(
+			"xUnit1032",
+			"Test classes cannot be nested within a generic class",
+			Usage,
+			Error,
+			"Test classes cannot be nested within a generic class. Move the test class out of the class it is nested in."
+		);
 
 	public static DiagnosticDescriptor X1033_TestClassShouldHaveTFixtureArgument { get; } =
 		Rule(
