@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -138,6 +140,30 @@ public static class CodeAnalysisExtensions
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		editor.RemoveNode(node);
+
+		return editor.GetChangedDocument();
+	}
+
+	public static async Task<Document> ExtractNodeFromParent(
+		this Document document,
+		SyntaxNode node,
+		CancellationToken cancellationToken)
+	{
+		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+		var parent = node.Parent;
+
+		if (parent is not null)
+		{
+			editor.RemoveNode(node);
+
+			var formattedNode =
+				node
+					.WithLeadingTrivia(SyntaxFactory.ElasticMarker)
+					.WithTrailingTrivia(SyntaxFactory.ElasticMarker)
+					.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+
+			editor.InsertAfter(parent, formattedNode);
+		}
 
 		return editor.GetChangedDocument();
 	}
