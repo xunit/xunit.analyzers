@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
-using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassCannotBeNestedInGenericClass>;
 
 public class TestClassCannotBeNestedInGenericClassTests
@@ -19,8 +17,10 @@ public abstract class OpenGenericType<T>
     }
 }";
 
-		var expected = new DiagnosticResult(Descriptors.X1032_TestClassCannotBeNestedInGenericClass)
-			.WithLocation(4, 18);
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithLocation(4, 18);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -42,8 +42,10 @@ public abstract class OpenGenericType<T>
     }
 }";
 
-		var expected = new DiagnosticResult(Descriptors.X1032_TestClassCannotBeNestedInGenericClass)
-			.WithLocation(10, 18);
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithLocation(10, 18);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

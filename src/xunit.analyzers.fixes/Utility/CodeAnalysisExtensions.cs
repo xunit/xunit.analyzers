@@ -156,10 +156,11 @@ public static class CodeAnalysisExtensions
 		{
 			editor.RemoveNode(node);
 
-			var formattedNode = node
-				.WithLeadingTrivia(SyntaxFactory.ElasticMarker)
-				.WithTrailingTrivia(SyntaxFactory.ElasticMarker)
-				.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+			var formattedNode =
+				node
+					.WithLeadingTrivia(SyntaxFactory.ElasticMarker)
+					.WithTrailingTrivia(SyntaxFactory.ElasticMarker)
+					.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 
 			editor.InsertAfter(parent, formattedNode);
 		}

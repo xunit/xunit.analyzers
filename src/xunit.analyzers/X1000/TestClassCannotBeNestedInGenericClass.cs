@@ -40,16 +40,19 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 		}, SymbolKind.NamedType);
 	}
 
-	private bool DoesInheritenceTreeContainTests(INamedTypeSymbol classSymbol, XunitContext xunitContext, int depth)
+	private bool DoesInheritenceTreeContainTests(
+		INamedTypeSymbol classSymbol,
+		XunitContext xunitContext,
+		int depth)
 	{
-		var doesClassContainTests = classSymbol.GetMembers()
-					.OfType<IMethodSymbol>()
-					.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+		var doesClassContainTests =
+			classSymbol
+				.GetMembers()
+				.OfType<IMethodSymbol>()
+				.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
 
 		if (!doesClassContainTests && classSymbol.BaseType is not null && depth > 0)
-		{
 			return DoesInheritenceTreeContainTests(classSymbol.BaseType, xunitContext, depth - 1);
-		}
 
 		return doesClassContainTests;
 	}
