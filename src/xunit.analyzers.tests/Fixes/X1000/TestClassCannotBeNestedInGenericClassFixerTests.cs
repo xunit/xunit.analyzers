@@ -1,4 +1,6 @@
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
+using Xunit.Analyzers;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassCannotBeNestedInGenericClass>;
 
@@ -27,6 +29,10 @@ public class NestedTestClass
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyCodeFix(before, after, TestClassCannotBeNestedInGenericClassFixer.Key_ExtractTestClass);
+		await Verify.VerifyCodeFix(
+			before,
+			after,
+			TestClassCannotBeNestedInGenericClassFixer.Key_ExtractTestClass,
+			new DiagnosticResult(Descriptors.X1032_TestClassCannotBeNestedInGenericClass).WithLocation(4, 18));
 	}
 }
