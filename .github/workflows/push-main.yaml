@@ -29,6 +29,9 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
+      - name: Get Mono information
+        run: mono --version
+
       - name: "Build target: BuildAll"
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
