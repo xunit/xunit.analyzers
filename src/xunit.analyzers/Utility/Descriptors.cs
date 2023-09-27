@@ -319,9 +319,10 @@ public static class Descriptors
 			"xUnit1031",
 			"Do not use blocking task operations in test method",
 			Usage,
-			Error,
-			"Test methods must not use blocking task operations, as they can cause deadlocks. Use an async test method and await instead."
+			Warning,
+			"Test methods should not use blocking task operations, as they can cause deadlocks. Use an async test method and await instead."
 		);
+
 	public static DiagnosticDescriptor X1032_TestClassCannotBeNestedInGenericClass { get; } =
 		Rule(
 			"xUnit1032",
