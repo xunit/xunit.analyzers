@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
@@ -35,6 +37,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 	{
 		nameof(Task<int>.ContinueWith),
 	};
+	static readonly string[] whenAll = new[]
+	{
+		nameof(Task.WhenAll),
+	};
 
 	public DoNotUseBlockingTaskOperations() :
 		base(Descriptors.X1031_DoNotUseBlockingTaskOperations)
@@ -62,16 +68,54 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				return;
 
 			var foundSymbol =
-				FindSymbol(invocation.TargetMethod, invocation, taskType, blockingTaskMethods, xunitContext) ||
-				FindSymbol(invocation.TargetMethod, invocation, iCriticalNotifyCompletionType, blockingAwaiterMethods, xunitContext) ||
-				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceType, blockingAwaiterMethods, xunitContext) ||
-				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceOfTType, blockingAwaiterMethods, xunitContext);
+				FindSymbol(invocation.TargetMethod, invocation, taskType, blockingTaskMethods, xunitContext, out var foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iCriticalNotifyCompletionType, blockingAwaiterMethods, xunitContext, out foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceType, blockingAwaiterMethods, xunitContext, out foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceOfTType, blockingAwaiterMethods, xunitContext, out foundSymbolName);
 
 			if (!foundSymbol)
 				return;
 
 			if (WrappedInContinueWith(invocation, taskType, xunitContext))
 				return;
+
+			var symbolsForWhenAllSearch = default(IEnumerable<ILocalSymbol>);
+			switch (foundSymbolName)
+			{
+				case nameof(IValueTaskSource.GetResult):
+					{
+						// Only handles 'task.GetAwaiter().GetResult()', which gives us direct access to the task
+						// TODO: How hard would it be to trace back something like:
+						//    var awaiter = task.GetAwaiter();
+						//    var result = awaiter.GetResult();
+						if (invocation.Instance is IInvocationOperation getAwaiterOperation &&
+								getAwaiterOperation.TargetMethod.Name == nameof(Task.GetAwaiter) &&
+								getAwaiterOperation.Instance is ILocalReferenceOperation localReferenceOperation)
+							symbolsForWhenAllSearch = new[] { localReferenceOperation.Local };
+						break;
+					}
+
+				case nameof(Task.Wait):
+					{
+						if (invocation.Instance is ILocalReferenceOperation localReferenceOperation)
+							symbolsForWhenAllSearch = new[] { localReferenceOperation.Local };
+						break;
+					}
+
+				case nameof(Task.WaitAll):
+				case nameof(Task.WaitAny):
+					{
+						if (invocation.Arguments.Length == 1 &&
+								invocation.Arguments[0].Value is IArrayCreationOperation arrayCreationOperation &&
+								arrayCreationOperation.Initializer is not null)
+							symbolsForWhenAllSearch = arrayCreationOperation.Initializer.ElementValues.OfType<ILocalReferenceOperation>().Select(l => l.Local);
+						break;
+					}
+			}
+
+			if (symbolsForWhenAllSearch is not null)
+				if (TaskWasInvolvedInWhenAll(invocation, symbolsForWhenAllSearch, taskType, xunitContext))
+					return;
 
 			// Should have two child nodes: "(some other code).(target method)" and the arguments
 			var invocationChildren = invocation.Syntax.ChildNodes().ToList();
@@ -96,13 +140,18 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				return;
 
 			var foundSymbol =
-				FindSymbol(reference.Property, reference, taskOfTType, blockingTaskProperties, xunitContext) ||
-				FindSymbol(reference.Property, reference, valueTaskOfTType, blockingTaskProperties, xunitContext);
+				FindSymbol(reference.Property, reference, taskOfTType, blockingTaskProperties, xunitContext, out var foundSymbolName) ||
+				FindSymbol(reference.Property, reference, valueTaskOfTType, blockingTaskProperties, xunitContext, out foundSymbolName);
 
 			if (!foundSymbol)
 				return;
 
 			if (WrappedInContinueWith(reference, taskType, xunitContext))
+				return;
+
+			if (foundSymbolName == nameof(Task<int>.Result) &&
+					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
+					TaskWasInvolvedInWhenAll(reference, new[] { localReferenceOperation.Local }, taskType, xunitContext))
 				return;
 
 			// Should have two child nodes: "(some other code)" and "(property name)"
@@ -120,8 +169,12 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		IOperation operation,
 		INamedTypeSymbol? targetType,
 		string[] targetNames,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		[NotNullWhen(true)]
+		out string? foundSymbolName)
 	{
+		foundSymbolName = default;
+
 		if (targetType is null)
 			return false;
 
@@ -139,7 +192,74 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			return false;
 
 		// Only trigger when you're inside a test method
-		return operation.IsInTestMethod(xunitContext);
+		var foundSymbol = operation.IsInTestMethod(xunitContext);
+		if (foundSymbol)
+			foundSymbolName = symbol.Name;
+
+		return foundSymbol;
+	}
+
+	static bool TaskWasInvolvedInWhenAll(
+		IOperation? operation,
+		IEnumerable<ILocalSymbol> symbols,
+		INamedTypeSymbol? taskType,
+		XunitContext xunitContext)
+	{
+		if (taskType is null)
+			return false;
+
+		var ourOperations = new List<IOperation>();
+#pragma warning disable RS1024 // Compare symbols correctly
+		var unfoundSymbols = new HashSet<ILocalSymbol>(symbols, SymbolEqualityComparer.Default);
+#pragma warning restore RS1024
+
+		bool findWhenAll(IOperation op)
+		{
+			foreach (var childOperation in op.Children)
+			{
+				// Stop looking once we've found the operation that is ours, since any
+				// code after that operation isn't something we should consider
+				if (ourOperations.Contains(childOperation))
+					break;
+
+				if (childOperation is IInvocationOperation childInvocationOperation)
+				{
+					if (!FindSymbol(childInvocationOperation.TargetMethod, childInvocationOperation, taskType, whenAll, xunitContext, out var _))
+						continue;
+
+					var argument = childInvocationOperation.Arguments.FirstOrDefault();
+					if (argument is null)
+						continue;
+					if (argument.Value is not IArrayCreationOperation arrayCreation)
+						continue;
+					if (arrayCreation.Initializer is null)
+						continue;
+
+					foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
+					{
+						unfoundSymbols.Remove(arrayElement.Local);
+						if (unfoundSymbols.Count == 0)
+							return true;
+					}
+				}
+
+				if (childOperation.Children.Any(c => findWhenAll(c)))
+					return true;
+			}
+
+			return false;
+		}
+
+		for (; operation is not null && unfoundSymbols.Count != 0; operation = operation.Parent)
+		{
+			if (operation is IBlockOperation blockOperation)
+				if (findWhenAll(blockOperation))
+					return true;
+
+			ourOperations.Add(operation);
+		}
+
+		return false;
 	}
 
 	static bool WrappedInContinueWith(
@@ -155,7 +275,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (operation is not IInvocationOperation invocation)
 				continue;
 
-			if (FindSymbol(invocation.TargetMethod, invocation, taskType, continueWith, xunitContext))
+			if (FindSymbol(invocation.TargetMethod, invocation, taskType, continueWith, xunitContext, out var _))
 				return true;
 		}
 

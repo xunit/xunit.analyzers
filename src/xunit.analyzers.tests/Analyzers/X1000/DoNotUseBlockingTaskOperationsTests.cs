@@ -82,6 +82,50 @@ public class TestClass {
 			}
 
 			[Fact]
+			public async void FailureCase_BeforeWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task = Task.Delay(1);
+
+        task.[|Wait()|];
+
+        await Task.WhenAll(task);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void FailureCase_WhenAllForOtherTask()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(new[] { task1 });
+
+        task1.Wait();
+        task2.[|Wait()|];
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
 			public async void SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
@@ -92,6 +136,29 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         Task.CompletedTask.ContinueWith(x => x.Wait());
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(task1, task2);
+
+        task1.Wait();
+        task2.Wait();
     }
 }";
 
@@ -123,6 +190,55 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
+			public async void FailureCase_BeforeWhenAll(string waitMethod)
+			{
+				var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async void TestMethod() {{
+        var task = Task.Delay(1);
+
+        Task.[|{waitMethod}(task)|];
+
+        await Task.WhenAll(task);
+    }}
+}}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
+			public async void FailureCase_WhenAllForOtherTask(string waitMethod)
+			{
+				var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async void TestMethod() {{
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(new[] {{ task1 }});
+
+        Task.{waitMethod}(task1);
+        Task.[|{waitMethod}(task2)|];
+        Task.[|{waitMethod}(task1, task2)|];
+    }}
+}}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
 			public async void SuccessCase_InContinueWithLambda(string waitMethod)
 			{
 				var source = @$"
@@ -133,6 +249,32 @@ public class TestClass {{
     [Fact]
     public void TestMethod() {{
         Task.CompletedTask.ContinueWith(x => Task.{waitMethod}(x));
+    }}
+}}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
+			public async void SuccessCase_AfterWhenAll(string waitMethod)
+			{
+				var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async void TestMethod() {{
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(task1, task2);
+
+        Task.{waitMethod}(task1);
+        Task.{waitMethod}(task2);
+        Task.{waitMethod}(task1, task2);
     }}
 }}";
 
@@ -160,6 +302,50 @@ public class TestClass {
 			}
 
 			[Fact]
+			public async void FailureCase_BeforeWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task = Task.Delay(1);
+
+        task.GetAwaiter().[|GetResult()|];
+
+        await Task.WhenAll(task);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void FailureCase_WhenAllForOtherTask()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(new[] { task1 });
+
+        task1.GetAwaiter().GetResult();
+        task2.GetAwaiter().[|GetResult()|];
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
 			public async void SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
@@ -170,6 +356,29 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         Task.CompletedTask.ContinueWith(x => x.GetAwaiter().GetResult());
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        await Task.WhenAll(task1, task2);
+
+        task1.GetAwaiter().GetResult();
+        task2.GetAwaiter().GetResult();
     }
 }";
 
@@ -200,6 +409,51 @@ public class TestClass {
 			}
 
 			[Fact]
+			public async void FailureCase_BeforeWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task = Task.FromResult(42);
+
+        Assert.Equal(42, task.[|Result|]);
+
+        await Task.WhenAll(task);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void FailureCase_WhenAllForOtherTask()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        await Task.WhenAll(new[] { task1 });
+
+        Assert.Equal(42, task1.Result);
+        Assert.Equal(2112, task2.[|Result|]);
+        Assert.Equal(2154, task1.Result + task2.[|Result|]);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
 			public async void SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
@@ -210,6 +464,30 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = Task.FromResult(42).ContinueWith(x => x.Result);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        await Task.WhenAll(task1, task2);
+
+        Assert.Equal(42, task1.Result);
+        Assert.Equal(2112, task2.Result);
+        Assert.Equal(2154, task1.Result + task2.Result);
     }
 }";
 
@@ -237,6 +515,51 @@ public class TestClass {
 			}
 
 			[Fact]
+			public async void FailureCase_BeforeWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task = Task.FromResult(42);
+
+        Assert.Equal(42, task.GetAwaiter().[|GetResult()|]);
+
+        await Task.WhenAll(task);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void FailureCase_WhenAllForOtherTask()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        await Task.WhenAll(new[] { task1 });
+
+        Assert.Equal(42, task1.GetAwaiter().GetResult());
+        Assert.Equal(2112, task2.GetAwaiter().[|GetResult()|]);
+        Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().[|GetResult()|]);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
 			public async void SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
@@ -247,6 +570,30 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = Task.FromResult(42).ContinueWith(x => x.GetAwaiter().GetResult());
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAll()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        await Task.WhenAll(task1, task2);
+
+        Assert.Equal(42, task1.GetAwaiter().GetResult());
+        Assert.Equal(2112, task2.GetAwaiter().GetResult());
+        Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().GetResult());
     }
 }";
 
