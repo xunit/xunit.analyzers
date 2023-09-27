@@ -31,6 +31,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		// These are on both Task<T> and ValueTask<T>
 		nameof(Task<int>.Result),
 	};
+	static readonly string[] continueWith = new[]
+	{
+		nameof(Task<int>.ContinueWith),
+	};
 
 	public DoNotUseBlockingTaskOperations() :
 		base(Descriptors.X1031_DoNotUseBlockingTaskOperations)
@@ -66,6 +70,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
+			if (WrappedInContinueWith(invocation, taskType, xunitContext))
+				return;
+
 			// Should have two child nodes: "(some other code).(target method)" and the arguments
 			var invocationChildren = invocation.Syntax.ChildNodes().ToList();
 			if (invocationChildren.Count != 2)
@@ -93,6 +100,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				FindSymbol(reference.Property, reference, valueTaskOfTType, blockingTaskProperties, xunitContext);
 
 			if (!foundSymbol)
+				return;
+
+			if (WrappedInContinueWith(reference, taskType, xunitContext))
 				return;
 
 			// Should have two child nodes: "(some other code)" and "(property name)"
@@ -130,5 +140,25 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 		// Only trigger when you're inside a test method
 		return operation.IsInTestMethod(xunitContext);
+	}
+
+	static bool WrappedInContinueWith(
+		IOperation? operation,
+		INamedTypeSymbol? taskType,
+		XunitContext xunitContext)
+	{
+		if (taskType is null)
+			return false;
+
+		for (; operation != null; operation = operation.Parent)
+		{
+			if (operation is not IInvocationOperation invocation)
+				continue;
+
+			if (FindSymbol(invocation.TargetMethod, invocation, taskType, continueWith, xunitContext))
+				return true;
+		}
+
+		return false;
 	}
 }

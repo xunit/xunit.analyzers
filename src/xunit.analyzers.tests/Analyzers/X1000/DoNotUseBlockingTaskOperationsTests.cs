@@ -114,6 +114,23 @@ public class TestClass {
 
 			await Verify.VerifyAnalyzer(source);
 		}
+
+		[Fact]
+		public async void SuccessCase_GetAwaiterGetResult_InContinueWithLambda()
+		{
+			var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() {
+        Task.CompletedTask.ContinueWith(x => x.GetAwaiter().GetResult());
+    }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
 	}
 
 	public class Task_Generic
@@ -136,6 +153,23 @@ public class TestClass {
 		}
 
 		[Fact]
+		public async void SuccessCase_Result_InContinueWithLambda()
+		{
+			var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() {
+        var _ = Task.FromResult(42).ContinueWith(x => x.Result);
+    }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
 		public async void FailureCase_GetAwaiterGetResult()
 		{
 			var source = @"
@@ -146,6 +180,23 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = Task.FromResult(42).GetAwaiter().[|GetResult()|];
+    }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void SuccessCase_GetAwaiterGetResult_InContinueWithLambda()
+		{
+			var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() {
+        var _ = Task.FromResult(42).ContinueWith(x => x.GetAwaiter().GetResult());
     }
 }";
 
