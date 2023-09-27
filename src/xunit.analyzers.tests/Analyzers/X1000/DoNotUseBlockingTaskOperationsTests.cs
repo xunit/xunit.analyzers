@@ -62,10 +62,12 @@ public class TestClass {
 
 	public class Task_NonGeneric
 	{
-		[Fact]
-		public async void FailureCase_Wait()
+		public class Wait
 		{
-			var source = @"
+			[Fact]
+			public async void FailureCase()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -76,15 +78,35 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_InContinueWithLambda()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() {
+        Task.CompletedTask.ContinueWith(x => x.Wait());
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
-		[Theory]
-		[InlineData("WaitAny")]
-		[InlineData("WaitAll")]
-		public async void FailureCase_WaitStatic(string waitMethod)
+		public class WaitAny_WaitAll
 		{
-			var source = @$"
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
+			public async void FailureCase(string waitMethod)
+			{
+				var source = @$"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -95,13 +117,35 @@ public class TestClass {{
     }}
 }}";
 
-			await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
+			public async void SuccessCase_InContinueWithLambda(string waitMethod)
+			{
+				var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public void TestMethod() {{
+        Task.CompletedTask.ContinueWith(x => Task.{waitMethod}(x));
+    }}
+}}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
-		[Fact]
-		public async void FailureCase_GetAwaiterGetResult()
+		public class GetAwaiterGetResult
 		{
-			var source = @"
+			[Fact]
+			public async void FailureCase()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -112,13 +156,13 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
-		}
+				await Verify.VerifyAnalyzer(source);
+			}
 
-		[Fact]
-		public async void SuccessCase_GetAwaiterGetResult_InContinueWithLambda()
-		{
-			var source = @"
+			[Fact]
+			public async void SuccessCase_InContinueWithLambda()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -129,16 +173,19 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 	}
 
 	public class Task_Generic
 	{
-		[Fact]
-		public async void FailureCase_Result()
+		public class Result
 		{
-			var source = @"
+			[Fact]
+			public async void FailureCase()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -149,13 +196,13 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
-		}
+				await Verify.VerifyAnalyzer(source);
+			}
 
-		[Fact]
-		public async void SuccessCase_Result_InContinueWithLambda()
-		{
-			var source = @"
+			[Fact]
+			public async void SuccessCase_InContinueWithLambda()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -166,13 +213,16 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
-		[Fact]
-		public async void FailureCase_GetAwaiterGetResult()
+		public class GetAwaiterGetResult
 		{
-			var source = @"
+			[Fact]
+			public async void FailureCase()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -183,13 +233,13 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
-		}
+				await Verify.VerifyAnalyzer(source);
+			}
 
-		[Fact]
-		public async void SuccessCase_GetAwaiterGetResult_InContinueWithLambda()
-		{
-			var source = @"
+			[Fact]
+			public async void SuccessCase_InContinueWithLambda()
+			{
+				var source = @"
 using System.Threading.Tasks;
 using Xunit;
 
@@ -200,7 +250,8 @@ public class TestClass {
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 	}
 
