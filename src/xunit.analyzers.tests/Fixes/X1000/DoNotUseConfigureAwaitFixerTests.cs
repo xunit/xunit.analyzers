@@ -5,7 +5,6 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
 public class DoNotUseConfigureAwaitFixerTests
 {
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void RemovesConfigureAwait_Task_Async(string argumentValue)
@@ -36,7 +35,6 @@ public class TestClass {
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void RemovesConfigureAwait_Task_NonAsync(string argumentValue)
@@ -67,7 +65,6 @@ public class TestClass {
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void RemovesConfigureAwait_TaskOfT(string argumentValue)
@@ -100,7 +97,6 @@ public class TestClass {
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void RemovesConfigureAwait_ValueTask(string argumentValue)
@@ -133,7 +129,6 @@ public class TestClass {
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void RemovesConfigureAwait_ValueTaskOfT(string argumentValue)

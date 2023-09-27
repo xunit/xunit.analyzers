@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Text;
@@ -59,6 +61,15 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 			// invocation should be two nodes: "(some other code).ConfigureAwait" and the arguments (like "(false)")
 			var invocationChildren = invocation.Syntax.ChildNodes().ToList();
 			if (invocationChildren.Count != 2)
+				return;
+
+			// we want to exempt calls with "(true)" because of CA2007
+			var arguments = invocationChildren[1];
+			var argumentChildren = arguments.ChildNodes().ToList();
+			if (argumentChildren.Count == 1 &&
+					argumentChildren[0] is ArgumentSyntax argumentSyntax &&
+					argumentSyntax.ChildNodes().FirstOrDefault() is LiteralExpressionSyntax literalExpression &&
+					literalExpression.IsKind(SyntaxKind.TrueLiteralExpression))
 				return;
 
 			// First child node should be split into three pieces: "(some other code)", ".", and "ConfigureAwait"

@@ -4,7 +4,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
 public class DoNotUseConfigureAwaitTests
 {
 	[Fact]
-	public async void SuccessCase()
+	public async void SuccessCase_NoCall()
 	{
 		var source = @"
 using System.Threading.Tasks;
@@ -20,8 +20,24 @@ public class TestClass {
 		await Verify.VerifyAnalyzer(source);
 	}
 
+	[Fact]
+	public async void SuccessCase_ConfigureAwaitTrue()
+	{
+		var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async Task TestMethod() {
+        await Task.Delay(1).ConfigureAwait(true);
+    }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void FailureCase_Task_Async(string argumentValue)
@@ -41,7 +57,6 @@ public class TestClass {{
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void FailureCase_Task_NonAsync(string argumentValue)
@@ -61,7 +76,6 @@ public class TestClass {{
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void FailureCase_TaskOfT(string argumentValue)
@@ -82,7 +96,6 @@ public class TestClass {{
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void FailureCase_ValueTask(string argumentValue)
@@ -103,7 +116,6 @@ public class TestClass {{
 	}
 
 	[Theory]
-	[InlineData("true")]
 	[InlineData("false")]
 	[InlineData("1 == 2")]
 	public async void FailureCase_ValueTaskOfT(string argumentValue)
