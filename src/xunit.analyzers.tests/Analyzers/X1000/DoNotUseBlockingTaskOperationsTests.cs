@@ -164,6 +164,28 @@ public class TestClass {
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAny()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        var finishedTask = await Task.WhenAny(task1, task2);
+
+        finishedTask.Wait();
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
 		public class WaitAny_WaitAll
@@ -280,6 +302,30 @@ public class TestClass {{
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Theory]
+			[InlineData("WaitAny")]
+			[InlineData("WaitAll")]
+			public async void SuccessCase_AfterWhenAny(string waitMethod)
+			{
+				var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async void TestMethod() {{
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        var finishedTask = await Task.WhenAny(task1, task2);
+
+        Task.{waitMethod}(finishedTask);
+    }}
+}}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
 		public class GetAwaiterGetResult
@@ -379,6 +425,28 @@ public class TestClass {
 
         task1.GetAwaiter().GetResult();
         task2.GetAwaiter().GetResult();
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAny()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.Delay(1);
+        var task2 = Task.Delay(2);
+
+        var finishedTask = await Task.WhenAny(task1, task2);
+
+        finishedTask.GetAwaiter().GetResult();
     }
 }";
 
@@ -493,6 +561,28 @@ public class TestClass {
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAny()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        var finishedTask = await Task.WhenAny(task1, task2);
+
+        Assert.Equal(2600, finishedTask.Result);
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
 		}
 
 		public class GetAwaiterGetResult
@@ -594,6 +684,28 @@ public class TestClass {
         Assert.Equal(42, task1.GetAwaiter().GetResult());
         Assert.Equal(2112, task2.GetAwaiter().GetResult());
         Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().GetResult());
+    }
+}";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async void SuccessCase_AfterWhenAny()
+			{
+				var source = @"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public async void TestMethod() {
+        var task1 = Task.FromResult(42);
+        var task2 = Task.FromResult(2112);
+
+        var finishedTask = await Task.WhenAny(task1, task2);
+
+        Assert.Equal(2600, finishedTask.GetAwaiter().GetResult());
     }
 }";
 

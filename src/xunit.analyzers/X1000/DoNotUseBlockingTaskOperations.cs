@@ -41,6 +41,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 	{
 		nameof(Task.WhenAll),
 	};
+	static readonly string[] whenAny = new[]
+	{
+		nameof(Task.WhenAny),
+	};
 
 	public DoNotUseBlockingTaskOperations() :
 		base(Descriptors.X1031_DoNotUseBlockingTaskOperations)
@@ -59,6 +63,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		var taskOfTType = TypeSymbolFactory.TaskOfT(context.Compilation);
 		var valueTaskOfTType = TypeSymbolFactory.ValueTaskOfT(context.Compilation);
+
+		if (taskType is null)
+			return;
 
 		// Need to dynamically look for ICriticalNotifyCompletion, for use with blockingAwaiterMethods
 
@@ -79,7 +86,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (WrappedInContinueWith(invocation, taskType, xunitContext))
 				return;
 
-			var symbolsForWhenAllSearch = default(IEnumerable<ILocalSymbol>);
+			var symbolsForSearch = default(IEnumerable<ILocalSymbol>);
 			switch (foundSymbolName)
 			{
 				case nameof(IValueTaskSource.GetResult):
@@ -91,14 +98,14 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 						if (invocation.Instance is IInvocationOperation getAwaiterOperation &&
 								getAwaiterOperation.TargetMethod.Name == nameof(Task.GetAwaiter) &&
 								getAwaiterOperation.Instance is ILocalReferenceOperation localReferenceOperation)
-							symbolsForWhenAllSearch = new[] { localReferenceOperation.Local };
+							symbolsForSearch = new[] { localReferenceOperation.Local };
 						break;
 					}
 
 				case nameof(Task.Wait):
 					{
 						if (invocation.Instance is ILocalReferenceOperation localReferenceOperation)
-							symbolsForWhenAllSearch = new[] { localReferenceOperation.Local };
+							symbolsForSearch = new[] { localReferenceOperation.Local };
 						break;
 					}
 
@@ -108,13 +115,13 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 						if (invocation.Arguments.Length == 1 &&
 								invocation.Arguments[0].Value is IArrayCreationOperation arrayCreationOperation &&
 								arrayCreationOperation.Initializer is not null)
-							symbolsForWhenAllSearch = arrayCreationOperation.Initializer.ElementValues.OfType<ILocalReferenceOperation>().Select(l => l.Local);
+							symbolsForSearch = arrayCreationOperation.Initializer.ElementValues.OfType<ILocalReferenceOperation>().Select(l => l.Local);
 						break;
 					}
 			}
 
-			if (symbolsForWhenAllSearch is not null)
-				if (TaskWasInvolvedInWhenAll(invocation, symbolsForWhenAllSearch, taskType, xunitContext))
+			if (symbolsForSearch is not null)
+				if (TaskIsKnownToBeCompleted(invocation, symbolsForSearch, taskType, xunitContext))
 					return;
 
 			// Should have two child nodes: "(some other code).(target method)" and the arguments
@@ -151,7 +158,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
-					TaskWasInvolvedInWhenAll(reference, new[] { localReferenceOperation.Local }, taskType, xunitContext))
+					TaskIsKnownToBeCompleted(reference, new[] { localReferenceOperation.Local }, taskType, xunitContext))
 				return;
 
 			// Should have two child nodes: "(some other code)" and "(property name)"
@@ -199,21 +206,18 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		return foundSymbol;
 	}
 
-	static bool TaskWasInvolvedInWhenAll(
+	static bool TaskIsKnownToBeCompleted(
 		IOperation? operation,
 		IEnumerable<ILocalSymbol> symbols,
-		INamedTypeSymbol? taskType,
+		INamedTypeSymbol taskType,
 		XunitContext xunitContext)
 	{
-		if (taskType is null)
-			return false;
-
 		var ourOperations = new List<IOperation>();
 #pragma warning disable RS1024 // Compare symbols correctly
 		var unfoundSymbols = new HashSet<ILocalSymbol>(symbols, SymbolEqualityComparer.Default);
 #pragma warning restore RS1024
 
-		bool findWhenAll(IOperation op)
+		bool validateSafeTasks(IOperation op)
 		{
 			foreach (var childOperation in op.Children)
 			{
@@ -222,28 +226,19 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				if (ourOperations.Contains(childOperation))
 					break;
 
+				// Could be marked as safe because of "Task.WhenAll(..., symbol, ...)"
 				if (childOperation is IInvocationOperation childInvocationOperation)
-				{
-					if (!FindSymbol(childInvocationOperation.TargetMethod, childInvocationOperation, taskType, whenAll, xunitContext, out var _))
-						continue;
+					ValidateTasksInWhenAll(childInvocationOperation, unfoundSymbols, taskType, xunitContext);
 
-					var argument = childInvocationOperation.Arguments.FirstOrDefault();
-					if (argument is null)
-						continue;
-					if (argument.Value is not IArrayCreationOperation arrayCreation)
-						continue;
-					if (arrayCreation.Initializer is null)
-						continue;
+				// Could be marked as safe because of "var symbol = await WhenAny(...)"
+				if (childOperation is IVariableDeclaratorOperation variableDeclaratorOperation)
+					ValidateTaskFromWhenAny(variableDeclaratorOperation, unfoundSymbols, taskType, xunitContext);
 
-					foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
-					{
-						unfoundSymbols.Remove(arrayElement.Local);
-						if (unfoundSymbols.Count == 0)
-							return true;
-					}
-				}
+				// If we've run out of symbols to validate, we're done
+				if (unfoundSymbols.Count == 0)
+					return true;
 
-				if (childOperation.Children.Any(c => findWhenAll(c)))
+				if (childOperation.Children.Any(c => validateSafeTasks(c)))
 					return true;
 			}
 
@@ -253,7 +248,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		for (; operation is not null && unfoundSymbols.Count != 0; operation = operation.Parent)
 		{
 			if (operation is IBlockOperation blockOperation)
-				if (findWhenAll(blockOperation))
+				if (validateSafeTasks(blockOperation))
 					return true;
 
 			ourOperations.Add(operation);
@@ -262,14 +257,50 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		return false;
 	}
 
-	static bool WrappedInContinueWith(
-		IOperation? operation,
-		INamedTypeSymbol? taskType,
+	static void ValidateTaskFromWhenAny(
+		IVariableDeclaratorOperation operation,
+		HashSet<ILocalSymbol> unfoundSymbols,
+		INamedTypeSymbol taskType,
 		XunitContext xunitContext)
 	{
-		if (taskType is null)
-			return false;
+		if (!unfoundSymbols.Contains(operation.Symbol))
+			return;
+		if (operation.Children.FirstOrDefault() is not IVariableInitializerOperation variableInitializerOperation)
+			return;
+		if (variableInitializerOperation.Value.Children.FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
+			return;
+		if (!FindSymbol(variableInitializerInvocationOperation.TargetMethod, variableInitializerInvocationOperation, taskType, whenAny, xunitContext, out var _))
+			return;
 
+		unfoundSymbols.Remove(operation.Symbol);
+	}
+
+	static void ValidateTasksInWhenAll(
+		IInvocationOperation operation,
+		HashSet<ILocalSymbol> unfoundSymbols,
+		INamedTypeSymbol taskType,
+		XunitContext xunitContext)
+	{
+		if (!FindSymbol(operation.TargetMethod, operation, taskType, whenAll, xunitContext, out var _))
+			return;
+
+		var argument = operation.Arguments.FirstOrDefault();
+		if (argument is null)
+			return;
+		if (argument.Value is not IArrayCreationOperation arrayCreation)
+			return;
+		if (arrayCreation.Initializer is null)
+			return;
+
+		foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
+			unfoundSymbols.Remove(arrayElement.Local);
+	}
+
+	static bool WrappedInContinueWith(
+		IOperation? operation,
+		INamedTypeSymbol taskType,
+		XunitContext xunitContext)
+	{
 		for (; operation != null; operation = operation.Parent)
 		{
 			if (operation is not IInvocationOperation invocation)
