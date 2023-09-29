@@ -555,13 +555,13 @@ public static class Descriptors
 
 	// Placeholder for rule X2029
 
-	public static DiagnosticDescriptor X3000_TestCaseMustBeLongLivedMarshalByRefObject { get; } =
+	public static DiagnosticDescriptor X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObject { get; } =
 		Rule(
 			"xUnit3000",
-			"Test case classes must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject",
+			"Classes which cross AppDomain boundaries must derive directly or indirectly from LongLivedMarshalByRefObject",
 			Extensibility,
 			Error,
-			"Test case class {0} must derive directly or indirectly from Xunit.LongLivedMarshalByRefObject (in NuGet package xunit.extensibility.execution)."
+			"Class {0} must derive directly or indirectly from LongLivedMarshalByRefObject."
 		);
 
 	public static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =

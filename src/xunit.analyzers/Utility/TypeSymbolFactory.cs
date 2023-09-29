@@ -22,8 +22,14 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? FactAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName(Constants.Types.Xunit.FactAttribute);
 
+	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
+
 	public static INamedTypeSymbol? IAsyncLifetime(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.IAsyncLifetime");
+
+	public static INamedTypeSymbol? IAttributeInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IAttributeInfo");
 
 	public static INamedTypeSymbol? IClassFixureOfT(Compilation compilation) =>
 		 compilation.GetTypeByMetadataName("Xunit.IClassFixture`1");
@@ -62,8 +68,20 @@ public class TypeSymbolFactory
 		return iEnumerableOfT.Construct(iTheoryDataRow);
 	}
 
+	public static INamedTypeSymbol? IMethodInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMethodInfo");
+
+	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMessageSink");
+
+	public static INamedTypeSymbol? IMessageSinkMessage_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMessageSinkMessage");
+
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.InlineDataAttribute");
+
+	public static INamedTypeSymbol? IParameterInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IParameterInfo");
 
 	public static INamedTypeSymbol? IValueTaskSource(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource");
@@ -74,17 +92,53 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol IReadOnlyCollectionOfT(Compilation compilation) =>
 		compilation.GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T);
 
-	public static INamedTypeSymbol? ITestCase(Compilation compilation) =>
+	public static INamedTypeSymbol? ISourceInformation_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ISourceInformation");
+
+	public static INamedTypeSymbol? ISourceInformationProvider_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ISourceInformationProvider");
+
+	public static INamedTypeSymbol? ITest_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITest");
+
+	public static INamedTypeSymbol? ITestAssembly_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestAssembly");
+
+	public static INamedTypeSymbol? ITestCase_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestCase");
+
+	public static INamedTypeSymbol? ITestClass_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestClass");
+
+	public static INamedTypeSymbol? ITestCollection_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestCollection");
+
+	public static INamedTypeSymbol? ITestFramework_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestFramework");
+
+	public static INamedTypeSymbol? ITestFrameworkDiscoverer_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestFrameworkDiscoverer");
+
+	public static INamedTypeSymbol? ITestFrameworkExecutor_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestFrameworkExecutor");
+
+	public static INamedTypeSymbol? ITestMethod_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestMethod");
 
 	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.ITheoryDataRow");
 
-	public static INamedTypeSymbol? IXunitSerializable(Compilation compilation) =>
+	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITypeInfo");
+
+	public static INamedTypeSymbol? IXunitSerializable_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.IXunitSerializable");
 
-	public static INamedTypeSymbol? LongLivedMarshalByRefObject(Compilation compilation) =>
+	public static INamedTypeSymbol? LongLivedMarshalByRefObject_ExecutionV2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName(Constants.Types.Xunit.LongLivedMarshalByRefObject);
+
+	public static INamedTypeSymbol? LongLivedMarshalByRefObject_RunnerUtilityV2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName(Constants.Types.Xunit.Sdk.LongLivedMarshalByRefObject);
 
 	public static INamedTypeSymbol? MemberDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.MemberDataAttribute");

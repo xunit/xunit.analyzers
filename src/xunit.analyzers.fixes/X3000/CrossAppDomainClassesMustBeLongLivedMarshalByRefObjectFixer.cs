@@ -9,12 +9,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProvider
+public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProvider
 {
 	public const string Key_SetBaseType = "xUnit3000_SetBaseType";
 
-	public TestCaseMustBeLongLivedMarshalByRefObjectFixer() :
-		base(Descriptors.X3000_TestCaseMustBeLongLivedMarshalByRefObject.Id)
+	public CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixer() :
+		base(Descriptors.X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObject.Id)
 	{ }
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -28,19 +28,15 @@ public class TestCaseMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProv
 			return;
 
 		var diagnostic = context.Diagnostics.FirstOrDefault();
-		if (diagnostic == null)
+		if (diagnostic is null)
 			return;
-		if (!diagnostic.Properties.TryGetValue(Constants.Properties.CanFix, out var canFixText))
-			return;
-
-		bool.TryParse(canFixText, out var canFix);
-		if (!canFix)
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.NewBaseType, out var newBaseType) || newBaseType is null)
 			return;
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				"Set Base Type",
-				ct => context.Document.SetBaseClass(classDeclaration, Constants.Types.Xunit.LongLivedMarshalByRefObject, ct),
+				ct => context.Document.SetBaseClass(classDeclaration, newBaseType, ct),
 				Key_SetBaseType
 			),
 			context.Diagnostics

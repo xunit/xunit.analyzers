@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V2ExecutionContext
+public class V2RunnerUtilityContext : IRunnerUtilityContext
 {
-	const string assemblyPrefix = "xunit.execution.";
+	const string assemblyPrefix = "xunit.runner.utility.";
 	readonly Lazy<INamedTypeSymbol?> lazyLongLivedMarshalByRefObjectType;
 
-	V2ExecutionContext(
+	V2RunnerUtilityContext(
 		Compilation compilation,
 		string platform,
 		Version version)
@@ -17,7 +17,7 @@ public class V2ExecutionContext
 		Platform = platform;
 		Version = version;
 
-		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_ExecutionV2(compilation));
+		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_RunnerUtilityV2(compilation));
 	}
 
 	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>
@@ -25,9 +25,9 @@ public class V2ExecutionContext
 
 	public string Platform { get; }
 
-	public Version Version { get; }
+	public Version Version { get; set; }
 
-	public static V2ExecutionContext? Get(
+	public static V2RunnerUtilityContext? Get(
 		Compilation compilation,
 		Version? versionOverride = null)
 	{

@@ -73,7 +73,6 @@ public static class Constants
 	public static class Properties
 	{
 		public const string AssertMethodName = "AssertMethodName";
-		public const string CanFix = "CanFix";
 		public const string DeclaringType = "DeclaringType";
 		public const string IgnoreCase = "IgnoreCase";
 		public const string IsStatic = "IsStatic";
@@ -81,6 +80,7 @@ public static class Constants
 		public const string LiteralValue = "LiteralValue";
 		public const string MemberName = "MemberName";
 		public const string MethodName = "MethodName";
+		public const string NewBaseType = "NewBaseType";
 		public const string ParameterArrayStyle = "ParameterArrayStyle";
 		public const string ParameterIndex = "ParameterIndex";
 		public const string ParameterName = "ParameterName";
@@ -113,6 +113,7 @@ public static class Constants
 			public static class Sdk
 			{
 				public const string DataAttribute = "Xunit.Sdk.DataAttribute";
+				public const string LongLivedMarshalByRefObject = "Xunit.Sdk.LongLivedMarshalByRefObject";
 			}
 		}
 	}

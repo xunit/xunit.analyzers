@@ -26,6 +26,7 @@ public class XunitContext
 		V2Assert = V2AssertContext.Get(compilation);
 		V2Core = V2CoreContext.Get(compilation);
 		V2Execution = V2ExecutionContext.Get(compilation);
+		V2RunnerUtility = V2RunnerUtilityContext.Get(compilation);
 		V3Assert = V3AssertContext.Get(compilation);
 		V3Core = V3CoreContext.Get(compilation);
 	}
@@ -62,7 +63,7 @@ public class XunitContext
 	/// (including abstractions, assert, core, and execution references).
 	/// </summary>
 	public bool HasV2References =>
-		V2Abstractions is not null || V2Assert is not null || V2Core is not null || V2Execution is not null;
+		V2Abstractions is not null || V2Assert is not null || V2Core is not null || V2Execution is not null || V2RunnerUtility is not null;
 
 	/// <summary>
 	/// Gets a flag which indicates whether there are any xUnit.net v3 references in the project
@@ -94,6 +95,12 @@ public class XunitContext
 	/// not reference v2 Execution, then returns <c>null</c>.
 	/// </summary>
 	public V2ExecutionContext? V2Execution { get; private set; }
+
+	/// <summary>
+	/// Gets information about the reference to xunit.runner.utility.* (v2). If the project does
+	/// not reference v2 Runner Utility, then returns <c>null</c>.
+	/// </summary>
+	public V2RunnerUtilityContext? V2RunnerUtility { get; private set; }
 
 	/// <summary>
 	/// Gets information about the reference to xunit.v3.assert or xunit.v3.assert.source (v3).
@@ -161,6 +168,22 @@ public class XunitContext
 			{
 				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
 				V2Execution = V2ExecutionContext.Get(compilation, v2VersionOverride),
+			};
+
+	/// <summary>
+	/// Used to create a context object for testing purposes, which is stuck to a specific version
+	/// of xunit.runner.utility.* (xunit.abstractions is always version 2.0.3, since it did not float
+	/// versions).
+	/// </summary>
+	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+	/// <param name="v2VersionOverride">The overridden version for xunit.execution.*</param>
+	public static XunitContext ForV2RunnerUtility(
+		Compilation compilation,
+		Version? v2VersionOverride = null) =>
+			new()
+			{
+				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
+				V2RunnerUtility = V2RunnerUtilityContext.Get(compilation, v2VersionOverride),
 			};
 
 	/// <summary>
