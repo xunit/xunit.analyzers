@@ -588,4 +588,11 @@ public static class Descriptors
 	// Placeholder for rule X3008
 
 	// Placeholder for rule X3009
+
+	public static SuppressionDescriptor XS001_DoNotDirectlyAwaitATaskSuppressor { get; } =
+		new(
+			"xUnitS001",
+			"CA2007",
+			"Conflicts with xUnit1030"
+		);
 }
