@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -812,6 +813,9 @@ public class CSharpVerifier<TAnalyzer>
 
 			// Diagnostics are reported in both normal and generated code
 			TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;
+
+			// Tests that check for messages should run independent of current system culture.
+			CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 		}
 
 		public LanguageVersion LanguageVersion { get; }
