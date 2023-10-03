@@ -308,10 +308,10 @@ public static class Descriptors
 	public static DiagnosticDescriptor X1030_DoNotUseConfigureAwait { get; } =
 		Rule(
 			"xUnit1030",
-			"Do not call ConfigureAwait in test method",
+			"Do not call ConfigureAwait(false) in test method",
 			Usage,
 			Warning,
-			"Test methods should not call ConfigureAwait(), as it may bypass parallelization limits."
+			"Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007."
 		);
 
 	public static DiagnosticDescriptor X1031_DoNotUseBlockingTaskOperations { get; } =
