@@ -162,17 +162,18 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
 						// TODO
 
-						// Second check: method return type satisfies test method parameters
+						// Second check: method return type satisfies test method parameters' nullability
 						var rowType = memberType.GetItemType();
 						var itemType = rowType?.GetItemType();
-						var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
-						if (testMethodSymbol is null)
-							continue;
-						var testMethodParameters = testMethodSymbol.Parameters;
-						var testMethodParameterSymbols = testMethod.ParameterList.Parameters;
 
 						if (itemType is not null && itemType.NullableAnnotation == NullableAnnotation.Annotated)
 						{
+							var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
+							if (testMethodSymbol is null)
+								continue;
+							var testMethodParameters = testMethodSymbol.Parameters;
+							var testMethodParameterSymbols = testMethod.ParameterList.Parameters;
+
 							// The method output may contain nulls, so validate whether the test method parameters are nullable
 							for (int i = 0; i < testMethodParameters.Length; i++)
 							{
