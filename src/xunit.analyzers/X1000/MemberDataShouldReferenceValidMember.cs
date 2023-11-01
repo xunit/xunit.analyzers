@@ -156,10 +156,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 					if (memberSymbol.Kind == SymbolKind.Method)
 					{
-						var methodSymbol = (IMethodSymbol)memberSymbol;
-
 						// First check: arguments have types that match method parameters
 						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
+						var dataMethodSymbol = (IMethodSymbol)memberSymbol;
+						var dataMethodParameterSymbols = dataMethodSymbol.Parameters;
 						// TODO
 
 						// Second check: method return type satisfies test method parameters' nullability
@@ -171,13 +171,13 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
 							if (testMethodSymbol is null)
 								continue;
-							var testMethodParameters = testMethodSymbol.Parameters;
-							var testMethodParameterSymbols = testMethod.ParameterList.Parameters;
+							var testMethodParameterSymbols = testMethodSymbol.Parameters;
+							var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
 
 							// The method output may contain nulls, so validate whether the test method parameters are nullable
-							for (int i = 0; i < testMethodParameters.Length; i++)
+							for (int i = 0; i < testMethodParameterSymbols.Length; i++)
 							{
-								var parameter = testMethodParameters[i];
+								var parameter = testMethodParameterSymbols[i];
 								if (parameter.Type is null)
 									continue;
 
@@ -185,17 +185,17 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 								{
 									ReportNullableMethodReturnWithNonNullableTestParameter(
 										context,
-										methodSymbol.Name,
+										dataMethodSymbol.Name,
 										parameter.Type,
-										testMethodParameterSymbols[i]);
+										testMethodParameterSyntaxes[i]);
 								}
 								else if (parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
 								{
 									ReportNullableMethodReturnWithNonNullableTestParameter(
 										context,
-										methodSymbol.Name,
+										dataMethodSymbol.Name,
 										parameter.Type,
-										testMethodParameterSymbols[i]);
+										testMethodParameterSyntaxes[i]);
 								}
 							}
 						}
