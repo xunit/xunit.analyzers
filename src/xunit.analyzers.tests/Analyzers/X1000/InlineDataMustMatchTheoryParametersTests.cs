@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
@@ -1353,6 +1354,99 @@ public class TestClass {{
 }}";
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[InlineData("object")]
+		[InlineData("string")]
+		[InlineData("System.Exception")]
+		public async void NonNullableReferenceTypes(string type)
+		{
+			var source = $@"
+#nullable enable
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.InlineData(1, null)]
+    public void TestMethod(int a, {type} b) {{ }}
+#nullable restore
+}}";
+
+			DiagnosticResult[] expected =
+			{
+				Verify
+					.Diagnostic("xUnit1012")
+					.WithSpan(5, 26, 5, 30)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("b", type)
+			};
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+		}
+
+		[Theory]
+		[InlineData("object")]
+		[InlineData("string")]
+		[InlineData("System.Exception")]
+		public async void NullableReferenceTypes(string type)
+		{
+			var source = $@"
+#nullable enable
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.InlineData(1, null)]
+    public void TestMethod(int a, {type}? b) {{ }}
+#nullable restore
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Theory]
+		[InlineData("1", "object")]
+		[InlineData("\"bob\"", "string")]
+		public async void NullableParamsReferenceTypes(string param, string type)
+		{
+			var source = $@"
+#nullable enable
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.InlineData(1, {param}, null, null)]
+    public void TestMethod(int a, params {type}?[] b) {{ }}
+#nullable restore
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Theory]
+		[InlineData("1", "object")]
+		[InlineData("\"bob\"", "string")]
+		public async void NonNullableParamsReferenceTypes(string param, string type)
+		{
+			var source = $@"
+#nullable enable
+public class TestClass {{
+    [Xunit.Theory]
+    [Xunit.InlineData(1, {param}, null, null)]
+    public void TestMethod(int a, params {type}[] b) {{ }}
+#nullable restore
+}}";
+
+			DiagnosticResult[] expected =
+			{
+				Verify
+					.Diagnostic("xUnit1012")
+					.WithSpan(5, 28 + param.Length, 5, 32 + param.Length)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("b", type),
+				Verify
+					.Diagnostic("xUnit1012")
+					.WithSpan(5, 34 + param.Length, 5, 38 + param.Length)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("b", type),
+			};
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
 		public static TheoryData<string> ValueTypes = new()

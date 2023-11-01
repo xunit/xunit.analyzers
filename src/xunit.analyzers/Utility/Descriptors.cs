@@ -146,10 +146,10 @@ public static class Descriptors
 	public static DiagnosticDescriptor X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
 		Rule(
 			"xUnit1012",
-			"Null should not be used for value type parameters",
+			"Null should only be used for nullable parameters",
 			Usage,
 			Warning,
-			"Null should not be used for value type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
+			"Null should not be used for type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
 		);
 
 	public static DiagnosticDescriptor X1013_PublicMethodShouldBeMarkedAsTest { get; } =

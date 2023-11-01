@@ -92,9 +92,11 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 				for (; valueIdx < values.Length && paramIdx < method.Parameters.Length; valueIdx++)
 				{
 					var parameter = method.Parameters[paramIdx];
+					var value = values[valueIdx];
 
-					// If the parameter type is object, everything is compatible
-					if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType))
+					// If the parameter type is object, everything is compatible, though we still need to check for nullability
+					if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
+						&& (!value.IsNull || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
 					{
 						paramIdx++;
 						continue;
@@ -108,13 +110,14 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							: null;
 
 					// For params array of object, just consume everything that's left
-					if (paramsElementType != null && SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType))
+					if (paramsElementType != null
+						&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
+						&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
 					{
 						valueIdx = values.Length;
 						break;
 					}
 
-					var value = values[valueIdx];
 					if (value.IsNull)
 					{
 						var isValueTypeParam =
@@ -122,7 +125,12 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 								? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
 								: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 
-						if (isValueTypeParam)
+						var isNonNullableReferenceTypeParam =
+							paramsElementType != null
+								? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
+								: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
+
+						if (isValueTypeParam || isNonNullableReferenceTypeParam)
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
