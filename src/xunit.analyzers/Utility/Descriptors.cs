@@ -341,7 +341,15 @@ public static class Descriptors
 			"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
 		);
 
-	// Placeholder for rule X1034
+
+	public static DiagnosticDescriptor X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters { get; } =
+		Rule(
+			"xUnit1034",
+			"MemberData references a method {0} that can return null values, but test method parameter {1} does not accept nulls",
+			Usage,
+			Info,
+			"MemberData references a method {0} that can return null values, but test method parameter {1} does not accept nulls. Make the parameter type nullable or ensure that the MemberData method does not return nulls."
+		);
 
 	// Placeholder for rule X1035
 
