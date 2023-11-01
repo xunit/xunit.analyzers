@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
@@ -1379,7 +1380,7 @@ public class TestClass {{
 					.WithArguments("b", type)
 			};
 
-			await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source, expected);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
 		[Theory]
@@ -1397,7 +1398,7 @@ public class TestClass {{
 #nullable restore
 }}";
 
-			await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 		}
 
 		[Theory]
@@ -1414,7 +1415,7 @@ public class TestClass {{
 #nullable restore
 }}";
 
-			await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 		}
 
 		[Theory]
@@ -1445,7 +1446,7 @@ public class TestClass {{
 					.WithArguments("b", type),
 			};
 
-			await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source, expected);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
 		public static TheoryData<string> ValueTypes = new()
