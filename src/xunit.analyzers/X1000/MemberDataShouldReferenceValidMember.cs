@@ -199,7 +199,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 								break;
 							}
 
-							if (!value.HasValue)
+							if (!value.HasValue || value.Value is null)
 							{
 								var isValueTypeParam =
 									paramsElementType != null

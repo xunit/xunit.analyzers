@@ -1,5 +1,6 @@
 using Microsoft;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
@@ -647,7 +648,7 @@ public class TestClass {
 #nullable restore
 ";
 
-		await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 	}
 
 	[Fact]
@@ -677,7 +678,37 @@ public class TestClass {{
 				.WithArguments("TestData", "string"),
 		};
 
-		await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfPassingNullToNonNullableMethodParameter_InNullableContext()
+	{
+		var source = @$"
+#nullable enable
+public class TestClass {{
+    public static System.Collections.Generic.List<object[]> TestData(int n, string f) {{ return new System.Collections.Generic.List<object[]?> {{ new object[] {{ f }} }}; }}
+
+    [Xunit.MemberData(nameof(TestData), new object[] {{ null, null }})]
+    public void TestMethod(string n) {{ }}
+}}
+#nullable restore";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(6, 56, 6, 60)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("n", "int"),
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(6, 62, 6, 66)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("f", "string"),
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Fact]
