@@ -411,46 +411,72 @@ public class TestClass {{
 
 	[Theory]
 	[InlineData("'a', 123")]
-	[InlineData("new object[] { 'a', 123 }")]
-	[InlineData("parameters: new object[] { 'a', 123 }")]
+	[InlineData("new object[] {{ 'a', 123 }}")]
+	[InlineData("{0}: new object[] {{ 'a', 123 }}")]
 	public async void FindsWarning_ForMemberDataParametersForFieldMember(string paramsArgument)
 	{
-		var source = $@"
+		var sourceTemplate = @"
 public class TestClass {{
     public static System.Collections.Generic.IEnumerable<object[]> Data;
 
-    [Xunit.MemberData(nameof(Data), {paramsArgument}, MemberType = typeof(TestClass))]
+    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
     public void TestMethod() {{ }}
 }}";
-		var expected =
+
+		var argV2 = string.Format(paramsArgument, "parameters");
+		var sourceV2 = string.Format(sourceTemplate, argV2);
+		var expectedV2 =
 			Verify
 				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + paramsArgument.Length)
+				.WithSpan(5, 37, 5, 37 + argV2.Length)
 				.WithSeverity(DiagnosticSeverity.Warning);
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
+
+		var argV3 = string.Format(paramsArgument, "arguments");
+		var sourceV3 = string.Format(sourceTemplate, argV3);
+		var expectedV3 =
+			Verify
+				.Diagnostic("xUnit1021")
+				.WithSpan(5, 37, 5, 37 + argV3.Length)
+				.WithSeverity(DiagnosticSeverity.Warning);
+
+		await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
 	}
 
 	[Theory]
 	[InlineData("'a', 123")]
-	[InlineData("new object[] { 'a', 123 }")]
-	[InlineData("parameters: new object[] { 'a', 123 }")]
+	[InlineData("new object[] {{ 'a', 123 }}")]
+	[InlineData("{0}: new object[] {{ 'a', 123 }}")]
 	public async void FindsWarning_ForMemberDataParametersForPropertyMember(string paramsArgument)
 	{
-		var source = $@"
+		var sourceTemplate = @"
 public class TestClass {{
     public static System.Collections.Generic.IEnumerable<object[]> Data {{ get; set; }}
 
-    [Xunit.MemberData(nameof(Data), {paramsArgument}, MemberType = typeof(TestClass))]
+    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
     public void TestMethod() {{ }}
 }}";
-		var expected =
+
+		var argV2 = string.Format(paramsArgument, "parameters");
+		var sourceV2 = string.Format(sourceTemplate, argV2);
+		var expectedV2 =
 			Verify
 				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + paramsArgument.Length)
+				.WithSpan(5, 37, 5, 37 + argV2.Length)
 				.WithSeverity(DiagnosticSeverity.Warning);
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
+
+		var argV3 = string.Format(paramsArgument, "arguments");
+		var sourceV3 = string.Format(sourceTemplate, argV3);
+		var expectedV3 =
+			Verify
+				.Diagnostic("xUnit1021")
+				.WithSpan(5, 37, 5, 37 + argV3.Length)
+				.WithSeverity(DiagnosticSeverity.Warning);
+
+		await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
 	}
 
 	[Fact]
