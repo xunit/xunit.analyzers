@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -6,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Xunit.Analyzers.Utility;
 
 namespace Xunit.Analyzers;
 
@@ -22,7 +24,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 			Descriptors.X1020_MemberDataPropertyMustHaveGetter,
 			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
-			Descriptors.X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters
+			Descriptors.X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters,
+			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
+			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
+			Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter
 		)
 	{ }
 
@@ -30,9 +35,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
-		if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.MemberDataAttributeType is null)
+		if (xunitContext.Core.MemberDataAttributeType is null)
 			return;
 
+		var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 		var compilation = context.Compilation;
 
 		var supportsNameofOperator =
@@ -93,7 +99,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (declaredMemberTypeSymbol is null)
 					continue;
 
-				// TODO: Adjust member lookup for method selection based on new default values logic
 				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
 
 				if (memberSymbol is null)
@@ -158,9 +163,125 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					{
 						// First check: arguments have types that match method parameters
 						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
+						if (argumentSyntaxList is null)
+							continue;
+
 						var dataMethodSymbol = (IMethodSymbol)memberSymbol;
 						var dataMethodParameterSymbols = dataMethodSymbol.Parameters;
-						// TODO
+
+						int valueIdx = 0, paramIdx = 0;
+						for (; valueIdx < argumentSyntaxList.Count && paramIdx < dataMethodParameterSymbols.Length; valueIdx++)
+						{
+							var parameter = dataMethodParameterSymbols[paramIdx];
+							var value = semanticModel.GetConstantValue(argumentSyntaxList[valueIdx], context.CancellationToken);
+
+							// If the parameter type is object, everything is compatible, though we still need to check for nullability
+							if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
+								&& (!value.HasValue || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
+							{
+								paramIdx++;
+								continue;
+							}
+
+							// If this is a params array (and we're using a version of xUnit.net that supports params arrays),
+							// get the element type so we can compare it appropriately.
+							var paramsElementType =
+								xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+									? arrayParam.ElementType
+									: null;
+
+							// For params array of object, just consume everything that's left
+							if (paramsElementType != null
+								&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
+								&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
+							{
+								valueIdx = extraArguments.Count;
+								break;
+							}
+
+							if (!value.HasValue)
+							{
+								var isValueTypeParam =
+									paramsElementType != null
+										? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
+										: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
+
+								var isNonNullableReferenceTypeParam =
+									paramsElementType != null
+										? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
+										: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
+
+								if (isValueTypeParam || isNonNullableReferenceTypeParam)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+									builder[Constants.Properties.ParameterName] = parameter.Name;
+
+									context.ReportDiagnostic(
+										Diagnostic.Create(
+											Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
+											argumentSyntaxList[valueIdx].GetLocation(),
+											builder.ToImmutable(),
+											parameter.Name,
+											SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+										)
+									);
+								}
+							}
+							else
+							{
+								var valueType = compilation.GetTypeByMetadataName(value.Value!.GetType().FullName ?? "System.Object");
+								if (valueType is null)
+									continue;
+
+								var isCompatible = ConversionChecker.IsConvertible(compilation, valueType, parameter.Type, xunitContext);
+								if (!isCompatible && paramsElementType != null)
+									isCompatible = ConversionChecker.IsConvertible(compilation, valueType, paramsElementType, xunitContext);
+
+								if (!isCompatible)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+									builder[Constants.Properties.ParameterName] = parameter.Name;
+
+									context.ReportDiagnostic(
+										Diagnostic.Create(
+											Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
+											argumentSyntaxList[valueIdx].GetLocation(),
+											builder.ToImmutable(),
+											parameter.Name,
+											SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+										)
+									);
+								}
+							}
+
+							if (!parameter.IsParams)
+							{
+								// Stop moving paramIdx forward if the argument is a parameter array, regardless of xunit's support for it
+								paramIdx++;
+							}
+						}
+
+						for (; valueIdx < argumentSyntaxList.Count; valueIdx++)
+						{
+							var value = semanticModel.GetConstantValue(argumentSyntaxList[valueIdx], context.CancellationToken);
+							var valueTypeName = value.Value?.GetType().FullName;
+							var valueType = compilation.GetTypeByMetadataName(valueTypeName ?? "System.Object");
+							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+
+							builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+							builder[Constants.Properties.ParameterSpecialType] = valueTypeName ?? string.Empty;
+
+							context.ReportDiagnostic(
+								Diagnostic.Create(
+									Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
+									argumentSyntaxList[valueIdx].GetLocation(),
+									builder.ToImmutable(),
+									value.Value?.ToString() ?? "null"
+								)
+							);
+						}
 
 						// Second check: method return type satisfies test method parameters' nullability
 						var rowType = memberType.GetItemType();
@@ -207,6 +328,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(List<AttributeArgumentSyntax> arguments)
 	{
+		if (arguments.Count > 1)
+			return arguments.Select(a => a.Expression).ToList();
 		if (arguments.Count != 1)
 			return null;
 
@@ -220,7 +343,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		};
 
 		if (initializer is null)
-			return null;
+			return new List<ExpressionSyntax> { argumentExpression };
 
 		return initializer.Expressions.ToList();
 	}
