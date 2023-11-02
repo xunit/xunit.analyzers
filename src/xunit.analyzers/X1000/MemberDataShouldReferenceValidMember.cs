@@ -253,7 +253,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 
 							builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
-							builder[Constants.Properties.ParameterSpecialType] = valueTypeName ?? string.Empty;
+							builder[Constants.Properties.ParameterSpecialType] = valueType?.SpecialType.ToString() ?? string.Empty;
 
 							ReportTooManyArgumentsProvided(context, argumentSyntaxList[valueIdx], value.Value, builder);
 						}
