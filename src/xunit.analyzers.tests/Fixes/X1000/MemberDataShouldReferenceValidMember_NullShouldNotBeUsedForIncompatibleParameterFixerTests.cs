@@ -3,7 +3,7 @@ using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
-public class MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameterFixerTests
+public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixerTests
 {
 	[Fact]
 	public async void MakesParameterNullable()
@@ -30,7 +30,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFix(before, after, MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 
 	[Fact]
@@ -62,6 +62,6 @@ public class TestClass {
 #nullable restore
 }";
 
-		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 }

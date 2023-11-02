@@ -12,11 +12,11 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameterFixer : BatchedCodeFixProvider
+public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer : BatchedCodeFixProvider
 {
 	public const string Key_MakeParameterNullable = "xUnit1037_MakeParameterNullable";
 
-	public MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameterFixer() :
+	public MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer() :
 		base(Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
 	{ }
 

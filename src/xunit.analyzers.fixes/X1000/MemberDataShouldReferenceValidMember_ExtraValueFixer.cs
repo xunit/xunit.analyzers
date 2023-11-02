@@ -13,12 +13,12 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixer : BatchedCodeFixProvider
+public class MemberDataShouldReferenceValidMember_ExtraValueFixer : BatchedCodeFixProvider
 {
 	public const string Key_AddMethodParameter = "xUnit1036_AddMethodParameter";
 	public const string Key_RemoveExtraDataValue = "xUnit1036_RemoveExtraDataValue";
 
-	public MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixer() :
+	public MemberDataShouldReferenceValidMember_ExtraValueFixer() :
 		base(Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue.Id)
 	{ }
 

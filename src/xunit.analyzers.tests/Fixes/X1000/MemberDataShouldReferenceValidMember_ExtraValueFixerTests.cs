@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
-public class MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixerTests
+public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 {
 	[Fact]
 	public async void RemovesUnusedData()
@@ -29,7 +29,7 @@ public class TestClass {
     public void TestMethod(int a) { }
 }";
 
-		await Verify.VerifyCodeFix(before, after, MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_RemoveExtraDataValue);
 	}
 
 	[Theory]
@@ -61,7 +61,7 @@ public class TestClass {{
     public void TestMethod(int a) {{ }}
 }}";
 
-		await Verify.VerifyCodeFix(before, after, MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixer.Key_AddMethodParameter);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
 	}
 
 	[Fact]
@@ -89,6 +89,6 @@ public class TestClass {{
     public void TestMethod(int n) {{ }}
 }}";
 
-		await Verify.VerifyCodeFix(before, after, MemberDataArgumentsMustMatchMethodParameters_ExtraValueFixer.Key_AddMethodParameter);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
 	}
 }
