@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -91,12 +91,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (classSyntax is null)
 					continue;
 
-				var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
-				if (testClassTypeSymbol is null)
-					continue;
-
-				var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-				if (declaredMemberTypeSymbol is null)
+				(var testClassTypeSymbol, var declaredMemberTypeSymbol) = GetClassTypesForAttribute(
+					attributeSyntax.ArgumentList, semanticModel, context.CancellationToken);
+				if (declaredMemberTypeSymbol is null || testClassTypeSymbol is null)
 					continue;
 
 				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
@@ -217,15 +214,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 									builder[Constants.Properties.ParameterName] = parameter.Name;
 
-									context.ReportDiagnostic(
-										Diagnostic.Create(
-											Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
-											argumentSyntaxList[valueIdx].GetLocation(),
-											builder.ToImmutable(),
-											parameter.Name,
-											SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
-										)
-									);
+									ReportMemberMethodParameterNullability(context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
 								}
 							}
 							else
@@ -244,15 +233,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 									builder[Constants.Properties.ParameterName] = parameter.Name;
 
-									context.ReportDiagnostic(
-										Diagnostic.Create(
-											Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
-											argumentSyntaxList[valueIdx].GetLocation(),
-											builder.ToImmutable(),
-											parameter.Name,
-											SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
-										)
-									);
+									ReportMemberMethodParametersDoNotMatchArgumentTypes(
+										context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
 								}
 							}
 
@@ -273,14 +255,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
 							builder[Constants.Properties.ParameterSpecialType] = valueTypeName ?? string.Empty;
 
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
-									argumentSyntaxList[valueIdx].GetLocation(),
-									builder.ToImmutable(),
-									value.Value?.ToString() ?? "null"
-								)
-							);
+							ReportTooManyArgumentsProvided(context, argumentSyntaxList[valueIdx], value.Value, builder);
 						}
 
 						// Second check: method return type satisfies test method parameters' nullability
@@ -305,18 +280,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 								if (parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated)
 								{
 									ReportNullableMethodReturnWithNonNullableTestParameter(
-										context,
-										dataMethodSymbol.Name,
-										parameter.Type,
-										testMethodParameterSyntaxes[i]);
+										context, dataMethodSymbol.Name, parameter.Type, testMethodParameterSyntaxes[i]);
 								}
 								else if (parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
 								{
 									ReportNullableMethodReturnWithNonNullableTestParameter(
-										context,
-										dataMethodSymbol.Name,
-										parameter.Type,
-										testMethodParameterSyntaxes[i]);
+										context, dataMethodSymbol.Name, parameter.Type, testMethodParameterSyntaxes[i]);
 								}
 							}
 						}
@@ -368,7 +337,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return null;
 	}
 
-	static ISymbol? FindMethodSymbol(
+	public static ISymbol? FindMethodSymbol(
 		string memberName,
 		ITypeSymbol? type,
 		int paramsCount)
@@ -522,4 +491,75 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					typeSymbol.ToDisplayString()
 				)
 			);
+
+	static void ReportMemberMethodParametersDoNotMatchArgumentTypes(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		IParameterSymbol parameter,
+		ITypeSymbol? paramsElementType,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					parameter.Name,
+					SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+				)
+			);
+
+	static void ReportTooManyArgumentsProvided(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		object? value,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					value?.ToString() ?? "null"
+				)
+			);
+	static void ReportMemberMethodParameterNullability(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		IParameterSymbol parameter,
+		ITypeSymbol? paramsElementType,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					parameter.Name,
+					SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+				)
+			);
+
+	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MethodClass) GetClassTypesForAttribute(
+		AttributeArgumentListSyntax attributeList, SemanticModel semanticModel, CancellationToken cancellationToken)
+	{
+		var memberTypeArgument = attributeList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
+		var memberTypeSymbol = default(ITypeSymbol);
+		if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
+		{
+			var typeSyntax = typeofExpression.Type;
+			memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, cancellationToken).Type;
+		}
+
+		var classSyntax = attributeList.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		if (classSyntax is null)
+			return (null, null);
+
+		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
+		if (testClassTypeSymbol is null)
+			return (null, null);
+
+		var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
+		if (declaredMemberTypeSymbol is null)
+			return (testClassTypeSymbol, null);
+
+		return (testClassTypeSymbol, declaredMemberTypeSymbol);
+	}
 }
