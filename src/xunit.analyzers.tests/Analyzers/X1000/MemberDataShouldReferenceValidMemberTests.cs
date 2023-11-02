@@ -652,36 +652,6 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void FindWarning_IfHasValidNullableListMember_InNullableContext()
-	{
-		var source = @$"
-#nullable enable
-public class TestClass {{
-    public static System.Collections.Generic.List<object?[]> TestData(int n) {{ return new System.Collections.Generic.List<object[]?> {{ new object[] {{ n, ""foo"" }} }}; }}
-
-    [Xunit.MemberData(nameof(TestData), new object[] {{ 1 }})]
-    public void TestMethod(int n, string f) {{ }}
-}}
-#nullable restore";
-
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1034")
-				.WithSpan(7, 28, 7, 31)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments("TestData", "int"),
-			Verify
-				.Diagnostic("xUnit1034")
-				.WithSpan(7, 35, 7, 41)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments("TestData", "string"),
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Fact]
 	public async void FindWarning_IfPassingNullToNonNullableMethodParameter_InNullableContext()
 	{
 		var source = @$"
@@ -697,12 +667,12 @@ public class TestClass {{
 		DiagnosticResult[] expected =
 		{
 			Verify
-				.Diagnostic("xUnit1037")
+				.Diagnostic("xUnit1034")
 				.WithSpan(6, 56, 6, 60)
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("n", "int"),
 			Verify
-				.Diagnostic("xUnit1037")
+				.Diagnostic("xUnit1034")
 				.WithSpan(6, 62, 6, 66)
 				.WithSeverity(DiagnosticSeverity.Warning)
 				.WithArguments("f", "string"),

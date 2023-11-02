@@ -15,7 +15,7 @@ public class TestClass {
     public static System.Collections.Generic.IEnumerable<object[]> TestData(int n, int k) { yield return new object[] { n }; }
 
     [Theory]
-    [MemberData(nameof(TestData), 42, {|xUnit1037:null|})]
+    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
     public void TestMethod(int a) { }
 }";
 
@@ -44,7 +44,7 @@ public class TestClass {
     public static System.Collections.Generic.IEnumerable<object[]> TestData(int n, string k) { yield return new object[] { n }; }
 
     [Theory]
-    [MemberData(nameof(TestData), 42, {|xUnit1037:null|})]
+    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
     public void TestMethod(int a) { }
 #nullable restore
 }";

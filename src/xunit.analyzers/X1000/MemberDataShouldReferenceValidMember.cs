@@ -24,10 +24,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 			Descriptors.X1020_MemberDataPropertyMustHaveGetter,
 			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
-			Descriptors.X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters,
+			Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
 			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
-			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
-			Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter
+			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue
 		)
 	{ }
 
@@ -158,7 +157,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 					if (memberSymbol.Kind == SymbolKind.Method)
 					{
-						// First check: arguments have types that match method parameters
+						// Arguments have types that match method parameters
 						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
 						if (argumentSyntaxList is null)
 							continue;
@@ -256,38 +255,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							builder[Constants.Properties.ParameterSpecialType] = valueType?.SpecialType.ToString() ?? string.Empty;
 
 							ReportTooManyArgumentsProvided(context, argumentSyntaxList[valueIdx], value.Value, builder);
-						}
-
-						// Second check: method return type satisfies test method parameters' nullability
-						var rowType = memberType.GetItemType();
-						var itemType = rowType?.GetItemType();
-
-						if (itemType is not null && itemType.NullableAnnotation == NullableAnnotation.Annotated)
-						{
-							var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
-							if (testMethodSymbol is null)
-								continue;
-							var testMethodParameterSymbols = testMethodSymbol.Parameters;
-							var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
-
-							// The method output may contain nulls, so validate whether the test method parameters are nullable
-							for (int i = 0; i < testMethodParameterSymbols.Length; i++)
-							{
-								var parameter = testMethodParameterSymbols[i];
-								if (parameter.Type is null)
-									continue;
-
-								if (parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated)
-								{
-									ReportNullableMethodReturnWithNonNullableTestParameter(
-										context, dataMethodSymbol.Name, parameter.Type, testMethodParameterSyntaxes[i]);
-								}
-								else if (parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)
-								{
-									ReportNullableMethodReturnWithNonNullableTestParameter(
-										context, dataMethodSymbol.Name, parameter.Type, testMethodParameterSyntaxes[i]);
-								}
-							}
 						}
 					}
 				}
@@ -478,20 +445,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		);
 	}
 
-	static void ReportNullableMethodReturnWithNonNullableTestParameter(
-		SyntaxNodeAnalysisContext context,
-		string methodName,
-		ITypeSymbol typeSymbol,
-		ParameterSyntax parameterSyntax) =>
-			context.ReportDiagnostic(
-				Diagnostic.Create(
-					Descriptors.X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters,
-					parameterSyntax.Type!.GetLocation(),
-					methodName,
-					typeSymbol.ToDisplayString()
-				)
-			);
-
 	static void ReportMemberMethodParametersDoNotMatchArgumentTypes(
 		SyntaxNodeAnalysisContext context,
 		ExpressionSyntax syntax,
@@ -529,7 +482,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ImmutableDictionary<string, string?>.Builder builder) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
+					Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
 					syntax.GetLocation(),
 					builder.ToImmutable(),
 					parameter.Name,

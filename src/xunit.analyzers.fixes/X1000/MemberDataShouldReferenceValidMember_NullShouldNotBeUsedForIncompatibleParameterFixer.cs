@@ -14,10 +14,10 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer : BatchedCodeFixProvider
 {
-	public const string Key_MakeParameterNullable = "xUnit1037_MakeParameterNullable";
+	public const string Key_MakeParameterNullable = "xUnit1034_MakeParameterNullable";
 
 	public MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer() :
-		base(Descriptors.X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
+		base(Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter.Id)
 	{ }
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)

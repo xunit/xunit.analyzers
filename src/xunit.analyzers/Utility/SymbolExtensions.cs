@@ -28,37 +28,6 @@ public static class SymbolExtensions
 		return namedTypeSymbol.TypeArguments[0];
 	}
 
-	/// <summary>
-	/// If the passed <paramref name="typeSymbol"/> implements <see cref="IEnumerable{T}"/>, then returns
-	/// the item type of the underlying enumerable type (aka, T); otherwise, returns <c>null</c>.
-	/// </summary>
-	public static ITypeSymbol? GetItemType(this ITypeSymbol? typeSymbol)
-	{
-		if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
-			return arrayTypeSymbol.ElementType;
-		if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
-			return null;
-
-		INamedTypeSymbol? working = namedTypeSymbol;
-		while (working is not null)
-		{
-			var candidateItem = working.GetEnumerableType();
-			if (candidateItem is not null)
-				return candidateItem;
-
-			foreach (var workingInterface in working.Interfaces)
-			{
-				candidateItem = workingInterface.GetEnumerableType();
-				if (candidateItem is not null)
-					return candidateItem;
-			}
-
-			working = working.BaseType;
-		}
-
-		return null;
-	}
-
 	public static INamedTypeSymbol? GetGenericInterfaceImplementation(
 		this ITypeSymbol implementingType,
 		INamedTypeSymbol openInterfaceType)

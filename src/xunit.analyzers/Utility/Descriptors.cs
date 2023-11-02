@@ -341,14 +341,13 @@ public static class Descriptors
 			"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
 		);
 
-
-	public static DiagnosticDescriptor X1034_MemberDataMethodReturnsNullableWithNonNullableTestParameters { get; } =
+	public static DiagnosticDescriptor X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
 		Rule(
 			"xUnit1034",
-			"MemberData references a method {0} that can return null values, but test method parameter {1} does not accept nulls",
+			"Null should only be used for nullable parameters",
 			Usage,
-			Info,
-			"MemberData references a method {0} that can return null values, but test method parameter {1} does not accept nulls. Make the parameter type nullable or ensure that the MemberData method does not return nulls."
+			Warning,
+			"Null should not be used for type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
 		);
 
 	public static DiagnosticDescriptor X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType { get; } =
@@ -369,14 +368,7 @@ public static class Descriptors
 			"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
 		);
 
-	public static DiagnosticDescriptor X1037_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
-		Rule(
-			"xUnit1037",
-			"Null should only be used for nullable parameters",
-			Usage,
-			Warning,
-			"Null should not be used for type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
-		);
+	// Placeholder for rule X1037
 
 	// Placeholder for rule X1038
 
