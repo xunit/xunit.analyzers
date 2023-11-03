@@ -730,7 +730,7 @@ public class TestClass {
 		{
 			Verify
 				.Diagnostic("xUnit1037")
-				.WithSpan(6, 56, 6, 60)
+				.WithSpan(5, 6, 5, 60)
 				.WithSeverity(DiagnosticSeverity.Error)
 		};
 
@@ -748,7 +748,15 @@ public class TestClass {
     public void TestMethod(int n, string f) { }
 }";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(5, 6, 5, 60)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
 	[Theory]
@@ -764,7 +772,16 @@ public class TestClass {{
     public void TestMethod(string f) {{ }}
 }}";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(6, 28, 6, 34)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments(type, "f")
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
 	[Fact]
@@ -780,6 +797,20 @@ public class TestClass {
 }
 #nullable restore";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(7, 28, 7, 31)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments("int?", "n"),
+			Verify
+				.Diagnostic("xUnit1039")
+				.WithSpan(7, 35, 7, 41)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("string?", "f")
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 }

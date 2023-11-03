@@ -287,12 +287,16 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 							builder[Constants.Properties.MemberName] = memberName;
 
-							ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(context, methodType.Locations.Single(), builder);
+							ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(context, attributeSyntax.GetLocation(), builder);
 							continue;
 						}
 
 						for (int typeParamIdx = 0; typeParamIdx < testMethodParameterSymbols.Length; typeParamIdx++)
 						{
+							var parameterSyntax = testMethodParameterSyntaxes[typeParamIdx];
+							if (parameterSyntax.Type is null)
+								continue;
+
 							var parameter = testMethodParameterSymbols[typeParamIdx];
 							if (parameter.Type is null)
 								continue;
@@ -308,23 +312,11 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 								builder[Constants.Properties.MemberName] = memberName;
 
 								ReportMemberMethodTheoryDataIncompatibleType(
-									context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
+									context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
 							}
 
-							if (parameter.Type.IsValueType && typeArgument.IsValueType)
-							{
-								if (parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
-									&& typeArgument.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-								{
-									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-									builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
-									builder[Constants.Properties.MemberName] = memberName;
-
-									ReportMemberMethodTheoryDataNullability(
-										context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
-								}
-							}
-
+							// Nullability of value types is handled by the type compatibility test,
+							// but nullability of reference types isn't
 							if (parameter.Type.IsReferenceType && typeArgument.IsReferenceType)
 							{
 								if (parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated
@@ -335,7 +327,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									builder[Constants.Properties.MemberName] = memberName;
 
 									ReportMemberMethodTheoryDataNullability(
-										context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
+										context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
 								}
 							}
 						}
