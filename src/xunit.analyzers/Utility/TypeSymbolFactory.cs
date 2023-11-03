@@ -128,6 +128,9 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.ITheoryDataRow");
 
+	public static INamedTypeSymbol? TheoryDataN(Compilation compilation, int n) =>
+		compilation.GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString());
+
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITypeInfo");
 

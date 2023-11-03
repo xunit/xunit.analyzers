@@ -700,4 +700,86 @@ public class TestClass : TestClassBase {
 
 		await Verify.VerifyAnalyzer(source);
 	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMember()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int, string> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(6, 56, 6, 60)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, string f) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Theory]
+	[InlineData("int")]
+	[InlineData("System.Exception")]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(string type)
+	{
+		var source = @$"
+public class TestClass {{
+    public static Xunit.TheoryData<{type}> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] {{ 1 }})]
+    public void TestMethod(string f) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithMismatchedNullability()
+	{
+		var source = @"
+#nullable enable
+public class TestClass {
+    public static Xunit.TheoryData<int?, string?> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, string f) { }
+}
+#nullable restore";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
 }

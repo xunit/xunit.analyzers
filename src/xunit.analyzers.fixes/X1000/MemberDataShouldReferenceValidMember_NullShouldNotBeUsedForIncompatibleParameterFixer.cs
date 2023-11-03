@@ -55,12 +55,8 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 		if (declaredMemberTypeSymbol is null)
 			return;
 
-		var memberNameArgument = attributeList?.Arguments.FirstOrDefault();
-		if (memberNameArgument is null)
-			return;
-
-		var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
-		if (constantValue.Value is not string memberName)
+		var memberName = diagnostic.Properties[Constants.Properties.MemberName];
+		if (memberName is null)
 			return;
 
 		var memberSymbol = MemberDataShouldReferenceValidMember.FindMethodSymbol(memberName, declaredMemberTypeSymbol, paramsCount);

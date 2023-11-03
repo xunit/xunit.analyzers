@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -26,7 +27,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
 			Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
 			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
-			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue
+			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
+			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_InsufficientOrExtraTypeParameters,
+			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 		)
 	{ }
 
@@ -39,6 +43,14 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 		var compilation = context.Compilation;
+
+		Dictionary<int, INamedTypeSymbol> theoryDataTypes = new();
+		for (int i = 1; i <= 10; i++)
+		{
+			var symbol = TypeSymbolFactory.TheoryDataN(compilation, i);
+			if (symbol is not null)
+				theoryDataTypes.Add(i, symbol);
+		}
 
 		var supportsNameofOperator =
 			compilation is CSharpCompilation cSharpCompilation
@@ -85,10 +97,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					var typeSyntax = typeofExpression.Type;
 					memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
 				}
-
-				var classSyntax = attributeSyntax.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-				if (classSyntax is null)
-					continue;
 
 				(var testClassTypeSymbol, var declaredMemberTypeSymbol) = GetClassTypesForAttribute(
 					attributeSyntax.ArgumentList, semanticModel, context.CancellationToken);
@@ -157,7 +165,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 					if (memberSymbol.Kind == SymbolKind.Method)
 					{
-						// Arguments have types that match method parameters
+						// First check: arguments have types that match method parameters
 						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
 						if (argumentSyntaxList is null)
 							continue;
@@ -212,6 +220,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 									builder[Constants.Properties.ParameterName] = parameter.Name;
+									builder[Constants.Properties.MemberName] = memberName;
 
 									ReportMemberMethodParameterNullability(context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
 								}
@@ -231,6 +240,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
 									builder[Constants.Properties.ParameterName] = parameter.Name;
+									builder[Constants.Properties.MemberName] = memberName;
 
 									ReportMemberMethodParametersDoNotMatchArgumentTypes(
 										context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
@@ -253,8 +263,83 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 							builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
 							builder[Constants.Properties.ParameterSpecialType] = valueType?.SpecialType.ToString() ?? string.Empty;
+							builder[Constants.Properties.MemberName] = memberName;
 
 							ReportTooManyArgumentsProvided(context, argumentSyntaxList[valueIdx], value.Value, builder);
+						}
+
+						// Second check: method return type, if TheoryData<>, satisfies test method parameters' types and nullability
+						if (memberType is not INamedTypeSymbol methodType || !methodType.IsGenericType)
+							continue;
+
+						var methodTypeArguments = methodType.TypeArguments;
+						if (!SymbolEqualityComparer.Default.Equals(theoryDataTypes[methodTypeArguments.Length], methodType.OriginalDefinition))
+						{
+							continue;
+						}
+
+						var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
+						if (testMethodSymbol is null)
+							continue;
+						var testMethodParameterSymbols = testMethodSymbol.Parameters;
+						var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
+
+						if (testMethodParameterSymbols.Length != methodTypeArguments.Length)
+						{
+							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+							builder[Constants.Properties.MemberName] = memberName;
+
+							ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(context, methodType.Locations.Single(), builder);
+							continue;
+						}
+
+						for (int typeParamIdx = 0; typeParamIdx < testMethodParameterSymbols.Length; typeParamIdx++)
+						{
+							var parameter = testMethodParameterSymbols[typeParamIdx];
+							if (parameter.Type is null)
+								continue;
+
+							var typeArgument = methodTypeArguments[typeParamIdx];
+							if (typeArgument is null)
+								continue;
+
+							if (!parameter.Type.IsAssignableFrom(typeArgument))
+							{
+								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+								builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
+								builder[Constants.Properties.MemberName] = memberName;
+
+								ReportMemberMethodTheoryDataIncompatibleType(
+									context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
+							}
+
+							if (parameter.Type.IsValueType && typeArgument.IsValueType)
+							{
+								if (parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
+									&& typeArgument.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
+									builder[Constants.Properties.MemberName] = memberName;
+
+									ReportMemberMethodTheoryDataNullability(
+										context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
+								}
+							}
+
+							if (parameter.Type.IsReferenceType && typeArgument.IsReferenceType)
+							{
+								if (parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated
+									&& typeArgument.NullableAnnotation == NullableAnnotation.Annotated)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
+									builder[Constants.Properties.MemberName] = memberName;
+
+									ReportMemberMethodTheoryDataNullability(
+										context, typeArgument.Locations.Single(), typeArgument, parameter, builder);
+								}
+							}
 						}
 					}
 				}
@@ -474,6 +559,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					value?.ToString() ?? "null"
 				)
 			);
+
 	static void ReportMemberMethodParameterNullability(
 		SyntaxNodeAnalysisContext context,
 		ExpressionSyntax syntax,
@@ -490,7 +576,51 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				)
 			);
 
-	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MethodClass) GetClassTypesForAttribute(
+	static void ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(
+		SyntaxNodeAnalysisContext context,
+		Location location,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_InsufficientOrExtraTypeParameters,
+					location,
+					builder.ToImmutable()
+				)
+			);
+
+	static void ReportMemberMethodTheoryDataIncompatibleType(
+		SyntaxNodeAnalysisContext context,
+		Location location,
+		ITypeSymbol theoryDataTypeParameter,
+		IParameterSymbol parameter,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+					location,
+					builder.ToImmutable(),
+					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
+					parameter.Name
+				)
+			);
+
+	static void ReportMemberMethodTheoryDataNullability(
+		SyntaxNodeAnalysisContext context,
+		Location location,
+		ITypeSymbol theoryDataTypeParameter,
+		IParameterSymbol parameter,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+					location,
+					builder.ToImmutable(),
+					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
+					parameter.Name
+				)
+			);
+
+	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MemberClass) GetClassTypesForAttribute(
 		AttributeArgumentListSyntax attributeList, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
 		var memberTypeArgument = attributeList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
