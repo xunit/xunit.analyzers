@@ -341,11 +341,32 @@ public static class Descriptors
 			"Test class '{0}' does not contain constructor argument of type '{1}'. Add a constructor argument to consume the fixture data."
 		);
 
-	// Placeholder for rule X1034
+	public static DiagnosticDescriptor X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter { get; } =
+		Rule(
+			"xUnit1034",
+			"Null should only be used for nullable parameters",
+			Usage,
+			Warning,
+			"Null should not be used for type parameter '{0}' of type '{1}'. Use a non-null value, or convert the parameter to a nullable type."
+		);
 
-	// Placeholder for rule X1035
+	public static DiagnosticDescriptor X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType { get; } =
+		Rule(
+			"xUnit1035",
+			"The value is not convertible to the method parameter type",
+			Usage,
+			Error,
+			"The value is not convertible to the method parameter '{0}' of type '{1}'. Use a compatible data value."
+		);
 
-	// Placeholder for rule X1036
+	public static DiagnosticDescriptor X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue { get; } =
+		Rule(
+			"xUnit1036",
+			"There is no matching method parameter",
+			Usage,
+			Error,
+			"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
+		);
 
 	// Placeholder for rule X1037
 

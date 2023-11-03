@@ -1,6 +1,9 @@
+using Microsoft;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
 public class MemberDataShouldReferenceValidMemberTests
@@ -493,7 +496,6 @@ public class TestClass {
 		await Verify.VerifyAnalyzer(source);
 	}
 
-
 	[Fact]
 	public async void DoesNotFindWarning_IfHasValidMember()
 	{
@@ -508,6 +510,175 @@ public class TestClass {
 }";
 
 		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidMemberWithParams()
+	{
+		var source = @"
+public class TestClass {
+    public static System.Collections.Generic.IEnumerable<object[]> TestData(params int[] n) { yield return new object[] { n[0] }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1, 2 })]
+    public void TestMethod(int n) { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentTypes()
+	{
+		var source = @"
+public class TestClass {
+    public static System.Collections.Generic.IEnumerable<object[]> TestData(string n) { yield return new object[] { n }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}"
+		;
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1035")
+				.WithSpan(5, 56, 5, 57)
+				.WithArguments("n", "string")
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentTypesParams()
+	{
+		var source = @"
+public class TestClass {
+    public static System.Collections.Generic.IEnumerable<object[]> TestData(params int[] n) { yield return new object[] { n }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1, ""bob"" })]
+    public void TestMethod(int n) { }
+}"
+		;
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1035")
+				.WithSpan(5, 59, 5, 64)
+				.WithArguments("n", "int")
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentCount()
+	{
+		var source = @"
+public class TestClass {
+    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1, 2 })]
+    public void TestMethod(int n) { }
+}"
+		;
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1036")
+				.WithSpan(5, 59, 5, 60)
+				.WithArguments("2")
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidMemberWithIncorrectParamsArgumentCount()
+	{
+		var source = @"
+public class TestClass {
+    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
+
+    [Xunit.MemberData(nameof(TestData), 1, 2)]
+    public void TestMethod(int n) { }
+}"
+		;
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1036")
+				.WithSpan(5, 44, 5, 45)
+				.WithArguments("2")
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidListMember()
+	{
+		var source = @"
+public class TestClass {
+    private static void TestData() { }
+
+    public static System.Collections.Generic.List<object[]> TestData(int n) { return new System.Collections.Generic.List<object[]> { new object[] { n } }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidNonNullableListMember_InNullableContext()
+	{
+		var source = @"
+#nullable enable
+public class TestClass {
+    public static System.Collections.Generic.List<object[]> TestData(int n) { return new System.Collections.Generic.List<object[]> { new object[] { n } }; }
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}
+#nullable restore
+";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+	}
+
+	[Fact]
+	public async void FindWarning_IfPassingNullToNonNullableMethodParameter_InNullableContext()
+	{
+		var source = @$"
+#nullable enable
+public class TestClass {{
+    public static System.Collections.Generic.List<object[]> TestData(int n, string f) {{ return new System.Collections.Generic.List<object[]?> {{ new object[] {{ f }} }}; }}
+
+    [Xunit.MemberData(nameof(TestData), new object[] {{ null, null }})]
+    public void TestMethod(string n) {{ }}
+}}
+#nullable restore";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1034")
+				.WithSpan(6, 56, 6, 60)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("n", "int"),
+			Verify
+				.Diagnostic("xUnit1034")
+				.WithSpan(6, 62, 6, 66)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("f", "string"),
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Fact]

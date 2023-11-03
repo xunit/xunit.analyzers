@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,7 +22,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1018_MemberDataMustReferenceValidMemberKind,
 			Descriptors.X1019_MemberDataMustReferenceMemberOfValidType,
 			Descriptors.X1020_MemberDataPropertyMustHaveGetter,
-			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters
+			Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters,
+			Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
+			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
+			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue
 		)
 	{ }
 
@@ -29,6 +33,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		if (xunitContext.Core.MemberDataAttributeType is null)
+			return;
+
+		var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 		var compilation = context.Compilation;
 
 		var supportsNameofOperator =
@@ -37,121 +45,242 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
-			if (xunitContext.Core.MemberDataAttributeType is null)
+			if (context.Node is not MethodDeclarationSyntax testMethod)
 				return;
 
-			if (context.Node is not AttributeSyntax attribute)
-				return;
+			var attributeLists = testMethod.AttributeLists;
 
-			var memberNameArgument = attribute.ArgumentList?.Arguments.FirstOrDefault();
-			if (memberNameArgument is null)
-				return;
-
-			var semanticModel = context.SemanticModel;
-			if (!SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(attribute, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
-				return;
-
-			if (attribute.ArgumentList is null)
-				return;
-
-			var propertyAttributeParameters =
-				attribute
-					.ArgumentList
-					.Arguments
-					.Count(a => !string.IsNullOrEmpty(a.NameEquals?.Name.Identifier.ValueText));
-
-			var paramsCount = attribute.ArgumentList.Arguments.Count - 1 - propertyAttributeParameters;
-
-			var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
-			if (constantValue.Value is not string memberName)
-				return;
-
-			var memberTypeArgument = attribute.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
-			var memberTypeSymbol = default(ITypeSymbol);
-			if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
+			foreach (var attributeSyntax in attributeLists.WhereNotNull().SelectMany(attList => attList.Attributes))
 			{
-				var typeSyntax = typeofExpression.Type;
-				memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
-			}
+				context.CancellationToken.ThrowIfCancellationRequested();
 
-			var classSyntax = attribute.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-			if (classSyntax is null)
-				return;
+				var memberNameArgument = attributeSyntax.ArgumentList?.Arguments.FirstOrDefault();
+				if (memberNameArgument is null)
+					continue;
 
-			var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
-			if (testClassTypeSymbol is null)
-				return;
+				var semanticModel = context.SemanticModel;
+				if (!SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type, xunitContext.Core.MemberDataAttributeType))
+					continue;
 
-			var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-			if (declaredMemberTypeSymbol is null)
-				return;
+				if (attributeSyntax.ArgumentList is null)
+					continue;
 
-			var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
+				var propertyAttributeParameters =
+					attributeSyntax
+						.ArgumentList
+						.Arguments
+						.Count(a => !string.IsNullOrEmpty(a.NameEquals?.Name.Identifier.ValueText));
 
-			if (memberSymbol is null)
-				ReportMissingMember(context, attribute, memberName, declaredMemberTypeSymbol);
-			else if (memberSymbol.Kind != SymbolKind.Field && memberSymbol.Kind != SymbolKind.Property && memberSymbol.Kind != SymbolKind.Method)
-				ReportIncorrectMemberType(context, attribute);
-			else
-			{
-				if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
-					ReportUseNameof(context, memberNameArgument, memberName, testClassTypeSymbol, memberSymbol);
+				var paramsCount = attributeSyntax.ArgumentList.Arguments.Count - 1 - propertyAttributeParameters;
 
-				var memberProperties = new Dictionary<string, string?>
+				var constantValue = semanticModel.GetConstantValue(memberNameArgument.Expression, context.CancellationToken);
+				if (constantValue.Value is not string memberName)
+					continue;
+
+				var memberTypeArgument = attributeSyntax.ArgumentList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
+				var memberTypeSymbol = default(ITypeSymbol);
+				if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
 				{
-					{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
-					{ Constants.AttributeProperties.MemberName, memberName }
-				}.ToImmutableDictionary();
-
-				if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
-					ReportNonPublicAccessibility(context, attribute, memberProperties);
-
-				if (!memberSymbol.IsStatic)
-					ReportNonStatic(context, attribute, memberProperties);
-
-				var memberType = memberSymbol switch
-				{
-					IPropertySymbol prop => prop.Type,
-					IFieldSymbol field => field.Type,
-					IMethodSymbol method => method.ReturnType,
-					_ => null,
-				};
-
-				if (memberType is not null)
-				{
-					var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
-					var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
-					var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
-
-					if (!valid && xunitContext.HasV3References)
-					{
-						if (iEnumerableOfTheoryDataRowType is not null)
-							valid = iEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
-					}
-
-					if (!valid)
-						ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attribute, memberProperties, memberType);
+					var typeSyntax = typeofExpression.Type;
+					memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
 				}
 
-				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
-					if (memberSymbol is IPropertySymbol propertySymbol)
+				var classSyntax = attributeSyntax.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+				if (classSyntax is null)
+					continue;
+
+				(var testClassTypeSymbol, var declaredMemberTypeSymbol) = GetClassTypesForAttribute(
+					attributeSyntax.ArgumentList, semanticModel, context.CancellationToken);
+				if (declaredMemberTypeSymbol is null || testClassTypeSymbol is null)
+					continue;
+
+				var memberSymbol = FindMemberSymbol(memberName, declaredMemberTypeSymbol, paramsCount);
+
+				if (memberSymbol is null)
+					ReportMissingMember(context, attributeSyntax, memberName, declaredMemberTypeSymbol);
+				else if (memberSymbol.Kind != SymbolKind.Field && memberSymbol.Kind != SymbolKind.Property && memberSymbol.Kind != SymbolKind.Method)
+					ReportIncorrectMemberType(context, attributeSyntax);
+				else
+				{
+					if (supportsNameofOperator && memberNameArgument.Expression.IsKind(SyntaxKind.StringLiteralExpression))
+						ReportUseNameof(context, memberNameArgument, memberName, testClassTypeSymbol, memberSymbol);
+
+					var memberProperties = new Dictionary<string, string?>
 					{
-						var getMethod = propertySymbol.GetMethod;
-						if (getMethod is null || getMethod.DeclaredAccessibility != Accessibility.Public)
-							ReportNonPublicPropertyGetter(context, attribute);
+						{ Constants.AttributeProperties.DeclaringType, declaredMemberTypeSymbol.ToDisplayString() },
+						{ Constants.AttributeProperties.MemberName, memberName }
+					}.ToImmutableDictionary();
+
+					if (memberSymbol.DeclaredAccessibility != Accessibility.Public)
+						ReportNonPublicAccessibility(context, attributeSyntax, memberProperties);
+
+					if (!memberSymbol.IsStatic)
+						ReportNonStatic(context, attributeSyntax, memberProperties);
+
+					var memberType = memberSymbol switch
+					{
+						IPropertySymbol prop => prop.Type,
+						IFieldSymbol field => field.Type,
+						IMethodSymbol method => method.ReturnType,
+						_ => null,
+					};
+
+					if (memberType is not null)
+					{
+						var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+						var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+						var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
+
+						if (!valid && xunitContext.HasV3References)
+						{
+							if (iEnumerableOfTheoryDataRowType is not null)
+								valid = iEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
+						}
+
+						if (!valid)
+							ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attributeSyntax, memberProperties, memberType);
 					}
 
-				var extraArguments = attribute.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
-				if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
-					if (extraArguments.Any())
-						ReportIllegalNonMethodArguments(context, attribute, extraArguments);
+					if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
+						if (memberSymbol is IPropertySymbol propertySymbol)
+						{
+							var getMethod = propertySymbol.GetMethod;
+							if (getMethod is null || getMethod.DeclaredAccessibility != Accessibility.Public)
+								ReportNonPublicPropertyGetter(context, attributeSyntax);
+						}
 
-				// TODO: handle method parameter type matching, model after InlineDataMustMatchTheoryParameter
-				//if (memberSymbol.Kind == SymbolKind.Method)
-				//{
-				//}
+					var extraArguments = attributeSyntax.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
+					if (memberSymbol.Kind == SymbolKind.Property || memberSymbol.Kind == SymbolKind.Field)
+						if (extraArguments.Any())
+							ReportIllegalNonMethodArguments(context, attributeSyntax, extraArguments);
+
+					if (memberSymbol.Kind == SymbolKind.Method)
+					{
+						// Arguments have types that match method parameters
+						var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
+						if (argumentSyntaxList is null)
+							continue;
+
+						var dataMethodSymbol = (IMethodSymbol)memberSymbol;
+						var dataMethodParameterSymbols = dataMethodSymbol.Parameters;
+
+						int valueIdx = 0, paramIdx = 0;
+						for (; valueIdx < argumentSyntaxList.Count && paramIdx < dataMethodParameterSymbols.Length; valueIdx++)
+						{
+							var parameter = dataMethodParameterSymbols[paramIdx];
+							var value = semanticModel.GetConstantValue(argumentSyntaxList[valueIdx], context.CancellationToken);
+
+							// If the parameter type is object, everything is compatible, though we still need to check for nullability
+							if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
+								&& (!value.HasValue || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
+							{
+								paramIdx++;
+								continue;
+							}
+
+							// If this is a params array (and we're using a version of xUnit.net that supports params arrays),
+							// get the element type so we can compare it appropriately.
+							var paramsElementType =
+								xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+									? arrayParam.ElementType
+									: null;
+
+							// For params array of object, just consume everything that's left
+							if (paramsElementType != null
+								&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
+								&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
+							{
+								valueIdx = extraArguments.Count;
+								break;
+							}
+
+							if (!value.HasValue || value.Value is null)
+							{
+								var isValueTypeParam =
+									paramsElementType != null
+										? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
+										: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
+
+								var isNonNullableReferenceTypeParam =
+									paramsElementType != null
+										? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
+										: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
+
+								if (isValueTypeParam || isNonNullableReferenceTypeParam)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+									builder[Constants.Properties.ParameterName] = parameter.Name;
+
+									ReportMemberMethodParameterNullability(context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
+								}
+							}
+							else
+							{
+								var valueType = compilation.GetTypeByMetadataName(value.Value!.GetType().FullName ?? "System.Object");
+								if (valueType is null)
+									continue;
+
+								var isCompatible = ConversionChecker.IsConvertible(compilation, valueType, parameter.Type, xunitContext);
+								if (!isCompatible && paramsElementType != null)
+									isCompatible = ConversionChecker.IsConvertible(compilation, valueType, paramsElementType, xunitContext);
+
+								if (!isCompatible)
+								{
+									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+									builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+									builder[Constants.Properties.ParameterName] = parameter.Name;
+
+									ReportMemberMethodParametersDoNotMatchArgumentTypes(
+										context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
+								}
+							}
+
+							if (!parameter.IsParams)
+							{
+								// Stop moving paramIdx forward if the argument is a parameter array, regardless of xunit's support for it
+								paramIdx++;
+							}
+						}
+
+						for (; valueIdx < argumentSyntaxList.Count; valueIdx++)
+						{
+							var value = semanticModel.GetConstantValue(argumentSyntaxList[valueIdx], context.CancellationToken);
+							var valueTypeName = value.Value?.GetType().FullName;
+							var valueType = compilation.GetTypeByMetadataName(valueTypeName ?? "System.Object");
+							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+
+							builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+							builder[Constants.Properties.ParameterSpecialType] = valueType?.SpecialType.ToString() ?? string.Empty;
+
+							ReportTooManyArgumentsProvided(context, argumentSyntaxList[valueIdx], value.Value, builder);
+						}
+					}
+				}
 			}
-		}, SyntaxKind.Attribute);
+		}, SyntaxKind.MethodDeclaration);
+	}
+
+	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(List<AttributeArgumentSyntax> arguments)
+	{
+		if (arguments.Count > 1)
+			return arguments.Select(a => a.Expression).ToList();
+		if (arguments.Count != 1)
+			return null;
+
+		var argumentExpression = arguments.Single().Expression;
+
+		var initializer = argumentExpression.Kind() switch
+		{
+			SyntaxKind.ArrayCreationExpression => ((ArrayCreationExpressionSyntax)argumentExpression).Initializer,
+			SyntaxKind.ImplicitArrayCreationExpression => ((ImplicitArrayCreationExpressionSyntax)argumentExpression).Initializer,
+			_ => null,
+		};
+
+		if (initializer is null)
+			return new List<ExpressionSyntax> { argumentExpression };
+
+		return initializer.Expressions.ToList();
 	}
 
 	static ISymbol? FindMemberSymbol(
@@ -174,7 +303,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return null;
 	}
 
-	static ISymbol? FindMethodSymbol(
+	public static ISymbol? FindMethodSymbol(
 		string memberName,
 		ITypeSymbol? type,
 		int paramsCount)
@@ -313,5 +442,76 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				memberSymbol.ContainingType.ToDisplayString()
 			)
 		);
+	}
+
+	static void ReportMemberMethodParametersDoNotMatchArgumentTypes(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		IParameterSymbol parameter,
+		ITypeSymbol? paramsElementType,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					parameter.Name,
+					SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+				)
+			);
+
+	static void ReportTooManyArgumentsProvided(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		object? value,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					value?.ToString() ?? "null"
+				)
+			);
+	static void ReportMemberMethodParameterNullability(
+		SyntaxNodeAnalysisContext context,
+		ExpressionSyntax syntax,
+		IParameterSymbol parameter,
+		ITypeSymbol? paramsElementType,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
+					syntax.GetLocation(),
+					builder.ToImmutable(),
+					parameter.Name,
+					SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+				)
+			);
+
+	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MethodClass) GetClassTypesForAttribute(
+		AttributeArgumentListSyntax attributeList, SemanticModel semanticModel, CancellationToken cancellationToken)
+	{
+		var memberTypeArgument = attributeList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
+		var memberTypeSymbol = default(ITypeSymbol);
+		if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
+		{
+			var typeSyntax = typeofExpression.Type;
+			memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, cancellationToken).Type;
+		}
+
+		var classSyntax = attributeList.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+		if (classSyntax is null)
+			return (null, null);
+
+		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
+		if (testClassTypeSymbol is null)
+			return (null, null);
+
+		var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
+		if (declaredMemberTypeSymbol is null)
+			return (testClassTypeSymbol, null);
+
+		return (testClassTypeSymbol, declaredMemberTypeSymbol);
 	}
 }
