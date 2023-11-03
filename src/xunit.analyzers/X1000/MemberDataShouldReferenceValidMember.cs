@@ -282,7 +282,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 						var testMethodParameterSymbols = testMethodSymbol.Parameters;
 						var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
 
-						if (testMethodParameterSymbols.Length != methodTypeArguments.Length)
+						if (testMethodParameterSymbols.Length < methodTypeArguments.Length
+							|| (testMethodParameterSymbols.Length > methodTypeArguments.Length
+								&& testMethodParameterSymbols.Skip(methodTypeArguments.Length).Any(p => !p.IsOptional)))
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 							builder[Constants.Properties.MemberName] = memberName;
@@ -291,7 +293,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							continue;
 						}
 
-						for (int typeParamIdx = 0; typeParamIdx < testMethodParameterSymbols.Length; typeParamIdx++)
+						for (int typeParamIdx = 0; typeParamIdx < methodTypeArguments.Length; typeParamIdx++)
 						{
 							var parameterSyntax = testMethodParameterSyntaxes[typeParamIdx];
 							if (parameterSyntax.Type is null)

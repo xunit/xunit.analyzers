@@ -716,6 +716,20 @@ public class TestClass {
 	}
 
 	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithOptionalParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, int a = 0) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
 	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters()
 	{
 		var source = @"
