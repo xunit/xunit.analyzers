@@ -368,34 +368,43 @@ public static class Descriptors
 			"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
 		);
 
-	public static DiagnosticDescriptor X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_InsufficientOrExtraTypeParameters { get; } =
+	public static DiagnosticDescriptor X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
 		Rule(
 			"xUnit1037",
-			"The number of TheoryData type arguments does not match the number of parameters of the test method",
+			"There are fewer TheoryData type arguments than required by the parameters of the test method",
 			Usage,
 			Error,
-			"The number of TheoryData type arguments does not match the number of parameters of the test method. Remove unused type arguments, or add more parameter."
+			"There are fewer TheoryData type arguments than required by the parameters of the test method. Add more type parameters to match the method signature, or remove parameters from the test method."
 		);
 
-	public static DiagnosticDescriptor X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
+	public static DiagnosticDescriptor X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
 		Rule(
 			"xUnit1038",
+			"There are more TheoryData type arguments than allowed by the parameters of the test method",
+			Usage,
+			Error,
+			"There are more TheoryData type arguments than allowed by the parameters of the test method. Remove unused type arguments, or add more parameters."
+		);
+
+	public static DiagnosticDescriptor X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
+		Rule(
+			"xUnit1039",
 			"The type argument to TheoryData is not compatible with the type of the corresponding test method parameter",
 			Usage,
 			Error,
 			"The type argument {0} to TheoryData is not compatible with the type of the corresponding test method parameter {1}."
 		);
 
-	public static DiagnosticDescriptor X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
+	public static DiagnosticDescriptor X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
 		Rule(
-			"xUnit1039",
+			"xUnit1040",
 			"The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not",
 			Usage,
 			Warning,
 			"The type argument {0} to TheoryData is nullable, while the type of the corresponding test method parameter {1} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
 		);
 
-	// Placeholder for X1040
+	// Placeholder for X1041
 
 	public static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
 		Rule(

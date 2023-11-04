@@ -26,9 +26,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
 			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
 			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
-			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_InsufficientOrExtraTypeParameters,
-			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
+			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
+			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 		)
 	{ }
 
@@ -282,35 +283,48 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 						var testMethodParameterSymbols = testMethodSymbol.Parameters;
 						var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
 
-						if (testMethodParameterSymbols.Length < methodTypeArguments.Length
-							|| (testMethodParameterSymbols.Length > methodTypeArguments.Length
-								&& testMethodParameterSymbols.Skip(methodTypeArguments.Length).Any(p => !p.IsOptional)))
+						if (testMethodParameterSymbols.Length > methodTypeArguments.Length
+							&& testMethodParameterSymbols.Skip(methodTypeArguments.Length).Any(p => !p.IsOptional && !p.IsParams))
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 							builder[Constants.Properties.MemberName] = memberName;
 
-							ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(context, attributeSyntax.GetLocation(), builder);
+							ReportMemberMethodTheoryDataTooFewTypeArguments(context, attributeSyntax.GetLocation(), builder);
 							continue;
 						}
 
-						for (int typeParamIdx = 0; typeParamIdx < methodTypeArguments.Length; typeParamIdx++)
+						if (testMethodParameterSymbols.Length < methodTypeArguments.Length
+							&& !testMethodParameterSymbols.Last().IsParams)
 						{
-							var parameterSyntax = testMethodParameterSyntaxes[typeParamIdx];
+							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+							builder[Constants.Properties.MemberName] = memberName;
+
+							ReportMemberMethodTheoryDataExtraTypeArguments(context, attributeSyntax.GetLocation(), builder);
+							continue;
+						}
+
+						int typeArgumentIdx = 0, parameterTypeIdx = 0;
+						for (; typeArgumentIdx < methodTypeArguments.Length && parameterTypeIdx < testMethodParameterSymbols.Length; typeArgumentIdx++)
+						{
+							var parameterSyntax = testMethodParameterSyntaxes[parameterTypeIdx];
 							if (parameterSyntax.Type is null)
 								continue;
 
-							var parameter = testMethodParameterSymbols[typeParamIdx];
+							var parameter = testMethodParameterSymbols[parameterTypeIdx];
 							if (parameter.Type is null)
 								continue;
+							var parameterType = parameter.IsParams && parameter.Type is IArrayTypeSymbol paramsArraySymbol
+								? paramsArraySymbol.ElementType
+								: parameter.Type;
 
-							var typeArgument = methodTypeArguments[typeParamIdx];
+							var typeArgument = methodTypeArguments[typeArgumentIdx];
 							if (typeArgument is null)
 								continue;
 
-							if (!parameter.Type.IsAssignableFrom(typeArgument))
+							if (!parameterType.IsAssignableFrom(typeArgument))
 							{
 								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-								builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
+								builder[Constants.Properties.ParameterIndex] = typeArgumentIdx.ToString();
 								builder[Constants.Properties.MemberName] = memberName;
 
 								ReportMemberMethodTheoryDataIncompatibleType(
@@ -319,18 +333,24 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 							// Nullability of value types is handled by the type compatibility test,
 							// but nullability of reference types isn't
-							if (parameter.Type.IsReferenceType && typeArgument.IsReferenceType)
+							if (parameterType.IsReferenceType && typeArgument.IsReferenceType)
 							{
-								if (parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated
+								if (parameterType.NullableAnnotation == NullableAnnotation.NotAnnotated
 									&& typeArgument.NullableAnnotation == NullableAnnotation.Annotated)
 								{
 									var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-									builder[Constants.Properties.ParameterIndex] = typeParamIdx.ToString();
+									builder[Constants.Properties.ParameterIndex] = typeArgumentIdx.ToString();
 									builder[Constants.Properties.MemberName] = memberName;
 
 									ReportMemberMethodTheoryDataNullability(
 										context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
 								}
+							}
+
+							if (!parameter.IsParams)
+							{
+								// Stop moving parameterTypeIdx forward if the argument is a parameter array, regardless of xunit's support for it
+								parameterTypeIdx++;
 							}
 						}
 					}
@@ -568,13 +588,25 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				)
 			);
 
-	static void ReportMemberMethodTheoryDataIncorrectNumberOfTypeArguments(
+	static void ReportMemberMethodTheoryDataTooFewTypeArguments(
 		SyntaxNodeAnalysisContext context,
 		Location location,
 		ImmutableDictionary<string, string?>.Builder builder) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_InsufficientOrExtraTypeParameters,
+					Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+					location,
+					builder.ToImmutable()
+				)
+			);
+
+	static void ReportMemberMethodTheoryDataExtraTypeArguments(
+		SyntaxNodeAnalysisContext context,
+		Location location,
+		ImmutableDictionary<string, string?>.Builder builder) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 					location,
 					builder.ToImmutable()
 				)
@@ -588,7 +620,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ImmutableDictionary<string, string?>.Builder builder) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+					Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
 					location,
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
@@ -604,7 +636,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ImmutableDictionary<string, string?>.Builder builder) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+					Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
 					location,
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
