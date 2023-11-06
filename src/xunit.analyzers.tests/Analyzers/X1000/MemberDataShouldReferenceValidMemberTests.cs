@@ -1,9 +1,7 @@
-using Microsoft;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
-using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
 public class MemberDataShouldReferenceValidMemberTests
@@ -699,5 +697,160 @@ public class TestClass : TestClassBase {
 }";
 
 		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMember()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithOptionalParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, int a = 0) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithNeededParams()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int, int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, params int[] a) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithExtraParams()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, params int[] a) { }
+}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int, string> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n) { }
+}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(5, 6, 5, 60)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters()
+	{
+		var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, string f) { }
+}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(5, 6, 5, 60)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	[Theory]
+	[InlineData("int")]
+	[InlineData("System.Exception")]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(string type)
+	{
+		var source = @$"
+public class TestClass {{
+    public static Xunit.TheoryData<{type}> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] {{ 1 }})]
+    public void TestMethod(string f) {{ }}
+}}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1039")
+				.WithSpan(6, 28, 6, 34)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments(type, "f")
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithMismatchedNullability()
+	{
+		var source = @"
+#nullable enable
+public class TestClass {
+    public static Xunit.TheoryData<int?, string?> TestData(int n) => new();
+
+    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
+    public void TestMethod(int n, string f) { }
+}
+#nullable restore";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1039")
+				.WithSpan(7, 28, 7, 31)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments("int?", "n"),
+			Verify
+				.Diagnostic("xUnit1040")
+				.WithSpan(7, 35, 7, 41)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("string?", "f")
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 }

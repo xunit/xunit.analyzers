@@ -368,11 +368,59 @@ public static class Descriptors
 			"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
 		);
 
-	// Placeholder for rule X1037
+	public static DiagnosticDescriptor X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
+		Rule(
+			"xUnit1037",
+			"There are fewer TheoryData type arguments than required by the parameters of the test method",
+			Usage,
+			Error,
+			"There are fewer TheoryData type arguments than required by the parameters of the test method. Add more type parameters to match the method signature, or remove parameters from the test method."
+		);
 
-	// Placeholder for rule X1038
+	public static DiagnosticDescriptor X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
+		Rule(
+			"xUnit1038",
+			"There are more TheoryData type arguments than allowed by the parameters of the test method",
+			Usage,
+			Error,
+			"There are more TheoryData type arguments than allowed by the parameters of the test method. Remove unused type arguments, or add more parameters."
+		);
 
-	// Placeholder for rule X1039
+	public static DiagnosticDescriptor X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
+		Rule(
+			"xUnit1039",
+			"The type argument to TheoryData is not compatible with the type of the corresponding test method parameter",
+			Usage,
+			Error,
+			"The type argument {0} to TheoryData is not compatible with the type of the corresponding test method parameter {1}."
+		);
+
+	public static DiagnosticDescriptor X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
+		Rule(
+			"xUnit1040",
+			"The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not",
+			Usage,
+			Warning,
+			"The type argument {0} to TheoryData is nullable, while the type of the corresponding test method parameter {1} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
+		);
+
+	// Placeholder for rule X1041
+
+	// Placeholder for rule X1042
+
+	// Placeholder for rule X1043
+
+	// Placeholder for rule X1044
+
+	// Placeholder for rule X1045
+
+	// Placeholder for rule X1046
+
+	// Placeholder for rule X1047
+
+	// Placeholder for rule X1048
+
+	// Placeholder for rule X1049
 
 	public static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
 		Rule(
