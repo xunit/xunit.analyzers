@@ -241,8 +241,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									builder[Constants.Properties.ParameterName] = parameter.Name;
 									builder[Constants.Properties.MemberName] = memberName;
 
-									ReportMemberMethodParametersDoNotMatchArgumentTypes(
-										context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
+									ReportMemberMethodParametersDoNotMatchArgumentTypes(context, argumentSyntaxList[valueIdx], parameter, paramsElementType, builder);
 								}
 							}
 
@@ -273,13 +272,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 						var methodTypeArguments = methodType.TypeArguments;
 						if (!SymbolEqualityComparer.Default.Equals(theoryDataTypes[methodTypeArguments.Length], methodType.OriginalDefinition))
-						{
 							continue;
-						}
 
 						var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
 						if (testMethodSymbol is null)
 							continue;
+
 						var testMethodParameterSymbols = testMethodSymbol.Parameters;
 						var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
 
@@ -313,9 +311,11 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							var parameter = testMethodParameterSymbols[parameterTypeIdx];
 							if (parameter.Type is null)
 								continue;
-							var parameterType = parameter.IsParams && parameter.Type is IArrayTypeSymbol paramsArraySymbol
-								? paramsArraySymbol.ElementType
-								: parameter.Type;
+
+							var parameterType =
+								parameter.IsParams && parameter.Type is IArrayTypeSymbol paramsArraySymbol
+									? paramsArraySymbol.ElementType
+									: parameter.Type;
 
 							var typeArgument = methodTypeArguments[typeArgumentIdx];
 							if (typeArgument is null)
@@ -327,8 +327,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 								builder[Constants.Properties.ParameterIndex] = typeArgumentIdx.ToString();
 								builder[Constants.Properties.MemberName] = memberName;
 
-								ReportMemberMethodTheoryDataIncompatibleType(
-									context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
+								ReportMemberMethodTheoryDataIncompatibleType(context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
 							}
 
 							// Nullability of value types is handled by the type compatibility test,
@@ -342,8 +341,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 									builder[Constants.Properties.ParameterIndex] = typeArgumentIdx.ToString();
 									builder[Constants.Properties.MemberName] = memberName;
 
-									ReportMemberMethodTheoryDataNullability(
-										context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
+									ReportMemberMethodTheoryDataNullability(context, parameterSyntax.Type.GetLocation(), typeArgument, parameter, builder);
 								}
 							}
 
