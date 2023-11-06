@@ -404,7 +404,23 @@ public static class Descriptors
 			"The type argument {0} to TheoryData is nullable, while the type of the corresponding test method parameter {1} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
 		);
 
-	// Placeholder for X1041
+	// Placeholder for rule X1041
+
+	// Placeholder for rule X1042
+
+	// Placeholder for rule X1043
+
+	// Placeholder for rule X1044
+
+	// Placeholder for rule X1045
+
+	// Placeholder for rule X1046
+
+	// Placeholder for rule X1047
+
+	// Placeholder for rule X1048
+
+	// Placeholder for rule X1049
 
 	public static DiagnosticDescriptor X2000_AssertEqualLiteralValueShouldBeFirst { get; } =
 		Rule(
