@@ -699,100 +699,103 @@ public class TestClass : TestClassBase {
 		await Verify.VerifyAnalyzer(source);
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMember()
-	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int> TestData(int n) => new();
+	// Tests related to TheoryData<> usage
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
-}";
+	public static TheoryData<string, string> MemberSyntaxAndArgs = new()
+	{
+		{ " = ", "" },              // Field
+		{ " => ", "" },             // Property
+		{ "() => ", "" },           // Method w/o args
+		{ "(int n) => ", ", 42" },  // Method w/ args
+	};
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMember(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithOptionalParameters()
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithOptionalParameters(
+		string memberSyntax,
+		string memberArgs)
 	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int> TestData(int n) => new();
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n, int a = 0) { }
-}";
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, int a = 0) {{ }}
+}}";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithNeededParams()
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithNeededParams(
+		string memberSyntax,
+		string memberArgs)
 	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int, int> TestData(int n) => new();
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int, int> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n, params int[] a) { }
-}";
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, params int[] a) {{ }}
+}}";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithExtraParams()
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithExtraParams(
+		string memberSyntax,
+		string memberArgs)
 	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int> TestData(int n) => new();
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n, params int[] a) { }
-}";
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, params int[] a) {{ }}
+}}";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
-	[Fact]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters()
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters(
+		string memberSyntax,
+		string memberArgs)
 	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int, string> TestData(int n) => new();
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int, string> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
-}";
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
 
 		DiagnosticResult[] expected =
 		{
 			Verify
 				.Diagnostic("xUnit1038")
-				.WithSpan(5, 6, 5, 60)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
-	}
-
-	[Fact]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters()
-	{
-		var source = @"
-public class TestClass {
-    public static Xunit.TheoryData<int> TestData(int n) => new();
-
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n, string f) { }
-}";
-
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1037")
-				.WithSpan(5, 6, 5, 60)
+				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 		};
 
@@ -800,15 +803,55 @@ public class TestClass {
 	}
 
 	[Theory]
-	[InlineData("int")]
-	[InlineData("System.Exception")]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(string type)
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, string f) {{ }}
+}}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	public static TheoryData<string, string, string> TypeWithMemberSyntaxAndArgs()
+	{
+		var result = new TheoryData<string, string, string>();
+
+		foreach (var items in MemberSyntaxAndArgs)
+		{
+			result.Add("int", (string)items[0], (string)items[1]);
+			result.Add("System.Exception", (string)items[0], (string)items[1]);
+		}
+
+		return result;
+	}
+
+	[Theory]
+	[MemberData(nameof(TypeWithMemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(
+		string type,
+		string memberSyntax,
+		string memberArgs)
 	{
 		var source = @$"
 public class TestClass {{
-    public static Xunit.TheoryData<{type}> TestData(int n) => new();
+    public static Xunit.TheoryData<{type}> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] {{ 1 }})]
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(string f) {{ }}
 }}";
 
@@ -824,17 +867,20 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
-	[Fact]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithMismatchedNullability()
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidTheoryDataMemberWithMismatchedNullability(
+		string memberSyntax,
+		string memberArgs)
 	{
-		var source = @"
+		var source = $@"
 #nullable enable
-public class TestClass {
-    public static Xunit.TheoryData<int?, string?> TestData(int n) => new();
+public class TestClass {{
+    public static Xunit.TheoryData<int?, string?> TestData{memberSyntax}new();
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n, string f) { }
-}
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, string f) {{ }}
+}}
 #nullable restore";
 
 		DiagnosticResult[] expected =
