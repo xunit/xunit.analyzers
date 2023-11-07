@@ -392,7 +392,7 @@ public static class Descriptors
 			"The type argument to TheoryData is not compatible with the type of the corresponding test method parameter",
 			Usage,
 			Error,
-			"The type argument {0} to TheoryData is not compatible with the type of the corresponding test method parameter {1}."
+			"The type argument {0} from {1}.{2} is not compatible with the type of the corresponding test method parameter {3}."
 		);
 
 	public static DiagnosticDescriptor X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
@@ -401,7 +401,7 @@ public static class Descriptors
 			"The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not",
 			Usage,
 			Warning,
-			"The type argument {0} to TheoryData is nullable, while the type of the corresponding test method parameter {1} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
+			"The type argument {0} from {1}.{2} is nullable, while the type of the corresponding test method parameter {3} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
 		);
 
 	// Placeholder for rule X1041

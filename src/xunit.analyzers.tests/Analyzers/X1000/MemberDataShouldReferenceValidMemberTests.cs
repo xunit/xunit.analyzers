@@ -861,7 +861,7 @@ public class TestClass {{
 				.Diagnostic("xUnit1039")
 				.WithSpan(6, 28, 6, 34)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments(type, "f")
+				.WithArguments(type, "TestClass", "TestData", "f")
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
@@ -889,12 +889,12 @@ public class TestClass {{
 				.Diagnostic("xUnit1039")
 				.WithSpan(7, 28, 7, 31)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("int?", "n"),
+				.WithArguments("int?", "TestClass", "TestData", "n"),
 			Verify
 				.Diagnostic("xUnit1040")
 				.WithSpan(7, 35, 7, 41)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("string?", "f")
+				.WithArguments("string?", "TestClass", "TestData", "f")
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
