@@ -4,21 +4,19 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyn
 
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixerTests
 {
-	public class WithTask
+	public static TheoryData<string> Lambdas = new()
 	{
-		public static TheoryData<string> Lambdas = new()
-		{
-			"(System.Func<System.Threading.Tasks.Task>)ThrowingMethod",
-			"() => System.Threading.Tasks.Task.Delay(0)",
-			"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0))",
-			"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false))",
-		};
+		"(System.Func<System.Threading.Tasks.Task>)ThrowingMethod",
+		"() => System.Threading.Tasks.Task.Delay(0)",
+		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0))",
+		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false))",
+	};
 
-		[Theory]
-		[MemberData(nameof(Lambdas))]
-		public async void WithNonArgumentException(string lambda)
-		{
-			var before = $@"
+	[Theory]
+	[MemberData(nameof(Lambdas))]
+	public async void WithNonArgumentException(string lambda)
+	{
+		var before = $@"
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -34,7 +32,7 @@ public class TestClass {{
     }}
 }}";
 
-			var after = $@"
+		var after = $@"
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -50,107 +48,20 @@ public class TestClass {{
     }}
 }}";
 
-			await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
-		}
-
-		[Theory]
-		[MemberData(nameof(Lambdas))]
-		public async void WithArgumentException(string lambda)
-		{
-			var before = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
-    public void TestMethod() {{
-        {{|CS0619:[|Assert.Throws<ArgumentException>(""param"", {lambda})|]|}};
-    }}
-}}";
-
-			var after = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
-    public async Task TestMethod() {{
-        await Assert.ThrowsAsync<ArgumentException>(""param"", {lambda});
-    }}
-}}";
-
-			await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
-		}
+		await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
 	}
 
-	public class WithValueTask
+	[Theory]
+	[MemberData(nameof(Lambdas))]
+	public async void WithArgumentException(string lambda)
 	{
-		public static TheoryData<string> Lambdas = new()
-		{
-			"(System.Func<System.Threading.Tasks.ValueTask>)ThrowingMethod",
-			"(System.Func<System.Threading.Tasks.ValueTask>)(async () => await System.Threading.Tasks.Task.Delay(0))",
-		};
-
-		[Theory]
-		[MemberData(nameof(Lambdas))]
-		public async void WithNonArgumentException(string lambda)
-		{
-			var before = $@"
+		var before = $@"
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
 public class TestClass {{
-    ValueTask ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
-    public void TestMethod() {{
-        {{|CS0619:[|Assert.Throws<Exception>({lambda})|]|}};
-    }}
-}}";
-
-			var after = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    ValueTask ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
-    public async Task TestMethod() {{
-        await Assert.ThrowsAsync<Exception>({lambda});
-    }}
-}}";
-
-			await Verify.VerifyCodeFixV3(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
-		}
-
-		[Theory]
-		[MemberData(nameof(Lambdas))]
-		public async void WithArgumentException(string lambda)
-		{
-			var before = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    ValueTask ThrowingMethod() {{
+    Task ThrowingMethod() {{
         throw new NotImplementedException();
     }}
 
@@ -160,13 +71,13 @@ public class TestClass {{
     }}
 }}";
 
-			var after = $@"
+		var after = $@"
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
 public class TestClass {{
-    ValueTask ThrowingMethod() {{
+    Task ThrowingMethod() {{
         throw new NotImplementedException();
     }}
 
@@ -176,7 +87,6 @@ public class TestClass {{
     }}
 }}";
 
-			await Verify.VerifyCodeFixV3(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
-		}
+		await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
 	}
 }

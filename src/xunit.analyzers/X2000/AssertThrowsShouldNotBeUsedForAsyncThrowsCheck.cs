@@ -30,7 +30,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 			return;
 
 		var throwExpressionSymbol = GetThrowExpressionSymbol(invocationOperation);
-		if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context, xunitContext))
+		if (!ThrowExpressionReturnsTask(throwExpressionSymbol, context))
 			return;
 
 		var replacement = method.Name + "Async";
@@ -93,8 +93,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 
 	static bool ThrowExpressionReturnsTask(
 		ISymbol? symbol,
-		OperationAnalysisContext context,
-		XunitContext xunitContext)
+		OperationAnalysisContext context)
 	{
 		if (symbol?.Kind != SymbolKind.Method)
 			return false;
@@ -106,13 +105,6 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		if (taskType.IsAssignableFrom(returnType))
 			return true;
-
-		if (xunitContext.HasV3References)
-		{
-			var valueTaskType = TypeSymbolFactory.ValueTask(context.Compilation);
-			if (valueTaskType.IsAssignableFrom(returnType))
-				return true;
-		}
 
 		var configuredTaskAwaitableType = TypeSymbolFactory.ConfiguredTaskAwaitable(context.Compilation);
 		if (configuredTaskAwaitableType.IsAssignableFrom(returnType))
