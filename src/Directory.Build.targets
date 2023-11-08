@@ -33,7 +33,11 @@
       <!-- Never put the Git hash in the package version -->
       <PackageVersion>$(BuildVersion3Components)$(PrereleaseVersion)</PackageVersion>
       <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
-      <NuspecProperties>PackageVersion=$(PackageVersion);GitCommitId=$(GitCommitId);Configuration=$(Configuration)</NuspecProperties>
+      <NuspecProperties>
+        Configuration=$(Configuration);
+        GitCommitId=$(GitCommitId);
+        PackageVersion=$(PackageVersion);
+      </NuspecProperties>
     </PropertyGroup>
   </Target>
 
