@@ -606,7 +606,14 @@ public static class Descriptors
 			"Do not use Assert.{0}({1}, message) to fail a test. Use Assert.Fail(message) instead."
 		);
 
-	// Placeholder for rule X2021
+	public static DiagnosticDescriptor X2021_AsyncAssertionsShouldBeAwaited { get; } =
+		Rule(
+			"xUnit2021",
+			"Async assertions should be awaited",
+			Assertions,
+			Error,
+			"Assert.{0} is async. The resulting task should be awaited (or stored for later awaiting)."
+		);
 
 	// Placeholder for rule X2022
 

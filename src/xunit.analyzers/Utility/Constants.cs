@@ -37,6 +37,9 @@ public static class Constants
 		public const string NotSame = "NotSame";
 		public const string NotStrictEqual = "NotStrictEqual";
 		public const string Null = "Null";
+		public const string PropertyChangedAsync = "PropertyChangedAsync";
+		public const string RaisesAnyAsync = "RaisesAnyAsync";
+		public const string RaisesAsync = "RaisesAsync";
 		public const string Same = "Same";
 		public const string Single = "Single";
 		public const string StartsWith = "StartsWith";
