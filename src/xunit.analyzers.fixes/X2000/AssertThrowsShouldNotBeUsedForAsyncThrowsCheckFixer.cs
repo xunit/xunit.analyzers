@@ -21,6 +21,34 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		base(Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck.Id)
 	{ }
 
+	static ExpressionSyntax GetAsyncThrowsInvocation(
+		InvocationExpressionSyntax invocation,
+		string memberName,
+		MemberAccessExpressionSyntax memberAccess)
+	{
+		var asyncThrowsInvocation =
+			invocation
+				.WithExpression(memberAccess.WithName(GetName(memberName, memberAccess)))
+				.WithArgumentList(invocation.ArgumentList);
+
+		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
+			return asyncThrowsInvocation;
+
+		return
+			AwaitExpression(asyncThrowsInvocation.WithoutLeadingTrivia())
+				.WithLeadingTrivia(invocation.GetLeadingTrivia());
+	}
+
+	static SimpleNameSyntax GetName(
+		string memberName,
+		MemberAccessExpressionSyntax memberAccess)
+	{
+		if (memberAccess.Name is not GenericNameSyntax genericNameSyntax)
+			return IdentifierName(memberName);
+
+		return GenericName(IdentifierName(memberName).Identifier, genericNameSyntax.TypeArgumentList);
+	}
+
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
 		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
@@ -66,8 +94,8 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
-			var modifiers = GetModifiersWithAsyncKeywordAdded(method);
-			var returnType = await GetReturnType(method, invocation, document, editor, cancellationToken);
+			var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method);
+			var returnType = await AsyncHelper.GetReturnType(method, invocation, document, editor, cancellationToken);
 			var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
 
 			if (returnType is not null)
@@ -81,64 +109,5 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		}
 
 		return editor.GetChangedDocument();
-	}
-
-	static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method) =>
-		method.Modifiers.Any(SyntaxKind.AsyncKeyword)
-			? method.Modifiers
-			: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
-
-	static async Task<TypeSyntax?> GetReturnType(
-		MethodDeclarationSyntax method,
-		InvocationExpressionSyntax invocation,
-		Document document,
-		DocumentEditor editor,
-		CancellationToken cancellationToken)
-	{
-		// Consider the case where a custom awaiter type is awaited
-		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
-			return method.ReturnType;
-
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-		if (semanticModel is null)
-			return null;
-
-		var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
-		var taskType = TypeSymbolFactory.Task(semanticModel.Compilation);
-		if (taskType is null)
-			return null;
-
-		if (taskType.IsAssignableFrom(methodSymbol))
-			return method.ReturnType;
-
-		return editor.Generator.TypeExpression(taskType) as TypeSyntax;
-	}
-
-	static ExpressionSyntax GetAsyncThrowsInvocation(
-		InvocationExpressionSyntax invocation,
-		string memberName,
-		MemberAccessExpressionSyntax memberAccess)
-	{
-		var asyncThrowsInvocation =
-			invocation
-				.WithExpression(memberAccess.WithName(GetName(memberName, memberAccess)))
-				.WithArgumentList(invocation.ArgumentList);
-
-		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
-			return asyncThrowsInvocation;
-
-		return
-			AwaitExpression(asyncThrowsInvocation.WithoutLeadingTrivia())
-				.WithLeadingTrivia(invocation.GetLeadingTrivia());
-	}
-
-	static SimpleNameSyntax GetName(
-		string memberName,
-		MemberAccessExpressionSyntax memberAccess)
-	{
-		if (memberAccess.Name is not GenericNameSyntax genericNameSyntax)
-			return IdentifierName(memberName);
-
-		return GenericName(IdentifierName(memberName).Identifier, genericNameSyntax.TypeArgumentList);
 	}
 }
