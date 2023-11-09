@@ -615,7 +615,14 @@ public static class Descriptors
 			"Assert.{0} is async. The resulting task should be awaited (or stored for later awaiting)."
 		);
 
-	// Placeholder for rule X2022
+	public static DiagnosticDescriptor X2022_BooleanAssertionsShouldNotBeNegated { get; } =
+		Rule(
+			"xUnit2022",
+			"Boolean assertions should not be negated",
+			Assertions,
+			Info,
+			"Do not negate your value when calling Assert.{0}. Call Assert.{1} without the negation instead."
+		);
 
 	// Placeholder for rule X2023
 
