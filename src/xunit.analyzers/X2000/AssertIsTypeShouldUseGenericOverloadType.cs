@@ -38,6 +38,13 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 		var type = typeOfOperation.TypeOperand;
 		var typeName = SymbolDisplay.ToDisplayString(type);
 
+		if (type.TypeKind == TypeKind.Interface)
+		{
+			var symbols = type.GetMembers().OfType<ISymbol>();
+			if (symbols.Any(s => s is { IsAbstract: true, IsStatic: true }))
+				return;
+		}
+
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
 		builder[Constants.Properties.TypeName] = typeName;
