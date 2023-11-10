@@ -40,9 +40,15 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 
 		if (type.TypeKind == TypeKind.Interface)
 		{
-			var symbols = type.GetMembers().OfType<ISymbol>();
-			if (symbols.Any(s => s is { IsAbstract: true, IsStatic: true }))
-				return;
+			var allInterfaces = (type as INamedTypeSymbol)?.AllInterfaces;
+			if (allInterfaces != null)
+			{
+				var allMembers = allInterfaces.Value
+					.SelectMany(i => i.GetMembers())
+					.Concat(type.GetMembers());
+				if (allMembers.Any(m => m is { IsAbstract: true, IsStatic: true }))
+					return;
+			}
 		}
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
