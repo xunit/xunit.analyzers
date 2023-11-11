@@ -779,6 +779,42 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_WithGenericArgument(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod<T>(T n) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_WithGenericNullableArgument(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+#nullable enable
+
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod<T>(T? n) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
 	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters(
 		string memberSyntax,
 		string memberArgs)
