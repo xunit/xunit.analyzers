@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -14,6 +15,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixProvider
 {
+	private const string DefaultParameterName = "item";
 	public const string Key_UseSingleMethod = "xUnit2023_UseSingleMethod";
 
 	public AssertSingleShouldBeUsedForSingleParameterFixer() :
@@ -63,18 +65,31 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 				.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
 				.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
 
-			if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
+			if (invocation.Parent != null)
 			{
-				var oneItemVariableStatement = OneItemVariableStatement(lambdaExpression, replacementNode);
-				if (invocation.Parent != null)
-				{
-					var leadingTrivia = invocation.Parent.GetLeadingTrivia();
-					var trailingTrivia = invocation.Parent.GetTrailingTrivia();
+				var leadingTrivia = invocation.Parent.GetLeadingTrivia();
+				var trailingTrivia = invocation.Parent.GetTrailingTrivia();
 
-					oneItemVariableStatement = oneItemVariableStatement.WithLeadingTrivia(leadingTrivia);
+				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
+				{
+					var oneItemVariableStatement = OneItemVariableStatement(lambdaExpression, replacementNode)
+						.WithLeadingTrivia(leadingTrivia);
 
 					ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
 					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression, leadingTrivia, trailingTrivia);
+				}
+				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
+				{
+					var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+					var isMethod = semanticModel.GetSymbolInfo(identifierExpression).Symbol?.Kind == SymbolKind.Method;
+					if (isMethod)
+					{
+						var oneItemVariableStatement = OneItemVariableStatement(DefaultParameterName, replacementNode)
+							.WithLeadingTrivia(leadingTrivia);
+
+						ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
+						AppendMethodInvocation(editor, oneItemVariableStatement, identifierExpression, leadingTrivia, trailingTrivia);
+					}
 				}
 			}
 		}
@@ -82,16 +97,23 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		return editor.GetChangedDocument();
 	}
 
-	static LocalDeclarationStatementSyntax OneItemVariableStatement(SimpleLambdaExpressionSyntax lambdaExpression,
+	static LocalDeclarationStatementSyntax OneItemVariableStatement(
+		SimpleLambdaExpressionSyntax lambdaExpression,
 		InvocationExpressionSyntax replacementNode)
 	{
 		var lambdaParameterName = lambdaExpression.Parameter.Identifier.ValueText;
+
+		return OneItemVariableStatement(lambdaParameterName, replacementNode);
+	}
+
+	static LocalDeclarationStatementSyntax OneItemVariableStatement(string parameterName, InvocationExpressionSyntax replacementNode)
+	{
 		var equalsToReplacementNode = EqualsValueClause(replacementNode);
 
 		var oneItemVariableDeclaration = VariableDeclaration(
 			ParseTypeName("var"),
-			SeparatedList<VariableDeclaratorSyntax>().Add(
-				VariableDeclarator(Identifier(lambdaParameterName))
+			SingletonSeparatedList(
+				VariableDeclarator(Identifier(parameterName))
 					.WithInitializer(equalsToReplacementNode)
 			)
 		).NormalizeWhitespace();
@@ -139,5 +161,24 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 			editor.InsertAfter(oneItemVariableStatement, allLambdaBlockStatements);
 		}
+	}
+
+	static void AppendMethodInvocation(
+		DocumentEditor editor,
+		LocalDeclarationStatementSyntax oneItemVariableStatement,
+		IdentifierNameSyntax methodExpression,
+		SyntaxTriviaList leadingTrivia,
+		SyntaxTriviaList trailingTrivia)
+	{
+		var methodStatement = InvocationExpression(
+				methodExpression,
+				ArgumentList(
+					SingletonSeparatedList(
+						Argument(IdentifierName(DefaultParameterName)))
+				))
+			.WithLeadingTrivia(leadingTrivia)
+			.WithTrailingTrivia(trailingTrivia);
+
+		editor.InsertAfter(oneItemVariableStatement, ExpressionStatement(methodStatement));
 	}
 }
