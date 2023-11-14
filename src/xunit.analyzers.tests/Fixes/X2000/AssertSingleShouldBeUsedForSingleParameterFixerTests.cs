@@ -31,6 +31,11 @@ public class AssertSingleShouldBeUsedForSingleParameterFixerTests
         Assert.NotNull(item);
         Assert.NotNull(item);"
 		},
+		{
+			"[|Assert.Collection(collection, ElementInspector)|]",
+			@"var item = Assert.Single(collection);
+        ElementInspector(item);"
+		},
 	};
 
 	const string beforeTemplate = @"
@@ -44,6 +49,9 @@ public class TestClass {{
 
         {0};
     }}
+
+    private void ElementInspector(object obj)
+    {{ }}
 }}";
 
 	const string afterTemplate = @"
@@ -57,6 +65,9 @@ public class TestClass {{
 
         {0}
     }}
+
+    private void ElementInspector(object obj)
+    {{ }}
 }}";
 
 	[Theory]
