@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
+using System.Collections.Immutable;
 
 namespace Xunit.Analyzers;
 
@@ -35,13 +36,16 @@ public class AssertSingleShouldBeUsedForSingleParameter : AssertUsageAnalyzerBas
 		if (operation.DimensionSizes.Length != 1 || (int)(operation.DimensionSizes[0].ConstantValue.Value ?? 0) != 1)
 			return;
 
+		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+		builder[Constants.Properties.Replacement] = Constants.Asserts.Single;
+
 		context.ReportDiagnostic(
 			Diagnostic.Create(
 				Descriptors.X2023_AssertSingleShouldBeUsedForSingleParameter,
 				invocationOperation.Syntax.GetLocation(),
+				builder.ToImmutable(),
 				method.Name
 			)
 		);
-
 	}
 }
