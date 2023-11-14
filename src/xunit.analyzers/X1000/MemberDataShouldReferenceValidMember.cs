@@ -554,7 +554,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			}
 			else
 			{
-				var valueType = compilation.GetTypeByMetadataName(value.Value!.GetType().FullName ?? "System.Object");
+				var valueType = semanticModel.GetTypeInfo(argumentSyntaxList[valueIdx], context.CancellationToken).Type;
 				if (valueType is null)
 					continue;
 

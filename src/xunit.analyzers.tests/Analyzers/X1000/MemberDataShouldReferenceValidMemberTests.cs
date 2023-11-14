@@ -524,6 +524,30 @@ public class TestClass {
 		await Verify.VerifyAnalyzer(source);
 	}
 
+	// https://github.com/xunit/xunit/issues/2817
+	[Theory]
+	[InlineData("Foo.Bar")]
+	[InlineData("(Foo)42")]
+	public async void DoesNotFindWarning_IfEnumValueIsValid(string enumValue)
+	{
+		var source = $@"
+using System;
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {{
+    [Theory]
+    [MemberData(nameof(SomeData), {enumValue})]
+    public void TestMethod(int _) {{ }}
+
+    public enum Foo {{ Bar }}
+
+    public static IEnumerable<object[]> SomeData(Foo foo) => Array.Empty<object[]>();
+}}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
 	[Fact]
 	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentTypes()
 	{
