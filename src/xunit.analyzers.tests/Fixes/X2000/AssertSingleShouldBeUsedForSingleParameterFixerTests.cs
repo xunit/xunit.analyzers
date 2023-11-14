@@ -4,6 +4,35 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleP
 
 public class AssertSingleShouldBeUsedForSingleParameterFixerTests
 {
+	public static TheoryData<string, string> Statements = new()
+	{
+		{
+			"[|Assert.Collection(collection, item => Assert.NotNull(item))|]",
+			@"var item = Assert.Single(collection);
+        Assert.NotNull(item);"
+		},
+		{
+			"[|Assert.Collection(collection, item => { Assert.NotNull(item); })|]",
+			@"var item = Assert.Single(collection);
+        Assert.NotNull(item);"
+		},
+		{
+			"[|Assert.Collection(collection, item => { Assert.NotNull(item); Assert.NotNull(item); })|]",
+			@"var item = Assert.Single(collection);
+        Assert.NotNull(item);
+        Assert.NotNull(item);"
+		},
+		{
+			@"[|Assert.Collection(collection, item => {
+            Assert.NotNull(item);
+            Assert.NotNull(item);
+        })|]",
+			@"var item = Assert.Single(collection);
+        Assert.NotNull(item);
+        Assert.NotNull(item);"
+		},
+	};
+
 	const string beforeTemplate = @"
 using Xunit;
 using System.Collections.Generic;
@@ -26,16 +55,16 @@ public class TestClass {{
     public void TestMethod() {{
         IEnumerable<object> collection = new List<object>() {{ new object() }};
 
-        {0};
-        {1};
+        {0}
     }}
 }}";
 
-	[Fact]
-	public async void ReplacesCollectionMethod()
+	[Theory]
+	[MemberData(nameof(Statements))]
+	public async void ReplacesCollectionMethod(string statementBefore, string statementAfter)
 	{
-		var before = string.Format(beforeTemplate, "[|Assert.Collection(collection, item => Assert.NotNull(item))|]");
-		var after = string.Format(afterTemplate, "var item = Assert.Single(collection)", "Assert.NotNull(item)");
+		var before = string.Format(beforeTemplate, statementBefore);
+		var after = string.Format(afterTemplate, statementAfter);
 
 		await Verify.VerifyCodeFix(before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
 	}
