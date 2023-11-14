@@ -65,38 +65,79 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 			if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
 			{
-				var lambdaParameterName = lambdaExpression.Parameter.Identifier.ValueText;
-				var equalsToReplacementNode = EqualsValueClause(replacementNode);
-
-				var oneItemVariableDeclaration = VariableDeclaration(
-					ParseTypeName("var"),
-					SeparatedList<VariableDeclaratorSyntax>().Add(
-						VariableDeclarator(Identifier(lambdaParameterName))
-							.WithInitializer(equalsToReplacementNode)
-					)
-				).NormalizeWhitespace();
-
-				var oneItemVariableStatement = LocalDeclarationStatement(oneItemVariableDeclaration);
+				var oneItemVariableStatement = OneItemVariableStatement(lambdaExpression, replacementNode);
 				if (invocation.Parent != null)
 				{
-					oneItemVariableStatement = oneItemVariableStatement.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
-					editor.ReplaceNode(
-						invocation.Parent,
-						oneItemVariableStatement
-					);
+					var leadingTrivia = invocation.Parent.GetLeadingTrivia();
+					var trailingTrivia = invocation.Parent.GetTrailingTrivia();
 
-					if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
-					{
-						var assertStatement = ExpressionStatement(lambdaBody)
-							.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia())
-							.WithTrailingTrivia(invocation.Parent.GetTrailingTrivia());
+					oneItemVariableStatement = oneItemVariableStatement.WithLeadingTrivia(leadingTrivia);
 
-						editor.InsertAfter(oneItemVariableStatement, assertStatement);
-					}
+					ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
+					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression, leadingTrivia, trailingTrivia);
 				}
 			}
 		}
 
 		return editor.GetChangedDocument();
+	}
+
+	static LocalDeclarationStatementSyntax OneItemVariableStatement(SimpleLambdaExpressionSyntax lambdaExpression,
+		InvocationExpressionSyntax replacementNode)
+	{
+		var lambdaParameterName = lambdaExpression.Parameter.Identifier.ValueText;
+		var equalsToReplacementNode = EqualsValueClause(replacementNode);
+
+		var oneItemVariableDeclaration = VariableDeclaration(
+			ParseTypeName("var"),
+			SeparatedList<VariableDeclaratorSyntax>().Add(
+				VariableDeclarator(Identifier(lambdaParameterName))
+					.WithInitializer(equalsToReplacementNode)
+			)
+		).NormalizeWhitespace();
+
+		return LocalDeclarationStatement(oneItemVariableDeclaration);
+	}
+
+	static void ReplaceCollectionWithSingle(
+		DocumentEditor editor,
+		LocalDeclarationStatementSyntax oneItemVariableStatement,
+		SyntaxNode invocationParent)
+	{
+		editor.ReplaceNode(
+			invocationParent,
+			oneItemVariableStatement
+		);
+	}
+
+	static void AppendLambdaStatements(
+		DocumentEditor editor,
+		LocalDeclarationStatementSyntax oneItemVariableStatement,
+		SimpleLambdaExpressionSyntax lambdaExpression,
+		SyntaxTriviaList leadingTrivia,
+		SyntaxTriviaList trailingTrivia)
+	{
+		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
+		{
+			var assertStatement = ExpressionStatement(lambdaBody)
+				.WithLeadingTrivia(leadingTrivia)
+				.WithTrailingTrivia(trailingTrivia);
+
+			editor.InsertAfter(oneItemVariableStatement, assertStatement);
+		}
+		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
+		{
+			var allLambdaBlockStatements = lambdaExpression.Block.Statements.Select((s, i) =>
+			{
+				s = s
+					.WithoutTrivia()
+					.WithLeadingTrivia(leadingTrivia);
+				if (i == lambdaExpression.Block.Statements.Count - 1)
+					s = s.WithTrailingTrivia(trailingTrivia);
+				return s;
+			});
+
+			editor.InsertAfter(oneItemVariableStatement, allLambdaBlockStatements);
+		}
 	}
 }
