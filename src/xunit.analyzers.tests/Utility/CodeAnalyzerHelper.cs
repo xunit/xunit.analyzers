@@ -11,7 +11,7 @@ static class CodeAnalyzerHelper
 
 	public static readonly ReferenceAssemblies CurrentXunitV3RunnerUtility;
 
-	// When changing any references here, make sure to update xunit.analzyers.tests.csproj.
+	// When changing any references here, make sure to update xunit.analyzers.tests.csproj.
 	// We either need a direct reference (like xunit.core) or a package download (like everything else)
 	// in order for this list to work most efficiently.
 	static CodeAnalyzerHelper()
@@ -27,8 +27,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.assert", "2.6.2-pre.12"),
-				new PackageIdentity("xunit.core", "2.6.2-pre.12")
+				new PackageIdentity("xunit.assert", "2.6.2-pre.14"),
+				new PackageIdentity("xunit.core", "2.6.2-pre.14")
 			)
 		);
 
@@ -37,7 +37,7 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.runner.utility", "2.6.2-pre.12")
+				new PackageIdentity("xunit.runner.utility", "2.6.2-pre.14")
 			)
 		);
 
@@ -46,9 +46,9 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "6.0.0"),
-				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.317"),
-				new PackageIdentity("xunit.v3.common", "0.1.1-pre.317"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.317")
+				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.322"),
+				new PackageIdentity("xunit.v3.common", "0.1.1-pre.322"),
+				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.322")
 			)
 		);
 
@@ -57,8 +57,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "6.0.0"),
-				new PackageIdentity("xunit.v3.common", "0.1.1-pre.317"),
-				new PackageIdentity("xunit.v3.runner.utility", "0.1.1-pre.317")
+				new PackageIdentity("xunit.v3.common", "0.1.1-pre.322"),
+				new PackageIdentity("xunit.v3.runner.utility", "0.1.1-pre.322")
 			)
 		);
 	}

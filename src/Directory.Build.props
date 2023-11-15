@@ -4,7 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>6.0.11</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>6.0.25</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">embedded</DebugType>
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="[4.0.1]" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

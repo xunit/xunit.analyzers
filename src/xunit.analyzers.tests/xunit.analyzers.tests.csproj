@@ -16,12 +16,12 @@
     <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
     <PackageDownload Include="System.Text.Json" Version="[6.0.0]" />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
-    <PackageDownload Include="xunit.assert" Version="[2.6.2-pre.12]" />
-    <PackageDownload Include="xunit.runner.utility" Version="[2.6.2-pre.12]" />
-    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.317]" />
-    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.317]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.317]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.1.1-pre.317]" />
+    <PackageDownload Include="xunit.assert" Version="[2.6.2-pre.14]" />
+    <PackageDownload Include="xunit.runner.utility" Version="[2.6.2-pre.14]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.322]" />
+    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.322]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.322]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.1.1-pre.322]" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,12 +29,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.assert.source" Version="2.6.2-pre.12" />
-    <PackageReference Include="xunit.core" Version="2.6.2-pre.12" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4-pre.10">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="xunit.assert.source" Version="2.6.2-pre.14" />
+    <PackageReference Include="xunit.core" Version="2.6.2-pre.14" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4-pre.10" />
   </ItemGroup>
 
   <ItemGroup>
