@@ -27,8 +27,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.assert", "2.6.2-pre.6"),
-				new PackageIdentity("xunit.core", "2.6.2-pre.6")
+				new PackageIdentity("xunit.assert", "2.6.2-pre.12"),
+				new PackageIdentity("xunit.core", "2.6.2-pre.12")
 			)
 		);
 
@@ -37,7 +37,7 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.runner.utility", "2.6.2-pre.6")
+				new PackageIdentity("xunit.runner.utility", "2.6.2-pre.12")
 			)
 		);
 
