@@ -554,7 +554,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			}
 			else
 			{
-				var valueType = compilation.GetTypeByMetadataName(value.Value!.GetType().FullName ?? "System.Object");
+				var valueType = semanticModel.GetTypeInfo(argumentSyntaxList[valueIdx], context.CancellationToken).Type;
 				if (valueType is null)
 					continue;
 
@@ -684,7 +684,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			if (typeArgument is null)
 				continue;
 
-			if (!parameterType.IsAssignableFrom(typeArgument))
+			if (parameterType.Kind != SymbolKind.TypeParameter && !parameterType.IsAssignableFrom(typeArgument))
 				ReportMemberMethodTheoryDataIncompatibleType(context, parameterSyntax.Type.GetLocation(), typeArgument, namedMemberType, memberName, parameter);
 
 			// Nullability of value types is handled by the type compatibility test,
