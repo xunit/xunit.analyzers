@@ -624,7 +624,14 @@ public static class Descriptors
 			"Do not negate your value when calling Assert.{0}. Call Assert.{1} without the negation instead."
 		);
 
-	// Placeholder for rule X2023
+	public static DiagnosticDescriptor X2023_AssertSingleShouldBeUsedForSingleParameter { get; } =
+		Rule(
+			"xUnit2023",
+			"Do not use collection methods for single-item collections",
+			Assertions,
+			Info,
+			"Do not use Assert.{0} if there is one element in the collection. Use Assert.Single instead."
+		);
 
 	// Placeholder for rule X2024
 
