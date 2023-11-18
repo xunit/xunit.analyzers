@@ -38,6 +38,23 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 		var type = typeOfOperation.TypeOperand;
 		var typeName = SymbolDisplay.ToDisplayString(type);
 
+		// Static abstract interface members can't be used as types in generics
+		if (type.TypeKind == TypeKind.Interface)
+		{
+			var allInterfaces = (type as INamedTypeSymbol)?.AllInterfaces;
+			if (allInterfaces != null)
+			{
+				var allMembers =
+					allInterfaces
+						.Value
+						.SelectMany(i => i.GetMembers())
+						.Concat(type.GetMembers());
+
+				if (allMembers.Any(m => m is { IsAbstract: true, IsStatic: true }))
+					return;
+			}
+		}
+
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
 		builder[Constants.Properties.TypeName] = typeName;
