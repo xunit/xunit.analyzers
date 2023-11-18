@@ -72,7 +72,9 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Statements))]
-	public async void ReplacesCollectionMethod(string statementBefore, string statementAfter)
+	public async void ReplacesCollectionMethod(
+		string statementBefore,
+		string statementAfter)
 	{
 		var before = string.Format(beforeTemplate, statementBefore);
 		var after = string.Format(afterTemplate, statementAfter);

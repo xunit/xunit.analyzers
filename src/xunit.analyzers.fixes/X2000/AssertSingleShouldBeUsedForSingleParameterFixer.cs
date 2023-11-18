@@ -59,11 +59,12 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-		    invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
+			invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
 		{
-			var replacementNode = invocation
-				.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
-				.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
+			var replacementNode =
+				invocation
+					.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
+					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
 
 			if (invocation.Parent != null)
 			{
@@ -72,8 +73,9 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
 				{
-					var oneItemVariableStatement = OneItemVariableStatement(lambdaExpression, replacementNode)
-						.WithLeadingTrivia(leadingTrivia);
+					var oneItemVariableStatement =
+						OneItemVariableStatement(lambdaExpression, replacementNode)
+							.WithLeadingTrivia(leadingTrivia);
 
 					ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
 					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression, leadingTrivia, trailingTrivia);
@@ -106,7 +108,9 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		return OneItemVariableStatement(lambdaParameterName, replacementNode);
 	}
 
-	static LocalDeclarationStatementSyntax OneItemVariableStatement(string parameterName, InvocationExpressionSyntax replacementNode)
+	static LocalDeclarationStatementSyntax OneItemVariableStatement(
+		string parameterName,
+		InvocationExpressionSyntax replacementNode)
 	{
 		var equalsToReplacementNode = EqualsValueClause(replacementNode);
 
@@ -141,9 +145,10 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 	{
 		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
 		{
-			var assertStatement = ExpressionStatement(lambdaBody)
-				.WithLeadingTrivia(leadingTrivia)
-				.WithTrailingTrivia(trailingTrivia);
+			var assertStatement =
+				ExpressionStatement(lambdaBody)
+					.WithLeadingTrivia(leadingTrivia)
+					.WithTrailingTrivia(trailingTrivia);
 
 			editor.InsertAfter(oneItemVariableStatement, assertStatement);
 		}
@@ -151,9 +156,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		{
 			var allLambdaBlockStatements = lambdaExpression.Block.Statements.Select((s, i) =>
 			{
-				s = s
-					.WithoutTrivia()
-					.WithLeadingTrivia(leadingTrivia);
+				s = s.WithoutTrivia().WithLeadingTrivia(leadingTrivia);
 				if (i == lambdaExpression.Block.Statements.Count - 1)
 					s = s.WithTrailingTrivia(trailingTrivia);
 				return s;
@@ -170,12 +173,11 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		SyntaxTriviaList leadingTrivia,
 		SyntaxTriviaList trailingTrivia)
 	{
-		var methodStatement = InvocationExpression(
+		var methodStatement =
+			InvocationExpression(
 				methodExpression,
-				ArgumentList(
-					SingletonSeparatedList(
-						Argument(IdentifierName(DefaultParameterName)))
-				))
+				ArgumentList(SingletonSeparatedList(Argument(IdentifierName(DefaultParameterName))))
+			)
 			.WithLeadingTrivia(leadingTrivia)
 			.WithTrailingTrivia(trailingTrivia);
 
