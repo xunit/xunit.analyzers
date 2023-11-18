@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +10,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -21,6 +25,19 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 	public AssertSingleShouldBeUsedForSingleParameterFixer() :
 		base(Descriptors.X2023_AssertSingleShouldBeUsedForSingleParameter.Id)
 	{ }
+
+	static string GetSafeVariableName(
+		string targetParameterName,
+		ImmutableHashSet<string> localSymbols)
+	{
+		var idx = 2;
+		var result = targetParameterName;
+
+		while (localSymbols.Contains(result))
+			result = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", targetParameterName, idx++);
+
+		return result;
+	}
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
@@ -61,51 +78,59 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
 			invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
 		{
-			var replacementNode =
-				invocation
-					.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
-					.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
-
-			if (invocation.Parent != null)
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (semanticModel != null && invocation.Parent != null)
 			{
-				var leadingTrivia = invocation.Parent.GetLeadingTrivia();
-				var trailingTrivia = invocation.Parent.GetTrailingTrivia();
+				var startLocation = invocation.GetLocation().SourceSpan.Start;
+				var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
+				var replacementNode =
+					invocation
+						.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
+						.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
 
 				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
 				{
+					var originalParameterName = lambdaExpression.Parameter.Identifier.Text;
+					var parameterName = GetSafeVariableName(originalParameterName, localSymbols);
+
+					if (parameterName != originalParameterName)
+					{
+						var body = lambdaExpression.Body;
+						var tokens =
+							body
+								.DescendantTokens()
+								.Where(t => t.Kind() == SyntaxKind.IdentifierToken && t.Text == originalParameterName)
+								.ToArray();
+						body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
+						lambdaExpression = lambdaExpression.WithBody(body);
+					}
+
 					var oneItemVariableStatement =
-						OneItemVariableStatement(lambdaExpression, replacementNode)
-							.WithLeadingTrivia(leadingTrivia);
+						OneItemVariableStatement(parameterName, replacementNode)
+							.WithLeadingTrivia(invocation.GetLeadingTrivia());
 
 					ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
-					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression, leadingTrivia, trailingTrivia);
+					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression);
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
 				{
-					var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 					var isMethod = semanticModel.GetSymbolInfo(identifierExpression).Symbol?.Kind == SymbolKind.Method;
 					if (isMethod)
 					{
-						var oneItemVariableStatement = OneItemVariableStatement(DefaultParameterName, replacementNode)
-							.WithLeadingTrivia(leadingTrivia);
+						var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);
+
+						var oneItemVariableStatement =
+							OneItemVariableStatement(parameterName, replacementNode)
+								.WithLeadingTrivia(invocation.GetLeadingTrivia());
 
 						ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
-						AppendMethodInvocation(editor, oneItemVariableStatement, identifierExpression, leadingTrivia, trailingTrivia);
+						AppendMethodInvocation(editor, oneItemVariableStatement, identifierExpression, parameterName);
 					}
 				}
 			}
 		}
 
 		return editor.GetChangedDocument();
-	}
-
-	static LocalDeclarationStatementSyntax OneItemVariableStatement(
-		SimpleLambdaExpressionSyntax lambdaExpression,
-		InvocationExpressionSyntax replacementNode)
-	{
-		var lambdaParameterName = lambdaExpression.Parameter.Identifier.ValueText;
-
-		return OneItemVariableStatement(lambdaParameterName, replacementNode);
 	}
 
 	static LocalDeclarationStatementSyntax OneItemVariableStatement(
@@ -139,30 +164,24 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 	static void AppendLambdaStatements(
 		DocumentEditor editor,
 		LocalDeclarationStatementSyntax oneItemVariableStatement,
-		SimpleLambdaExpressionSyntax lambdaExpression,
-		SyntaxTriviaList leadingTrivia,
-		SyntaxTriviaList trailingTrivia)
+		SimpleLambdaExpressionSyntax lambdaExpression)
 	{
 		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
 		{
-			var assertStatement =
+			editor.InsertAfter(
+				oneItemVariableStatement,
 				ExpressionStatement(lambdaBody)
-					.WithLeadingTrivia(leadingTrivia)
-					.WithTrailingTrivia(trailingTrivia);
-
-			editor.InsertAfter(oneItemVariableStatement, assertStatement);
+					.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
+			);
 		}
 		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
 		{
-			var allLambdaBlockStatements = lambdaExpression.Block.Statements.Select((s, i) =>
-			{
-				s = s.WithoutTrivia().WithLeadingTrivia(leadingTrivia);
-				if (i == lambdaExpression.Block.Statements.Count - 1)
-					s = s.WithTrailingTrivia(trailingTrivia);
-				return s;
-			});
-
-			editor.InsertAfter(oneItemVariableStatement, allLambdaBlockStatements);
+			editor.InsertAfter(
+				oneItemVariableStatement,
+				lambdaExpression.Block.Statements.Select(
+					(s, i) => s.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
+				)
+			);
 		}
 	}
 
@@ -170,17 +189,17 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		DocumentEditor editor,
 		LocalDeclarationStatementSyntax oneItemVariableStatement,
 		IdentifierNameSyntax methodExpression,
-		SyntaxTriviaList leadingTrivia,
-		SyntaxTriviaList trailingTrivia)
+		string parameterName)
 	{
-		var methodStatement =
-			InvocationExpression(
-				methodExpression,
-				ArgumentList(SingletonSeparatedList(Argument(IdentifierName(DefaultParameterName))))
+		editor.InsertAfter(
+			oneItemVariableStatement,
+			ExpressionStatement(
+				InvocationExpression(
+					methodExpression,
+					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
+				)
 			)
-			.WithLeadingTrivia(leadingTrivia)
-			.WithTrailingTrivia(trailingTrivia);
-
-		editor.InsertAfter(oneItemVariableStatement, ExpressionStatement(methodStatement));
+			.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
+		);
 	}
 }

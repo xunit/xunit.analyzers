@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleParameter>;
@@ -12,29 +13,79 @@ public class AssertSingleShouldBeUsedForSingleParameterFixerTests
         Assert.NotNull(item);"
 		},
 		{
+			@"var item = 42;
+        [|Assert.Collection(collection, item => Assert.NotNull(item))|]",
+			@"var item = 42;
+        var item_2 = Assert.Single(collection);
+        Assert.NotNull(item_2);"
+		},
+		{
 			"[|Assert.Collection(collection, item => { Assert.NotNull(item); })|]",
 			@"var item = Assert.Single(collection);
         Assert.NotNull(item);"
 		},
 		{
+			@"var item = 42;
+        [|Assert.Collection(collection, item => { Assert.NotNull(item); })|]",
+			@"var item = 42;
+        var item_2 = Assert.Single(collection);
+        Assert.NotNull(item_2);"
+		},
+		{
 			"[|Assert.Collection(collection, item => { Assert.NotNull(item); Assert.NotNull(item); })|]",
 			@"var item = Assert.Single(collection);
-        Assert.NotNull(item);
-        Assert.NotNull(item);"
+        Assert.NotNull(item); Assert.NotNull(item);"
+		},
+		{
+			@"var item = 42;
+        [|Assert.Collection(collection, item => { Assert.NotNull(item); Assert.NotNull(item); })|]",
+			@"var item = 42;
+        var item_2 = Assert.Single(collection);
+        Assert.NotNull(item_2); Assert.NotNull(item_2);"
 		},
 		{
 			@"[|Assert.Collection(collection, item => {
-            Assert.NotNull(item);
-            Assert.NotNull(item);
+            if (item != null) {
+                Assert.NotNull(item);
+                Assert.NotNull(item);
+            }
         })|]",
 			@"var item = Assert.Single(collection);
-        Assert.NotNull(item);
-        Assert.NotNull(item);"
+        if (item != null)
+        {
+            Assert.NotNull(item);
+            Assert.NotNull(item);
+        }"
+		},
+		{
+			@"var item = 42;
+        [|Assert.Collection(collection, item => {
+            if (item != null) {
+                Assert.NotNull(item);
+                Assert.NotNull(item);
+            }
+        })|]",
+			@"var item = 42;
+        var item_2 = Assert.Single(collection);
+        if (item_2 != null)
+        {
+            Assert.NotNull(item_2);
+            Assert.NotNull(item_2);
+        }"
 		},
 		{
 			"[|Assert.Collection(collection, ElementInspector)|]",
 			@"var item = Assert.Single(collection);
         ElementInspector(item);"
+		},
+		{
+			@"var item = 42;
+        var item_2 = 21.12;
+        [|Assert.Collection(collection, ElementInspector)|]",
+			@"var item = 42;
+        var item_2 = 21.12;
+        var item_3 = Assert.Single(collection);
+        ElementInspector(item_3);"
 		},
 	};
 
@@ -79,6 +130,6 @@ public class TestClass {{
 		var before = string.Format(beforeTemplate, statementBefore);
 		var after = string.Format(afterTemplate, statementAfter);
 
-		await Verify.VerifyCodeFix(before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
 	}
 }
