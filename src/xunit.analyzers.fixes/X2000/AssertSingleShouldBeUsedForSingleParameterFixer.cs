@@ -25,10 +25,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 	public AssertSingleShouldBeUsedForSingleParameterFixer() :
 		base(Descriptors.X2023_AssertSingleShouldBeUsedForSingleParameter.Id)
-	{
-		if (!Debugger.IsAttached)
-			Debugger.Launch();
-	}
+	{ }
 
 	static string GetSafeVariableName(
 		string targetParameterName,
@@ -45,6 +42,9 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
+		if (!Debugger.IsAttached)
+			Debugger.Launch();
+
 		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 		if (root is null)
 			return;

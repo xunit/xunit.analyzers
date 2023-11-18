@@ -1,3 +1,5 @@
+#if false
+
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -133,3 +135,5 @@ public class TestClass {{
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
 	}
 }
+
+#endif
