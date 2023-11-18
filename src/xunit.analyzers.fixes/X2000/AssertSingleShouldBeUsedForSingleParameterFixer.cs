@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Composition;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -24,7 +25,10 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 	public AssertSingleShouldBeUsedForSingleParameterFixer() :
 		base(Descriptors.X2023_AssertSingleShouldBeUsedForSingleParameter.Id)
-	{ }
+	{
+		if (!Debugger.IsAttached)
+			Debugger.Launch();
+	}
 
 	static string GetSafeVariableName(
 		string targetParameterName,
