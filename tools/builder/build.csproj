@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageDownload Include="xunit.v3.runner.console" Version="[0.1.1-pre.322]" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- We may not be able to upgrade Bullseye easily because we are leveraging internal APIs -->
     <PackageReference Include="Bullseye" Version="3.3.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.1" />

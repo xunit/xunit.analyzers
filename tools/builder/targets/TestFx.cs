@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using SimpleExec;
 using Xunit.BuildTools.Models;
 
 namespace Xunit.BuildTools.Targets;
@@ -15,17 +16,22 @@ public static class TestFx
 	{
 		context.BuildStep("Running .NET Framework tests");
 
-		if (context.NeedMono)
-		{
-			context.WriteLineColor(ConsoleColor.Yellow, "Skipping .NET Framework tests on non-Windows OSes.");
-			Console.WriteLine();
+		var consoleRunner = Path.Combine(context.NuGetPackageCachePath, "xunit.v3.runner.console", "0.1.1-pre.322", "tools", "net472", "xunit.v3.runner.console.exe");
 
-			return Task.CompletedTask;
+		if (!File.Exists(consoleRunner))
+		{
+			context.WriteLineColor(ConsoleColor.Red, $"Cannot run .NET Framework tests because path '{consoleRunner}' does not exist");
+			throw new ExitCodeException(-1);
 		}
 
 		var resultPath = Path.Combine(context.BaseFolder, "artifacts", "test");
-		File.Delete(Path.Combine(resultPath, "netfx.trx"));
+		var trxFilePath = Path.Combine(resultPath, "netfx.trx");
+		File.Delete(trxFilePath);
 
-		return context.Exec("dotnet", $"test src/xunit.analyzers.tests --framework net472 --configuration {context.ConfigurationText} --no-build --logger trx;LogFileName=netfx.trx --results-directory \"{resultPath}\" --verbosity {context.Verbosity}");
+		return context.Exec(
+			consoleRunner,
+			$"xunit.analyzers.tests.dll -trx \"{trxFilePath}\"",
+			workingDirectory: $"src/xunit.analyzers.tests/bin/{context.ConfigurationText}/net472"
+		);
 	}
 }
