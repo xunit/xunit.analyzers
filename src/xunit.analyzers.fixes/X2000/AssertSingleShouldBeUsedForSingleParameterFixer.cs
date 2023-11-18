@@ -45,6 +45,8 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		if (!Debugger.IsAttached)
 			Debugger.Launch();
 
+		Debugger.Break();
+
 		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 		if (root is null)
 			return;
@@ -77,6 +79,8 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		string replacementMethod,
 		CancellationToken cancellationToken)
 	{
+		Debugger.Break();
+
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&

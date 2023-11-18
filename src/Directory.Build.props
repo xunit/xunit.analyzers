@@ -6,8 +6,7 @@
   <PropertyGroup>
     <AnnotatedReferenceAssemblyVersion>6.0.25</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">full</DebugType>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' ">embedded</DebugType>
+    <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
