@@ -1,6 +1,5 @@
 {
 	"$schema": "https://xUnit.net/schema/current/xunit.runner.schema.json",
 	"diagnosticMessages": true,
-	"maxParallelThreads": -1,
 	"shadowCopy": false
 }
