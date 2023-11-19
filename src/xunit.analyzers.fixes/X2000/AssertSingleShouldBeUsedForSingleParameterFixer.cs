@@ -113,10 +113,11 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 					var oneItemVariableStatement =
 						OneItemVariableStatement(parameterName, replacementNode)
-							.WithLeadingTrivia(invocation.GetLeadingTrivia());
+							.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
 
-					ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
+					AppendSingleAfterCollection(editor, oneItemVariableStatement, invocation.Parent);
 					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression);
+					editor.RemoveNode(invocation.Parent);
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
 				{
@@ -127,16 +128,25 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 						var oneItemVariableStatement =
 							OneItemVariableStatement(parameterName, replacementNode)
-								.WithLeadingTrivia(invocation.GetLeadingTrivia());
+								.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
 
-						ReplaceCollectionWithSingle(editor, oneItemVariableStatement, invocation.Parent);
+						AppendSingleAfterCollection(editor, oneItemVariableStatement, invocation.Parent);
 						AppendMethodInvocation(editor, oneItemVariableStatement, identifierExpression, parameterName);
+						editor.RemoveNode(invocation.Parent);
 					}
 				}
 			}
 		}
 
 		return editor.GetChangedDocument();
+	}
+
+	static void AppendSingleAfterCollection(
+		DocumentEditor editor,
+		LocalDeclarationStatementSyntax oneItemVariableStatement,
+		SyntaxNode parent)
+	{
+		editor.InsertAfter(parent, oneItemVariableStatement);
 	}
 
 	static LocalDeclarationStatementSyntax OneItemVariableStatement(
