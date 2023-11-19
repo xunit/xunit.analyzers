@@ -137,7 +137,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 						var tokens =
 							body
 								.DescendantTokens()
-								.Where(t => t.Kind() == SyntaxKind.IdentifierToken && t.Text == originalParameterName)
+								.Where(t => t.IsKind(SyntaxKind.IdentifierToken) && t.Text == originalParameterName)
 								.ToArray();
 						body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
 						lambdaExpression = lambdaExpression.WithBody(body);
