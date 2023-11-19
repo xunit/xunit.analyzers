@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -41,11 +40,44 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		return result;
 	}
 
+	static IEnumerable<SyntaxNode> GetLambdaStatements(SimpleLambdaExpressionSyntax lambdaExpression)
+	{
+		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
+			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
+			foreach (var statement in lambdaExpression.Block.Statements)
+				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+	}
+
+	static SyntaxNode GetMethodInvocation(
+		IdentifierNameSyntax methodExpression,
+		string parameterName) =>
+			ExpressionStatement(
+				InvocationExpression(
+					methodExpression,
+					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
+				)
+			);
+
+	static LocalDeclarationStatementSyntax OneItemVariableStatement(
+		string parameterName,
+		InvocationExpressionSyntax replacementNode)
+	{
+		var equalsToReplacementNode = EqualsValueClause(replacementNode);
+
+		var oneItemVariableDeclaration = VariableDeclaration(
+			ParseTypeName("var"),
+			SingletonSeparatedList(
+				VariableDeclarator(Identifier(parameterName))
+					.WithInitializer(equalsToReplacementNode)
+			)
+		).NormalizeWhitespace();
+
+		return LocalDeclarationStatement(oneItemVariableDeclaration);
+	}
+
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		if (!Debugger.IsAttached)
-			Debugger.Launch();
-
 		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 		if (root is null)
 			return;
@@ -78,8 +110,6 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		string replacementMethod,
 		CancellationToken cancellationToken)
 	{
-		Debugger.Break();
-
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
@@ -113,7 +143,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 						lambdaExpression = lambdaExpression.WithBody(body);
 					}
 
-					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithLeadingTrivia(invocation.Parent.GetLeadingTrivia()));
+					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(invocation.Parent));
 					statements.AddRange(GetLambdaStatements(lambdaExpression));
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
@@ -127,53 +157,16 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 							OneItemVariableStatement(parameterName, replacementNode)
 								.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
 
-						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithLeadingTrivia(invocation.Parent.GetLeadingTrivia()));
+						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(invocation.Parent));
 						statements.Add(GetMethodInvocation(identifierExpression, parameterName));
 					}
 				}
 
-				editor.InsertAfter(invocation.Parent, statements);
+				editor.InsertBefore(invocation.Parent, statements);
 				editor.RemoveNode(invocation.Parent);
 			}
 		}
 
 		return editor.GetChangedDocument();
-	}
-
-	static SyntaxNode GetMethodInvocation(
-		IdentifierNameSyntax methodExpression,
-		string parameterName) =>
-			ExpressionStatement(
-				InvocationExpression(
-					methodExpression,
-					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
-				)
-			)
-			.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-
-	static IEnumerable<SyntaxNode> GetLambdaStatements(SimpleLambdaExpressionSyntax lambdaExpression)
-	{
-		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
-			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
-			foreach (var statement in lambdaExpression.Block.Statements)
-				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-	}
-
-	static LocalDeclarationStatementSyntax OneItemVariableStatement(
-		string parameterName,
-		InvocationExpressionSyntax replacementNode)
-	{
-		var equalsToReplacementNode = EqualsValueClause(replacementNode);
-
-		var oneItemVariableDeclaration = VariableDeclaration(
-			ParseTypeName("var"),
-			SingletonSeparatedList(
-				VariableDeclarator(Identifier(parameterName))
-					.WithInitializer(equalsToReplacementNode)
-			)
-		).NormalizeWhitespace();
-
-		return LocalDeclarationStatement(oneItemVariableDeclaration);
 	}
 }
