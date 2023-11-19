@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Diagnostics;
@@ -87,6 +88,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 			if (semanticModel != null && invocation.Parent != null)
 			{
+				var statements = new List<SyntaxNode>();
 				var startLocation = invocation.GetLocation().SourceSpan.Start;
 				var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
 				var replacementNode =
@@ -111,13 +113,8 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 						lambdaExpression = lambdaExpression.WithBody(body);
 					}
 
-					var oneItemVariableStatement =
-						OneItemVariableStatement(parameterName, replacementNode)
-							.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
-
-					AppendSingleAfterCollection(editor, oneItemVariableStatement, invocation.Parent);
-					AppendLambdaStatements(editor, oneItemVariableStatement, lambdaExpression);
-					editor.RemoveNode(invocation.Parent);
+					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithLeadingTrivia(invocation.Parent.GetLeadingTrivia()));
+					statements.AddRange(GetLambdaStatements(lambdaExpression));
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
 				{
@@ -130,23 +127,37 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 							OneItemVariableStatement(parameterName, replacementNode)
 								.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
 
-						AppendSingleAfterCollection(editor, oneItemVariableStatement, invocation.Parent);
-						AppendMethodInvocation(editor, oneItemVariableStatement, identifierExpression, parameterName);
-						editor.RemoveNode(invocation.Parent);
+						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithLeadingTrivia(invocation.Parent.GetLeadingTrivia()));
+						statements.Add(GetMethodInvocation(identifierExpression, parameterName));
 					}
 				}
+
+				editor.InsertAfter(invocation.Parent, statements);
+				editor.RemoveNode(invocation.Parent);
 			}
 		}
 
 		return editor.GetChangedDocument();
 	}
 
-	static void AppendSingleAfterCollection(
-		DocumentEditor editor,
-		LocalDeclarationStatementSyntax oneItemVariableStatement,
-		SyntaxNode parent)
+	static SyntaxNode GetMethodInvocation(
+		IdentifierNameSyntax methodExpression,
+		string parameterName) =>
+			ExpressionStatement(
+				InvocationExpression(
+					methodExpression,
+					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
+				)
+			)
+			.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+
+	static IEnumerable<SyntaxNode> GetLambdaStatements(SimpleLambdaExpressionSyntax lambdaExpression)
 	{
-		editor.InsertAfter(parent, oneItemVariableStatement);
+		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
+			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
+			foreach (var statement in lambdaExpression.Block.Statements)
+				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 	}
 
 	static LocalDeclarationStatementSyntax OneItemVariableStatement(
@@ -164,58 +175,5 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		).NormalizeWhitespace();
 
 		return LocalDeclarationStatement(oneItemVariableDeclaration);
-	}
-
-	static void ReplaceCollectionWithSingle(
-		DocumentEditor editor,
-		LocalDeclarationStatementSyntax oneItemVariableStatement,
-		SyntaxNode invocationParent)
-	{
-		editor.ReplaceNode(
-			invocationParent,
-			oneItemVariableStatement
-		);
-	}
-
-	static void AppendLambdaStatements(
-		DocumentEditor editor,
-		LocalDeclarationStatementSyntax oneItemVariableStatement,
-		SimpleLambdaExpressionSyntax lambdaExpression)
-	{
-		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
-		{
-			editor.InsertAfter(
-				oneItemVariableStatement,
-				ExpressionStatement(lambdaBody)
-					.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
-			);
-		}
-		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
-		{
-			editor.InsertAfter(
-				oneItemVariableStatement,
-				lambdaExpression.Block.Statements.Select(
-					(s, i) => s.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
-				)
-			);
-		}
-	}
-
-	static void AppendMethodInvocation(
-		DocumentEditor editor,
-		LocalDeclarationStatementSyntax oneItemVariableStatement,
-		IdentifierNameSyntax methodExpression,
-		string parameterName)
-	{
-		editor.InsertAfter(
-			oneItemVariableStatement,
-			ExpressionStatement(
-				InvocationExpression(
-					methodExpression,
-					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
-				)
-			)
-			.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
-		);
 	}
 }
