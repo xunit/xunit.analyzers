@@ -45,8 +45,6 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 		if (!Debugger.IsAttached)
 			Debugger.Launch();
 
-		Debugger.Break();
-
 		var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 		if (root is null)
 			return;
