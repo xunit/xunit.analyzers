@@ -11,6 +11,8 @@ public class EmptyCoreContext : ICoreContext
 
 	public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
 
+	public INamedTypeSymbol? CollectionAttributeType => null;
+
 	public INamedTypeSymbol? DataAttributeType => null;
 
 	public INamedTypeSymbol? FactAttributeType => null;

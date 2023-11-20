@@ -11,6 +11,7 @@ public class V2CoreContext : ICoreContext
 
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyFactAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
@@ -27,6 +28,7 @@ public class V2CoreContext : ICoreContext
 
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
+		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
@@ -41,6 +43,9 @@ public class V2CoreContext : ICoreContext
 
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>
 		lazyCollectionDefinitionAttributeType.Value;
+	
+	public INamedTypeSymbol? CollectionAttributeType =>
+		lazyCollectionAttributeType.Value;
 
 	public INamedTypeSymbol? DataAttributeType =>
 		lazyDataAttributeType.Value;

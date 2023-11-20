@@ -8,6 +8,8 @@ public interface ICoreContext
 
 	INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
 
+	INamedTypeSymbol? CollectionAttributeType { get; }
+
 	INamedTypeSymbol? DataAttributeType { get; }
 
 	INamedTypeSymbol? FactAttributeType { get; }

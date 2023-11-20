@@ -663,7 +663,12 @@ public static class Descriptors
 			"Class {0} must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable."
 		);
 
-	// Placeholder for rule X3002
+	public static DiagnosticDescriptor X3002_CollectionDefinitionMustBeInTheSameAssembly { get; } =
+		Rule("xUnit3002",
+			"Collection definitions must be in the same assembly as the test that uses them",
+			Extensibility,
+			Error,
+			"A class for '{0}' collection definition must be declared in the '{1}' assembly");
 
 	// Placeholder for rule X3003
 

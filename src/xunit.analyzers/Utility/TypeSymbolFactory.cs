@@ -14,6 +14,9 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.CollectionDefinitionAttribute");
 
+	public static INamedTypeSymbol? CollectionAttribute(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.CollectionAttribute");
+
 	public static INamedTypeSymbol? ConfiguredTaskAwaitable(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable");
 

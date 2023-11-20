@@ -39,6 +39,9 @@ public class V3CoreContext : ICoreContext
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>
 		lazyCollectionDefinitionAttributeType.Value;
 
+	public INamedTypeSymbol? CollectionAttributeType =>
+		lazyICollectionFixtureType.Value;
+
 	public INamedTypeSymbol? DataAttributeType =>
 		lazyDataAttributeType.Value;
 
