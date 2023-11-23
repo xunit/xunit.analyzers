@@ -838,11 +838,12 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_WithArrayArguments()
+	public async void DoesNotFindWarning_WithIntArrayArguments()
 	{
 		var source = $@"
 using System.Collections.Generic;
 using Xunit;
+
 public class TestClass
 {{
   public static IEnumerable<object[]> GetSequences(IEnumerable<int> seq) =>
@@ -851,6 +852,30 @@ public class TestClass
   [Theory]
   [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
   [MemberData(nameof(GetSequences), new [] {{ 3, 4, 5}})]
+  public void Test(IEnumerable<int> seq)
+  {{
+    Assert.NotEmpty(seq);
+  }}
+}}
+";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_WithObjectArrayArguments()
+	{
+		var source = $@"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass
+{{
+  public static IEnumerable<object[]> GetSequences(IEnumerable<object> seq) =>
+    new List<object[]>();
+
+  [Theory]
+  [MemberData(nameof(GetSequences), new object[] {{ 1, 2 }})]
   public void Test(IEnumerable<int> seq)
   {{
     Assert.NotEmpty(seq);
