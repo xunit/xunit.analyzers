@@ -218,13 +218,13 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return (testClassTypeSymbol, declaredMemberTypeSymbol);
 	}
 
-	static (IList<ExpressionSyntax>? Expressions, ExpressionSyntax? ArraySyntax) GetParameterExpressionsFromArrayArgument(
-		List<AttributeArgumentSyntax> arguments)
+	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(
+		List<AttributeArgumentSyntax> arguments, SemanticModel semanticModel)
 	{
 		if (arguments.Count > 1)
-			return (arguments.Select(a => a.Expression).ToList(), null);
+			return arguments.Select(a => a.Expression).ToList();
 		if (arguments.Count != 1)
-			return (null, null);
+			return null;
 
 		var argumentExpression = arguments.Single().Expression;
 
@@ -235,17 +235,16 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			SyntaxKind.ImplicitArrayCreationExpression => ((ImplicitArrayCreationExpressionSyntax)argumentExpression).Initializer,
 			_ => null,
 		};
-		var arraySyntax = kind switch
-		{
-			SyntaxKind.ArrayCreationExpression => argumentExpression,
-			SyntaxKind.ImplicitArrayCreationExpression => argumentExpression,
-			_ => null,
-		};
 
 		if (initializer is null)
-			return (new List<ExpressionSyntax> { argumentExpression }, null);
+			return new List<ExpressionSyntax> { argumentExpression };
 
-		return (initializer.Expressions.ToList(), arraySyntax);
+		// In the special case where the argument is an object[], treat like params
+		var type = semanticModel.GetTypeInfo(argumentExpression).Type;
+		if (type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Object)
+			return initializer.Expressions.ToList();
+
+		return new List<ExpressionSyntax> { argumentExpression };
 	}
 
 	public static ISymbol? FindMethodSymbol(
@@ -504,33 +503,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		string memberName,
 		List<AttributeArgumentSyntax> extraArguments)
 	{
-		(var argumentSyntaxList, var arraySyntax) = GetParameterExpressionsFromArrayArgument(extraArguments);
+		var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments, semanticModel);
 		if (argumentSyntaxList is null)
 			return;
 
 		var dataMethodSymbol = (IMethodSymbol)memberSymbol;
 		var dataMethodParameterSymbols = dataMethodSymbol.Parameters;
-
-		if (arraySyntax is not null
-			&& dataMethodParameterSymbols.Length > 0
-			&& !dataMethodParameterSymbols[0].IsParams
-			&& dataMethodParameterSymbols.Skip(1).All(s => s.IsParams || s.IsOptional))
-		{
-			// We may have a situation where an array argument to the attribute is intended as an array and not params
-			var arrayArgumentTypeSymbol = semanticModel.GetTypeInfo(arraySyntax).Type as IArrayTypeSymbol;
-			var arrayArgumentElementTypeSymbol = arrayArgumentTypeSymbol?.ElementType;
-
-			var dataMethodFirstParameterSymbolType = dataMethodParameterSymbols[0].Type;
-			var dataMethodFirstParameterElementSymbolType = dataMethodFirstParameterSymbolType.Kind == SymbolKind.ArrayType
-				? ((IArrayTypeSymbol)dataMethodFirstParameterSymbolType).ElementType
-				: dataMethodFirstParameterSymbolType.GetEnumerableType();
-
-			if (arrayArgumentElementTypeSymbol is not null
-				&& dataMethodFirstParameterElementSymbolType is not null
-				&& ConversionChecker.IsConvertible(
-					compilation, arrayArgumentElementTypeSymbol, dataMethodFirstParameterElementSymbolType, xunitContext))
-				argumentSyntaxList = new List<ExpressionSyntax> { arraySyntax };
-		}
 
 		int valueIdx = 0, paramIdx = 0;
 		for (; valueIdx < argumentSyntaxList.Count && paramIdx < dataMethodParameterSymbols.Length; valueIdx++)

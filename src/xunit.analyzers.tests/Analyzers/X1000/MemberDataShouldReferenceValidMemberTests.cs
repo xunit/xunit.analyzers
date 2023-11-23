@@ -863,7 +863,7 @@ public class TestClass
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_WithObjectArrayArguments()
+	public async void FindsWarning_WithObjectArrayArguments()
 	{
 		var source = $@"
 using System.Collections.Generic;
@@ -883,7 +883,21 @@ public class TestClass
 }}
 ";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1035")
+				.WithSpan(11, 52, 11, 53)
+				.WithArguments("seq", "System.Collections.Generic.IEnumerable<object>")
+				.WithSeverity(DiagnosticSeverity.Error),
+			Verify
+				.Diagnostic("xUnit1036")
+				.WithSpan(11, 55, 11, 56)
+				.WithArguments("2")
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
 	[Theory]
