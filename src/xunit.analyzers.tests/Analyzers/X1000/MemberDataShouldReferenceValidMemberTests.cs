@@ -837,6 +837,30 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
+	[Fact]
+	public async void DoesNotFindWarning_WithArrayArguments()
+	{
+		var source = $@"
+using System.Collections.Generic;
+using Xunit;
+public class TestClass
+{{
+  public static IEnumerable<object[]> GetSequences(IEnumerable<int> seq) =>
+    new List<object[]>();
+
+  [Theory]
+  [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
+  [MemberData(nameof(GetSequences), new [] {{ 3, 4, 5}})]
+  public void Test(IEnumerable<int> seq)
+  {{
+    Assert.NotEmpty(seq);
+  }}
+}}
+";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
 	[Theory]
 	[MemberData(nameof(MemberSyntaxAndArgs))]
 	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters(
