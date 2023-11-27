@@ -6,6 +6,8 @@ public interface ICoreContext
 {
 	INamedTypeSymbol? ClassDataAttributeType { get; }
 
+	INamedTypeSymbol? CollectionAttributeType { get; }
+
 	INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
 
 	INamedTypeSymbol? DataAttributeType { get; }

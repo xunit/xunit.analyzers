@@ -11,6 +11,9 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? ClassDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.ClassDataAttribute");
 
+	public static INamedTypeSymbol? CollectionAttribute(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.CollectionAttribute");
+
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.CollectionDefinitionAttribute");
 

@@ -10,6 +10,7 @@ public class V2CoreContext : ICoreContext
 	internal static readonly Version Version_2_4_0 = new("2.4.0");
 
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyFactAttributeType;
@@ -26,6 +27,7 @@ public class V2CoreContext : ICoreContext
 		Version = version;
 
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
+		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
 		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
@@ -38,6 +40,9 @@ public class V2CoreContext : ICoreContext
 
 	public INamedTypeSymbol? ClassDataAttributeType =>
 		lazyClassDataAttributeType.Value;
+
+	public INamedTypeSymbol? CollectionAttributeType =>
+		lazyCollectionAttributeType.Value;
 
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>
 		lazyCollectionDefinitionAttributeType.Value;

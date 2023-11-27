@@ -404,7 +404,14 @@ public static class Descriptors
 			"The type argument {0} from {1}.{2} is nullable, while the type of the corresponding test method parameter {3} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
 		);
 
-	// Placeholder for rule X1041
+	public static DiagnosticDescriptor X1041_CollectionDefinitionMustBeInTheSameAssembly { get; } =
+		Rule(
+			"xUnit1041",
+			"Collection definitions must be in the same assembly as the test that uses them",
+			Extensibility,
+			Error,
+			"A class for '{0}' collection definition must be declared in the '{1}' assembly"
+		);
 
 	// Placeholder for rule X1042
 
