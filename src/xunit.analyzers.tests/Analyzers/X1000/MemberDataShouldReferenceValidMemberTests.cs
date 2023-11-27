@@ -837,6 +837,69 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
+	[Fact]
+	public async void DoesNotFindWarning_WithIntArrayArguments()
+	{
+		var source = $@"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass
+{{
+  public static IEnumerable<object[]> GetSequences(IEnumerable<int> seq) =>
+    new List<object[]>();
+
+  [Theory]
+  [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
+  [MemberData(nameof(GetSequences), new [] {{ 3, 4, 5}})]
+  public void Test(IEnumerable<int> seq)
+  {{
+    Assert.NotEmpty(seq);
+  }}
+}}
+";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Fact]
+	public async void FindsWarning_WithObjectArrayArguments()
+	{
+		var source = $@"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass
+{{
+  public static IEnumerable<object[]> GetSequences(IEnumerable<object> seq) =>
+    new List<object[]>();
+
+  [Theory]
+  [MemberData(nameof(GetSequences), new object[] {{ 1, 2 }})]
+  public void Test(IEnumerable<int> seq)
+  {{
+    Assert.NotEmpty(seq);
+  }}
+}}
+";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1035")
+				.WithSpan(11, 52, 11, 53)
+				.WithArguments("seq", "System.Collections.Generic.IEnumerable<object>")
+				.WithSeverity(DiagnosticSeverity.Error),
+			Verify
+				.Diagnostic("xUnit1036")
+				.WithSpan(11, 55, 11, 56)
+				.WithArguments("2")
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
 	[Theory]
 	[MemberData(nameof(MemberSyntaxAndArgs))]
 	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters(
