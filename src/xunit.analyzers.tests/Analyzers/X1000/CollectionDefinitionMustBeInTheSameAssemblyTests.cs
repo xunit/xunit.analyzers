@@ -49,7 +49,7 @@ namespace TestNamespace {{
 			Verify
 				.Diagnostic()
 				.WithSpan(5, 14, 5, 23)
-				.WithSeverity(DiagnosticSeverity.Error)
+				.WithSeverity(DiagnosticSeverity.Hidden)
 				.WithArguments("Test collection definition", "TestProject");
 
 		await Verify.VerifyAnalyzer(source, expected);
