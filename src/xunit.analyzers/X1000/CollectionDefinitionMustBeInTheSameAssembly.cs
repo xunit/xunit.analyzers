@@ -8,7 +8,7 @@ namespace Xunit.Analyzers;
 public class CollectionDefinitionMustBeInTheSameAssembly : XunitV2DiagnosticAnalyzer
 {
 	public CollectionDefinitionMustBeInTheSameAssembly() :
-		base(Descriptors.X3002_CollectionDefinitionMustBeInTheSameAssembly)
+		base(Descriptors.X1041_CollectionDefinitionMustBeInTheSameAssembly)
 	{ }
 
 	public override void AnalyzeCompilation(
@@ -44,7 +44,7 @@ public class CollectionDefinitionMustBeInTheSameAssembly : XunitV2DiagnosticAnal
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X3002_CollectionDefinitionMustBeInTheSameAssembly,
+					Descriptors.X1041_CollectionDefinitionMustBeInTheSameAssembly,
 					namedType.Locations.First(),
 					collectionDefinitionName,
 					currentAssembly.Name
