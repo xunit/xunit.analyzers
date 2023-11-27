@@ -337,7 +337,7 @@ public class TestClass {{
     public static {memberType} Data;
 
     [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() {{ }}
+    public void TestMethod(int _) {{ }}
 }}";
 
 		await Verify.VerifyAnalyzer(source);
@@ -925,6 +925,28 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
+	[Fact]
+	public async void FindWarning_WhenExtraTypeExistsPastArrayForParamsArray()
+	{
+		var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<int, string[], string> TestData = new TheoryData<int, string[], string>();
+
+    [MemberData(nameof(TestData))]
+    public void PuzzleOne(int _1, params string[] _2) { }
+}";
+
+		var expected =
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(7, 6, 7, 34)
+				.WithSeverity(DiagnosticSeverity.Error);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
 	[Theory]
 	[MemberData(nameof(MemberSyntaxAndArgs))]
 	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters(
@@ -961,6 +983,61 @@ public class TestClass {{
 		}
 
 		return result;
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_WhenPassingMultipleValuesForParamsArray()
+	{
+		var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<int, string, string> TestData = new TheoryData<int, string, string>();
+
+    [MemberData(nameof(TestData))]
+    public void PuzzleOne(int _1, params string[] _2) { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindWarning_WhenPassingArrayForParamsArray()
+	{
+		var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<int, string[]> TestData = new TheoryData<int, string[]>();
+
+    [MemberData(nameof(TestData))]
+    public void PuzzleOne(int _1, params string[] _2) { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void FindWarning_WithExtraValueNotCompatibleWithParamsArray()
+	{
+		var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<int, string, int> TestData = new TheoryData<int, string, int>();
+
+    [MemberData(nameof(TestData))]
+    public void PuzzleOne(int _1, params string[] _2) { }
+}";
+
+		var expected =
+			Verify
+				.Diagnostic("xUnit1039")
+				.WithSpan(8, 42, 8, 50)
+				.WithSeverity(DiagnosticSeverity.Error)
+				.WithArguments("int", "TestClass", "TestData", "_2");
+
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]

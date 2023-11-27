@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -663,17 +660,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			return;
 		}
 
-		if (testMethodParameterSymbols.Length > 0
-			&& testMethodParameterSymbols.Length < returnTypeArguments.Length
-			&& !testMethodParameterSymbols.Last().IsParams)
-		{
-			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-			builder[Constants.Properties.MemberName] = memberName;
-
-			ReportMemberMethodTheoryDataExtraTypeArguments(context, attributeSyntax.GetLocation(), builder);
-			return;
-		}
-
 		int typeArgumentIdx = 0, parameterTypeIdx = 0;
 		for (; typeArgumentIdx < returnTypeArguments.Length && parameterTypeIdx < testMethodParameterSymbols.Length; typeArgumentIdx++)
 		{
@@ -695,7 +681,20 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				continue;
 
 			if (parameterType.Kind != SymbolKind.TypeParameter && !parameterType.IsAssignableFrom(typeArgument))
-				ReportMemberMethodTheoryDataIncompatibleType(context, parameterSyntax.Type.GetLocation(), typeArgument, namedMemberType, memberName, parameter);
+			{
+				bool report = true;
+
+				// The user might be providing the full array for 'params'; if they do, we need to move
+				// the parameter type index forward because it's been consumed by the array
+				if (parameter.IsParams && parameter.Type.IsAssignableFrom(typeArgument))
+				{
+					report = false;
+					parameterTypeIdx++;
+				}
+
+				if (report)
+					ReportMemberMethodTheoryDataIncompatibleType(context, parameterSyntax.Type.GetLocation(), typeArgument, namedMemberType, memberName, parameter);
+			}
 
 			// Nullability of value types is handled by the type compatibility test,
 			// but nullability of reference types isn't
@@ -705,11 +704,17 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					&& typeArgument.NullableAnnotation == NullableAnnotation.Annotated)
 				ReportMemberMethodTheoryDataNullability(context, parameterSyntax.Type.GetLocation(), typeArgument, namedMemberType, memberName, parameter);
 
+			// Only move the parameter type index forward when the current parameter is not a 'params'
 			if (!parameter.IsParams)
-			{
-				// Stop moving parameterTypeIdx forward if the argument is a parameter array, regardless of xunit's support for it
 				parameterTypeIdx++;
-			}
+		}
+
+		if (typeArgumentIdx < returnTypeArguments.Length)
+		{
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+			builder[Constants.Properties.MemberName] = memberName;
+
+			ReportMemberMethodTheoryDataExtraTypeArguments(context, attributeSyntax.GetLocation(), builder);
 		}
 	}
 }
