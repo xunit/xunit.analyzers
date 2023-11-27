@@ -9,9 +9,9 @@ public class EmptyCoreContext : ICoreContext
 
 	public INamedTypeSymbol? ClassDataAttributeType => null;
 
-	public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
-
 	public INamedTypeSymbol? CollectionAttributeType => null;
+
+	public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
 
 	public INamedTypeSymbol? DataAttributeType => null;
 
