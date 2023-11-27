@@ -37,7 +37,7 @@ namespace TestNamespace {{
 	{
 		var source = string.Format(Template, classAttribute, definitionAttribute);
 
-		await Verify.VerifyAnalyzerV2(source);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
@@ -52,6 +52,6 @@ namespace TestNamespace {{
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments("Test collection definition", "TestProject");
 
-		await Verify.VerifyAnalyzerV2(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 }

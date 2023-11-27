@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class CollectionDefinitionMustBeInTheSameAssembly : XunitV2DiagnosticAnalyzer
+public class CollectionDefinitionMustBeInTheSameAssembly : XunitDiagnosticAnalyzer
 {
 	public CollectionDefinitionMustBeInTheSameAssembly() :
 		base(Descriptors.X1041_CollectionDefinitionMustBeInTheSameAssembly)
