@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -215,7 +218,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return (testClassTypeSymbol, declaredMemberTypeSymbol);
 	}
 
-	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(List<AttributeArgumentSyntax> arguments)
+	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(
+		List<AttributeArgumentSyntax> arguments, SemanticModel semanticModel)
 	{
 		if (arguments.Count > 1)
 			return arguments.Select(a => a.Expression).ToList();
@@ -224,7 +228,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		var argumentExpression = arguments.Single().Expression;
 
-		var initializer = argumentExpression.Kind() switch
+		var kind = argumentExpression.Kind();
+		var initializer = kind switch
 		{
 			SyntaxKind.ArrayCreationExpression => ((ArrayCreationExpressionSyntax)argumentExpression).Initializer,
 			SyntaxKind.ImplicitArrayCreationExpression => ((ImplicitArrayCreationExpressionSyntax)argumentExpression).Initializer,
@@ -234,7 +239,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		if (initializer is null)
 			return new List<ExpressionSyntax> { argumentExpression };
 
-		return initializer.Expressions.ToList();
+		// In the special case where the argument is an object[], treat like params
+		var type = semanticModel.GetTypeInfo(argumentExpression).Type;
+		if (type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Object)
+			return initializer.Expressions.ToList();
+
+		return new List<ExpressionSyntax> { argumentExpression };
 	}
 
 	public static ISymbol? FindMethodSymbol(
@@ -493,7 +503,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		string memberName,
 		List<AttributeArgumentSyntax> extraArguments)
 	{
-		var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments);
+		var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments, semanticModel);
 		if (argumentSyntaxList is null)
 			return;
 
