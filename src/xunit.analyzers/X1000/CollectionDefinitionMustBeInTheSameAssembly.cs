@@ -30,12 +30,15 @@ public class CollectionDefinitionMustBeInTheSameAssembly : XunitDiagnosticAnalyz
 				return;
 
 			var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
-			var visitor = new SymbolAssemblyVisitor(symbol => symbol
-				.GetAttributes()
-				.Any(a =>
-					a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
-					!a.ConstructorArguments.IsDefaultOrEmpty &&
-					a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName));
+			var visitor = new SymbolAssemblyVisitor(symbol =>
+				symbol
+					.GetAttributes()
+					.Any(a =>
+						a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
+						!a.ConstructorArguments.IsDefaultOrEmpty &&
+						a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName
+					)
+			);
 
 			var currentAssembly = context.Compilation.Assembly;
 			visitor.Visit(currentAssembly);

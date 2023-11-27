@@ -5,17 +5,20 @@ using Microsoft.CodeAnalysis;
 namespace Xunit.Analyzers;
 
 /// <summary>
-/// Visits every type in every namespace within an assembly
+/// Visits every type in every namespace within an assembly. Expressions are provided which indicate
+/// whether the item being searched for has been found. Searches stop once at least one of the
+/// short circuit expressions returned true.
 /// </summary>
 public class SymbolAssemblyVisitor : SymbolVisitor
 {
-	private readonly Func<INamedTypeSymbol, bool>[] _shortCircuitExpressions;
-	public bool ShortCircuitTriggered { get; private set; }
+	readonly Func<INamedTypeSymbol, bool>[] shortCircuitExpressions;
 
 	public SymbolAssemblyVisitor(params Func<INamedTypeSymbol, bool>[] shortCircuitExpressions)
 	{
-		_shortCircuitExpressions = shortCircuitExpressions;
+		this.shortCircuitExpressions = shortCircuitExpressions;
 	}
+
+	public bool ShortCircuitTriggered { get; private set; }
 
 	public override void VisitAssembly(IAssemblySymbol symbol)
 	{
@@ -36,7 +39,7 @@ public class SymbolAssemblyVisitor : SymbolVisitor
 
 	public override void VisitNamedType(INamedTypeSymbol symbol)
 	{
-		if (_shortCircuitExpressions.Any(e => e(symbol)))
+		if (shortCircuitExpressions.Any(e => e(symbol)))
 		{
 			ShortCircuitTriggered = true;
 			return;
