@@ -138,7 +138,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
-									dataParameterExpressions[valueIdx].GetLocation(),
+									valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
 									builder.ToImmutable(),
 									parameter.Name,
 									SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
@@ -164,7 +164,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-									dataParameterExpressions[valueIdx].GetLocation(),
+									valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
 									builder.ToImmutable(),
 									parameter.Name,
 									SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
@@ -189,7 +189,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					context.ReportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X1011_InlineDataMustMatchTheoryParameters_ExtraValue,
-							dataParameterExpressions[valueIdx].GetLocation(),
+							valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
 							builder.ToImmutable(),
 							values[valueIdx].ToCSharpString()
 						)
