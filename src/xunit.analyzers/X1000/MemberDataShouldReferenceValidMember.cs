@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -31,7 +30,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
 			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
+			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+			Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
 		)
 	{ }
 
@@ -152,7 +152,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 				// If the member returns TheoryData, ensure that the types are compatible
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
-					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType!, memberName, declaredMemberTypeSymbol, attributeSyntax);
 
 				// Get the arguments that are to be passed to the method
 				var extraArguments = attributeSyntax.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
@@ -619,7 +619,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	static bool IsTheoryDataType(
 		ITypeSymbol? memberReturnType,
 		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
-		[NotNullWhen(true)] out INamedTypeSymbol? theoryReturnType)
+		out INamedTypeSymbol? theoryReturnType)
 	{
 		theoryReturnType = default;
 		if (memberReturnType is not INamedTypeSymbol namedReturnType || !namedReturnType.IsGenericType)
