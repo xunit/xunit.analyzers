@@ -408,8 +408,8 @@ public static class Descriptors
 		Rule(
 			"xUnit1041",
 			"Collection definitions must be in the same assembly as the test that uses them",
-			Extensibility,
-			Hidden,
+			Usage,
+			Error,
 			"A class for '{0}' collection definition must be declared in the '{1}' assembly"
 		);
 

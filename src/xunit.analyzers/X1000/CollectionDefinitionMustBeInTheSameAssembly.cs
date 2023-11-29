@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -29,16 +31,21 @@ public class CollectionDefinitionMustBeInTheSameAssembly : XunitDiagnosticAnalyz
 			if (collectionDefinitionName == null)
 				return;
 
-			var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
-			var visitor = new SymbolAssemblyVisitor(symbol =>
-				symbol
-					.GetAttributes()
-					.Any(a =>
-						a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
-						!a.ConstructorArguments.IsDefaultOrEmpty &&
-						a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName
-					)
-			);
+			var ctors = namedType.Constructors
+				.Where(c => c is { IsStatic: false, DeclaredAccessibility: Accessibility.Public })
+				.ToImmutableArray();
+
+			if (ctors.Count() != 1)
+				return;
+
+			var ctor = ctors.First();
+			var parameterTypes = ctor.Parameters
+				.Select(p => p.Type)
+				.ToImmutableHashSet(SymbolEqualityComparer.Default);
+			if (parameterTypes.IsEmpty)
+				return;
+
+			var visitor = new SymbolAssemblyVisitor(ShortCircuitExpressions(collectionDefinitionName, xunitContext, parameterTypes));
 
 			var currentAssembly = context.Compilation.Assembly;
 			visitor.Visit(currentAssembly);
@@ -54,5 +61,31 @@ public class CollectionDefinitionMustBeInTheSameAssembly : XunitDiagnosticAnalyz
 				)
 			);
 		}, SymbolKind.NamedType);
+	}
+
+	private static Func<INamedTypeSymbol, bool> ShortCircuitExpressions(
+		string collectionDefinitionName,
+		XunitContext xunitContext,
+		ImmutableHashSet<ISymbol?> parameterTypes)
+	{
+		var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
+		var collectionFixtureType = xunitContext.Core.ICollectionFixtureType;
+
+		return symbol =>
+		{
+			bool CollectionDefinitionWithNonEmptyName(AttributeData a) =>
+				a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
+				!a.ConstructorArguments.IsDefaultOrEmpty &&
+				a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName;
+
+			bool CoveredByCollectionDefinition(ISymbol? pt) => symbol.AllInterfaces
+				.Where(i => i.OriginalDefinition.IsAssignableFrom(collectionFixtureType))
+				.Select(i => i.TypeArguments.FirstOrDefault())
+				.ToImmutableHashSet(SymbolEqualityComparer.Default)
+				.Contains(pt);
+
+			return symbol.GetAttributes().Any(CollectionDefinitionWithNonEmptyName) &&
+			       parameterTypes.All(CoveredByCollectionDefinition);
+		};
 	}
 }
