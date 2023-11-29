@@ -14,7 +14,7 @@ using Xunit;
 
 public class TestClass
 {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource = new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(DataSource), {|xUnit1021:""abc"", 123|})]
@@ -28,7 +28,7 @@ using Xunit;
 
 public class TestClass
 {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource = new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(DataSource))]

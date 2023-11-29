@@ -139,7 +139,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
 				// Make sure the member returns a compatible type
-				VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax);
+				bool IsValidMemberReturnType =
+					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax);
 
 				// Make sure public properties have a public getter
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -151,8 +152,11 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					}
 
 				// If the member returns TheoryData, ensure that the types are compatible
+				// If the member does not return TheoryData, gently suggest to the user that TheoryData is better for type safety
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
 					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType!, memberName, declaredMemberTypeSymbol, attributeSyntax);
+				else if (IsValidMemberReturnType)
+					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax);
 
 				// Get the arguments that are to be passed to the method
 				var extraArguments = attributeSyntax.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
@@ -438,6 +442,16 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				)
 			);
 
+	static void ReportMemberReturnsTypeUnsafeValue(
+		SyntaxNodeAnalysisContext context,
+		AttributeSyntax attribute) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
+					attribute.GetLocation()
+				)
+			);
+
 	static void ReportNonStatic(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -597,7 +611,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		}
 	}
 
-	static void VerifyDataSourceReturnType(
+	static bool VerifyDataSourceReturnType(
 		SyntaxNodeAnalysisContext context,
 		Compilation compilation,
 		XunitContext xunitContext,
@@ -614,6 +628,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		if (!valid)
 			ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attributeSyntax, memberProperties, memberType);
+
+		return valid;
 	}
 
 	static bool IsTheoryDataType(

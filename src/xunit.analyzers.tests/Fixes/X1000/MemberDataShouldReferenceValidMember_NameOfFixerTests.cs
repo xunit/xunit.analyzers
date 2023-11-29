@@ -16,7 +16,7 @@ public class TestClass {
     public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
 
     [Theory]
-    [MemberData({|xUnit1014:""DataSource""|})]
+    [{|xUnit1042:MemberData({|xUnit1014:""DataSource""|})|}]
     public void TestMethod(int a) { }
 }";
 
@@ -29,7 +29,7 @@ public class TestClass {
     public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
 
     [Theory]
-    [MemberData(nameof(DataSource))]
+    [{|xUnit1042:MemberData(nameof(DataSource))|}]
     public void TestMethod(int a) { }
 }";
 
