@@ -632,6 +632,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			if (theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
 				&& SymbolEqualityComparer.Default.Equals(theoryDataType, namedReturnType.OriginalDefinition))
 				break;
+			working = working.BaseType;
 		}
 
 		if (working is null)
