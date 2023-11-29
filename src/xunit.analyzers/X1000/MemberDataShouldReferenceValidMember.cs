@@ -638,15 +638,15 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		out INamedTypeSymbol? theoryReturnType)
 	{
 		theoryReturnType = default;
-		if (memberReturnType is not INamedTypeSymbol namedReturnType || !namedReturnType.IsGenericType)
+		if (memberReturnType is not INamedTypeSymbol namedReturnType)
 			return false;
 
 		INamedTypeSymbol? working = namedReturnType;
 		while (working is not null)
 		{
-			var returnTypeArguments = namedReturnType.TypeArguments;
+			var returnTypeArguments = working.TypeArguments;
 			if (theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
-				&& SymbolEqualityComparer.Default.Equals(theoryDataType, namedReturnType.OriginalDefinition))
+				&& SymbolEqualityComparer.Default.Equals(theoryDataType, working.OriginalDefinition))
 				break;
 			working = working.BaseType;
 		}

@@ -1038,6 +1038,69 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
 	}
 
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataSubclassMember(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData TestData{memberSyntax}new();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataGenericSubclassMember(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+using Xunit;
+
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData<int> TestData{memberSyntax}new();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void DoesNotFindWarning_IfHasValidTheoryDataDoubleGenericSubclassMember(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+using Xunit;
+
+public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData<int, string> TestData{memberSyntax}new();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+	}
+
 	[Fact]
 	public async void DoesNotFindWarning_WithIntArrayArguments()
 	{
@@ -1142,6 +1205,35 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
 
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidSubclassTheoryDataMemberWithTooManyTypeParameters(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int, string> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData TestData{memberSyntax}new();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(9, 6, 9, 34 + memberArgs.Length)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
 	[Fact]
 	public async void FindWarning_WhenExtraTypeExistsPastArrayForParamsArray()
 	{
@@ -1159,6 +1251,30 @@ public class TestClass {
 			Verify
 				.Diagnostic("xUnit1038")
 				.WithSpan(7, 6, 7, 34)
+				.WithSeverity(DiagnosticSeverity.Error);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Fact]
+	public async void FindWarning_WhenSubclassedExtraTypeExistsPastArrayForParamsArray()
+	{
+		var source = @"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int, string[], string> { }
+
+public class TestClass {
+	public static DerivedTheoryData TestData = new DerivedTheoryData();
+
+    [MemberData(nameof(TestData))]
+    public void PuzzleOne(int _1, params string[] _2) { }
+}";
+
+		var expected =
+			Verify
+				.Diagnostic("xUnit1038")
+				.WithSpan(9, 6, 9, 34)
 				.WithSeverity(DiagnosticSeverity.Error);
 
 		await Verify.VerifyAnalyzer(source, expected);
@@ -1183,6 +1299,35 @@ public class TestClass {{
 			Verify
 				.Diagnostic("xUnit1037")
 				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
+				.WithSeverity(DiagnosticSeverity.Error)
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(MemberSyntaxAndArgs))]
+	public async void FindWarning_IfHasValidSubclassedTheoryDataMemberWithNotEnoughTypeParameters(
+		string memberSyntax,
+		string memberArgs)
+	{
+		var source = $@"
+using Xunit;
+
+public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData<int, string> TestData{memberSyntax}new();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, string f) {{ }}
+}}";
+
+		DiagnosticResult[] expected =
+		{
+			Verify
+				.Diagnostic("xUnit1037")
+				.WithSpan(9, 6, 9, 40 + memberArgs.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 		};
 
