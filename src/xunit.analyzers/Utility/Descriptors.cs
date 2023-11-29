@@ -413,7 +413,14 @@ public static class Descriptors
 			"A class for '{0}' collection definition must be declared in the '{1}' assembly"
 		);
 
-	// Placeholder for rule X1042
+	public static DiagnosticDescriptor X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis { get; } =
+		Rule(
+			"xUnit1042",
+			"The member referenced by the MemberData attribute returns untyped data rows",
+			Usage,
+			Info,
+			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using TheoryData<> as the return type to provide better type safety."
+		);
 
 	// Placeholder for rule X1043
 
