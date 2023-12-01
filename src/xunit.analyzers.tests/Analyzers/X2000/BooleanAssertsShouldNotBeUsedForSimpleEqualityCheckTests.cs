@@ -3,10 +3,44 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
-using Verify = CSharpVerifier<Xunit.Analyzers.AssertTrueShouldNotBeUsedForSimpleEqualityCheck>;
+using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck>;
 
-public class AssertTrueShouldNotBeUsedForSimpleEqualityCheckTests
+public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 {
+	[Theory]
+	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
+	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
+	[InlineData(Constants.Asserts.True, "int", "==", "5")]
+	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
+	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
+	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
+	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
+	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
+	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
+	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
+	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
+	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
+	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
+	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
+	public async void DoesNotFindWarning_WhenBooleanAssert_ContainsMessage(
+		string method,
+		string type,
+		string @operator,
+		string value)
+	{
+		var source = $@"
+class TestClass {{
+    {type} field = {value};
+
+    void TestMethod() {{
+        Xunit.Assert.{method}(field {@operator} {value}, ""message"");
+    }}
+}}";
+		var expected = new DiagnosticResult[0];
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
 	[Theory]
 	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
 	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
@@ -411,6 +445,74 @@ class TestClass {{
 				.WithSpan(8, 9, 8, 45 + method.Length)
 				.WithSeverity(DiagnosticSeverity.Info)
 				.WithArguments(method, Constants.Asserts.NotEqual)
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[InlineData(Constants.Asserts.True, "==", "true")]
+	[InlineData(Constants.Asserts.True, "==", "false")]
+	[InlineData(Constants.Asserts.True, "!=", "true")]
+	[InlineData(Constants.Asserts.True, "!=", "false")]
+	[InlineData(Constants.Asserts.False, "==", "true")]
+	[InlineData(Constants.Asserts.False, "==", "false")]
+	[InlineData(Constants.Asserts.False, "!=", "true")]
+	[InlineData(Constants.Asserts.False, "!=", "false")]
+	public async void FindsWarning_WhenBooleanAssert_UsedToTestBooleanEquality(
+		string method,
+		string @operator,
+		string value)
+	{
+		var source = $@"
+class TestClass {{
+    bool field = {value};
+
+    void TestMethod() {{
+        Xunit.Assert.{method}(field {@operator} {value});
+    }}
+}}";
+		DiagnosticResult[] expected = new[]
+		{
+			Verify
+				.Diagnostic("xUnit2025")
+				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
+				.WithSeverity(DiagnosticSeverity.Info)
+				.WithArguments(method)
+		};
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[InlineData(Constants.Asserts.True, "==", "true")]
+	[InlineData(Constants.Asserts.True, "==", "false")]
+	[InlineData(Constants.Asserts.True, "!=", "true")]
+	[InlineData(Constants.Asserts.True, "!=", "false")]
+	[InlineData(Constants.Asserts.False, "==", "true")]
+	[InlineData(Constants.Asserts.False, "==", "false")]
+	[InlineData(Constants.Asserts.False, "!=", "true")]
+	[InlineData(Constants.Asserts.False, "!=", "false")]
+	public async void FindsWarning_WhenBooleanAssert_UsedToTestBooleanEqualityReverseArguments(
+		string method,
+		string @operator,
+		string value)
+	{
+		var source = $@"
+class TestClass {{
+    bool field = {value};
+
+    void TestMethod() {{
+        Xunit.Assert.{method}({value} {@operator} field);
+    }}
+}}";
+		DiagnosticResult[] expected = new[]
+		{
+			Verify
+				.Diagnostic("xUnit2025")
+				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
+				.WithSeverity(DiagnosticSeverity.Info)
+				.WithArguments(method)
 		};
 
 		await Verify.VerifyAnalyzer(source, expected);

@@ -8,10 +8,20 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class AssertTrueShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyzerBase
+public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyzerBase
 {
-	public AssertTrueShouldNotBeUsedForSimpleEqualityCheck()
-		: base(Descriptors.X2024_AssertTrueShouldNotBeUsedForSimpleEqualityCheck, new[] { Constants.Asserts.True, Constants.Asserts.False })
+	public BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck()
+		: base(
+			new[]
+			{
+				Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
+				Descriptors.X2025_BooleanAssertionCanBeSimplified
+			},
+			new[]
+			{
+				Constants.Asserts.True,
+				Constants.Asserts.False
+			})
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -24,7 +34,9 @@ public class AssertTrueShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyz
 			return;
 
 		var arguments = invocation.ArgumentList.Arguments;
-		if (arguments.FirstOrDefault()?.Expression is not BinaryExpressionSyntax binaryArgument)
+		if (arguments.Count == 0)
+			return;
+		if (arguments[0].Expression is not BinaryExpressionSyntax binaryArgument)
 			return;
 
 		var trueMethod = method.Name == Constants.Asserts.True;
@@ -51,20 +63,29 @@ public class AssertTrueShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyz
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
+		builder[Constants.Properties.LiteralValue] = leftKind is not null ? Constants.Asserts.True : Constants.Asserts.False;
 		switch (literalKind)
 		{
 			case SyntaxKind.TrueLiteralExpression:
 			case SyntaxKind.FalseLiteralExpression:
+				builder[Constants.Properties.Replacement] = trueMethod == isEqualsOperator
+					? Constants.Asserts.True : Constants.Asserts.False;
 				ReportShouldSimplifyBooleanOperation(context, invocationOperation, builder.ToImmutable(), method.Name);
 				break;
 
 			case SyntaxKind.NullLiteralExpression:
+				// Can't rewrite exactly if there is a "message" (second) argument
+				if (arguments.Count > 1)
+					return;
 				var nullReplacement = trueMethod == isEqualsOperator ? Constants.Asserts.Null : Constants.Asserts.NotNull;
 				builder[Constants.Properties.Replacement] = nullReplacement;
 				ReportShouldReplaceBooleanOperationWithEquality(context, invocationOperation, builder.ToImmutable(), method.Name, nullReplacement);
 				break;
 
 			default:
+				// Can't rewrite exactly if there is a "message" (second) argument
+				if (arguments.Count > 1)
+					return;
 				var equalsReplacement = trueMethod == isEqualsOperator ? Constants.Asserts.Equal : Constants.Asserts.NotEqual;
 				builder[Constants.Properties.Replacement] = equalsReplacement;
 				ReportShouldReplaceBooleanOperationWithEquality(context, invocationOperation, builder.ToImmutable(), method.Name, equalsReplacement);
@@ -81,7 +102,7 @@ public class AssertTrueShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyz
 	{
 		context.ReportDiagnostic(
 			Diagnostic.Create(
-				Descriptors.X2024_AssertTrueShouldNotBeUsedForSimpleEqualityCheck,
+				Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
 				invocationOperation.Syntax.GetLocation(),
 				properties,
 				currentMethodName,
@@ -97,21 +118,14 @@ public class AssertTrueShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyz
 	{
 		context.ReportDiagnostic(
 			Diagnostic.Create(
-				Descriptors.X2025_AssertTrueExpressionCanBeSimplified,
+				Descriptors.X2025_BooleanAssertionCanBeSimplified,
 				invocationOperation.Syntax.GetLocation(),
 				properties,
 				currentMethodName
 			));
 	}
 
-	static string GetReplacementMethod(SyntaxKind kind, bool isTrueMethod, bool isEqualsOperator)
-	{
-		if (kind == SyntaxKind.NullLiteralExpression)
-			return isTrueMethod == isEqualsOperator ? Constants.Asserts.Null : Constants.Asserts.NotNull;
-		return isTrueMethod == isEqualsOperator ? Constants.Asserts.Equal : Constants.Asserts.NotEqual;
-	}
-
-	static SyntaxKind? LiteralReferenceKind(ExpressionSyntax expression, SemanticModel? semanticModel)
+	public static SyntaxKind? LiteralReferenceKind(ExpressionSyntax expression, SemanticModel? semanticModel)
 	{
 		var kind = expression.Kind();
 		if (expression is LiteralExpressionSyntax)

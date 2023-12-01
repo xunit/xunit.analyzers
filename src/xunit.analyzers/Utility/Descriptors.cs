@@ -640,7 +640,7 @@ public static class Descriptors
 			"Do not use Assert.{0} if there is one element in the collection. Use Assert.Single instead."
 		);
 
-	public static DiagnosticDescriptor X2024_AssertTrueShouldNotBeUsedForSimpleEqualityCheck { get; } =
+	public static DiagnosticDescriptor X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck { get; } =
 		Rule(
 			"xUnit2024",
 			"Do not use boolean asserts for simple equality tests",
@@ -650,9 +650,9 @@ public static class Descriptors
 		);
 
 
-	public static DiagnosticDescriptor X2025_AssertTrueExpressionCanBeSimplified { get; } =
+	public static DiagnosticDescriptor X2025_BooleanAssertionCanBeSimplified { get; } =
 		Rule(
-			"xUnit2024",
+			"xUnit2025",
 			"The boolean assertion statement can be simplified",
 			Assertions,
 			Info,
