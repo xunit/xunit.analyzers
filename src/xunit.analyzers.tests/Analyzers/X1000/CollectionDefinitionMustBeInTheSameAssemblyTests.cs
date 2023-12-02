@@ -130,7 +130,7 @@ namespace TestNamespace {{
 	[MemberData(nameof(BasicNoDiagnosticsCases))]
 	public async void BasicCollectionDefinitionIsPresentInTheAssembly_NoDiagnostics(
 		string classAttribute,
-		string definitionAttribute, 
+		string definitionAttribute,
 		string classConstructorParams)
 	{
 		var source = string.Format(BasicCasesTemplate, classAttribute, definitionAttribute, classConstructorParams);

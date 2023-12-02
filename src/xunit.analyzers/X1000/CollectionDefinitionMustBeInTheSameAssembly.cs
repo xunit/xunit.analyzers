@@ -85,7 +85,7 @@ public class CollectionDefinitionMustBeInTheSameAssembly : XunitDiagnosticAnalyz
 				.Contains(pt);
 
 			return symbol.GetAttributes().Any(CollectionDefinitionWithNonEmptyName) &&
-			       parameterTypes.All(CoveredByCollectionDefinition);
+				   parameterTypes.All(CoveredByCollectionDefinition);
 		};
 	}
 }
