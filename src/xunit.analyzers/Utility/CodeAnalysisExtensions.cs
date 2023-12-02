@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
-public static class IOperationExtensions
+static class CodeAnalysisExtensions
 {
 	public static bool IsInTestMethod(
 		this IOperation operation,
