@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -154,7 +155,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				// If the member returns TheoryData, ensure that the types are compatible
 				// If the member does not return TheoryData, gently suggest to the user that TheoryData is better for type safety
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
-					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType!, memberName, declaredMemberTypeSymbol, attributeSyntax);
+					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
 				else if (IsValidMemberReturnType)
 					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax);
 
@@ -268,7 +269,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	static bool IsTheoryDataType(
 		ITypeSymbol? memberReturnType,
 		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
-		out INamedTypeSymbol? theoryReturnType)
+		[NotNullWhen(true)] out INamedTypeSymbol? theoryReturnType)
 	{
 		theoryReturnType = default;
 		if (memberReturnType is not INamedTypeSymbol namedReturnType)
