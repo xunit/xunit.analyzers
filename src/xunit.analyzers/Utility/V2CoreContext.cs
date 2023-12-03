@@ -17,6 +17,7 @@ public class V2CoreContext : ICoreContext
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyICollectionFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyInlineDataAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType;
 	readonly Lazy<INamedTypeSymbol?> lazyMemberDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyTheoryAttributeType;
 
@@ -34,6 +35,7 @@ public class V2CoreContext : ICoreContext
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
 		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
+		lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V2(compilation));
 		lazyMemberDataAttributeType = new(() => TypeSymbolFactory.MemberDataAttribute(compilation));
 		lazyTheoryAttributeType = new(() => TypeSymbolFactory.TheoryAttribute(compilation));
 	}
@@ -61,6 +63,9 @@ public class V2CoreContext : ICoreContext
 
 	public INamedTypeSymbol? InlineDataAttributeType =>
 		lazyInlineDataAttributeType.Value;
+
+	public INamedTypeSymbol? ITestOutputHelperType =>
+		lazyITestOutputHelperType.Value;
 
 	public INamedTypeSymbol? MemberDataAttributeType =>
 		lazyMemberDataAttributeType.Value;

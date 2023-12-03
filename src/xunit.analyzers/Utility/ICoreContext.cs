@@ -20,6 +20,8 @@ public interface ICoreContext
 
 	INamedTypeSymbol? InlineDataAttributeType { get; }
 
+	INamedTypeSymbol? ITestOutputHelperType { get; }
+
 	INamedTypeSymbol? MemberDataAttributeType { get; }
 
 	INamedTypeSymbol? TheoryAttributeType { get; }
