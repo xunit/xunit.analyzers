@@ -9,6 +9,14 @@ static partial class EnumerableExtensions
 {
 	static readonly Func<object, bool> notNullTest = x => x is not null;
 
+	public static void AddRange<T>(
+		this HashSet<T> hashSet,
+		IEnumerable<T> source)
+	{
+		foreach (var item in source)
+			hashSet.Add(item);
+	}
+
 	/// <summary>
 	/// Returns <paramref name="source"/> as an enumerable of <typeparamref name="T"/> with
 	/// all the <c>null</c> items removed.

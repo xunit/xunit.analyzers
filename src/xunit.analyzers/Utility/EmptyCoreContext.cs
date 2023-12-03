@@ -23,6 +23,8 @@ public class EmptyCoreContext : ICoreContext
 
 	public INamedTypeSymbol? InlineDataAttributeType => null;
 
+	public INamedTypeSymbol? ITestOutputHelperType => null;
+
 	public static EmptyCoreContext Instance { get; } = new();
 
 	public INamedTypeSymbol? MemberDataAttributeType => null;

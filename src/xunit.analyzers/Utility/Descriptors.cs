@@ -404,13 +404,13 @@ public static class Descriptors
 			"The type argument {0} from {1}.{2} is nullable, while the type of the corresponding test method parameter {3} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
 		);
 
-	public static DiagnosticDescriptor X1041_CollectionDefinitionMustBeInTheSameAssembly { get; } =
+	public static DiagnosticDescriptor X1041_EnsureFixturesHaveASource { get; } =
 		Rule(
 			"xUnit1041",
-			"Collection definitions must be in the same assembly as the test that uses them",
-			Extensibility,
-			Hidden,
-			"A class for '{0}' collection definition must be declared in the '{1}' assembly"
+			"Fixture arguments to test classes must have fixture sources",
+			Usage,
+			Error,
+			"Fixture argument '{0}' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test)"
 		);
 
 	public static DiagnosticDescriptor X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis { get; } =
