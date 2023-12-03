@@ -212,6 +212,26 @@ public class TestClass {{
 		}
 	}
 
+	public class AssemblyFixtures
+	{
+		[Fact]
+		public async void WithAssemblyFixture_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+[assembly: AssemblyFixture(typeof(object))]
+
+public class TestClass {
+    public TestClass(object _) { }
+
+    [Fact] public void TestMethod() { }
+}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+	}
+
 	public class MixedFixtures
 	{
 		[Theory]

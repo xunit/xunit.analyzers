@@ -54,7 +54,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
 			// Determine which constructor arguments will come from ICollectionFixture<> on a fixture definition
-			ImmutableHashSet<INamedTypeSymbol> collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
+			var collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
 			if (collectionDefinitionName != null)
 			{
 				var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
@@ -80,6 +80,19 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				}
 			}
 
+			// Determine which constructor arguments will come from IAssemblyFixture
+			var assemblyFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
+			var assemblyFixtureAttributeType = xunitContext.V3Core?.AssemblyFixtureAttributeType;
+			if (assemblyFixtureAttributeType is not null)
+				assemblyFixtureTypes =
+					namedType
+						.ContainingAssembly
+						.GetAttributes()
+						.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, assemblyFixtureAttributeType))
+						.Select(a => a.ConstructorArguments[0].Value as INamedTypeSymbol)
+						.WhereNotNull()
+						.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
 			// Exclude things like ITestOutputHelper and ITestContextAccessor
 			var supportedNonFixtureTypes =
 				new[] { xunitContext.Core.ITestOutputHelperType, xunitContext.V3Core?.ITestContextAccessorType }
@@ -89,7 +102,8 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 			foreach (var parameter in ctors[0].Parameters)
 				if (!supportedNonFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
 					&& !classFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
-					&& !collectionFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default))
+					&& !collectionFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
+					&& !assemblyFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default))
 				{
 					context.ReportDiagnostic(
 						Diagnostic.Create(

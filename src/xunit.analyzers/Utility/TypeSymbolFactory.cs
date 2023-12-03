@@ -5,6 +5,9 @@ namespace Xunit.Analyzers;
 
 public class TypeSymbolFactory
 {
+	public static INamedTypeSymbol? AssemblyFixtureAttribute_V3(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.AssemblyFixtureAttribute");
+
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Assert");
 
