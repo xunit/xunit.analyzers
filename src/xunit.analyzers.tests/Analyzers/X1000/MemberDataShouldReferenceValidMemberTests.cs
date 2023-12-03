@@ -27,13 +27,11 @@ public partial class TestClass {
     public void TestMethod() { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(3, 6, 3, 36)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
 	}
@@ -47,13 +45,11 @@ public partial class TestClass {
     public void TestMethod() { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(3, 6, 3, 85)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
 	}
@@ -220,13 +216,11 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -306,13 +300,11 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -353,13 +345,11 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -412,15 +402,15 @@ public class TestClass {{
     public void TestMethod(int _) {{ }}
 }}";
 
-		DiagnosticResult[] expected = !memberType.Contains("TheoryData")
-			?
-				new DiagnosticResult[] {
+		DiagnosticResult[] expected =
+			!memberType.Contains("TheoryData")
+				? new DiagnosticResult[] {
 					Verify
 						.Diagnostic("xUnit1042")
 						.WithSpan(5, 6, 5, 36)
 						.WithSeverity(DiagnosticSeverity.Info)
 				}
-			: Array.Empty<DiagnosticResult>();
+				: Array.Empty<DiagnosticResult>();
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -447,13 +437,11 @@ public class TestClass
             new TheoryDataRow(0, null) { Skip = ""Don't run this!"" },
         };
 }";
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(9, 6, 9, 39)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzerV3(source, expected);
 	}
@@ -616,15 +604,13 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(5, 6, 5, 68)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
-        await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
@@ -640,13 +626,11 @@ public class TestClass {
     public void TestMethod(int n) { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(7, 6, 7, 60)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -662,15 +646,13 @@ public class TestClass {
     public void TestMethod(int n) { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(5, 6, 5, 63)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
-        await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	// https://github.com/xunit/xunit/issues/2817
@@ -694,13 +676,11 @@ public class TestClass {{
     public static IEnumerable<object[]> SomeData(Foo foo) => Array.Empty<object[]>();
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(8, 6, 8, 43)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -714,8 +694,7 @@ public class TestClass {
 
     [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
     public void TestMethod(int n) { }
-}"
-		;
+}";
 
 		DiagnosticResult[] expected =
 		{
@@ -741,8 +720,7 @@ public class TestClass {
 
     [Xunit.MemberData(nameof(TestData), new object[] { 1, ""bob"" })]
     public void TestMethod(int n) { }
-}"
-		;
+}";
 
 		DiagnosticResult[] expected =
 		{
@@ -768,8 +746,7 @@ public class TestClass {
 
     [Xunit.MemberData(nameof(TestData), new object[] { 1, 2 })]
     public void TestMethod(int n) { }
-}"
-		;
+}";
 
 		DiagnosticResult[] expected =
 		{
@@ -781,7 +758,7 @@ public class TestClass {
 				.Diagnostic("xUnit1036")
 					.WithSpan(5, 59, 5, 60)
 					.WithArguments("2")
-			};
+		};
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -795,8 +772,7 @@ public class TestClass {
 
     [Xunit.MemberData(nameof(TestData), 1, 2)]
     public void TestMethod(int n) { }
-}"
-		;
+}";
 
 		DiagnosticResult[] expected =
 		{
@@ -826,13 +802,11 @@ public class TestClass {
     public void TestMethod(int n) { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(7, 6, 7, 60)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -848,16 +822,13 @@ public class TestClass {
     [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
     public void TestMethod(int n) { }
 }
-#nullable restore
-";
+#nullable restore";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(6, 6, 6, 60)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
+				.WithSeverity(DiagnosticSeverity.Info);
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 	}
@@ -913,14 +884,12 @@ public class TestClass : TestClassBase {
     public void TestMethod(int n) { }
 }";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1042")
 				.WithSpan(11, 6, 11, 60)
-				.WithSeverity(DiagnosticSeverity.Info)
-		};
-        
+				.WithSeverity(DiagnosticSeverity.Info);
+
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
@@ -1120,8 +1089,7 @@ public class TestClass
   {{
     Assert.NotEmpty(seq);
   }}
-}}
-";
+}}";
 
 		DiagnosticResult[] expected =
 		{
@@ -1156,8 +1124,7 @@ public class TestClass
   {{
     Assert.NotEmpty(seq);
   }}
-}}
-";
+}}";
 
 		DiagnosticResult[] expected =
 		{
@@ -1194,13 +1161,11 @@ public class TestClass {{
     public void TestMethod(int n) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1038")
 				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
+				.WithSeverity(DiagnosticSeverity.Error);
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
@@ -1223,13 +1188,11 @@ public class TestClass {{
     public void TestMethod(int n) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1038")
 				.WithSpan(9, 6, 9, 34 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
+				.WithSeverity(DiagnosticSeverity.Error);
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
@@ -1294,13 +1257,11 @@ public class TestClass {{
     public void TestMethod(int n, string f) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1037")
 				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
+				.WithSeverity(DiagnosticSeverity.Error);
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
@@ -1323,13 +1284,11 @@ public class TestClass {{
     public void TestMethod(int n, string f) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1037")
 				.WithSpan(9, 6, 9, 40 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
+				.WithSeverity(DiagnosticSeverity.Error);
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
@@ -1417,14 +1376,12 @@ public class TestClass {{
     public void TestMethod(string f) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
+		var expected =
 			Verify
 				.Diagnostic("xUnit1039")
 				.WithSpan(6, 28, 6, 34)
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments(type, "TestClass", "TestData", "f")
-		};
+				.WithArguments(type, "TestClass", "TestData", "f");
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
 	}
