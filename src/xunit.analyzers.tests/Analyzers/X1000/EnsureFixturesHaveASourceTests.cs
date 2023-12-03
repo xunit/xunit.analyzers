@@ -100,6 +100,25 @@ public class TestClass : BaseClass {derivedInterface} {{
 		}
 
 		[Fact]
+		public async void ClassFixtureOnCollectionDefinition_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+[CollectionDefinition(nameof(TestCollection))]
+public class TestCollection : IClassFixture<object> { }
+
+[Collection(nameof(TestCollection))]
+public class TestClass {
+    public TestClass(object _) { }
+
+    [Fact] public void TestMethod() { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
 		public async void MissingClassFixtureDefinition_Triggers()
 		{
 			var source = @"

@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -43,17 +43,24 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
 					?.ConstructorArguments.FirstOrDefault().Value?.ToString();
 
-			// Determine which constructor arguments will come from IClassFixture<>
-			var classFixtureInterfaceType = xunitContext.Core.IClassFixtureType?.ConstructUnboundGenericType();
-			var classFixtureTypes =
+			// Need to construct a full set of types we know can be resolved. Start with things
+			// like ITestOutputHelper and ITestContextAccessor (since they're injected by the framework)
+			var validConstructorArgumentTypes = new HashSet<ITypeSymbol?>(SymbolEqualityComparer.Default)
+			{
+				xunitContext.Core.ITestOutputHelperType,
+				xunitContext.V3Core?.ITestContextAccessorType
+			};
+
+			// Add types from IClassFixture<> on the class
+			var classFixtureType = xunitContext.Core.IClassFixtureType?.ConstructUnboundGenericType();
+			validConstructorArgumentTypes.AddRange(
 				namedType
 					.AllInterfaces
-					.Where(i => i.IsGenericType && SymbolEqualityComparer.Default.Equals(classFixtureInterfaceType, i.ConstructUnboundGenericType()))
-					.Select(i => i.TypeArguments.First() as INamedTypeSymbol)
-					.WhereNotNull()
-					.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+					.Where(i => i.IsGenericType && SymbolEqualityComparer.Default.Equals(classFixtureType, i.ConstructUnboundGenericType()))
+					.Select(i => i.TypeArguments.First())
+			);
 
-			// Determine which constructor arguments will come from ICollectionFixture<> on a fixture definition
+			// Add types from IClassFixture<> and ICollectionFixture<> on the collection definition
 			var collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
 			if (collectionDefinitionName != null)
 			{
@@ -69,50 +76,36 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				var matchingType = namedType.ContainingAssembly.FindNamedType(MatchCollectionDefinition);
 				if (matchingType is not null)
 				{
-					var collectionFixtureType = xunitContext.Core.ICollectionFixtureType;
-					collectionFixtureTypes =
-						matchingType
-							.AllInterfaces
-							.Where(i => i.OriginalDefinition.IsAssignableFrom(collectionFixtureType))
-							.Select(i => i.TypeArguments.FirstOrDefault() as INamedTypeSymbol)
-							.WhereNotNull()
-							.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+					var collectionFixtureType = xunitContext.Core.ICollectionFixtureType?.ConstructUnboundGenericType();
+					foreach (var @interface in matchingType.AllInterfaces.Where(i => i.IsGenericType))
+					{
+						var unboundGeneric = @interface.ConstructUnboundGenericType();
+						if (SymbolEqualityComparer.Default.Equals(classFixtureType, unboundGeneric)
+								|| SymbolEqualityComparer.Default.Equals(collectionFixtureType, unboundGeneric))
+							validConstructorArgumentTypes.Add(@interface.TypeArguments.First());
+					}
 				}
 			}
 
-			// Determine which constructor arguments will come from IAssemblyFixture
-			var assemblyFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
+			// Add types from AssemblyFixtureAttribute on the assembly
 			var assemblyFixtureAttributeType = xunitContext.V3Core?.AssemblyFixtureAttributeType;
 			if (assemblyFixtureAttributeType is not null)
-				assemblyFixtureTypes =
+				validConstructorArgumentTypes.AddRange(
 					namedType
 						.ContainingAssembly
 						.GetAttributes()
 						.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, assemblyFixtureAttributeType))
-						.Select(a => a.ConstructorArguments[0].Value as INamedTypeSymbol)
-						.WhereNotNull()
-						.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
+				);
 
-			// Exclude things like ITestOutputHelper and ITestContextAccessor
-			var supportedNonFixtureTypes =
-				new[] { xunitContext.Core.ITestOutputHelperType, xunitContext.V3Core?.ITestContextAccessorType }
-					.WhereNotNull()
-					.ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-
-			foreach (var parameter in ctors[0].Parameters)
-				if (!supportedNonFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
-					&& !classFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
-					&& !collectionFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default)
-					&& !assemblyFixtureTypes.Contains(parameter.Type, SymbolEqualityComparer.Default))
-				{
-					context.ReportDiagnostic(
-						Diagnostic.Create(
-							Descriptors.X1041_EnsureFixturesHaveASource,
-							parameter.Locations.FirstOrDefault(),
-							parameter.Name
-						)
-					);
-				}
+			foreach (var parameter in ctors[0].Parameters.Where(p => !validConstructorArgumentTypes.Contains(p.Type)))
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1041_EnsureFixturesHaveASource,
+						parameter.Locations.FirstOrDefault(),
+						parameter.Name
+					)
+				);
 		}, SymbolKind.NamedType);
 	}
 }
