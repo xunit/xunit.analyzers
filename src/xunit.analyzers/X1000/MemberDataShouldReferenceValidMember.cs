@@ -265,6 +265,32 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return null;
 	}
 
+	static bool IsTheoryDataType(
+		ITypeSymbol? memberReturnType,
+		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
+		out INamedTypeSymbol? theoryReturnType)
+	{
+		theoryReturnType = default;
+		if (memberReturnType is not INamedTypeSymbol namedReturnType)
+			return false;
+
+		INamedTypeSymbol? working = namedReturnType;
+		while (working is not null)
+		{
+			var returnTypeArguments = working.TypeArguments;
+			if (theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
+				&& SymbolEqualityComparer.Default.Equals(theoryDataType, working.OriginalDefinition))
+				break;
+			working = working.BaseType;
+		}
+
+		if (working is null)
+			return false;
+
+		theoryReturnType = working;
+		return true;
+	}
+
 	static void ReportIllegalNonMethodArguments(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -630,32 +656,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attributeSyntax, memberProperties, memberType);
 
 		return valid;
-	}
-
-	static bool IsTheoryDataType(
-		ITypeSymbol? memberReturnType,
-		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
-		out INamedTypeSymbol? theoryReturnType)
-	{
-		theoryReturnType = default;
-		if (memberReturnType is not INamedTypeSymbol namedReturnType)
-			return false;
-
-		INamedTypeSymbol? working = namedReturnType;
-		while (working is not null)
-		{
-			var returnTypeArguments = working.TypeArguments;
-			if (theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
-				&& SymbolEqualityComparer.Default.Equals(theoryDataType, working.OriginalDefinition))
-				break;
-			working = working.BaseType;
-		}
-
-		if (working is null)
-			return false;
-
-		theoryReturnType = working;
-		return true;
 	}
 
 	static void VerifyTheoryDataUsage(
