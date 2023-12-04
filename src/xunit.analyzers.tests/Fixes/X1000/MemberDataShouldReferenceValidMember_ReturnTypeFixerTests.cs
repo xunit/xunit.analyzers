@@ -57,7 +57,7 @@ public class TestClass {
     public static IEnumerable<ITheoryDataRow> Data => null;
 
     [Theory]
-    [{|xUnit1042:MemberData(nameof(Data))|}]
+    [MemberData(nameof(Data))]
     public void TestMethod(int a) { }
 }";
 

@@ -140,8 +140,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
 				// Make sure the member returns a compatible type
-				bool IsValidMemberReturnType =
-					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax);
+				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+				var IsValidMemberReturnType =
+					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType);
 
 				// Make sure public properties have a public getter
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -156,7 +157,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				// If the member does not return TheoryData, gently suggest to the user that TheoryData is better for type safety
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
 					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
-				else if (IsValidMemberReturnType)
+				else if (IsValidMemberReturnType && !IsTheoryDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType))
 					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax);
 
 				// Get the arguments that are to be passed to the method
@@ -187,6 +188,28 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			var memberSymbol = type.GetMembers(memberName).FirstOrDefault();
 			if (memberSymbol is not null)
 				return memberSymbol;
+
+			type = type.BaseType;
+		}
+
+		return null;
+	}
+
+	public static ISymbol? FindMethodSymbol(
+		string memberName,
+		ITypeSymbol? type,
+		int paramsCount)
+	{
+		while (type is not null)
+		{
+			var methodSymbol =
+				type
+					.GetMembers(memberName)
+					.OfType<IMethodSymbol>()
+					.FirstOrDefault(x => x.Parameters.Length == paramsCount);
+
+			if (methodSymbol is not null)
+				return methodSymbol;
 
 			type = type.BaseType;
 		}
@@ -244,27 +267,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return new List<ExpressionSyntax> { argumentExpression };
 	}
 
-	public static ISymbol? FindMethodSymbol(
-		string memberName,
-		ITypeSymbol? type,
-		int paramsCount)
-	{
-		while (type is not null)
-		{
-			var methodSymbol =
-				type
-					.GetMembers(memberName)
-					.OfType<IMethodSymbol>()
-					.FirstOrDefault(x => x.Parameters.Length == paramsCount);
-
-			if (methodSymbol is not null)
-				return methodSymbol;
-
-			type = type.BaseType;
-		}
-
-		return null;
-	}
+	static bool IsTheoryDataRowType(
+		ITypeSymbol? memberReturnType,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType) =>
+			iEnumerableOfTheoryDataRowType?.IsAssignableFrom(memberReturnType) ?? false;
 
 	static bool IsTheoryDataType(
 		ITypeSymbol? memberReturnType,
@@ -644,10 +650,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		XunitContext xunitContext,
 		ITypeSymbol memberType,
 		ImmutableDictionary<string, string?> memberProperties,
-		AttributeSyntax attributeSyntax)
+		AttributeSyntax attributeSyntax,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType)
 	{
 		var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
-		var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 		var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
 
 		if (!valid && xunitContext.HasV3References && iEnumerableOfTheoryDataRowType is not null)
