@@ -46,7 +46,7 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer 
 			return;
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
+				string.Format("Use Assert.{0}", replacement),
 				ct => UseSuggestedAssert(context.Document, invocation, replacement, isLeftLiteral == Constants.Asserts.True, ct),
 				Key_UseSuggestedAssert
 			),
