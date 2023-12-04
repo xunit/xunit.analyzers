@@ -41,7 +41,7 @@ public class BooleanAssertsShouldNotBeNegatedFixer : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
+				string.Format("Use Assert.{0}", replacement),
 				ct => UseSuggestedAssert(context.Document, invocation, replacement, ct),
 				Key_UseSuggestedAssert
 			),

@@ -221,4 +221,24 @@ class TestClass {
 
 		await Verify.VerifyAnalyzer(source);
 	}
+
+	[Fact]
+	public async void DoesNotFindWarning_ForParameterReferenceInCollectionLiteral()
+	{
+		var source = @"
+using Xunit;
+public class TestClass
+{
+    [Theory]
+    [InlineData(""hello"")]
+    public void XUnit1026_False_Positive(string greeting)
+    {
+        string[] values = [greeting, ""world""];
+        string actual = string.Join(' ', values);
+        Assert.Equal(""hello world"", actual);
+    }
+}";
+
+		await Verify.VerifyAnalyzer(Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp12, source);
+	}
 }
