@@ -13,10 +13,10 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource;
 
     [Theory]
-    [{|xUnit1042:MemberData({|xUnit1014:""DataSource""|})|}]
+    [MemberData({|xUnit1014:""DataSource""|})]
     public void TestMethod(int a) { }
 }";
 
@@ -26,10 +26,10 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource;
 
     [Theory]
-    [{|xUnit1042:MemberData(nameof(DataSource))|}]
+    [MemberData(nameof(DataSource))]
     public void TestMethod(int a) { }
 }";
 
