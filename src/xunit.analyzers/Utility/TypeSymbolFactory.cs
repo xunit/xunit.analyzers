@@ -5,6 +5,9 @@ namespace Xunit.Analyzers;
 
 public class TypeSymbolFactory
 {
+	public static INamedTypeSymbol? AssemblyFixtureAttribute_V3(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.AssemblyFixtureAttribute");
+
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Assert");
 
@@ -117,6 +120,9 @@ public class TypeSymbolFactory
 	public static INamedTypeSymbol? ITestCollection_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestCollection");
 
+	public static INamedTypeSymbol? ITestContextAccessor_V3(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.ITestContextAccessor");
+
 	public static INamedTypeSymbol? ITestFramework_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestFramework");
 
@@ -128,6 +134,13 @@ public class TypeSymbolFactory
 
 	public static INamedTypeSymbol? ITestMethod_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestMethod");
+
+	public static INamedTypeSymbol? ITestOutputHelper_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.ITestOutputHelper");
+
+	// TODO: This will need to be updated when v3 names are finalized
+	public static INamedTypeSymbol? ITestOutputHelper_V3(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.v3._ITestOutputHelper");
 
 	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.ITheoryDataRow");

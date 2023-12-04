@@ -6,347 +6,297 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 
 public class MemberDataShouldReferenceValidMemberTests
 {
-	static readonly string sharedCode = @"
+	public class X1014_MemberDataShouldUseNameOfOperator
+	{
+		static readonly string sharedCode = @"
 using System.Collections.Generic;
+using Xunit;
 
 public partial class TestClass {
-    public static IEnumerable<object[]> Data { get; set; }
+    public static TheoryData<int> Data { get; set; }
 }
 
 public class OtherClass {
-    public static IEnumerable<object[]> OtherData { get; set; }
+    public static TheoryData<int> OtherData { get; set; }
 }";
 
-	[Fact]
-	public async void DoesNotFindError_ForNameofOnSameClass()
-	{
-		var source = @"
+		[Fact]
+		public async void NameofOnSameClass_DoesNotTrigger()
+		{
+			var source = @"
 public partial class TestClass {
     [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyAnalyzer(new[] { source, sharedCode });
-	}
+			await Verify.VerifyAnalyzer(new[] { source, sharedCode });
+		}
 
-	[Fact]
-	public async void DoesNotFindError_ForNameofOnOtherClass()
-	{
-		var source = @"
+		[Fact]
+		public async void NameofOnOtherClass_DoesNotTrigger()
+		{
+			var source = @"
 public partial class TestClass {
     [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyAnalyzer(new[] { source, sharedCode });
-	}
+			await Verify.VerifyAnalyzer(new[] { source, sharedCode });
+		}
 
-	[Fact]
-	public async void FindsError_ForStringReferenceOnSameClass()
-	{
-		var source = @"
+		[Fact]
+		public async void StringNameOnSameClass_Triggers()
+		{
+			var source = @"
 public partial class TestClass {
     [Xunit.MemberData(""Data"")]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1014")
-				.WithSpan(3, 23, 3, 29)
-				.WithArguments("Data", "TestClass");
+			var expected =
+				Verify
+					.Diagnostic("xUnit1014")
+					.WithSpan(3, 23, 3, 29)
+					.WithArguments("Data", "TestClass");
 
-		await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
-	}
+			await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
+		}
 
-	[Fact]
-	public async void FindsError_ForStringReferenceOnOtherClass()
-	{
-		var source = @"
+		[Fact]
+		public async void StringNameOnOtherClass_Triggers()
+		{
+			var source = @"
 public partial class TestClass {
     [Xunit.MemberData(""OtherData"", MemberType = typeof(OtherClass))]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1014")
-				.WithSpan(3, 23, 3, 34)
-				.WithArguments("OtherData", "OtherClass");
+			var expected =
+				Verify
+					.Diagnostic("xUnit1014")
+					.WithSpan(3, 23, 3, 34)
+					.WithArguments("OtherData", "OtherClass");
 
-		await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
+			await Verify.VerifyAnalyzer(new[] { source, sharedCode }, expected);
+		}
 	}
 
-	[Fact]
-	public async void FindsError_ForInvalidNameString()
+	public class X1015_MemberDataMustReferenceExistingMember
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.MemberData(""BogusName"")]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1015")
-				.WithSpan(3, 6, 3, 35)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("BogusName", "TestClass");
+		[Theory]
+		[InlineData("")]
+		[InlineData(", MemberType = typeof(TestClass)")]
+		public async void InvalidStringNameOnSameClass_Triggers(string memberType)
+		{
+			var source = @$"
+public class TestClass {{
+    [Xunit.MemberData(""BogusName""{memberType})]
+    public void TestMethod() {{ }}
+}}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1015")
+					.WithSpan(3, 6, 3, 35 + memberType.Length)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("BogusName", "TestClass");
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 
-	[Fact]
-	public async void FindsError_ForInvalidNameString_UsingMemberType()
-	{
-		var source = @"
-public class TestClass {
-    [Xunit.MemberData(""BogusName"", MemberType = typeof(TestClass))]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1015")
-				.WithSpan(3, 6, 3, 67)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("BogusName", "TestClass");
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void FindsError_ForInvalidNameString_UsingMemberTypeWithOtherType()
-	{
-		var source1 = @"
+		[Fact]
+		public async void InvalidStringNameOnOtherClass_Triggers()
+		{
+			var source1 = @"
 public class TestClass {
     [Xunit.MemberData(""BogusName"", MemberType = typeof(OtherClass))]
     public void TestMethod() { }
 }";
-		var source2 = "public class OtherClass { }";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1015")
-				.WithSpan(3, 6, 3, 68)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("BogusName", "OtherClass");
+			var source2 = "public class OtherClass { }";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1015")
+					.WithSpan(3, 6, 3, 68)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("BogusName", "OtherClass");
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
-	}
+			await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+		}
 
-	[Fact]
-	public async void FindsError_ForValidNameofExpression_UsingMemberTypeSpecifyingOtherType()
-	{
-		var source1 = @"
+		[Fact]
+		public async void InvalidNameofOnOtherClass_Triggers()
+		{
+			var source1 = @"
 public class TestClass {
     [Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))]
     public void TestMethod() { }
 }";
-		var source2 = "public class OtherClass { }";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1015")
-				.WithSpan(3, 6, 3, 85)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("TestMethod", "OtherClass");
+			var source2 = "public class OtherClass { }";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1015")
+					.WithSpan(3, 6, 3, 85)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("TestMethod", "OtherClass");
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+			await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+		}
 	}
 
-	[Theory]
-	[InlineData("")]
-	[InlineData("private")]
-	[InlineData("protected")]
-	[InlineData("internal")]
-	[InlineData("protected internal")]
-	public async void FindsError_ForNonPublicMember(string accessModifier)
+	public class X1016_MemberDataMustReferencePublicMember
 	{
-		var source = $@"
-public class TestClass {{
-    {accessModifier} static System.Collections.Generic.IEnumerable<object[]> Data = null;
-
-    [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1016")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void DoesNotFindError_ForPublicMember()
-	{
-		var source = @"
+		[Fact]
+		public async void PublicMember_DoesNotTrigger()
+		{
+			var source = @"
 public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> Data = null;
+    public static Xunit.TheoryData<int> Data = null;
 
     [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Theory]
-	[InlineData("{|xUnit1014:\"Data\"|}")]
-	[InlineData("DataNameConst")]
-	[InlineData("DataNameofConst")]
-	[InlineData("nameof(Data)")]
-	[InlineData("nameof(TestClass.Data)")]
-	[InlineData("OtherClass.Data")]
-	[InlineData("nameof(OtherClass.Data)")]
-	public async void FindsError_ForNameExpressions(string dataNameExpression)
-	{
-		TestFileMarkupParser.GetPositionsAndSpans(dataNameExpression, out var parsedDataNameExpression, out _, out _);
-		var dataNameExpressionLength = parsedDataNameExpression.Length;
+		public static MatrixTheoryData<string, string> NonPublicTestData =>
+			new(
+				new[] { "", "private", "protected", "internal", "protected internal" },
+				new[] { "{|xUnit1014:\"Data\"|}", "DataNameConst", "DataNameofConst", "nameof(Data)", "nameof(TestClass.Data)", "OtherClass.Data", "nameof(OtherClass.Data)" }
+			);
 
-		var source1 = $@"
+		[Theory]
+		[MemberData(nameof(NonPublicTestData))]
+		public async void NonPublicNameExpression_Triggers(
+			string accessModifier,
+			string dataNameExpression)
+		{
+			TestFileMarkupParser.GetPositionsAndSpans(dataNameExpression, out var parsedDataNameExpression, out _, out _);
+			var dataNameExpressionLength = parsedDataNameExpression.Length;
+
+			var source1 = $@"
 public class TestClass {{
     const string DataNameConst = ""Data"";
     const string DataNameofConst = nameof(Data);
 
-    private static System.Collections.Generic.IEnumerable<object[]> Data = null;
+    {accessModifier} static Xunit.TheoryData<int> Data = null;
 
     [Xunit.MemberData({dataNameExpression})]
-    public void TestMethod() {{ }}
+    public void TestMethod(int _) {{ }}
 }}";
-		var source2 = @"public static class OtherClass { public const string Data = ""Data""; }";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1016")
-				.WithSpan(8, 6, 8, 24 + dataNameExpressionLength)
-				.WithSeverity(DiagnosticSeverity.Error);
+			var source2 = @"public static class OtherClass { public const string Data = ""Data""; }";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1016")
+					.WithSpan(8, 6, 8, 24 + dataNameExpressionLength)
+					.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+			await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+		}
 	}
 
-	[Fact]
-	public async void FindsError_ForInstanceMember()
+	public class X1017_MemberDataMustReferenceStaticMember
 	{
-		var source = @"
+		[Fact]
+		public async void StaticMember_DoesNotTrigger()
+		{
+			var source = @"
 public class TestClass {
-    public System.Collections.Generic.IEnumerable<object[]> Data = null;
+    public static Xunit.TheoryData<int> Data = null;
 
     [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1017")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void DoesNotFindError_ForStaticMember()
-	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> Data = null;
-
-    [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() { }
+    public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Theory]
-	[InlineData("public delegate System.Collections.Generic.IEnumerable<object[]> Data();")]
-	[InlineData("public static class Data { }")]
-	[InlineData("public static event System.EventHandler Data;")]
-	public async void FindsError_ForInvalidMemberKind(string member)
-	{
-		var source = $@"
-public class TestClass {{
-    {member}
+		[Fact]
+		public async void InstanceMember_Triggers()
+		{
+			var source = @"
+public class TestClass {
+    public Xunit.TheoryData<int> Data = null;
 
     [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1018")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error);
+    public void TestMethod(int _) { }
+}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1017")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Theory]
-	[InlineData("public static System.Collections.Generic.IEnumerable<object[]> Data;")]
-	[InlineData("public static System.Collections.Generic.IEnumerable<object[]> Data { get; set; }")]
-	[InlineData("public static System.Collections.Generic.IEnumerable<object[]> Data() { return null; }")]
-	public async void DoesNotFindError_ForValidMemberKind(string member)
+	public class X1018_MemberDataMustReferenceValidMemberKind
 	{
-		var source = $@"
+		[Theory]
+		[InlineData("Data;")]
+		[InlineData("Data { get; set; }")]
+		[InlineData("Data() { return null; }")]
+		public async void ValidMemberKind_DoesNotTrigger(string member)
+		{
+			var source = $@"
 public class TestClass {{
-    {member}
-
-    [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[InlineData("System.Collections.Generic.IEnumerable<object>")]
-	[InlineData("object[]")]
-	[InlineData("object")]
-	[InlineData("System.Tuple<string, int>")]
-	[InlineData("System.Tuple<string, int>[]")]
-	public async void FindsError_ForInvalidMemberType(string memberType)
-	{
-		var source = $@"
-public class TestClass {{
-    public static {memberType} Data;
-
-    [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() {{ }}
-}}";
-		var expectedV2 =
-			Verify
-				.Diagnostic("xUnit1019")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
-
-		await Verify.VerifyAnalyzerV2(source, expectedV2);
-
-		var expectedV3 =
-			Verify
-				.Diagnostic("xUnit1019")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("'System.Collections.Generic.IEnumerable<object[]>' or 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>'", memberType);
-
-		await Verify.VerifyAnalyzerV3(source, expectedV3);
-	}
-
-	[Theory]
-	[InlineData("System.Collections.Generic.IEnumerable<object[]>")]
-	[InlineData("System.Collections.Generic.List<object[]>")]
-	[InlineData("Xunit.TheoryData<int>")]
-	public async void DoesNotFindError_ForCompatibleMemberType(string memberType)
-	{
-		var source = $@"
-public class TestClass {{
-    public static {memberType} Data;
+    public static Xunit.TheoryData<int> {member}
 
     [Xunit.MemberData(nameof(Data))]
     public void TestMethod(int _) {{ }}
 }}";
 
-		await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[InlineData("public delegate System.Collections.Generic.IEnumerable<object[]> Data();")]
+		[InlineData("public static class Data { }")]
+		[InlineData("public static event System.EventHandler Data;")]
+		public async void InvalidMemberKind_Triggers(string member)
+		{
+			var source = $@"
+public class TestClass {{
+    {member}
+
+    [Xunit.MemberData(nameof(Data))]
+    public void TestMethod() {{ }}
+}}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1018")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Fact]
-	public async void DoesNotFindError_ForITheoryDataRow_V3()
+	public class X1019_MemberDataMustReferenceMemberOfValidType
 	{
-		var source = @"
+		// The base type of IEnumerable<object[]> triggers xUnit1042, which is covered in the tests
+		// below in X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis, so we'll only
+		// test TheoryData<> and IEnumerable<ITheoryDataRow> here.
+
+		[Fact]
+		public async void TheoryData_DoesNotTrigger()
+		{
+			var source = @"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {
+    public static TheoryData<int> Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void ITheoryDataRow_DoesNotTrigger()
+		{
+			var source = @"
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
@@ -366,171 +316,290 @@ public class TestClass
         };
 }";
 
-		await Verify.VerifyAnalyzerV3(source);
-	}
+			await Verify.VerifyAnalyzerV3(source);
+		}
 
-	[Fact]
-	public async void FindsError_ForMemberPropertyWithoutGetter()
-	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> Data { set { } }
-
-    [Xunit.MemberData(nameof(Data))]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1020")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData("internal")]
-	[InlineData("protected")]
-	[InlineData("private")]
-	public async void FindsError_ForMemberPropertyWithNonPublicGetter(string visibility)
-	{
-		var source = $@"
+		[Theory]
+		[InlineData("System.Collections.Generic.IEnumerable<object>")]
+		[InlineData("object[]")]
+		[InlineData("object")]
+		[InlineData("System.Tuple<string, int>")]
+		[InlineData("System.Tuple<string, int>[]")]
+		public async void InvalidMemberType_Triggers(string memberType)
+		{
+			var source = $@"
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> Data {{ {visibility} get {{ return null; }} set {{ }} }}
+    public static {memberType} Data;
 
     [Xunit.MemberData(nameof(Data))]
     public void TestMethod() {{ }}
 }}";
-		var expected =
-			Verify
-				.Diagnostic("xUnit1020")
-				.WithSpan(5, 6, 5, 36)
-				.WithSeverity(DiagnosticSeverity.Error);
+			var expectedV2 =
+				Verify
+					.Diagnostic("xUnit1019")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
 
-		await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+
+			var expectedV3 =
+				Verify
+					.Diagnostic("xUnit1019")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("'System.Collections.Generic.IEnumerable<object[]>' or 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>'", memberType);
+
+			await Verify.VerifyAnalyzerV3(source, expectedV3);
+		}
 	}
 
-	[Theory]
-	[InlineData("'a', 123")]
-	[InlineData("new object[] {{ 'a', 123 }}")]
-	[InlineData("{0}: new object[] {{ 'a', 123 }}")]
-	public async void FindsWarning_ForMemberDataParametersForFieldMember(string paramsArgument)
+	public class X1020_MemberDataPropertyMustHaveGetter
 	{
-		var sourceTemplate = @"
-public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> Data;
+		[Fact]
+		public async void PropertyWithoutGetter_Triggers()
+		{
+			var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> Data { set { } }
 
-    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
-    public void TestMethod() {{ }}
+    [Xunit.MemberData(nameof(Data))]
+    public void TestMethod(int _) { }
+}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1020")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Theory]
+		[InlineData("internal")]
+		[InlineData("protected")]
+		[InlineData("private")]
+		public async void PropertyWithNonPublicGetter_Triggers(string visibility)
+		{
+			var source = $@"
+public class TestClass {{
+    public static Xunit.TheoryData<int> Data {{ {visibility} get {{ return null; }} set {{ }} }}
+
+    [Xunit.MemberData(nameof(Data))]
+    public void TestMethod(int _) {{ }}
+}}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1020")
+					.WithSpan(5, 6, 5, 36)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+	}
+
+	public class X1021_MemberDataNonMethodShouldNotHaveParameters
+	{
+		[Theory]
+		[InlineData("1")]                   // implicit params
+		[InlineData("new object[] { 1 }")]  // explicit params
+		public async void MethodMemberWithParameters_DoesNotTrigger(string parameter)
+		{
+			var source = @$"
+public class TestClass {{
+    private static void TestData() {{ }}
+
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+
+    [Xunit.MemberData(nameof(TestData), {parameter})]
+    public void TestMethod(int n) {{ }}
 }}";
 
-		var argV2 = string.Format(paramsArgument, "parameters");
-		var sourceV2 = string.Format(sourceTemplate, argV2);
-		var expectedV2 =
-			Verify
-				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + argV2.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
+			await Verify.VerifyAnalyzer(source);
+		}
 
-		await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
-
-		var argV3 = string.Format(paramsArgument, "arguments");
-		var sourceV3 = string.Format(sourceTemplate, argV3);
-		var expectedV3 =
-			Verify
-				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + argV3.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
-
-		await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
-	}
-
-	[Theory]
-	[InlineData("'a', 123")]
-	[InlineData("new object[] {{ 'a', 123 }}")]
-	[InlineData("{0}: new object[] {{ 'a', 123 }}")]
-	public async void FindsWarning_ForMemberDataParametersForPropertyMember(string paramsArgument)
-	{
-		var sourceTemplate = @"
+		[Theory]
+		[InlineData("1, 2")]                   // implicit params
+		[InlineData("new object[] { 1, 2 }")]  // explicit params
+		public async void MethodMemberWithParamsArrayParameters_DoesNotTrigger(string parameters)
+		{
+			var source = @$"
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> Data {{ get; set; }}
+    public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> {{ n[0] }};
 
-    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
-    public void TestMethod() {{ }}
+    [Xunit.MemberData(nameof(TestData), {parameters})]
+    public void TestMethod(int n) {{ }}
 }}";
 
-		var argV2 = string.Format(paramsArgument, "parameters");
-		var sourceV2 = string.Format(sourceTemplate, argV2);
-		var expectedV2 =
-			Verify
-				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + argV2.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
+			await Verify.VerifyAnalyzer(source);
+		}
 
-		await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
+		[Theory]
+		[InlineData("1")]                   // implicit params
+		[InlineData("new object[] { 1 }")]  // explicit params
+		public async void MethodMemberOnBaseType_DoesNotTrigger(string parameter)
+		{
+			var source = $@"
+public class TestClassBase {{
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+}}
 
-		var argV3 = string.Format(paramsArgument, "arguments");
-		var sourceV3 = string.Format(sourceTemplate, argV3);
-		var expectedV3 =
-			Verify
-				.Diagnostic("xUnit1021")
-				.WithSpan(5, 37, 5, 37 + argV3.Length)
-				.WithSeverity(DiagnosticSeverity.Warning);
+public class TestClass : TestClassBase {{
+    private static void TestData() {{ }}
 
-		await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
+    [Xunit.MemberData(nameof(TestData), {parameter})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[InlineData("'a', 123")]
+		[InlineData("new object[] {{ 'a', 123 }}")]
+		[InlineData("{0}: new object[] {{ 'a', 123 }}")]
+		public async void FieldMemberWithParameters_Triggers(string paramsArgument)
+		{
+			var sourceTemplate = @"
+public class TestClass {{
+    public static Xunit.TheoryData<int> Data;
+
+    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			var argV2 = string.Format(paramsArgument, "parameters");
+			var sourceV2 = string.Format(sourceTemplate, argV2);
+			var expectedV2 =
+				Verify
+					.Diagnostic("xUnit1021")
+					.WithSpan(5, 37, 5, 37 + argV2.Length)
+					.WithSeverity(DiagnosticSeverity.Warning);
+
+			await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
+
+			var argV3 = string.Format(paramsArgument, "arguments");
+			var sourceV3 = string.Format(sourceTemplate, argV3);
+			var expectedV3 =
+				Verify
+					.Diagnostic("xUnit1021")
+					.WithSpan(5, 37, 5, 37 + argV3.Length)
+					.WithSeverity(DiagnosticSeverity.Warning);
+
+			await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
+		}
+
+		[Theory]
+		[InlineData("'a', 123")]
+		[InlineData("new object[] {{ 'a', 123 }}")]
+		[InlineData("{0}: new object[] {{ 'a', 123 }}")]
+		public async void PropertyMemberWithParameters_Triggers(string paramsArgument)
+		{
+			var sourceTemplate = @"
+public class TestClass {{
+    public static Xunit.TheoryData<int> Data {{ get; set; }}
+
+    [Xunit.MemberData(nameof(Data), {0}, MemberType = typeof(TestClass))]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			var argV2 = string.Format(paramsArgument, "parameters");
+			var sourceV2 = string.Format(sourceTemplate, argV2);
+			var expectedV2 =
+				Verify
+					.Diagnostic("xUnit1021")
+					.WithSpan(5, 37, 5, 37 + argV2.Length)
+					.WithSeverity(DiagnosticSeverity.Warning);
+
+			await Verify.VerifyAnalyzerV2(sourceV2, expectedV2);
+
+			var argV3 = string.Format(paramsArgument, "arguments");
+			var sourceV3 = string.Format(sourceTemplate, argV3);
+			var expectedV3 =
+				Verify
+					.Diagnostic("xUnit1021")
+					.WithSpan(5, 37, 5, 37 + argV3.Length)
+					.WithSeverity(DiagnosticSeverity.Warning);
+
+			await Verify.VerifyAnalyzerV3(sourceV3, expectedV3);
+		}
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_ForMemberDataAttributeWithNamedParameter()
+	public class X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter
 	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> Data;
+		[Theory]
+		[InlineData("", "string")]
+		[InlineData("#nullable enable", "string?")]
+		public async void PassingNullForNullableReferenceType_DoesNotTrigger(
+			string header,
+			string argumentType)
+		{
+			var source = $@"
+{header}
+public class TestClass {{
+    public static Xunit.TheoryData<int> TestData({argumentType} f) => new Xunit.TheoryData<int> {{ 42 }};
 
-    [Xunit.MemberData(nameof(Data), MemberType = typeof(TestClass))]
-    public void TestMethod() { }
+    [Xunit.MemberData(nameof(TestData), new object[] {{ null }})]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Fact]
+		public async void PassingNullForStructType_Triggers()
+		{
+			var source = @"
+public class TestClass {
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> { n };
+
+    [Xunit.MemberData(nameof(TestData), new object[] { null })]
+    public void TestMethod(int _) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			var expected =
+				Verify
+					.Diagnostic("xUnit1034")
+					.WithSpan(5, 56, 5, 60)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("n", "int");
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidMember()
-	{
-		var source = @"
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Fact]
+		public async void PassingNullForNonNullableReferenceType_Triggers()
+		{
+			var source = @"
+#nullable enable
 public class TestClass {
-    private static void TestData() { }
+    public static Xunit.TheoryData<string> TestData(string f) => new Xunit.TheoryData<string> { f };
 
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
+    [Xunit.MemberData(nameof(TestData), new object[] { null })]
+    public void TestMethod(string _) { }
+}
+#nullable restore";
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
-}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1034")
+					.WithSpan(6, 56, 6, 60)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("f", "string");
 
-		await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+		}
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidMemberWithParams()
+	public class X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType
 	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(params int[] n) { yield return new object[] { n[0] }; }
-
-    [Xunit.MemberData(nameof(TestData), new object[] { 1, 2 })]
-    public void TestMethod(int n) { }
-}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	// https://github.com/xunit/xunit/issues/2817
-	[Theory]
-	[InlineData("Foo.Bar")]
-	[InlineData("(Foo)42")]
-	public async void DoesNotFindWarning_IfEnumValueIsValid(string enumValue)
-	{
-		var source = $@"
+		// https://github.com/xunit/xunit/issues/2817
+		[Theory]
+		[InlineData("Foo.Bar")]
+		[InlineData("(Foo)42")]
+		public async void ValidEnumValue_DoesNotTrigger(string enumValue)
+		{
+			var source = $@"
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -542,453 +611,454 @@ public class TestClass {{
 
     public enum Foo {{ Bar }}
 
-    public static IEnumerable<object[]> SomeData(Foo foo) => Array.Empty<object[]>();
+    public static Xunit.TheoryData<int> SomeData(Foo foo) => new Xunit.TheoryData<int>();
 }}";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentTypes()
-	{
-		var source = @"
+		[Fact]
+		public async void ValidMemberWithIncorrectArgumentTypes_Triggers()
+		{
+			var source = @"
 public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(string n) { yield return new object[] { n }; }
+    public static Xunit.TheoryData<int> TestData(string n) => new Xunit.TheoryData<int> { n.Length };
 
     [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
     public void TestMethod(int n) { }
-}"
-		;
+}";
 
-		DiagnosticResult[] expected =
+			var expected =
+				Verify
+					.Diagnostic("xUnit1035")
+					.WithSpan(5, 56, 5, 57)
+					.WithArguments("n", "string");
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Fact]
+		public async void ValidMemberWithIncorrectArgumentTypesParams_Triggers()
 		{
-			Verify
-				.Diagnostic("xUnit1035")
-				.WithSpan(5, 56, 5, 57)
-				.WithArguments("n", "string")
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentTypesParams()
-	{
-		var source = @"
+			var source = @"
 public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(params int[] n) { yield return new object[] { n }; }
+    public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> { n[0] };
 
     [Xunit.MemberData(nameof(TestData), new object[] { 1, ""bob"" })]
     public void TestMethod(int n) { }
-}"
-		;
-
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1035")
-				.WithSpan(5, 59, 5, 64)
-				.WithArguments("n", "int")
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void FindWarning_IfHasValidMemberWithIncorrectArgumentCount()
-	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
-
-    [Xunit.MemberData(nameof(TestData), new object[] { 1, 2 })]
-    public void TestMethod(int n) { }
-}"
-		;
-
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1036")
-				.WithSpan(5, 59, 5, 60)
-				.WithArguments("2")
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void FindWarning_IfHasValidMemberWithIncorrectParamsArgumentCount()
-	{
-		var source = @"
-public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
-
-    [Xunit.MemberData(nameof(TestData), 1, 2)]
-    public void TestMethod(int n) { }
-}"
-		;
-
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1036")
-				.WithSpan(5, 44, 5, 45)
-				.WithArguments("2")
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidListMember()
-	{
-		var source = @"
-public class TestClass {
-    private static void TestData() { }
-
-    public static System.Collections.Generic.List<object[]> TestData(int n) { return new System.Collections.Generic.List<object[]> { new object[] { n } }; }
-
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
+			var expected =
+				Verify
+					.Diagnostic("xUnit1035")
+					.WithSpan(5, 59, 5, 64)
+					.WithArguments("n", "int");
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidNonNullableListMember_InNullableContext()
+	public class X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue
 	{
-		var source = @"
-#nullable enable
-public class TestClass {
-    public static System.Collections.Generic.List<object[]> TestData(int n) { return new System.Collections.Generic.List<object[]> { new object[] { n } }; }
+		[Theory]
+		[InlineData("1")]
+		[InlineData("new object[] { 1 }")]
+		public async void ValidArgumentCount_DoesNotTrigger(string parameter)
+		{
+			var source = $@"
+public class TestClass {{
+    private static void TestData() {{ }}
 
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
-}
-#nullable restore
-";
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-	}
+    [Xunit.MemberData(nameof(TestData), {parameter})]
+    public void TestMethod(int n) {{ }}
+}}";
 
-	[Fact]
-	public async void FindWarning_IfPassingNullToNonNullableMethodParameter_InNullableContext()
-	{
-		var source = @$"
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[InlineData("1")]
+		[InlineData("new object[] { 1 }")]
+		public async void ValidArgumentCount_InNullableContext_DoesNotTrigger(string parameter)
+		{
+			var source = $@"
 #nullable enable
 public class TestClass {{
-    public static System.Collections.Generic.List<object[]> TestData(int n, string f) {{ return new System.Collections.Generic.List<object[]?> {{ new object[] {{ f }} }}; }}
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-    [Xunit.MemberData(nameof(TestData), new object[] {{ null, null }})]
-    public void TestMethod(string n) {{ }}
+    [Xunit.MemberData(nameof(TestData), {parameter})]
+    public void TestMethod(int n) {{ }}
 }}
 #nullable restore";
 
-		DiagnosticResult[] expected =
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Theory]
+		[InlineData("1, 2", 44)]
+		[InlineData("new object[] { 1, 2 }", 59)]
+		public async void TooManyArguments_Triggers(
+			string parameters,
+			int startColumn)
 		{
-			Verify
-				.Diagnostic("xUnit1034")
-				.WithSpan(6, 56, 6, 60)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("n", "int"),
-			Verify
-				.Diagnostic("xUnit1034")
-				.WithSpan(6, 62, 6, 66)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("f", "string"),
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Fact]
-	public async void DoesNotFindWarning_IfHasValidMemberInBaseClass()
-	{
-		var source = @"
-public class TestClassBase {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) {
-        yield return new object[] { n };
-    }
-}
-
-public class TestClass : TestClassBase {
-    private static void TestData() { }
-
-    [Xunit.MemberData(nameof(TestData), new object[] { 1 })]
-    public void TestMethod(int n) { }
-}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	// Tests related to TheoryData<> usage
-
-	public static TheoryData<string, string> MemberSyntaxAndArgs = new()
-	{
-		{ " = ", "" },              // Field
-		{ " => ", "" },             // Property
-		{ "() => ", "" },           // Method w/o args
-		{ "(int n) => ", ", 42" },  // Method w/ args
-	};
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMember(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
+			var source = $@"
 public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    [Xunit.MemberData(nameof(TestData), {parameters})]
     public void TestMethod(int n) {{ }}
 }}";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
+			var expected =
+				Verify
+					.Diagnostic("xUnit1036")
+						.WithSpan(5, startColumn, 5, startColumn + 1)
+						.WithArguments("2");
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithOptionalParameters(
-		string memberSyntax,
-		string memberArgs)
+	public class X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
 	{
-		var source = $@"
-public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n, int a = 0) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithNeededParams(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
-public class TestClass {{
-    public static Xunit.TheoryData<int, int> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n, params int[] a) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_IfHasValidTheoryDataMemberWithExtraParams(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
-public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n, params int[] a) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_WithGenericArgument(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
-public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod<T>(T n) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void DoesNotFindWarning_WithGenericNullableArgument(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
-#nullable enable
-
-public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod<T>(T? n) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Fact]
-	public async void DoesNotFindWarning_WithIntArrayArguments()
-	{
-		var source = $@"
-using System.Collections.Generic;
-using Xunit;
-
-public class TestClass
-{{
-  public static IEnumerable<object[]> GetSequences(IEnumerable<int> seq) =>
-    new List<object[]>();
-
-  [Theory]
-  [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
-  [MemberData(nameof(GetSequences), new [] {{ 3, 4, 5}})]
-  public void Test(IEnumerable<int> seq)
-  {{
-    Assert.NotEmpty(seq);
-  }}
-}}
-";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-	[Fact]
-	public async void FindsWarning_WithObjectArrayArguments()
-	{
-		var source = $@"
-using System.Collections.Generic;
-using Xunit;
-
-public class TestClass
-{{
-  public static IEnumerable<object[]> GetSequences(IEnumerable<object> seq) =>
-    new List<object[]>();
-
-  [Theory]
-  [MemberData(nameof(GetSequences), new object[] {{ 1, 2 }})]
-  public void Test(IEnumerable<int> seq)
-  {{
-    Assert.NotEmpty(seq);
-  }}
-}}
-";
-
-		DiagnosticResult[] expected =
+		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
 		{
-			Verify
-				.Diagnostic("xUnit1035")
-				.WithSpan(11, 52, 11, 53)
-				.WithArguments("seq", "System.Collections.Generic.IEnumerable<object>")
-				.WithSeverity(DiagnosticSeverity.Error),
-			Verify
-				.Diagnostic("xUnit1036")
-				.WithSpan(11, 55, 11, 56)
-				.WithArguments("2")
-				.WithSeverity(DiagnosticSeverity.Error)
+			{ " = ", "" },              // Field
+			{ " => ", "" },             // Property
+			{ "() => ", "" },           // Method w/o args
+			{ "(int n) => ", ", 42" },  // Method w/ args
 		};
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithTooManyTypeParameters(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
-public class TestClass {{
-    public static Xunit.TheoryData<int, string> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n) {{ }}
-}}";
-
-		DiagnosticResult[] expected =
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
+		public async void ValidTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
+			string memberSyntax,
+			string memberArgs)
 		{
-			Verify
-				.Diagnostic("xUnit1038")
-				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
-	}
-
-	[Fact]
-	public async void FindWarning_WhenExtraTypeExistsPastArrayForParamsArray()
-	{
-		var source = @"
-using Xunit;
-
-public class TestClass {
-	public static TheoryData<int, string[], string> TestData = new TheoryData<int, string[], string>();
-
-    [MemberData(nameof(TestData))]
-    public void PuzzleOne(int _1, params string[] _2) { }
-}";
-
-		var expected =
-			Verify
-				.Diagnostic("xUnit1038")
-				.WithSpan(7, 6, 7, 34)
-				.WithSeverity(DiagnosticSeverity.Error);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithNotEnoughTypeParameters(
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = $@"
+			var source = $@"
 public class TestClass {{
-    public static Xunit.TheoryData<int> TestData{memberSyntax}new();
+    public static Xunit.TheoryData<int> TestData{memberSyntax}new Xunit.TheoryData<int>();
 
     [Xunit.MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n, string f) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1037")
-				.WithSpan(5, 6, 5, 40 + memberArgs.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-		};
+			var expected =
+				Verify
+					.Diagnostic("xUnit1037")
+					.WithSpan(5, 6, 5, 40 + memberArgs.Length)
+					.WithSeverity(DiagnosticSeverity.Error);
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
-	}
-
-	public static TheoryData<string, string, string> TypeWithMemberSyntaxAndArgs()
-	{
-		var result = new TheoryData<string, string, string>();
-
-		foreach (var items in MemberSyntaxAndArgs)
-		{
-			result.Add("int", (string)items[0], (string)items[1]);
-			result.Add("System.Exception", (string)items[0], (string)items[1]);
+			await Verify.VerifyAnalyzer(source, expected);
 		}
 
-		return result;
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
+		public async void ValidSubclassedTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
+			string memberSyntax,
+			string memberArgs)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData<int, string> TestData{memberSyntax}new DerivedTheoryData<int, string>();
+
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n, string f) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1037")
+					.WithSpan(9, 6, 9, 40 + memberArgs.Length)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Fact]
-	public async void DoesNotFindWarning_WhenPassingMultipleValuesForParamsArray()
+	public class X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
-		var source = @"
+		public static MatrixTheoryData<(string syntax, string args), string> MemberSyntaxAndArgs_WithTheoryDataType(string theoryDataTypes) =>
+			new(
+				new[]
+				{
+					( " = ", "" ),              // Field
+					( " => ", "" ),             // Property
+					( "() => ", "" ),           // Method w/o args
+					( "(int n) => ", ", 42" ),  // Method w/ args
+				},
+				new[]
+				{
+					$"TheoryData<{theoryDataTypes}>",
+					"DerivedTheoryData",
+					$"DerivedTheoryData<{theoryDataTypes}>"
+				}
+			);
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryData_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryDataWithOptionalParameters_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void TestMethod(int n, int a = 0) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryDataWithNoValuesForParamsArray_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [Xunit.MemberData(nameof(TestData){member.args})]
+    public void TestMethod(int n, params int[] a) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryDataWithSingleValueForParamsArray_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int, int> {{ }}
+public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void TestMethod(int n, params int[] a) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryDataWithGenericTestParameter_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void TestMethod<T>(T n) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
+		public async void ValidTheoryDataWithNullableGenericTestParameter_DoesNotTrigger(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+#nullable enable
+
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int> {{ }}
+public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [Xunit.MemberData(nameof(TestData){member.args})]
+    public void TestMethod<T>(T? n) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
+		}
+
+		[Theory]
+		[InlineData(" = ", "")]              // Field
+		[InlineData(" => ", "")]             // Property
+		[InlineData("() => ", "")]           // Method w/o args
+		[InlineData("(int n) => ", ", 42")]  // Method w/ args
+		public async void ValidTheoryDataDoubleGenericSubclassMember_DoesNotTrigger(
+			string memberSyntax,
+			string memberArgs)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
+
+public class TestClass {{
+    public static DerivedTheoryData<int, string> TestData{memberSyntax}new DerivedTheoryData<int, string>();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void WithIntArrayArguments_DoesNotTrigger()
+		{
+			var source = @"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {
+    public static TheoryData<IEnumerable<int>> GetSequences(IEnumerable<int> seq) => new TheoryData<IEnumerable<int>> { seq };
+
+    [Theory]
+    [MemberData(nameof(GetSequences), new[] { 1, 2 })]
+    [MemberData(nameof(GetSequences), new[] { 3, 4, 5 })]
+    public void Test(IEnumerable<int> seq) {
+        Assert.NotEmpty(seq);
+    }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string", DisableDiscoveryEnumeration = true)]
+		public async void ValidSubclassTheoryDataMemberWithTooManyTypeParameters_Triggers(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int, string> {{ }}
+public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
+
+public class TestClass {{
+    public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void TestMethod(int n) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1038")
+					.WithSpan(10, 6, 10, 34 + member.args.Length)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string[], string", DisableDiscoveryEnumeration = true)]
+		public async void ExtraTypeExistsPastArrayForParamsArray_Triggers(
+			(string syntax, string args) member,
+			string theoryDataType)
+		{
+			var source = $@"
+using Xunit;
+
+public class DerivedTheoryData : TheoryData<int, string[], string> {{ }}
+public class DerivedTheoryData<T1, T2, T3> : TheoryData<T1, T2, T3> {{ }}
+
+public class TestClass {{
+	public static {theoryDataType} TestData{member.syntax}new {theoryDataType}();
+
+    [MemberData(nameof(TestData){member.args})]
+    public void PuzzleOne(int _1, params string[] _2) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1038")
+					.WithSpan(10, 6, 10, 34 + member.args.Length)
+					.WithSeverity(DiagnosticSeverity.Error);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+	}
+
+	public class X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
+	{
+		public static MatrixTheoryData<(string syntax, string args), string> TypeWithMemberSyntaxAndArgs =
+			new(
+				new[]
+				{
+					( " = ", "" ),              // Field
+					( " => ", "" ),             // Property
+					( "() => ", "" ),           // Method w/o args
+					( "(int n) => ", ", 42" ),  // Method w/ args
+				},
+				new[]
+				{
+					"int",
+					"System.Exception",
+				}
+			);
+
+		[Fact]
+		public async void DoesNotFindWarning_WhenPassingMultipleValuesForParamsArray()
+		{
+			var source = @"
 using Xunit;
 
 public class TestClass {
@@ -998,13 +1068,13 @@ public class TestClass {
     public void PuzzleOne(int _1, params string[] _2) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void DoesNotFindWarning_WhenPassingArrayForParamsArray()
-	{
-		var source = @"
+		[Fact]
+		public async void DoesNotFindWarning_WhenPassingArrayForParamsArray()
+		{
+			var source = @"
 using Xunit;
 
 public class TestClass {
@@ -1014,13 +1084,13 @@ public class TestClass {
     public void PuzzleOne(int _1, params string[] _2) { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void FindWarning_WithExtraValueNotCompatibleWithParamsArray()
-	{
-		var source = @"
+		[Fact]
+		public async void FindWarning_WithExtraValueNotCompatibleWithParamsArray()
+		{
+			var source = @"
 using Xunit;
 
 public class TestClass {
@@ -1030,73 +1100,162 @@ public class TestClass {
     public void PuzzleOne(int _1, params string[] _2) { }
 }";
 
-		var expected =
-			Verify
-				.Diagnostic("xUnit1039")
-				.WithSpan(8, 42, 8, 50)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("int", "TestClass", "TestData", "_2");
+			var expected =
+				Verify
+					.Diagnostic("xUnit1039")
+					.WithSpan(8, 42, 8, 50)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("int", "TestClass", "TestData", "_2");
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 
-	[Theory]
-	[MemberData(nameof(TypeWithMemberSyntaxAndArgs))]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(
-		string type,
-		string memberSyntax,
-		string memberArgs)
-	{
-		var source = @$"
+		[Theory]
+		[MemberData(nameof(TypeWithMemberSyntaxAndArgs), DisableDiscoveryEnumeration = true)]
+		public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(
+			(string syntax, string args) member,
+			string type)
+		{
+			var source = $@"
+using Xunit;
+
 public class TestClass {{
-    public static Xunit.TheoryData<{type}> TestData{memberSyntax}new();
+    public static TheoryData<{type}> TestData{member.syntax}new TheoryData<{type}>();
 
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
+    [MemberData(nameof(TestData){member.args})]
     public void TestMethod(string f) {{ }}
 }}";
 
-		DiagnosticResult[] expected =
-		{
-			Verify
-				.Diagnostic("xUnit1039")
-				.WithSpan(6, 28, 6, 34)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments(type, "TestClass", "TestData", "f")
-		};
+			var expected =
+				Verify
+					.Diagnostic("xUnit1039")
+					.WithSpan(8, 28, 8, 34)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments(type, "TestClass", "TestData", "f");
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 
-	[Theory]
-	[MemberData(nameof(MemberSyntaxAndArgs))]
-	public async void FindWarning_IfHasValidTheoryDataMemberWithMismatchedNullability(
-		string memberSyntax,
-		string memberArgs)
+	public class X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 	{
-		var source = $@"
-#nullable enable
-public class TestClass {{
-    public static Xunit.TheoryData<int?, string?> TestData{memberSyntax}new();
-
-    [Xunit.MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n, string f) {{ }}
-}}
-#nullable restore";
-
-		DiagnosticResult[] expected =
+		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
 		{
-			Verify
-				.Diagnostic("xUnit1039")
-				.WithSpan(7, 28, 7, 31)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("int?", "TestClass", "TestData", "n"),
-			Verify
-				.Diagnostic("xUnit1040")
-				.WithSpan(7, 35, 7, 41)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("string?", "TestClass", "TestData", "f")
+			{ " = ", "" },              // Field
+			{ " => ", "" },             // Property
+			{ "() => ", "" },           // Method w/o args
+			{ "(int n) => ", ", 42" },  // Method w/ args
 		};
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source, expected);
+		[Theory]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
+		public async void ValidTheoryDataMemberWithMismatchedNullability_Triggers(
+			string memberSyntax,
+			string memberArgs)
+		{
+			var source = $@"
+#nullable enable
+
+using Xunit;
+
+public class TestClass {{
+    public static TheoryData<string?> TestData{memberSyntax}new TheoryData<string?>();
+
+    [MemberData(nameof(TestData){memberArgs})]
+    public void TestMethod(string f) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1040")
+					.WithSpan(10, 28, 10, 34)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("string?", "TestClass", "TestData", "f");
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+		}
+	}
+
+	public class X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
+	{
+		[Fact]
+		public async void TheoryData_DoesNotTrigger()
+		{
+			var source = @"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {
+    public static TheoryData<int> Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void MatrixTheoryData_DoesNotTrigger()
+		{
+			var source = @"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {
+    public static MatrixTheoryData<int, string> Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _1, string _2) { }
+}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Theory]
+		[InlineData("IEnumerable<ITheoryDataRow>")]
+		[InlineData("List<ITheoryDataRow>")]
+		[InlineData("ITheoryDataRow[]")]
+		public async void TheoryDataRow_DoesNotTrigger(string memberType)
+		{
+			var source = $@"
+using System.Collections.Generic;
+using Xunit;
+using Xunit.v3;
+
+public class TestClass {{
+    public static {memberType} Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Theory]
+		[InlineData("IEnumerable<object[]>")]
+		[InlineData("List<object[]>")]
+		public async void ValidTypesWhichAreNotTheoryData_Trigger(string memberType)
+		{
+			var source = $@"
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {{
+    public static {memberType} Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1042")
+					.WithSpan(8, 6, 8, 30)
+					.WithSeverity(DiagnosticSeverity.Info);
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 }

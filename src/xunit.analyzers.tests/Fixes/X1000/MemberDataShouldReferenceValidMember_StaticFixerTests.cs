@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public IEnumerable<object[]> TestData => null;
+    public TheoryData<int> TestData => null;
 
     [Theory]
     [{|xUnit1017:MemberData(nameof(TestData))|}]
@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public static IEnumerable<object[]> TestData => null;
+    public static TheoryData<int> TestData => null;
 
     [Theory]
     [MemberData(nameof(TestData))]

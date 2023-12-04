@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource;
 
     [Theory]
     [MemberData({|xUnit1014:""DataSource""|})]
@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using Xunit;
 
 public class TestClass {
-    public static IEnumerable<object[]> DataSource = Array.Empty<object[]>();
+    public static TheoryData<int> DataSource;
 
     [Theory]
     [MemberData(nameof(DataSource))]

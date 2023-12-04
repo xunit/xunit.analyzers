@@ -6,6 +6,7 @@ namespace Xunit.Analyzers;
 
 public class V3CoreContext : ICoreContext
 {
+	readonly Lazy<INamedTypeSymbol?> lazyAssemblyFixtureAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
@@ -14,6 +15,8 @@ public class V3CoreContext : ICoreContext
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyICollectionFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyInlineDataAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyITestContextAccessorType;
+	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType;
 	readonly Lazy<INamedTypeSymbol?> lazyMemberDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyTheoryAttributeType;
 
@@ -23,6 +26,7 @@ public class V3CoreContext : ICoreContext
 	{
 		Version = version;
 
+		lazyAssemblyFixtureAttributeType = new(() => TypeSymbolFactory.AssemblyFixtureAttribute_V3(compilation));
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
@@ -31,9 +35,14 @@ public class V3CoreContext : ICoreContext
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
 		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
+		lazyITestContextAccessorType = new(() => TypeSymbolFactory.ITestContextAccessor_V3(compilation));
+		lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V3(compilation));
 		lazyMemberDataAttributeType = new(() => TypeSymbolFactory.MemberDataAttribute(compilation));
 		lazyTheoryAttributeType = new(() => TypeSymbolFactory.TheoryAttribute(compilation));
 	}
+
+	public INamedTypeSymbol? AssemblyFixtureAttributeType =>
+		lazyAssemblyFixtureAttributeType.Value;
 
 	public INamedTypeSymbol? ClassDataAttributeType =>
 		lazyClassDataAttributeType.Value;
@@ -58,6 +67,12 @@ public class V3CoreContext : ICoreContext
 
 	public INamedTypeSymbol? InlineDataAttributeType =>
 		lazyInlineDataAttributeType.Value;
+
+	public INamedTypeSymbol? ITestContextAccessorType =>
+		lazyITestContextAccessorType.Value;
+
+	public INamedTypeSymbol? ITestOutputHelperType =>
+		lazyITestOutputHelperType.Value;
 
 	public INamedTypeSymbol? MemberDataAttributeType =>
 		lazyMemberDataAttributeType.Value;
