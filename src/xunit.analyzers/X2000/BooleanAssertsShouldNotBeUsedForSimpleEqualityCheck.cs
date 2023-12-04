@@ -82,7 +82,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 				ReportShouldReplaceBooleanOperationWithEquality(context, invocationOperation, builder.ToImmutable(), method.Name, nullReplacement);
 				break;
 
-			default:
+			case SyntaxKind.CharacterLiteralExpression:
+			case SyntaxKind.StringLiteralExpression:
+			case SyntaxKind.NumericLiteralExpression:
+			case SyntaxKind.SimpleMemberAccessExpression: // Covers the Enum case
 				// Can't rewrite exactly if there is a "message" (second) argument
 				if (arguments.Count > 1)
 					return;
