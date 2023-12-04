@@ -413,7 +413,14 @@ public static class Descriptors
 			"Fixture argument '{0}' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test)"
 		);
 
-	// Placeholder for rule X1042
+	public static DiagnosticDescriptor X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis { get; } =
+		Rule(
+			"xUnit1042",
+			"The member referenced by the MemberData attribute returns untyped data rows",
+			Usage,
+			Info,
+			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using TheoryData<> as the return type to provide better type safety."
+		);
 
 	// Placeholder for rule X1043
 

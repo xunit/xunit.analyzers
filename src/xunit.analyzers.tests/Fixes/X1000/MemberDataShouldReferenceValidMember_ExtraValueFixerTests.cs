@@ -11,7 +11,7 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 using Xunit;
 
 public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
+    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
@@ -22,7 +22,7 @@ public class TestClass {
 using Xunit;
 
 public class TestClass {
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) { yield return new object[] { n }; }
+    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42)]
@@ -43,7 +43,7 @@ public class TestClass {
 using Xunit;
 
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n) {{ yield return new object[] {{ n }}; }}
+    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42, {{|xUnit1036:{value}|}})]
@@ -54,7 +54,7 @@ public class TestClass {{
 using Xunit;
 
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int n, {valueType} p) {{ yield return new object[] {{ n }}; }}
+    public static TheoryData<int> TestData(int n, {valueType} p) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42, {value})]
@@ -71,7 +71,7 @@ public class TestClass {{
 using Xunit;
 
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int p) {{ yield return new object[] {{ p }}; }}
+    public static TheoryData<int> TestData(int p) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42, {{|xUnit1036:21.12|}})]
@@ -82,7 +82,7 @@ public class TestClass {{
 using Xunit;
 
 public class TestClass {{
-    public static System.Collections.Generic.IEnumerable<object[]> TestData(int p, double p_2) {{ yield return new object[] {{ p }}; }}
+    public static TheoryData<int> TestData(int p, double p_2) => new TheoryData<int>();
 
     [Theory]
     [MemberData(nameof(TestData), 42, 21.12)]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -30,7 +31,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
 			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
+			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+			Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
 		)
 	{ }
 
@@ -138,7 +140,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
 				// Make sure the member returns a compatible type
-				VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax);
+				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+				var IsValidMemberReturnType =
+					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType);
 
 				// Make sure public properties have a public getter
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -150,7 +154,11 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					}
 
 				// If the member returns TheoryData, ensure that the types are compatible
-				VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryDataTypes, memberReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+				// If the member does not return TheoryData, gently suggest to the user that TheoryData is better for type safety
+				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
+					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+				else if (IsValidMemberReturnType && !IsTheoryDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType))
+					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax);
 
 				// Get the arguments that are to be passed to the method
 				var extraArguments = attributeSyntax.ArgumentList.Arguments.Skip(1).TakeWhile(a => a.NameEquals is null).ToList();
@@ -187,6 +195,28 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return null;
 	}
 
+	public static ISymbol? FindMethodSymbol(
+		string memberName,
+		ITypeSymbol? type,
+		int paramsCount)
+	{
+		while (type is not null)
+		{
+			var methodSymbol =
+				type
+					.GetMembers(memberName)
+					.OfType<IMethodSymbol>()
+					.FirstOrDefault(x => x.Parameters.Length == paramsCount);
+
+			if (methodSymbol is not null)
+				return methodSymbol;
+
+			type = type.BaseType;
+		}
+
+		return null;
+	}
+
 	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MemberClass) GetClassTypesForAttribute(
 		AttributeArgumentListSyntax attributeList,
 		SemanticModel semanticModel,
@@ -205,14 +235,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			return (null, null);
 
 		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
-		if (testClassTypeSymbol is null)
-			return (null, null);
-
-		var declaredMemberTypeSymbol = memberTypeSymbol ?? testClassTypeSymbol;
-		if (declaredMemberTypeSymbol is null)
-			return (testClassTypeSymbol, null);
-
-		return (testClassTypeSymbol, declaredMemberTypeSymbol);
+		return (testClassTypeSymbol, memberTypeSymbol ?? testClassTypeSymbol);
 	}
 
 	static IList<ExpressionSyntax>? GetParameterExpressionsFromArrayArgument(
@@ -244,26 +267,35 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return new List<ExpressionSyntax> { argumentExpression };
 	}
 
-	public static ISymbol? FindMethodSymbol(
-		string memberName,
-		ITypeSymbol? type,
-		int paramsCount)
+	static bool IsTheoryDataRowType(
+		ITypeSymbol? memberReturnType,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType) =>
+			iEnumerableOfTheoryDataRowType?.IsAssignableFrom(memberReturnType) ?? false;
+
+	static bool IsTheoryDataType(
+		ITypeSymbol? memberReturnType,
+		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
+		[NotNullWhen(true)] out INamedTypeSymbol? theoryReturnType)
 	{
-		while (type is not null)
+		theoryReturnType = default;
+		if (memberReturnType is not INamedTypeSymbol namedReturnType)
+			return false;
+
+		INamedTypeSymbol? working = namedReturnType;
+		while (working is not null)
 		{
-			var methodSymbol =
-				type
-					.GetMembers(memberName)
-					.OfType<IMethodSymbol>()
-					.FirstOrDefault(x => x.Parameters.Length == paramsCount);
-
-			if (methodSymbol is not null)
-				return methodSymbol;
-
-			type = type.BaseType;
+			var returnTypeArguments = working.TypeArguments;
+			if (theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
+				&& SymbolEqualityComparer.Default.Equals(theoryDataType, working.OriginalDefinition))
+				break;
+			working = working.BaseType;
 		}
 
-		return null;
+		if (working is null)
+			return false;
+
+		theoryReturnType = working;
+		return true;
 	}
 
 	static void ReportIllegalNonMethodArguments(
@@ -443,6 +475,16 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				)
 			);
 
+	static void ReportMemberReturnsTypeUnsafeValue(
+		SyntaxNodeAnalysisContext context,
+		AttributeSyntax attribute) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
+					attribute.GetLocation()
+				)
+			);
+
 	static void ReportNonStatic(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -602,16 +644,16 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		}
 	}
 
-	static void VerifyDataSourceReturnType(
+	static bool VerifyDataSourceReturnType(
 		SyntaxNodeAnalysisContext context,
 		Compilation compilation,
 		XunitContext xunitContext,
 		ITypeSymbol memberType,
 		ImmutableDictionary<string, string?> memberProperties,
-		AttributeSyntax attributeSyntax)
+		AttributeSyntax attributeSyntax,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType)
 	{
 		var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
-		var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 		var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
 
 		if (!valid && xunitContext.HasV3References && iEnumerableOfTheoryDataRowType is not null)
@@ -619,14 +661,15 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		if (!valid)
 			ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attributeSyntax, memberProperties, memberType);
+
+		return valid;
 	}
 
 	static void VerifyTheoryDataUsage(
 		SemanticModel semanticModel,
 		SyntaxNodeAnalysisContext context,
 		MethodDeclarationSyntax testMethod,
-		Dictionary<int, INamedTypeSymbol> theoryDataTypes,
-		ITypeSymbol? memberReturnType,
+		INamedTypeSymbol theoryReturnType,
 		string memberName,
 		ITypeSymbol memberType,
 		AttributeSyntax attributeSyntax)
@@ -634,15 +677,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		if (memberType is not INamedTypeSymbol namedMemberType)
 			return;
 
-		if (memberReturnType is not INamedTypeSymbol namedReturnType || !namedReturnType.IsGenericType)
-			return;
-
-		var returnTypeArguments = namedReturnType.TypeArguments;
-		if (!theoryDataTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType))
-			return;
-		if (!SymbolEqualityComparer.Default.Equals(theoryDataType, namedReturnType.OriginalDefinition))
-			return;
-
+		var returnTypeArguments = theoryReturnType.TypeArguments;
 		var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
 		if (testMethodSymbol is null)
 			return;
