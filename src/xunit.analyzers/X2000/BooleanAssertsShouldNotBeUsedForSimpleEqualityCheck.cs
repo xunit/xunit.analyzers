@@ -10,8 +10,8 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAnalyzerBase
 {
-	public BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck()
-		: base(
+	public BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck() :
+		base(
 			new[]
 			{
 				Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
@@ -21,7 +21,8 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 			{
 				Constants.Asserts.True,
 				Constants.Asserts.False
-			})
+			}
+		)
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -45,31 +46,30 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		var literalKind = leftKind ?? rightKind;
 		if (literalKind is null)
 			return;
-		
-		bool isEqualsOperator;
-		switch (binaryArgument.Kind())
+
+		bool? isEqualsOperator = binaryArgument.Kind() switch
 		{
-			case SyntaxKind.EqualsExpression:
-				isEqualsOperator = true;
-				break;
-
-			case SyntaxKind.NotEqualsExpression:
-				isEqualsOperator = false;
-				break;
-
-			default:
-				return;
-		}
+			SyntaxKind.EqualsExpression => true,
+			SyntaxKind.NotEqualsExpression => false,
+			_ => null
+		};
+		if (isEqualsOperator is null)
+			return;
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
 		builder[Constants.Properties.LiteralValue] = leftKind is not null ? Constants.Asserts.True : Constants.Asserts.False;
+
 		switch (literalKind)
 		{
 			case SyntaxKind.TrueLiteralExpression:
 			case SyntaxKind.FalseLiteralExpression:
-				builder[Constants.Properties.Replacement] = trueMethod == isEqualsOperator
-					? Constants.Asserts.True : Constants.Asserts.False;
+				var booleanReplacement = (trueMethod == isEqualsOperator, literalKind) switch
+				{
+					(true, SyntaxKind.TrueLiteralExpression) or (false, SyntaxKind.FalseLiteralExpression) => Constants.Asserts.True,
+					(_, _) => Constants.Asserts.False,
+				};
+				builder[Constants.Properties.Replacement] = booleanReplacement;
 				ReportShouldSimplifyBooleanOperation(context, invocationOperation, builder.ToImmutable(), method.Name);
 				break;
 
@@ -85,7 +85,7 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 			case SyntaxKind.CharacterLiteralExpression:
 			case SyntaxKind.StringLiteralExpression:
 			case SyntaxKind.NumericLiteralExpression:
-			case SyntaxKind.SimpleMemberAccessExpression: // Covers the Enum case
+			case SyntaxKind.SimpleMemberAccessExpression:
 				// Can't rewrite exactly if there is a "message" (second) argument
 				if (arguments.Count > 1)
 					return;
@@ -96,39 +96,9 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		}
 	}
 
-	static void ReportShouldReplaceBooleanOperationWithEquality(
-		OperationAnalysisContext context,
-		IInvocationOperation invocationOperation,
-		ImmutableDictionary<string, string?> properties,
-		string currentMethodName,
-		string replacement)
-	{
-		context.ReportDiagnostic(
-			Diagnostic.Create(
-				Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
-				invocationOperation.Syntax.GetLocation(),
-				properties,
-				currentMethodName,
-				replacement
-			));
-	}
-
-	static void ReportShouldSimplifyBooleanOperation(
-		OperationAnalysisContext context,
-		IInvocationOperation invocationOperation,
-		ImmutableDictionary<string, string?> properties,
-		string currentMethodName)
-	{
-		context.ReportDiagnostic(
-			Diagnostic.Create(
-				Descriptors.X2025_BooleanAssertionCanBeSimplified,
-				invocationOperation.Syntax.GetLocation(),
-				properties,
-				currentMethodName
-			));
-	}
-
-	public static SyntaxKind? LiteralReferenceKind(ExpressionSyntax expression, SemanticModel? semanticModel)
+	public static SyntaxKind? LiteralReferenceKind(
+		ExpressionSyntax expression,
+		SemanticModel? semanticModel)
 	{
 		var kind = expression.Kind();
 		if (expression is LiteralExpressionSyntax)
@@ -145,8 +115,36 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		if (type is not INamedTypeSymbol namedType)
 			return null;
 
-		return namedType.EnumUnderlyingType is not null
-			? kind
-			: null;
+		return namedType.EnumUnderlyingType is not null ? kind : null;
 	}
+
+	static void ReportShouldReplaceBooleanOperationWithEquality(
+		OperationAnalysisContext context,
+		IInvocationOperation invocationOperation,
+		ImmutableDictionary<string, string?> properties,
+		string currentMethodName,
+		string replacement) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
+					invocationOperation.Syntax.GetLocation(),
+					properties,
+					currentMethodName,
+					replacement
+				)
+			);
+
+	static void ReportShouldSimplifyBooleanOperation(
+		OperationAnalysisContext context,
+		IInvocationOperation invocationOperation,
+		ImmutableDictionary<string, string?> properties,
+		string currentMethodName) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X2025_BooleanAssertionCanBeSimplified,
+					invocationOperation.Syntax.GetLocation(),
+					properties,
+					currentMethodName
+				)
+			);
 }

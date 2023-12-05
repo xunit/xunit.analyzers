@@ -14,317 +14,83 @@ public enum MyEnum {{ None, Bacon, Veggie }}
 public class TestClass {{
     [Fact]
     public void TestMethod() {{
-        {0} condition = {1};
+        {0} value = {1};
 
         {2};
     }}
 }}";
 
+	public static MatrixTheoryData<string, string, string> MethodOperatorValue =
+		new(
+			new[] { Constants.Asserts.True, Constants.Asserts.False },
+			new[] { "==", "!=" },
+			new[] { "\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon" }
+		);
+
 	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "==", "5")]
-	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
-	public async void ReplacesBooleanAssertWithLiteralOnRight(
-		string assertion,
-		string type,
-		string @operation,
+	[MemberData(nameof(MethodOperatorValue))]
+	public async void BooleanAssertAgainstLiteralValue_ReplaceWithEquality(
+		string method,
+		string @operator,
 		string value)
 	{
-		var before = string.Format(template,
-			type,
-			value,
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation + " " + value})|}}");
-		var after = string.Format(template,
-			type,
-			value,
-			$"Assert.Equal({value}, condition)");
+		var replacement =
+			(method, @operator) switch
+			{
+				(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Equal,
+				(_, _) => Constants.Asserts.NotEqual,
+			};
 
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "==", "5")]
-	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
-	public async void ReplacesBooleanAssertWithLiteralOnLeft(
-		string assertion,
-		string type,
-		string @operation,
-		string value)
-	{
-		var before = string.Format(template,
-			type,
-			value,
-			$"{{|xUnit2024:Assert.{assertion}({value + " " + @operation} condition)|}}");
-		var after = string.Format(template,
-			type,
-			value,
-			$"Assert.Equal({value}, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.False, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "==", "5")]
-	[InlineData(Constants.Asserts.False, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.True, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.True, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "!=", "5.0m")]
-	public async void ReplacesNegativeBooleanAssertWithLiteralOnRight(
-		string assertion,
-		string type,
-		string @operation,
-		string value)
-	{
-		var before = string.Format(template,
-			type,
-			value,
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation + " " + value})|}}");
-		var after = string.Format(template,
-			type,
-			value,
-			$"Assert.NotEqual({value}, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.False, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "==", "5")]
-	[InlineData(Constants.Asserts.False, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.True, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.True, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "!=", "5.0m")]
-	public async void ReplacesNegativeBooleanAssertWithLiteralOnLeft(
-		string assertion,
-		string type,
-		string @operation,
-		string value)
-	{
-		var before = string.Format(template,
-			type,
-			value,
-			$"{{|xUnit2024:Assert.{assertion}({value + " " + @operation} condition)|}}");
-		var after = string.Format(template,
-			type,
-			value,
-			$"Assert.NotEqual({value}, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==")]
-	[InlineData(Constants.Asserts.True, "int", "==")]
-	[InlineData(Constants.Asserts.True, "object", "==")]
-	[InlineData(Constants.Asserts.False, "string", "!=")]
-	[InlineData(Constants.Asserts.False, "int", "!=")]
-	[InlineData(Constants.Asserts.False, "object", "!=")]
-	public async void ReplacesBooleanAssertForNullsWithLiteralOnRight(
-		string assertion,
-		string type,
-		string @operation)
-	{
-		var before = string.Format(template,
-			type + "?",
-			"null",
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation} null)|}}");
-		var after = string.Format(template,
-			type + "?",
-			"null",
-			$"Assert.Null(condition)");
-
+		// Literal on the right
 		await Verify.VerifyCodeFix(
-			LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
+			string.Format(template, "var", value, $"{{|xUnit2024:Assert.{method}(value {@operator} {value})|}}"),
+			string.Format(template, "var", value, $"Assert.{replacement}({value}, value)"),
+			BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert
+		);
 
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==")]
-	[InlineData(Constants.Asserts.True, "int", "==")]
-	[InlineData(Constants.Asserts.True, "object", "==")]
-	[InlineData(Constants.Asserts.False, "string", "!=")]
-	[InlineData(Constants.Asserts.False, "int", "!=")]
-	[InlineData(Constants.Asserts.False, "object", "!=")]
-	public async void ReplacesBooleanAssertForNullsWithLiteralOnLeft(
-		string assertion,
-		string type,
-		string @operation)
-	{
-		var before = string.Format(template,
-			type + "?",
-			"null",
-			$"{{|xUnit2024:Assert.{assertion}(null {@operation} condition)|}}");
-		var after = string.Format(template,
-			type + "?",
-			"null",
-			$"Assert.Null(condition)");
-
+		// Literal on the left
 		await Verify.VerifyCodeFix(
-			LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
+			string.Format(template, "var", value, $"{{|xUnit2024:Assert.{method}({value} {@operator} value)|}}"),
+			string.Format(template, "var", value, $"Assert.{replacement}({value}, value)"),
+			BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert
+		);
 	}
 
-	[Theory]
-	[InlineData(Constants.Asserts.False, "string", "==")]
-	[InlineData(Constants.Asserts.False, "int", "==")]
-	[InlineData(Constants.Asserts.False, "object", "==")]
-	[InlineData(Constants.Asserts.True, "string", "!=")]
-	[InlineData(Constants.Asserts.True, "int", "!=")]
-	[InlineData(Constants.Asserts.True, "object", "!=")]
-	public async void ReplacesNegativeBooleanAssertForNullsWithLiteralOnRight(
-		string assertion,
-		string type,
-		string @operation)
-	{
-		var before = string.Format(template,
-			type + "?",
-			"null",
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation} null)|}}");
-		var after = string.Format(template,
-			type + "?",
-			"null",
-			$"Assert.NotNull(condition)");
+	public static MatrixTheoryData<string, string, string> MethodOperatorType =
+		new(
+			new[] { Constants.Asserts.True, Constants.Asserts.False },
+			new[] { "==", "!=" },
+			new[] { "string", "int", "object", "MyEnum" }
+		);
 
+	[Theory]
+	[MemberData(nameof(MethodOperatorType))]
+	public async void BooleanAssertAgainstNull_ReplaceWithNull(
+		string method,
+		string @operator,
+		string type)
+	{
+		var replacement =
+			(method, @operator) switch
+			{
+				(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Null,
+				(_, _) => Constants.Asserts.NotNull,
+			};
+
+		// Null on the right
 		await Verify.VerifyCodeFix(
-			LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
+			LanguageVersion.CSharp8,
+			string.Format(template, type + "?", "null", $"{{|xUnit2024:Assert.{method}(value {@operator} null)|}}"),
+			string.Format(template, type + "?", "null", $"Assert.{replacement}(value)"),
+			BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert
+		);
 
-	[Theory]
-	[InlineData(Constants.Asserts.False, "string", "==")]
-	[InlineData(Constants.Asserts.False, "int", "==")]
-	[InlineData(Constants.Asserts.False, "object", "==")]
-	[InlineData(Constants.Asserts.True, "string", "!=")]
-	[InlineData(Constants.Asserts.True, "int", "!=")]
-	[InlineData(Constants.Asserts.True, "object", "!=")]
-	public async void ReplacesNegativeBooleanAssertForNullsWithLiteralOnLeft(
-		string assertion,
-		string type,
-		string @operation)
-	{
-		var before = string.Format(template,
-			type + "?",
-			"null",
-			$"{{|xUnit2024:Assert.{assertion}(null {@operation} condition)|}}");
-		var after = string.Format(template,
-			type + "?",
-			"null",
-			$"Assert.NotNull(condition)");
-
+		// Null on the left
 		await Verify.VerifyCodeFix(
-			LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==")]
-	[InlineData(Constants.Asserts.False, "!=")]
-	public async void ReplacesBooleanAssertWithEnumLiteralOnRight(
-		string assertion,
-		string @operation)
-	{
-		var before = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation} MyEnum.Bacon)|}}");
-		var after = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"Assert.Equal(MyEnum.Bacon, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==")]
-	[InlineData(Constants.Asserts.False, "!=")]
-	public async void ReplacesBooleanAssertWithEnumLiteralOnLeft(
-		string assertion,
-		string @operation)
-	{
-		var before = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"{{|xUnit2024:Assert.{assertion}(MyEnum.Bacon {@operation} condition)|}}");
-		var after = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"Assert.Equal(MyEnum.Bacon, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.False, "==")]
-	[InlineData(Constants.Asserts.True, "!=")]
-	public async void ReplacesBooleanInequalityAssertWithEnumLiteralOnRight(
-		string assertion,
-		string @operation)
-	{
-		var before = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"{{|xUnit2024:Assert.{assertion}(condition {@operation} MyEnum.Bacon)|}}");
-		var after = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"Assert.NotEqual(MyEnum.Bacon, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.False, "==")]
-	[InlineData(Constants.Asserts.True, "!=")]
-	public async void ReplacesBooleanInequalityAssertWithEnumLiteralOnLeft(
-		string assertion,
-		string @operation)
-	{
-		var before = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"{{|xUnit2024:Assert.{assertion}(MyEnum.Bacon {@operation} condition)|}}");
-		var after = string.Format(template,
-			"MyEnum",
-			"MyEnum.Bacon",
-			$"Assert.NotEqual(MyEnum.Bacon, condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
+			LanguageVersion.CSharp8,
+			string.Format(template, type + "?", "null", $"{{|xUnit2024:Assert.{method}(null {@operator} value)|}}"),
+			string.Format(template, type + "?", "null", $"Assert.{replacement}(value)"),
+			BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert
+		);
 	}
 }

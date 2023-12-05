@@ -16,45 +16,50 @@ public class TestClass {{
     }}
 }}";
 
+	public static TheoryData<string, string, string> AssertExpressionReplacement = new()
+	{
+		{ "True", "condition == true", "True" },
+		{ "True", "condition != true", "False" },
+		{ "True", "true == condition", "True" },
+		{ "True", "true != condition", "False" },
+
+		{ "True", "condition == false", "False" },
+		{ "True", "condition != false", "True" },
+		{ "True", "false == condition", "False" },
+		{ "True", "false != condition", "True" },
+
+		{ "False", "condition == true", "False" },
+		{ "False", "condition != true", "True" },
+		{ "False", "true == condition", "False" },
+		{ "False", "true != condition", "True" },
+
+		{ "False", "condition == false", "True" },
+		{ "False", "condition != false", "False" },
+		{ "False", "false == condition", "True" },
+		{ "False", "false != condition", "False" },
+	};
+
 	[Theory]
-	[InlineData("True", "condition", "==", "true", "True")]
-	[InlineData("True", "condition", "!=", "true", "False")]
-	[InlineData("True", "true", "==", "condition", "True")]
-	[InlineData("True", "true", "!=", "condition", "False")]
-	[InlineData("False", "condition", "==", "true", "False")]
-	[InlineData("False", "condition", "!=", "true", "True")]
-	[InlineData("False", "true", "==", "condition", "False")]
-	[InlineData("False", "true", "!=", "condition", "True")]
+	[MemberData(nameof(AssertExpressionReplacement))]
 	public async void SimplifiesBooleanAssert(
 		string assertion,
-		string first,
-		string @operation,
-		string second,
+		string expression,
 		string replacement)
 	{
-		var before = string.Format(template, $"{{|xUnit2025:Assert.{assertion}({first + @operation + second})|}}");
+		var before = string.Format(template, $"{{|xUnit2025:Assert.{assertion}({expression})|}}");
 		var after = string.Format(template, $"Assert.{replacement}(condition)");
 
 		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer.Key_UseSuggestedAssert);
 	}
 
 	[Theory]
-	[InlineData("True", "condition", "==", "true", "True")]
-	[InlineData("True", "condition", "!=", "true", "False")]
-	[InlineData("True", "true", "==", "condition", "True")]
-	[InlineData("True", "true", "!=", "condition", "False")]
-	[InlineData("False", "condition", "==", "true", "False")]
-	[InlineData("False", "condition", "!=", "true", "True")]
-	[InlineData("False", "true", "==", "condition", "False")]
-	[InlineData("False", "true", "!=", "condition", "True")]
+	[MemberData(nameof(AssertExpressionReplacement))]
 	public async void SimplifiesBooleanAssertWithMessage(
 		string assertion,
-		string first,
-		string @operation,
-		string second,
+		string expression,
 		string replacement)
 	{
-		var before = string.Format(template, $"{{|xUnit2025:Assert.{assertion}({first + @operation + second}, \"message\")|}}");
+		var before = string.Format(template, $"{{|xUnit2025:Assert.{assertion}({expression}, \"message\")|}}");
 		var after = string.Format(template, $"Assert.{replacement}(condition, \"message\")");
 
 		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer.Key_UseSuggestedAssert);

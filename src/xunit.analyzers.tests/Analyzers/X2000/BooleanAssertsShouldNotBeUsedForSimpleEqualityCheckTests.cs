@@ -7,514 +7,240 @@ using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSi
 
 public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 {
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "==", "5")]
-	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
-	public async void DoesNotFindWarning_WhenBooleanAssert_ContainsMessage(
-		string method,
-		string type,
-		string @operator,
-		string value)
+	public class X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck
 	{
-		var source = $@"
-class TestClass {{
-    {type} field = {value};
+		public static MatrixTheoryData<string, string> MethodOperator =
+			new(
+				new[] { Constants.Asserts.True, Constants.Asserts.False },
+				new[] { "==", "!=" }
+			);
 
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} {value}, ""message"");
-    }}
-}}";
-		var expected = new DiagnosticResult[0];
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "==", "5")]
-	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestSimpleEqualityAgainstLiteral(
-		string method,
-		string type,
-		string @operator,
-		string value)
-	{
-		var source = $@"
-class TestClass {{
-    {type} field = {value};
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} {value});
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
+		[Theory]
+		[MemberData(nameof(MethodOperator))]
+		public async void ComparingAgainstNonLiteral_DoesNotTrigger(
+			string method,
+			string @operator)
 		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Equal)
-		};
+			var source = $@"
+using Xunit;
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
+public class TestClass {{
+    public void TestMethod() {{
+        var value1 = 42;
+        var value2 = 2112;
+        var value3 = new {{ innerValue = 2600 }};
 
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "==", "5")]
-	[InlineData(Constants.Asserts.True, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "==", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.False, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "!=", "5.0m")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestSimpleEqualityAgainstLiteralReverseArguments(
-		string method,
-		string type,
-		string @operator,
-		string value)
-	{
-		var source = $@"
-class TestClass {{
-    {type} field = {value};
-
-    void TestMethod() {{
-        Xunit.Assert.{method}({value} {@operator} field);
+        Assert.{method}(value1 {@operator} value2);
+        Assert.{method}(value1 {@operator} value3.innerValue);
     }}
 }}";
-		DiagnosticResult[] expected = new[]
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		public static MatrixTheoryData<string, string, string> MethodOperatorValue =
+			new(
+				new[] { Constants.Asserts.True, Constants.Asserts.False },
+				new[] { "==", "!=" },
+				new[] { "\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon" }
+			);
+
+		[Theory]
+		[MemberData(nameof(MethodOperatorValue))]
+		public async void ComparingAgainstLiteral_WithMessage_DoesNotTrigger(
+			string method,
+			string @operator,
+			string value)
 		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Equal)
-		};
+			var source = $@"
+using Xunit;
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.True, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "!=", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "==", "5")]
-	[InlineData(Constants.Asserts.False, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "==", "5.0m")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestSimpleInequalityAgainstLiteral(
-		string method,
-		string type,
-		string @operator,
-		string value)
-	{
-		var source = $@"
-class TestClass {{
-    {type} field = {value};
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} {value});
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotEqual)
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "!=", "\"bacon\"")]
-	[InlineData(Constants.Asserts.True, "char", "!=", "'5'")]
-	[InlineData(Constants.Asserts.True, "int", "!=", "5")]
-	[InlineData(Constants.Asserts.True, "long", "!=", "5l")]
-	[InlineData(Constants.Asserts.True, "double", "!=", "5.0d")]
-	[InlineData(Constants.Asserts.True, "float", "!=", "5.0f")]
-	[InlineData(Constants.Asserts.True, "decimal", "!=", "5.0m")]
-	[InlineData(Constants.Asserts.False, "string", "==", "\"bacon\"")]
-	[InlineData(Constants.Asserts.False, "char", "==", "'5'")]
-	[InlineData(Constants.Asserts.False, "int", "==", "5")]
-	[InlineData(Constants.Asserts.False, "long", "==", "5l")]
-	[InlineData(Constants.Asserts.False, "double", "==", "5.0d")]
-	[InlineData(Constants.Asserts.False, "float", "==", "5.0f")]
-	[InlineData(Constants.Asserts.False, "decimal", "==", "5.0m")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestSimpleInequalityAgainstLiteralReverseArguments(
-		string method,
-		string type,
-		string @operator,
-		string value)
-	{
-		var source = $@"
-class TestClass {{
-    {type} field = {value};
-
-    void TestMethod() {{
-        Xunit.Assert.{method}({value} {@operator} field);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotEqual)
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==")]
-	[InlineData(Constants.Asserts.True, "int", "==")]
-	[InlineData(Constants.Asserts.True, "object", "==")]
-	[InlineData(Constants.Asserts.False, "string", "!=")]
-	[InlineData(Constants.Asserts.False, "int", "!=")]
-	[InlineData(Constants.Asserts.False, "object", "!=")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestNull(
-		string method,
-		string type,
-		string @operator)
-	{
-		var source = $@"
-class TestClass {{
-    {type}? field = default;
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} null);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 37 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Null)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "==")]
-	[InlineData(Constants.Asserts.True, "int", "==")]
-	[InlineData(Constants.Asserts.True, "object", "==")]
-	[InlineData(Constants.Asserts.False, "string", "!=")]
-	[InlineData(Constants.Asserts.False, "int", "!=")]
-	[InlineData(Constants.Asserts.False, "object", "!=")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestNullLiteralReverseArguments(
-		string method,
-		string type,
-		string @operator)
-	{
-		var source = $@"
-class TestClass {{
-    {type}? field = default;
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(null {@operator} field);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 37 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Null)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "!=")]
-	[InlineData(Constants.Asserts.True, "int", "!=")]
-	[InlineData(Constants.Asserts.True, "object", "!=")]
-	[InlineData(Constants.Asserts.False, "string", "==")]
-	[InlineData(Constants.Asserts.False, "int", "==")]
-	[InlineData(Constants.Asserts.False, "object", "==")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestNotNull(
-		string method,
-		string type,
-		string @operator)
-	{
-		var source = $@"
-class TestClass {{
-    {type}? field = default;
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} null);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 37 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotNull)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "string", "!=")]
-	[InlineData(Constants.Asserts.True, "int", "!=")]
-	[InlineData(Constants.Asserts.True, "object", "!=")]
-	[InlineData(Constants.Asserts.False, "string", "==")]
-	[InlineData(Constants.Asserts.False, "int", "==")]
-	[InlineData(Constants.Asserts.False, "object", "==")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestNotNullLiteralReverseArguments(
-		string method,
-		string type,
-		string @operator)
-	{
-		var source = $@"
-class TestClass {{
-    {type}? field = default;
-
-    void TestMethod() {{
-        Xunit.Assert.{method}(null {@operator} field);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(6, 9, 6, 37 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotNull)
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==")]
-	[InlineData(Constants.Asserts.False, "!=")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestEqualityAgainstEnumValue(
-		string method,
-		string @operator)
-	{
-		var source = $@"
 public enum MyEnum {{ None, Bacon, Veggie }}
 
-class TestClass {{
-    MyEnum field = MyEnum.None;
+public class TestClass {{
+    public void TestMethod() {{
+        var value = {value};
 
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} MyEnum.Bacon);
+        Assert.{method}(value {@operator} {value}, ""message"");
+        Assert.{method}({value} {@operator} value, ""message"");
     }}
 }}";
-		DiagnosticResult[] expected = new[]
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MethodOperatorValue))]
+		public async void ComparingAgainstLiteral_WithoutMessage_Triggers(
+			string method,
+			string @operator,
+			string value)
 		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(8, 9, 8, 45 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Equal)
-		};
+			var source = $@"
+using Xunit;
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==")]
-	[InlineData(Constants.Asserts.False, "!=")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestEqualityAgainstEnumValueReverseArguments(
-		string method,
-		string @operator)
-	{
-		var source = $@"
 public enum MyEnum {{ None, Bacon, Veggie }}
 
-class TestClass {{
-    MyEnum field = MyEnum.None;
+public class TestClass {{
+    public void TestMethod() {{
+        var value = {value};
 
-    void TestMethod() {{
-        Xunit.Assert.{method}(MyEnum.Bacon {@operator} field);
+        Assert.{method}(value {@operator} {value});
+        Assert.{method}({value} {@operator} value);
     }}
 }}";
-		DiagnosticResult[] expected = new[]
+			var suggestedAssert =
+				(method, @operator) switch
+				{
+					(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Equal,
+					(_, _) => Constants.Asserts.NotEqual,
+				};
+			DiagnosticResult[] expected =
+			{
+				Verify
+					.Diagnostic("xUnit2024")
+					.WithSpan(10, 9, 10, 27 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method, suggestedAssert),
+				Verify
+					.Diagnostic("xUnit2024")
+					.WithSpan(11, 9, 11, 27 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method, suggestedAssert),
+			};
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		public static MatrixTheoryData<string, string, string> MethodOperatorType =
+			new(
+				new[] { Constants.Asserts.True, Constants.Asserts.False },
+				new[] { "==", "!=" },
+				new[] { "string", "int", "object", "MyEnum" }
+			);
+
+		[Theory]
+		[MemberData(nameof(MethodOperatorType))]
+		public async void ComparingAgainstNull_WithMessage_DoesNotTrigger(
+			string method,
+			string @operator,
+			string type)
 		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(8, 9, 8, 45 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.Equal)
-		};
+			var source = $@"
+using Xunit;
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "!=")]
-	[InlineData(Constants.Asserts.False, "==")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestInqualityAgainstEnumValue(
-		string method,
-		string @operator)
-	{
-		var source = $@"
 public enum MyEnum {{ None, Bacon, Veggie }}
 
-class TestClass {{
-    MyEnum field = MyEnum.None;
+public class TestClass {{
+    {type}? field = default;
 
-    void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} MyEnum.Bacon);
+    public void TestMethod() {{
+        Assert.{method}(field {@operator} null, ""Message"");
+        Assert.{method}(null {@operator} field, ""Message"");
     }}
 }}";
-		DiagnosticResult[] expected = new[]
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Theory]
+		[MemberData(nameof(MethodOperatorType))]
+		public async void ComparingAgainstNull_WithoutMessage_Triggers(
+			string method,
+			string @operator,
+			string type)
 		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(8, 9, 8, 45 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotEqual)
-		};
+			var source = $@"
+using Xunit;
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "!=")]
-	[InlineData(Constants.Asserts.False, "==")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestInqualityAgainstEnumValueReverseArguments(
-		string method,
-		string @operator)
-	{
-		var source = $@"
 public enum MyEnum {{ None, Bacon, Veggie }}
 
-class TestClass {{
-    MyEnum field = MyEnum.None;
+public class TestClass {{
+    {type}? field = default;
 
-    void TestMethod() {{
-        Xunit.Assert.{method}(MyEnum.Bacon {@operator} field);
+    public void TestMethod() {{
+        Assert.{method}(field {@operator} null);
+        Assert.{method}(null {@operator} field);
     }}
 }}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2024")
-				.WithSpan(8, 9, 8, 45 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method, Constants.Asserts.NotEqual)
-		};
+			var suggestedAssert =
+				(method, @operator) switch
+				{
+					(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Null,
+					(_, _) => Constants.Asserts.NotNull,
+				};
+			DiagnosticResult[] expected = new[]
+			{
+				Verify
+					.Diagnostic("xUnit2024")
+					.WithSpan(10, 9, 10, 31 + method.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method, suggestedAssert),
+				Verify
+					.Diagnostic("xUnit2024")
+					.WithSpan(11, 9, 11, 31 + method.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method, suggestedAssert),
+			};
 
-		await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+		}
 	}
 
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==", "true")]
-	[InlineData(Constants.Asserts.True, "==", "false")]
-	[InlineData(Constants.Asserts.True, "!=", "true")]
-	[InlineData(Constants.Asserts.True, "!=", "false")]
-	[InlineData(Constants.Asserts.False, "==", "true")]
-	[InlineData(Constants.Asserts.False, "==", "false")]
-	[InlineData(Constants.Asserts.False, "!=", "true")]
-	[InlineData(Constants.Asserts.False, "!=", "false")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestBooleanEquality(
-		string method,
-		string @operator,
-		string value)
+	public class X2025_BooleanAssertionCanBeSimplified
 	{
-		var source = $@"
-class TestClass {{
+		public static MatrixTheoryData<string, string, string> MethodOperatorValue =
+			new(
+				new[] { Constants.Asserts.True, Constants.Asserts.False },
+				new[] { "==", "!=" },
+				new[] { "true", "false" }
+			);
+
+		[Theory]
+		[MemberData(nameof(MethodOperatorValue))]
+		public async void ComparingAgainstBooleanLiteral_Triggers(
+			string method,
+			string @operator,
+			string value)
+		{
+			var source = $@"
+using Xunit;
+
+public class TestClass {{
     bool field = {value};
 
     void TestMethod() {{
-        Xunit.Assert.{method}(field {@operator} {value});
+        Assert.{method}(field {@operator} {value});
+        Assert.{method}(field {@operator} {value}, ""Message"");
+        Assert.{method}({value} {@operator} field);
+        Assert.{method}({value} {@operator} field, ""Message"");
     }}
 }}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2025")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method)
-		};
+			DiagnosticResult[] expected = new[]
+			{
+				Verify
+					.Diagnostic("xUnit2025")
+					.WithSpan(8, 9, 8, 27 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method),
+				Verify
+					.Diagnostic("xUnit2025")
+					.WithSpan(9, 9, 9, 38 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method),
+				Verify
+					.Diagnostic("xUnit2025")
+					.WithSpan(10, 9, 10, 27 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method),
+				Verify
+					.Diagnostic("xUnit2025")
+					.WithSpan(11, 9, 11, 38 + method.Length + value.Length)
+					.WithSeverity(DiagnosticSeverity.Info)
+					.WithArguments(method),
+			};
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "==", "true")]
-	[InlineData(Constants.Asserts.True, "==", "false")]
-	[InlineData(Constants.Asserts.True, "!=", "true")]
-	[InlineData(Constants.Asserts.True, "!=", "false")]
-	[InlineData(Constants.Asserts.False, "==", "true")]
-	[InlineData(Constants.Asserts.False, "==", "false")]
-	[InlineData(Constants.Asserts.False, "!=", "true")]
-	[InlineData(Constants.Asserts.False, "!=", "false")]
-	public async void FindsWarning_WhenBooleanAssert_UsedToTestBooleanEqualityReverseArguments(
-		string method,
-		string @operator,
-		string value)
-	{
-		var source = $@"
-class TestClass {{
-    bool field = {value};
-
-    void TestMethod() {{
-        Xunit.Assert.{method}({value} {@operator} field);
-    }}
-}}";
-		DiagnosticResult[] expected = new[]
-		{
-			Verify
-				.Diagnostic("xUnit2025")
-				.WithSpan(6, 9, 6, 33 + method.Length + value.Length)
-				.WithSeverity(DiagnosticSeverity.Info)
-				.WithArguments(method)
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 	}
 }
