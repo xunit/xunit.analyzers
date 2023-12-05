@@ -647,9 +647,24 @@ public static class Descriptors
 			"Do not use Assert.{0} if there is one element in the collection. Use Assert.Single instead."
 		);
 
-	// Placeholder for rule X2024
+	public static DiagnosticDescriptor X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck { get; } =
+		Rule(
+			"xUnit2024",
+			"Do not use boolean asserts for simple equality tests",
+			Assertions,
+			Info,
+			"Do not use Assert.{0} to test equality against null, numeric, string, or enum literals. Use Assert.{1} instead."
+		);
 
-	// Placeholder for rule X2025
+
+	public static DiagnosticDescriptor X2025_BooleanAssertionCanBeSimplified { get; } =
+		Rule(
+			"xUnit2025",
+			"The boolean assertion statement can be simplified",
+			Assertions,
+			Info,
+			"The use of Assert.{0} can be simplified to avoid using a boolean literal value in an equality test."
+		);
 
 	// Placeholder for rule X2026
 
