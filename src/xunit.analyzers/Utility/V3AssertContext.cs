@@ -11,9 +11,11 @@ public class V3AssertContext : IAssertContext
 		Version = version;
 	}
 
-	public Version Version { get; set; }
-
+	/// <inheritdoc/>
 	public bool SupportsAssertFail => true;
+
+	/// <inheritdoc/>
+	public Version Version { get; }
 
 	public static V3AssertContext? Get(
 		Compilation compilation,

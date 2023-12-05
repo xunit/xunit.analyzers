@@ -20,11 +20,21 @@ public class V2ExecutionContext
 		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_ExecutionV2(compilation));
 	}
 
+	/// <summary>
+	/// Gets a reference to type <c>Xunit.LongLivedMarshalByRefObject</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>
 		lazyLongLivedMarshalByRefObjectType.Value;
 
+	/// <summary>
+	/// Gets a description of the target platform for the execution library (i.e., "desktop"). This is
+	/// typically extracted from the assembly name (i.e., "xunit.execution.desktop").
+	/// </summary>
 	public string Platform { get; }
 
+	/// <summary>
+	/// Gets the version number of the execution assembly.
+	/// </summary>
 	public Version Version { get; }
 
 	public static V2ExecutionContext? Get(

@@ -1,3 +1,5 @@
+using System;
+
 namespace Xunit.Analyzers;
 
 public class EmptyAssertContext : IAssertContext
@@ -8,4 +10,6 @@ public class EmptyAssertContext : IAssertContext
 	public static EmptyAssertContext Instance { get; } = new();
 
 	public bool SupportsAssertFail => false;
+
+	public Version Version { get; } = new();
 }
