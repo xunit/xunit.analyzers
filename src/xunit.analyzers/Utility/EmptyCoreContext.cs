@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
@@ -36,4 +37,6 @@ public class EmptyCoreContext : ICoreContext
 	public bool TheorySupportsDefaultParameterValues => false;
 
 	public bool TheorySupportsParameterArrays => false;
+
+	public Version Version { get; } = new();
 }
