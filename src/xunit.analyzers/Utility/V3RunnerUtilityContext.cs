@@ -4,30 +4,25 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V2RunnerUtilityContext : IRunnerUtilityContext
+public class V3RunnerUtilityContext : IRunnerUtilityContext
 {
-	const string assemblyPrefix = "xunit.runner.utility.";
-	readonly Lazy<INamedTypeSymbol?> lazyLongLivedMarshalByRefObjectType;
+	const string assemblyPrefix = "xunit.v3.runner.utility.";
 
-	V2RunnerUtilityContext(
-		Compilation compilation,
+	V3RunnerUtilityContext(
 		string platform,
 		Version version)
 	{
 		Platform = platform;
 		Version = version;
-
-		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_RunnerUtilityV2(compilation));
 	}
 
-	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>
-		lazyLongLivedMarshalByRefObjectType.Value;
-
+	/// <inheritdoc/>
 	public string Platform { get; }
 
+	/// <inheritdoc/>
 	public Version Version { get; }
 
-	public static V2RunnerUtilityContext? Get(
+	public static V3RunnerUtilityContext? Get(
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
@@ -42,6 +37,6 @@ public class V2RunnerUtilityContext : IRunnerUtilityContext
 		var version = versionOverride ?? assembly.Version;
 		var platform = assembly.Name.Substring(assemblyPrefix.Length);
 
-		return version is null ? null : new(compilation, platform, version);
+		return version is null ? null : new(platform, version);
 	}
 }

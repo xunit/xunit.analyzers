@@ -10,6 +10,7 @@ public class XunitContext
 {
 	IAssertContext? assert;
 	ICoreContext? core;
+	IRunnerUtilityContext? runnerUtility;
 	static readonly Version v2AbstractionsVersion = new(2, 0, 3);
 
 	XunitContext()
@@ -73,6 +74,19 @@ public class XunitContext
 		V3Assert is not null || V3Core is not null;
 
 	/// <summary>
+	/// Gets a combined view of features available to either v2 runners (linked against xunit.runner.utility.*)
+	/// or v3 runners (linked against xunit.v3.runner.utility.*).
+	/// </summary>
+	public IRunnerUtilityContext RunnerUtility
+	{
+		get
+		{
+			runnerUtility ??= V3RunnerUtility ?? (IRunnerUtilityContext?)V2RunnerUtility ?? EmptyRunnerUtilityContext.Instance;
+			return runnerUtility;
+		}
+	}
+
+	/// <summary>
 	/// Gets information about the reference to xunit.abstractions (v2). If the project does
 	/// not reference v2 Abstractions, then returns <c>null</c>.
 	/// </summary>
@@ -113,6 +127,12 @@ public class XunitContext
 	/// reference v3 Core, then returns <c>null</c>.
 	/// </summary>
 	public V3CoreContext? V3Core { get; private set; }
+
+	/// <summary>
+	/// Gets information about the reference to xunit.v3.runner.utility.* (v3). If the project does
+	/// not reference v3 Runner Utility, then returns <c>null</c>.
+	/// </summary>
+	public V3RunnerUtilityContext? V3RunnerUtility { get; private set; }
 
 	/// <summary>
 	/// Used to create a context object for test purposes, which only contains a reference to
