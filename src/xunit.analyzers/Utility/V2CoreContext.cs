@@ -40,50 +40,67 @@ public class V2CoreContext : ICoreContext
 		lazyTheoryAttributeType = new(() => TypeSymbolFactory.TheoryAttribute(compilation));
 	}
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ClassDataAttributeType =>
 		lazyClassDataAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionAttributeType =>
 		lazyCollectionAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>
 		lazyCollectionDefinitionAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? DataAttributeType =>
 		lazyDataAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? FactAttributeType =>
 		lazyFactAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? IClassFixtureType =>
 		lazyIClassFixtureType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ICollectionFixtureType =>
 		lazyICollectionFixtureType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? InlineDataAttributeType =>
 		lazyInlineDataAttributeType.Value;
 
+	/// <summary>
+	/// Gets a reference to type <c>Xunit.Abstractions.ITestOutputHelper</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? ITestOutputHelperType =>
 		lazyITestOutputHelperType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? MemberDataAttributeType =>
 		lazyMemberDataAttributeType.Value;
 
+	/// <inheritdoc/>
 	public INamedTypeSymbol? TheoryAttributeType =>
 		lazyTheoryAttributeType.Value;
 
 	// See: https://github.com/xunit/xunit/pull/1546
+	/// <inheritdoc/>
 	public bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid =>
 		Version >= Version_2_4_0;
 
+	/// <inheritdoc/>
 	public bool TheorySupportsDefaultParameterValues =>
 		Version >= Version_2_2_0;
 
+	/// <inheritdoc/>
 	public bool TheorySupportsParameterArrays =>
 		Version >= Version_2_2_0;
 
-	public Version Version { get; set; }
+	/// <inheritdoc/>
+	public Version Version { get; }
 
 	public static V2CoreContext? Get(
 		Compilation compilation,

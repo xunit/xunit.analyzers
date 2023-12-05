@@ -75,14 +75,14 @@ public class TypeSymbolFactory
 		return iEnumerableOfT.Construct(iTheoryDataRow);
 	}
 
-	public static INamedTypeSymbol? IMethodInfo_V2(Compilation compilation) =>
-		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMethodInfo");
-
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMessageSink");
 
 	public static INamedTypeSymbol? IMessageSinkMessage_V2(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMessageSinkMessage");
+
+	public static INamedTypeSymbol? IMethodInfo_V2(Compilation compilation) =>
+		compilation.GetTypeByMetadataName("Xunit.Abstractions.IMethodInfo");
 
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 		compilation.GetTypeByMetadataName("Xunit.InlineDataAttribute");

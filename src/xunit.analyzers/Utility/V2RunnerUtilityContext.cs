@@ -20,12 +20,17 @@ public class V2RunnerUtilityContext : IRunnerUtilityContext
 		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_RunnerUtilityV2(compilation));
 	}
 
+	/// <summary>
+	/// Gets a reference to type <c>Xunit.Sdk.LongLivedMarshalByRefObject</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>
 		lazyLongLivedMarshalByRefObjectType.Value;
 
+	/// <inheritdoc/>
 	public string Platform { get; }
 
-	public Version Version { get; set; }
+	/// <inheritdoc/>
+	public Version Version { get; }
 
 	public static V2RunnerUtilityContext? Get(
 		Compilation compilation,
