@@ -653,7 +653,7 @@ public static class Descriptors
 			"Do not use boolean asserts for simple equality tests",
 			Assertions,
 			Info,
-			"Do not use Assert.{0} to test equality against null, numeric or string literals, or enums. Use Assert.{1} instead."
+			"Do not use Assert.{0} to test equality against null, numeric, string, or enum literals. Use Assert.{1} instead."
 		);
 
 
