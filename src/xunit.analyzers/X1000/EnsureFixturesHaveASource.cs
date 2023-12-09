@@ -37,11 +37,14 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			// Get the collection name from [Collection], if present
 			var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
-			var collectionDefinitionName =
-				namedType
-					.GetAttributes()
-					.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
-					?.ConstructorArguments.FirstOrDefault().Value?.ToString();
+			string? collectionDefinitionName = null;
+
+			for (var type = namedType; type is not null && collectionDefinitionName is null; type = type.BaseType)
+				collectionDefinitionName =
+					type
+						.GetAttributes()
+						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
+						?.ConstructorArguments.FirstOrDefault().Value?.ToString();
 
 			// Need to construct a full set of types we know can be resolved. Start with things
 			// like ITestOutputHelper and ITestContextAccessor (since they're injected by the framework)
