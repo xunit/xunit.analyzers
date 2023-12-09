@@ -17,6 +17,9 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (context.Symbol is not INamedTypeSymbol namedType)

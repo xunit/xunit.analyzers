@@ -55,7 +55,7 @@ public class MemberDataShouldReferenceValidMember_NameOfFixer : BatchedCodeFixPr
 		}
 	}
 
-	async Task<Document> UseNameOf(
+	static async Task<Document> UseNameOf(
 		Document document,
 		LiteralExpressionSyntax memberNameExpression,
 		INamedTypeSymbol? memberType,

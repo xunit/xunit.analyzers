@@ -50,7 +50,7 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 		);
 	}
 
-	async Task<Document> MarkAsTheoryAsync(
+	static async Task<Document> MarkAsTheoryAsync(
 		Document document,
 		MethodDeclarationSyntax methodDeclaration,
 		CancellationToken cancellationToken)

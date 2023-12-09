@@ -20,6 +20,9 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		var taskOfTType = TypeSymbolFactory.TaskOfT(context.Compilation)?.ConstructUnboundGenericType();
 		var valueTaskType = TypeSymbolFactory.ValueTask(context.Compilation);

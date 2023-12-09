@@ -13,6 +13,9 @@ public static class SyntaxExtensions
 		INamedTypeSymbol attributeType,
 		bool exactMatch = false)
 	{
+		Guard.ArgumentNotNull(semanticModel);
+		Guard.ArgumentNotNull(attributeType);
+
 		foreach (var attributeList in attributeLists)
 		{
 			foreach (var attribute in attributeList.Attributes)
@@ -27,7 +30,7 @@ public static class SyntaxExtensions
 	}
 
 	public static SimpleNameSyntax? GetSimpleName(this InvocationExpressionSyntax invocation) =>
-		invocation.Expression switch
+		Guard.ArgumentNotNull(invocation).Expression switch
 		{
 			MemberAccessExpressionSyntax memberAccess => memberAccess.Name,
 			SimpleNameSyntax simpleName => simpleName,
@@ -39,6 +42,9 @@ public static class SyntaxExtensions
 		SemanticModel semanticModel,
 		CancellationToken cancellationToken = default)
 	{
+		Guard.ArgumentNotNull(expression);
+		Guard.ArgumentNotNull(semanticModel);
+
 		if (!expression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
 			return false;
 
@@ -51,6 +57,9 @@ public static class SyntaxExtensions
 		SemanticModel semanticModel,
 		CancellationToken cancellationToken = default)
 	{
+		Guard.ArgumentNotNull(expression);
+		Guard.ArgumentNotNull(semanticModel);
+
 		if (!expression.IsKind(SyntaxKind.InvocationExpression))
 			return false;
 		if (expression is not InvocationExpressionSyntax invocation)

@@ -7,10 +7,10 @@ namespace Xunit.Analyzers;
 /// </summary>
 public abstract class XunitV3DiagnosticAnalyzer : XunitDiagnosticAnalyzer
 {
-	public XunitV3DiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) :
+	protected XunitV3DiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) :
 		base(descriptors)
 	{ }
 
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		xunitContext.HasV3References;
+		Guard.ArgumentNotNull(xunitContext).HasV3References;
 }

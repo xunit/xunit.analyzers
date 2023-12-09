@@ -20,12 +20,12 @@ public class UseDifferentMethodCodeAction : CodeAction
 		InvocationExpressionSyntax invocation,
 		string replacementMethod)
 	{
-		Title = title;
-		EquivalenceKey = equivalenceKey;
+		Title = Guard.ArgumentNotNull(title);
+		EquivalenceKey = Guard.ArgumentNotNull(equivalenceKey);
 
-		this.document = document;
-		this.invocation = invocation;
-		this.replacementMethod = replacementMethod;
+		this.document = Guard.ArgumentNotNull(document);
+		this.invocation = Guard.ArgumentNotNull(invocation);
+		this.replacementMethod = Guard.ArgumentNotNull(replacementMethod);
 	}
 
 	public override string EquivalenceKey { get; }

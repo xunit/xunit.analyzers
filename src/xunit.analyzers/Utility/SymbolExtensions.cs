@@ -11,7 +11,7 @@ public static class SymbolExtensions
 		this ImmutableArray<AttributeData> attributes,
 		INamedTypeSymbol attributeType,
 		bool exactMatch = false) =>
-			attributes.Any(a => attributeType.IsAssignableFrom(a.AttributeClass, exactMatch));
+			attributes.Any(a => Guard.ArgumentNotNull(attributeType).IsAssignableFrom(a.AttributeClass, exactMatch));
 
 	/// <summary>
 	/// If the passed <paramref name="typeSymbol"/> is <see cref="IEnumerable{T}"/>, then returns
@@ -22,7 +22,7 @@ public static class SymbolExtensions
 		if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
 			return null;
 
-		if (typeSymbol.OriginalDefinition.SpecialType != SpecialType.System_Collections_Generic_IEnumerable_T)
+		if (namedTypeSymbol.OriginalDefinition.SpecialType != SpecialType.System_Collections_Generic_IEnumerable_T)
 			return null;
 
 		return namedTypeSymbol.TypeArguments[0];
@@ -32,6 +32,9 @@ public static class SymbolExtensions
 		this ITypeSymbol implementingType,
 		INamedTypeSymbol openInterfaceType)
 	{
+		Guard.ArgumentNotNull(implementingType);
+		Guard.ArgumentNotNull(openInterfaceType);
+
 		if (SymbolEqualityComparer.Default.Equals(implementingType.OriginalDefinition, openInterfaceType))
 			return implementingType as INamedTypeSymbol;
 
@@ -41,7 +44,7 @@ public static class SymbolExtensions
 	public static ISymbol? GetMember(
 		this INamespaceOrTypeSymbol namespaceOrType,
 		string name) =>
-			namespaceOrType.GetMembers(name).FirstOrDefault();
+			Guard.ArgumentNotNull(namespaceOrType).GetMembers(name).FirstOrDefault();
 
 	public static ImmutableArray<ISymbol> GetInheritedAndOwnMembers(
 		this ITypeSymbol? symbol,

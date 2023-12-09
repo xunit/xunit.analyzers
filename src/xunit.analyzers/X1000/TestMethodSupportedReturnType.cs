@@ -17,6 +17,9 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
 			return;
 
@@ -52,10 +55,13 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 		}, SymbolKind.Method);
 	}
 
-	public List<INamedTypeSymbol> GetValidReturnTypes(
+	public static List<INamedTypeSymbol> GetValidReturnTypes(
 		Compilation compilation,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(compilation);
+		Guard.ArgumentNotNull(xunitContext);
+
 		var result = new List<INamedTypeSymbol>();
 
 		void Add(INamedTypeSymbol? symbol)

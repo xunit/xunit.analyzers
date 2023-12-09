@@ -36,6 +36,8 @@ public class V2RunnerUtilityContext : IRunnerUtilityContext
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
+		Guard.ArgumentNotNull(compilation);
+
 		var assembly =
 			compilation
 				.ReferencedAssemblyNames

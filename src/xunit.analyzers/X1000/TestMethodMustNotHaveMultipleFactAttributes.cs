@@ -17,6 +17,9 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)
@@ -24,9 +27,7 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			if (context.Symbol is not IMethodSymbol symbol)
 				return;
 
-#pragma warning disable RS1024 // Compare symbols correctly
 			var attributeTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
 			var count = 0;
 
@@ -41,7 +42,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			}
 
 			if (count > 1)
-#pragma warning disable RS1024 // Compare symbols correctly
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
@@ -49,7 +49,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 						properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => (string?)string.Empty)
 					)
 				);
-#pragma warning restore RS1024 // Compare symbols correctly
 		}, SymbolKind.Method);
 	}
 }

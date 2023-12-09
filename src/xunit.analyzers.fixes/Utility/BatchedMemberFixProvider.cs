@@ -7,7 +7,7 @@ namespace Xunit.Analyzers.Fixes;
 
 public abstract class BatchedMemberFixProvider : BatchedCodeFixProvider
 {
-	public BatchedMemberFixProvider(params string[] diagnostics) :
+	protected BatchedMemberFixProvider(params string[] diagnostics) :
 		base(diagnostics)
 	{ }
 
@@ -41,7 +41,7 @@ public abstract class BatchedMemberFixProvider : BatchedCodeFixProvider
 		if (member.Locations.FirstOrDefault()?.IsInMetadata ?? true)
 			return;
 
-		await RegisterCodeFixesAsync(context, member);
+		await RegisterCodeFixesAsync(context, member).ConfigureAwait(false);
 	}
 
 	public abstract Task RegisterCodeFixesAsync(

@@ -29,6 +29,10 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var type = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault();
 		if (type is null)
 			return;

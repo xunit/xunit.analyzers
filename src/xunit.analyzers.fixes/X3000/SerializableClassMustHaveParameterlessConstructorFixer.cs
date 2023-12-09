@@ -17,10 +17,8 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 {
 	public const string Key_GenerateOrUpdateConstructor = "xUnit3001_GenerateOrUpdateConstructor";
 
-	static readonly LiteralExpressionSyntax obsoleteText;
-
-	static SerializableClassMustHaveParameterlessConstructorFixer() =>
-		obsoleteText = LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"));
+	static readonly LiteralExpressionSyntax obsoleteText =
+		LiteralExpression(SyntaxKind.StringLiteralExpression, Literal("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"));
 
 	public SerializableClassMustHaveParameterlessConstructorFixer() :
 		base(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id)
@@ -48,14 +46,14 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 		);
 	}
 
-	async Task<Document> CreateOrUpdateConstructor(
+	static async Task<Document> CreateOrUpdateConstructor(
 		Document document,
 		ClassDeclarationSyntax declaration,
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		var generator = editor.Generator;
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 		var parameterlessCtor = declaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
 
 		if (parameterlessCtor is null)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 	{ }
 
 	public static string Key_KeepAttribute(string simpleTypeName) =>
-		string.Format("xUnit1002_KeepAttribute_{0}", simpleTypeName);
+		string.Format(CultureInfo.CurrentCulture, "xUnit1002_KeepAttribute_{0}", simpleTypeName);
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
@@ -44,7 +45,7 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					string.Format("Keep '{0}' attribute", simpleName),
+					string.Format(CultureInfo.CurrentCulture, "Keep '{0}' attribute", simpleName),
 					ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
 					Key_KeepAttribute(simpleName)
 				),
@@ -60,13 +61,13 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 			simpleName = simpleName.Substring(attributeType.LastIndexOf('.') + 1);
 
 		const string nameSuffix = "Attribute";
-		if (simpleName.EndsWith(nameSuffix))
+		if (simpleName.EndsWith(nameSuffix, System.StringComparison.Ordinal))
 			simpleName = simpleName.Substring(0, simpleName.Length - nameSuffix.Length);
 
 		return simpleName;
 	}
 
-	async Task<Document> RemoveAttributes(
+	static async Task<Document> RemoveAttributes(
 		Document document,
 		MethodDeclarationSyntax methodDeclaration,
 		IReadOnlyList<string> attributeTypesToConsider,
@@ -74,7 +75,7 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
 		if (semanticModel is not null)
 		{

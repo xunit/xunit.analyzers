@@ -21,6 +21,9 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
 			if (xunitContext.Core.TheoryAttributeType is null)
@@ -55,9 +58,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		if (!flowAnalysis.Succeeded)
 			return;
 
-#pragma warning disable RS1024 // Compare symbols correctly
 		var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct(SymbolEqualityComparer.Default), SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
 		for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 		{

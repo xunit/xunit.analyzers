@@ -40,7 +40,7 @@ public class AssertNullShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 		);
 	}
 
-	async Task<Document> RemoveCall(
+	static async Task<Document> RemoveCall(
 		Document document,
 		ExpressionStatementSyntax call,
 		CancellationToken cancellationToken)

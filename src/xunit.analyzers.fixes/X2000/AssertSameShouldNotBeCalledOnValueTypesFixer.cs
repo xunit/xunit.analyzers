@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -29,8 +30,6 @@ public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 		var diagnostic = context.Diagnostics.FirstOrDefault();
 		if (diagnostic is null)
 			return;
-		if (!diagnostic.Properties.TryGetValue(Constants.Properties.MethodName, out var methodName))
-			return;
 		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
 			return;
 		if (replacement is null)
@@ -39,7 +38,7 @@ public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 		if (invocation.Expression is MemberAccessExpressionSyntax)
 			context.RegisterCodeFix(
 				new UseDifferentMethodCodeAction(
-					string.Format("Use Assert.{0}", replacement),
+					string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 					Key_UseAlternateAssert,
 					context.Document,
 					invocation,

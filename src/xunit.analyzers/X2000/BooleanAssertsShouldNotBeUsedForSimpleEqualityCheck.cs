@@ -31,6 +31,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Syntax is not InvocationExpressionSyntax invocation)
 			return;
 
@@ -100,6 +104,8 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		ExpressionSyntax expression,
 		SemanticModel? semanticModel)
 	{
+		Guard.ArgumentNotNull(expression);
+
 		var kind = expression.Kind();
 		if (expression is LiteralExpressionSyntax)
 			return kind;

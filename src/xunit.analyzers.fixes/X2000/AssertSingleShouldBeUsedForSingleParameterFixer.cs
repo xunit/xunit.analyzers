@@ -96,7 +96,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}", replacement),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 				ct => UseSingleMethod(context.Document, invocation, replacement, ct),
 				Key_UseSingleMethod
 			),
@@ -148,7 +148,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
 				{
-					var isMethod = semanticModel.GetSymbolInfo(identifierExpression).Symbol?.Kind == SymbolKind.Method;
+					var isMethod = semanticModel.GetSymbolInfo(identifierExpression, cancellationToken).Symbol?.Kind == SymbolKind.Method;
 					if (isMethod)
 					{
 						var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);

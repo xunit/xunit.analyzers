@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.DiagnosticSeverity;
@@ -607,9 +606,7 @@ public static class Descriptors
 			"Do not compare an object's exact type to the {0} '{1}'. Use Assert.{2} instead."
 		);
 
-	[Obsolete("This check was unnecessary, as it's already covered by xUnit2014", error: true)]
-	public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
-		=> throw new NotImplementedException();
+	// Note: X2019 was already covered by X2014, and should not be reused
 
 	public static DiagnosticDescriptor X2020_UseAssertFailInsteadOfBooleanAssert { get; } =
 		Rule(

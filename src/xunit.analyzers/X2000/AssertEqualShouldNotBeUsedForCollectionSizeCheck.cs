@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -39,6 +40,10 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (method.Parameters.Length != 2 ||
 			!method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_Int32) ||
 			!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_Int32))
@@ -79,7 +84,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
-		builder[Constants.Properties.SizeValue] = size.ToString();
+		builder[Constants.Properties.SizeValue] = size.ToString(CultureInfo.InvariantCulture);
 		builder[Constants.Properties.Replacement] = replacement;
 
 		context.ReportDiagnostic(

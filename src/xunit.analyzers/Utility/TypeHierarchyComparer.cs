@@ -15,10 +15,8 @@ public class TypeHierarchyComparer : IComparer<ITypeSymbol>
 		ITypeSymbol? x,
 		ITypeSymbol? y)
 	{
-		if (x?.TypeKind != TypeKind.Class)
-			throw new ArgumentException("The argument must be a class", nameof(x));
-		if (y?.TypeKind != TypeKind.Class)
-			throw new ArgumentException("The argument must be a class", nameof(y));
+		Guard.ArgumentValid("The argument must be a class", x?.TypeKind == TypeKind.Class, nameof(x));
+		Guard.ArgumentValid("The argument must be a class", y?.TypeKind == TypeKind.Class, nameof(x));
 
 		if (SymbolEqualityComparer.Default.Equals(x, y))
 			return 0;

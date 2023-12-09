@@ -38,7 +38,7 @@ public class FactMethodMustNotHaveParametersFixer : BatchedCodeFixProvider
 		);
 	}
 
-	async Task<Document> RemoveParameters(
+	static async Task<Document> RemoveParameters(
 		Document document,
 		ParameterListSyntax parameterListSyntax,
 		CancellationToken cancellationToken)

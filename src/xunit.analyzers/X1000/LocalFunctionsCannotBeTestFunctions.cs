@@ -17,6 +17,9 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
 			if (context.Node is not LocalFunctionStatementSyntax syntax)

@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -33,7 +34,7 @@ public class RemoveMethodParameterFix : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Remove parameter '{0}'", parameterName),
+				string.Format(CultureInfo.CurrentCulture, "Remove parameter '{0}'", parameterName),
 				ct => context.Document.RemoveNode(parameter, ct),
 				Key_RemoveParameter
 			),

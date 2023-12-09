@@ -11,13 +11,20 @@ public class TheoryMethodCannotHaveParamsArray : XunitDiagnosticAnalyzer
 		base(Descriptors.X1022_TheoryMethodCannotHaveParameterArray)
 	{ }
 
-	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		base.ShouldAnalyze(xunitContext) && !xunitContext.Core.TheorySupportsParameterArrays;
+	protected override bool ShouldAnalyze(XunitContext xunitContext)
+	{
+		Guard.ArgumentNotNull(xunitContext);
+
+		return base.ShouldAnalyze(xunitContext) && !xunitContext.Core.TheorySupportsParameterArrays;
+	}
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.TheoryAttributeType is null)

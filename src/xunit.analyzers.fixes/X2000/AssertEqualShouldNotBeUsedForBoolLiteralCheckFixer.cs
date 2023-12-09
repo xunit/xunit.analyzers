@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer : BatchedCodeFix
 		if (invocation.Expression is MemberAccessExpressionSyntax)
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					string.Format("Use Assert.{0}", replacement),
+					string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 					ct => UseBoolCheckAsync(context.Document, invocation, replacement, ct),
 					Key_UseAlternateAssert
 				),

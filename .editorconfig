@@ -222,5 +222,11 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 #### Roslyn diagnostics ####
 
-dotnet_diagnostic.CA1851.severity = warning
-dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1000.severity  = none  # Do not declare static members on generic types
+dotnet_diagnostic.CA1002.severity  = none  # Do not expose generic lists
+dotnet_diagnostic.CA1034.severity  = none  # Do not nest types
+dotnet_diagnostic.CA1707.severity  = none  # Remove the underscores from type name
+dotnet_diagnostic.CA1720.severity  = none  # Identifier contains type name
+dotnet_diagnostic.CA1724.severity  = none  # Type names should not match namespaces
+dotnet_diagnostic.CA1859.severity  = none  # Use concrete types when possible for improved performance
+dotnet_diagnostic.IDE1006.severity = none  # Naming rule violation

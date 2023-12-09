@@ -19,10 +19,19 @@ public static class CodeAnalysisExtensions
 		string typeName,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(declaration);
+		Guard.ArgumentNotNull(typeDisplayName);
+		Guard.ArgumentNotNull(typeName);
+
+#pragma warning disable CA1308 // These are display names, not normalizations for comparison
+
 		// TODO: Make this respect the user's preferences on identifier name style
-		var fieldName = "_" + typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
-		var constructorArgName = typeName.Substring(0, 1).ToLower() + typeName.Substring(1, typeName.Length - 1);
+		var fieldName = "_" + typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1, typeName.Length - 1);
+		var constructorArgName = typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1, typeName.Length - 1);
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
+
+#pragma warning restore CA1308
 
 		var fieldDeclaration =
 			FieldDeclaration(
@@ -67,6 +76,9 @@ public static class CodeAnalysisExtensions
 		Accessibility accessibility,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(declaration);
+
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		editor.SetAccessibility(declaration, accessibility);
 		return editor.GetChangedDocument();
@@ -78,6 +90,9 @@ public static class CodeAnalysisExtensions
 		Accessibility accessibility,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(solution);
+		Guard.ArgumentNotNull(memberSymbol);
+
 		var editor = SymbolEditor.Create(solution);
 
 		await editor.EditAllDeclarationsAsync(
@@ -95,6 +110,9 @@ public static class CodeAnalysisExtensions
 		bool isStatic,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(solution);
+		Guard.ArgumentNotNull(memberSymbol);
+
 		var editor = SymbolEditor.Create(solution);
 
 		await editor.EditAllDeclarationsAsync(
@@ -122,6 +140,10 @@ public static class CodeAnalysisExtensions
 		ITypeSymbol type,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(solution);
+		Guard.ArgumentNotNull(memberSymbol);
+		Guard.ArgumentNotNull(type);
+
 		var editor = SymbolEditor.Create(solution);
 
 		await editor.EditAllDeclarationsAsync(
@@ -138,6 +160,9 @@ public static class CodeAnalysisExtensions
 		SyntaxNode node,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(node);
+
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		editor.RemoveNode(node);
 
@@ -149,6 +174,9 @@ public static class CodeAnalysisExtensions
 		SyntaxNode node,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(node);
+
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		var parent = node.Parent;
 
@@ -158,8 +186,8 @@ public static class CodeAnalysisExtensions
 
 			var formattedNode =
 				node
-					.WithLeadingTrivia(SyntaxFactory.ElasticMarker)
-					.WithTrailingTrivia(SyntaxFactory.ElasticMarker)
+					.WithLeadingTrivia(ElasticMarker)
+					.WithTrailingTrivia(ElasticMarker)
 					.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 
 			editor.InsertAfter(parent, formattedNode);
@@ -174,9 +202,13 @@ public static class CodeAnalysisExtensions
 		string baseType,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(declaration);
+		Guard.ArgumentNotNull(baseType);
+
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 		var generator = editor.Generator;
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
 		if (semanticModel is not null)
 		{

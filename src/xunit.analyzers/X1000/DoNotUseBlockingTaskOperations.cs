@@ -54,6 +54,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
 			return;
 
@@ -213,9 +216,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		XunitContext xunitContext)
 	{
 		var ourOperations = new List<IOperation>();
-#pragma warning disable RS1024 // Compare symbols correctly
 		var unfoundSymbols = new HashSet<ILocalSymbol>(symbols, SymbolEqualityComparer.Default);
-#pragma warning restore RS1024
 
 		bool validateSafeTasks(IOperation op)
 		{

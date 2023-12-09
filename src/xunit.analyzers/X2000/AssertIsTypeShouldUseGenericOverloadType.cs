@@ -27,6 +27,10 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var parameters = invocationOperation.TargetMethod.Parameters;
 		if (parameters.Length != 2)
 			return;

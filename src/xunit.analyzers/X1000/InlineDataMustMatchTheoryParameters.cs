@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,6 +25,9 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.InlineDataAttributeType is null)
 			return;
 
@@ -132,7 +136,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 						if (isValueTypeParam || isNonNullableReferenceTypeParam)
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 							builder[Constants.Properties.ParameterName] = parameter.Name;
 
 							context.ReportDiagnostic(
@@ -158,7 +162,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 						if (!isCompatible)
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 							builder[Constants.Properties.ParameterName] = parameter.Name;
 
 							context.ReportDiagnostic(
@@ -183,7 +187,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 				for (; valueIdx < values.Length; valueIdx++)
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-					builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+					builder[Constants.Properties.ParameterIndex] = valueIdx.ToString(CultureInfo.InvariantCulture);
 					builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString() ?? string.Empty;
 
 					context.ReportDiagnostic(

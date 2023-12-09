@@ -30,6 +30,10 @@ public class UseAssertFailInsteadOfBooleanAssert : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var arguments = invocationOperation.Arguments;
 		if (arguments.Length != 2)
 			return;
@@ -54,6 +58,10 @@ public class UseAssertFailInsteadOfBooleanAssert : AssertUsageAnalyzerBase
 		);
 	}
 
-	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		base.ShouldAnalyze(xunitContext) && xunitContext.Assert.SupportsAssertFail;
+	protected override bool ShouldAnalyze(XunitContext xunitContext)
+	{
+		Guard.ArgumentNotNull(xunitContext);
+
+		return base.ShouldAnalyze(xunitContext) && xunitContext.Assert.SupportsAssertFail;
+	}
 }

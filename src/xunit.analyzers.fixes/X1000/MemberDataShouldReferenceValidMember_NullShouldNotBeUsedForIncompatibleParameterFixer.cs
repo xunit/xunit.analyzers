@@ -35,7 +35,7 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 		if (!int.TryParse(parameterIndexText, out var parameterIndex))
 			return;
 
-		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 		if (semanticModel is null)
 			return;
 
@@ -66,7 +66,7 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 		var methodSyntaxes = methodSymbol.DeclaringSyntaxReferences;
 		if (methodSyntaxes.Length != 1)
 			return;
-		if (methodSyntaxes[0].GetSyntax() is not MethodDeclarationSyntax method)
+		if (await methodSyntaxes[0].GetSyntaxAsync().ConfigureAwait(false) is not MethodDeclarationSyntax method)
 			return;
 
 		context.RegisterCodeFix(
@@ -79,7 +79,7 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 		);
 	}
 
-	async Task<Document> MakeParameterNullable(
+	static async Task<Document> MakeParameterNullable(
 		Document document,
 		MethodDeclarationSyntax method,
 		int parameterIndex,

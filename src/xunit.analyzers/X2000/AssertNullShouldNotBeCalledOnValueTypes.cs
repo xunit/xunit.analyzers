@@ -24,6 +24,10 @@ public class AssertNullShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Arguments.Length != 1)
 			return;
 

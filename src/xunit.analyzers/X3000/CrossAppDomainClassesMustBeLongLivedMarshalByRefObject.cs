@@ -16,6 +16,9 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObject : XunitV2Dia
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (context.Symbol is not INamedTypeSymbol namedType)
@@ -75,5 +78,5 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObject : XunitV2Dia
 	}
 
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		xunitContext.V2Abstractions is not null;
+		Guard.ArgumentNotNull(xunitContext).V2Abstractions is not null;
 }

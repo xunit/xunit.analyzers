@@ -38,7 +38,7 @@ public class TestMethodShouldNotBeSkippedFixer : BatchedCodeFixProvider
 		);
 	}
 
-	async Task<Document> RemoveArgument(
+	static async Task<Document> RemoveArgument(
 		Document document,
 		AttributeArgumentSyntax argument,
 		CancellationToken ct)

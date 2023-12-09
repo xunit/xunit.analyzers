@@ -23,6 +23,10 @@ public class AssertSingleShouldBeUsedForSingleParameter : AssertUsageAnalyzerBas
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Arguments.Length != 2)
 			return;
 

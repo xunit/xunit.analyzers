@@ -41,6 +41,8 @@ public class V2ExecutionContext
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
+		Guard.ArgumentNotNull(compilation);
+
 		var assembly =
 			compilation
 				.ReferencedAssemblyNames

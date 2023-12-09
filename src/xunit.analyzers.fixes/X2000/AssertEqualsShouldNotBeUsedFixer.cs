@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -37,7 +38,7 @@ public class AssertEqualsShouldNotBeUsedFixer : BatchedCodeFixProvider
 		if (invocation.Expression is MemberAccessExpressionSyntax)
 			context.RegisterCodeFix(
 				new UseDifferentMethodCodeAction(
-					string.Format("Use Assert.{0}", replacement),
+					string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 					Key_UseAlternateAssert,
 					context.Document,
 					invocation,

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -40,6 +41,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.MemberDataAttributeType is null)
 			return;
 
@@ -168,7 +172,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				else
 				{
 					// Make sure we only have arguments for method-based member data
-					if (extraArguments.Any())
+					if (extraArguments.Count != 0)
 						ReportIllegalNonMethodArguments(context, attributeSyntax, extraArguments);
 				}
 			}
@@ -200,6 +204,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ITypeSymbol? type,
 		int paramsCount)
 	{
+		Guard.ArgumentNotNull(memberName);
+
 		while (type is not null)
 		{
 			var methodSymbol =
@@ -222,6 +228,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		SemanticModel semanticModel,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(attributeList);
+		Guard.ArgumentNotNull(semanticModel);
+
 		var memberTypeArgument = attributeList.Arguments.FirstOrDefault(a => a.NameEquals?.Name.Identifier.ValueText == Constants.AttributeProperties.MemberType);
 		var memberTypeSymbol = default(ITypeSymbol);
 		if (memberTypeArgument?.Expression is TypeOfExpressionSyntax typeofExpression)
@@ -234,7 +243,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		if (classSyntax is null)
 			return (null, null);
 
-		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
+		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax, cancellationToken);
 		return (testClassTypeSymbol, memberTypeSymbol ?? testClassTypeSymbol);
 	}
 
@@ -594,7 +603,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (isValueTypeParam || isNonNullableReferenceTypeParam)
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-					builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+					builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 					builder[Constants.Properties.ParameterName] = parameter.Name;
 					builder[Constants.Properties.MemberName] = memberName;
 
@@ -614,7 +623,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (!isCompatible)
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-					builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+					builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 					builder[Constants.Properties.ParameterName] = parameter.Name;
 					builder[Constants.Properties.MemberName] = memberName;
 
@@ -636,7 +645,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			var valueType = compilation.GetTypeByMetadataName(valueTypeName ?? "System.Object");
 			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 
-			builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+			builder[Constants.Properties.ParameterIndex] = valueIdx.ToString(CultureInfo.InvariantCulture);
 			builder[Constants.Properties.ParameterSpecialType] = valueType?.SpecialType.ToString() ?? string.Empty;
 			builder[Constants.Properties.MemberName] = memberName;
 

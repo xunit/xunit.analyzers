@@ -13,6 +13,11 @@ static class ConversionChecker
 		ITypeSymbol destination,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(compilation);
+		Guard.ArgumentNotNull(source);
+		Guard.ArgumentNotNull(destination);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (destination.TypeKind == TypeKind.Array)
 		{
 			var destinationElementType = ((IArrayTypeSymbol)destination).ElementType;
