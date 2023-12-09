@@ -46,7 +46,7 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 		if (type.TypeKind == TypeKind.Interface)
 		{
 			var allInterfaces = (type as INamedTypeSymbol)?.AllInterfaces;
-			if (allInterfaces != null)
+			if (allInterfaces is not null)
 			{
 				var allMembers =
 					allInterfaces

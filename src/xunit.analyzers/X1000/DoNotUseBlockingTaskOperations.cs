@@ -302,7 +302,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		INamedTypeSymbol taskType,
 		XunitContext xunitContext)
 	{
-		for (; operation != null; operation = operation.Parent)
+		for (; operation is not null; operation = operation.Parent)
 		{
 			if (operation is not IInvocationOperation invocation)
 				continue;

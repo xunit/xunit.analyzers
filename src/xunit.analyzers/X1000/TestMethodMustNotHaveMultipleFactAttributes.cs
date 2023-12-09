@@ -34,7 +34,7 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			foreach (var attribute in symbol.GetAttributes())
 			{
 				var attributeType = attribute.AttributeClass;
-				if (attributeType != null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+				if (attributeType is not null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 				{
 					attributeTypes.Add(attributeType);
 					count++;

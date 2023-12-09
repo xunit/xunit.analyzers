@@ -139,13 +139,13 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		INamedTypeSymbol? collectionType,
 		ISymbol symbol)
 	{
-		if (collectionType == null)
+		if (collectionType is null)
 			return false;
 
 		var memberSymbol = symbol;
 		var containingType = memberSymbol.ContainingType;
 		var countSymbol = collectionType.GetMember(nameof(ICollection.Count));
-		if (countSymbol == null)
+		if (countSymbol is null)
 			return false;
 
 		if (SymbolEqualityComparer.Default.Equals(countSymbol, symbol))

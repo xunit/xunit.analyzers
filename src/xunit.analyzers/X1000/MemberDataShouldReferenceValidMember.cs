@@ -580,7 +580,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					: null;
 
 			// For params array of object, just consume everything that's left
-			if (paramsElementType != null
+			if (paramsElementType is not null
 				&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
 				&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
 			{
@@ -591,12 +591,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			if (!value.HasValue || value.Value is null)
 			{
 				var isValueTypeParam =
-					paramsElementType != null
+					paramsElementType is not null
 						? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
 						: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 
 				var isNonNullableReferenceTypeParam =
-					paramsElementType != null
+					paramsElementType is not null
 						? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
 						: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
 
@@ -617,7 +617,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					continue;
 
 				var isCompatible = ConversionChecker.IsConvertible(compilation, valueType, parameter.Type, xunitContext);
-				if (!isCompatible && paramsElementType != null)
+				if (!isCompatible && paramsElementType is not null)
 					isCompatible = ConversionChecker.IsConvertible(compilation, valueType, paramsElementType, xunitContext);
 
 				if (!isCompatible)

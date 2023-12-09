@@ -68,7 +68,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			// Add types from IClassFixture<> and ICollectionFixture<> on the collection definition
 			var collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
-			if (collectionDefinitionName != null)
+			if (collectionDefinitionName is not null)
 			{
 				var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
 

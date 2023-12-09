@@ -34,7 +34,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 				return;
 
 			var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
-			if (methodSymbol == null)
+			if (methodSymbol is null)
 				return;
 
 			var attributes = methodSymbol.GetAttributes();

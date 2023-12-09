@@ -35,7 +35,7 @@ static class CodeAnalysisExtensions
 		if (semanticModel is null)
 			return false;
 
-		for (var parent = operation.Parent; parent != null; parent = parent.Parent)
+		for (var parent = operation.Parent; parent is not null; parent = parent.Parent)
 		{
 			if (parent is not IMethodBodyOperation methodBodyOperation)
 				continue;

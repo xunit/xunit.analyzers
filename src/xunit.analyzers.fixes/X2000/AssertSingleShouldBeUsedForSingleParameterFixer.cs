@@ -44,7 +44,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 	{
 		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
 			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
+		else if (lambdaExpression.Block is not null && lambdaExpression.Block.Statements.Count != 0)
 			foreach (var statement in lambdaExpression.Block.Statements)
 				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 	}
@@ -116,7 +116,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 			invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
 		{
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (semanticModel != null && invocation.Parent != null)
+			if (semanticModel is not null && invocation.Parent is not null)
 			{
 				var statements = new List<SyntaxNode>();
 				var startLocation = invocation.GetLocation().SourceSpan.Start;
