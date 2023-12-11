@@ -104,7 +104,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
 				);
 
-			foreach (var parameter in ctors[0].Parameters.Where(p => !validConstructorArgumentTypes.Contains(p.Type)))
+			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional && !validConstructorArgumentTypes.Contains(p.Type)))
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1041_EnsureFixturesHaveASource,
