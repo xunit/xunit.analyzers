@@ -66,13 +66,25 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 			if (invocationChildren.Count != 2)
 				return;
 
-			// we want to exempt calls with "(true)" because of CA2007
+			// We only care about invocations with a single parameter
 			var arguments = invocationChildren[1];
 			var argumentChildren = arguments.ChildNodes().ToList();
-			if (argumentChildren.Count == 1 &&
-					argumentChildren[0] is ArgumentSyntax argumentSyntax &&
-					argumentSyntax.ChildNodes().FirstOrDefault() is LiteralExpressionSyntax literalExpression &&
-					literalExpression.IsKind(SyntaxKind.TrueLiteralExpression))
+			if (argumentChildren.Count != 1 || argumentChildren[0] is not ArgumentSyntax argumentSyntax)
+				return;
+
+			// Determine the invocation type and resolution
+			var parameterType = invocation.TargetMethod.Parameters[0].Type;
+			string resolution;
+
+			// We want to exempt calls with "(true)" because of CA2007
+			if (SymbolEqualityComparer.Default.Equals(parameterType, context.Compilation.GetSpecialType(SpecialType.System_Boolean)))
+			{
+				if (argumentSyntax.Expression is LiteralExpressionSyntax literalExpression && literalExpression.IsKind(SyntaxKind.TrueLiteralExpression))
+					return;
+
+				resolution = "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.";
+			}
+			else
 				return;
 
 			// First child node should be split into three pieces: "(some other code)", ".", and "ConfigureAwait"
@@ -85,7 +97,7 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 			var textSpan = new TextSpan(methodCallChildren[2].SpanStart, length);
 			var location = Location.Create(invocation.Syntax.SyntaxTree, textSpan);
 
-			context.ReportDiagnostic(Diagnostic.Create(Descriptors.X1030_DoNotUseConfigureAwait, location));
+			context.ReportDiagnostic(Diagnostic.Create(Descriptors.X1030_DoNotUseConfigureAwait, location, argumentSyntax.ToFullString(), resolution));
 		}, OperationKind.Invocation);
 	}
 }

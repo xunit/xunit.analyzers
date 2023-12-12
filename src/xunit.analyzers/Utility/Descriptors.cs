@@ -310,7 +310,7 @@ public static class Descriptors
 			"Do not call ConfigureAwait(false) in test method",
 			Usage,
 			Warning,
-			"Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007."
+			"Test methods should not call ConfigureAwait({0}), as it may bypass parallelization limits. {1}"
 		);
 
 	public static DiagnosticDescriptor X1031_DoNotUseBlockingTaskOperations { get; } =
