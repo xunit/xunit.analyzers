@@ -16,7 +16,7 @@ public static class TestFx
 	{
 		context.BuildStep("Running .NET Framework tests");
 
-		var consoleRunner = Path.Combine(context.NuGetPackageCachePath, "xunit.v3.runner.console", "0.1.1-pre.322", "tools", "net472", "xunit.v3.runner.console.exe");
+		var consoleRunner = Path.Combine(context.NuGetPackageCachePath, "xunit.v3.runner.console", "0.1.1-pre.331", "tools", "net472", "xunit.v3.runner.console.exe");
 
 		if (!File.Exists(consoleRunner))
 		{

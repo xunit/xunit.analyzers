@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.IO;
 using Microsoft.CodeAnalysis.Testing;
 
 static class CodeAnalyzerHelper
@@ -19,7 +20,13 @@ static class CodeAnalyzerHelper
 #if NET472
 		var defaultAssemblies = ReferenceAssemblies.NetFramework.Net472.Default;
 #else
-		var defaultAssemblies = ReferenceAssemblies.Net.Net60;
+		// Can't use ReferenceAssemblies.Net.Net80 because it's too new for Microsoft.CodeAnalysis 4.2.0
+		var defaultAssemblies =
+			new ReferenceAssemblies(
+				"net8.0",
+				new PackageIdentity("Microsoft.NETCore.App.Ref", "8.0.0"),
+				Path.Combine("ref", "net8.0")
+			);
 #endif
 
 		CurrentXunitV2 = defaultAssemblies.AddPackages(
@@ -27,8 +34,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.assert", "2.6.2-pre.14"),
-				new PackageIdentity("xunit.core", "2.6.2-pre.14")
+				new PackageIdentity("xunit.assert", "2.6.4-pre.1"),
+				new PackageIdentity("xunit.core", "2.6.4-pre.1")
 			)
 		);
 
@@ -37,28 +44,28 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.runner.utility", "2.6.2-pre.14")
+				new PackageIdentity("xunit.runner.utility", "2.6.4-pre.1")
 			)
 		);
 
 		CurrentXunitV3 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("System.Text.Json", "6.0.0"),
-				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.322"),
-				new PackageIdentity("xunit.v3.common", "0.1.1-pre.322"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.322")
+				new PackageIdentity("System.Text.Json", "8.0.0"),
+				new PackageIdentity("xunit.v3.assert", "0.1.1-pre.331"),
+				new PackageIdentity("xunit.v3.common", "0.1.1-pre.331"),
+				new PackageIdentity("xunit.v3.extensibility.core", "0.1.1-pre.331")
 			)
 		);
 
 		CurrentXunitV3RunnerUtility = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("System.Text.Json", "6.0.0"),
-				new PackageIdentity("xunit.v3.common", "0.1.1-pre.322"),
-				new PackageIdentity("xunit.v3.runner.utility", "0.1.1-pre.322")
+				new PackageIdentity("System.Text.Json", "8.0.0"),
+				new PackageIdentity("xunit.v3.common", "0.1.1-pre.331"),
+				new PackageIdentity("xunit.v3.runner.utility", "0.1.1-pre.331")
 			)
 		);
 	}
