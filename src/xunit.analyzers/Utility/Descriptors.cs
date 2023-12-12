@@ -408,7 +408,7 @@ public static class Descriptors
 			"xUnit1041",
 			"Fixture arguments to test classes must have fixture sources",
 			Usage,
-			Error,
+			Warning,
 			"Fixture argument '{0}' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test)"
 		);
 
