@@ -20,6 +20,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.CollectionDefinitionAttribute");
 
+	public static INamedTypeSymbol? ConfigureAwaitOptions(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.ConfigureAwaitOptions");
+
 	public static INamedTypeSymbol? ConfiguredTaskAwaitable(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable");
 
