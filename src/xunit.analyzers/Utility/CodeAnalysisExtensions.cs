@@ -1,14 +1,29 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+
+#if !ROSLYN_4_2_OR_GREATER
+using System.Collections.Generic;
+#endif
 
 namespace Xunit.Analyzers;
 
 static class CodeAnalysisExtensions
 {
+#if ROSLYN_4_2_OR_GREATER
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static IOperation.OperationList Children(this IOperation operation) =>
+		operation.ChildOperations;
+#else
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static IEnumerable<IOperation> Children(this IOperation operation) =>
+		operation.Children;
+#endif
+
 	public static INamedTypeSymbol? FindNamedType(
 		this IAssemblySymbol assembly,
 		Func<INamedTypeSymbol, bool> selector)

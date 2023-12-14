@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;

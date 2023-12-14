@@ -1,10 +1,11 @@
+#if NETCOREAPP && ROSLYN_4_2_OR_GREATER  // Static abstract methods are only supported on .NET, and only by Roslyn 4.2+
+
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 
 public class AssertIsTypeShouldUseGenericOverloadTypeTests
 {
-#if NETCOREAPP  // static abstract methods are only supported on .NET, not .NET Framework
 	public class StaticAbstractInterfaceMethods
 	{
 		const string methodCode = "static abstract void Method();";
@@ -82,5 +83,6 @@ public abstract class TestClass {{
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 	}
-#endif
 }
+
+#endif

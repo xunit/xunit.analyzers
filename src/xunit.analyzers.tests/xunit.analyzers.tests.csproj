@@ -1,14 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);XUNIT_VISIBILITY_INTERNAL;XUNIT_NULLABLE</DefineConstants>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- Download packages referenced by CodeAnalyzerHelper -->
@@ -25,18 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.assert.source" Version="2.6.4-pre.1" />
-    <PackageReference Include="xunit.core" Version="2.6.4-pre.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6-pre.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\xunit.analyzers\xunit.analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
-    <ProjectReference Include="..\..\src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\xunit.analyzers\xunit.analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
   </ItemGroup>
 
 </Project>
