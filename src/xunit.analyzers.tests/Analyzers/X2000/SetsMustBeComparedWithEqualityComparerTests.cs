@@ -4,114 +4,33 @@ using Verify = CSharpVerifier<Xunit.Analyzers.SetsMustBeComparedWithEqualityComp
 
 public class SetsMustBeComparedWithEqualityComparerTests
 {
-	[Theory]
-	[InlineData("Equal", ".ToImmutableHashSet()", 65)]
-	[InlineData("NotEqual", ".ToImmutableHashSet()", 68)]
-	public async void FindsWarning_ForSets(string method, string toImmutableCode, int endColumn)
-	{
-        var code = @$"
-using Xunit;
+	const string customSet = @"
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var collection1 = new HashSet<object>(){toImmutableCode};
-        var collection2 = new HashSet<object>();
+public class MySet : ISet<int> {
+	public int Count => throw new System.NotImplementedException();
+	public bool IsReadOnly => throw new System.NotImplementedException();
 
-        Assert.{method}(collection1, collection2, (e1, e2) => true);
-    }}
-}}";
-
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(12, 9, 12, endColumn)
-				.WithArguments(method);
-
-		await Verify.VerifyAnalyzer(code, expected);
-	}
-
-	[Theory]
-	[InlineData("Equal", "", 79)]
-	[InlineData("NotEqual", "", 82)]
-	[InlineData("Equal", ".ToImmutableHashSet()", 79)]
-	[InlineData("NotEqual", ".ToImmutableHashSet()", 82)]
-	public async void FindsWarning_ForSameTypeSetsButFuncWithTOverload(string method, string toImmutableCode, int endColumn)
-	{
-		var code = @$"
-using Xunit;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var collection1 = new HashSet<object>(){toImmutableCode};
-        var collection2 = new HashSet<object>(){toImmutableCode};
-
-        Assert.{method}(collection1, collection2, (object e1, object e2) => true);
-    }}
-}}";
-
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(12, 9, 12, endColumn)
-				.WithArguments(method);
-
-		await Verify.VerifyAnalyzer(code, expected);
-	}
-
-	[Theory]
-	[InlineData("Equal", "(int e1, int e2) => true", 73)]
-	[InlineData("Equal", "FuncComparer", 61)]
-	[InlineData("Equal", "LocalFunc", 58)]
-	[InlineData("Equal", "funcDelegate", 61)]
-	[InlineData("NotEqual", "(int e1, int e2) => true", 76)]
-	[InlineData("NotEqual", "FuncComparer", 64)]
-	[InlineData("NotEqual", "LocalFunc", 61)]
-	[InlineData("NotEqual", "funcDelegate", 64)]
-	public async void FindsWarning_ForDifferentComparerFuncSyntax(string method, string comparerFuncSyntax, int endColumn)
-	{
-		var code = @$"
-using Xunit;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-
-public class TestClass {{
-    private bool FuncComparer(int obj1, int obj2)
-    {{
-        return true;
-    }}
-
-    private delegate bool FuncDelegate(int obj1, int obj2);
-
-    [Fact]
-    public void TestMethod() {{
-        var collection1 = new HashSet<int>();
-        var collection2 = new HashSet<int>();
-
-        bool LocalFunc(int obj1, int obj2)
-        {{
-            return true;
-        }}
-
-        var funcDelegate = FuncComparer;
-
-        Assert.{method}(collection1, collection2, {comparerFuncSyntax});
-    }}
-}}";
-
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(26, 9, 26, endColumn)
-				.WithArguments(method);
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, code, expected);
-	}
+	public bool Add(int item) => throw new System.NotImplementedException();
+	public void Clear() => throw new System.NotImplementedException();
+	public bool Contains(int item) => throw new System.NotImplementedException();
+	public void CopyTo(int[] array, int arrayIndex) => throw new System.NotImplementedException();
+	public void ExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public IEnumerator<int> GetEnumerator() => throw new System.NotImplementedException();
+	public void IntersectWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool IsProperSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool IsProperSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool IsSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool IsSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool Overlaps(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public bool Remove(int item) => throw new System.NotImplementedException();
+	public bool SetEquals(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public void SymmetricExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+	public void UnionWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+	void ICollection<int>.Add(int item) => throw new System.NotImplementedException();
+	IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
+}";
 
 	[Theory]
 	[InlineData("Equal", "List", "List")]
@@ -120,7 +39,10 @@ public class TestClass {{
 	[InlineData("NotEqual", "List", "List")]
 	[InlineData("NotEqual", "HashSet", "List")]
 	[InlineData("NotEqual", "List", "HashSet")]
-	public async void DoesNotFindWarning_ForNonSets(string method, string collection1Type, string collection2Type)
+	public async void ForSetWithNonSet_DoesNotTrigger(
+		string method,
+		string collection1Type,
+		string collection2Type)
 	{
 		var code = @$"
 using Xunit;
@@ -129,22 +51,29 @@ using System.Collections.Generic;
 public class TestClass {{
     [Fact]
     public void TestMethod() {{
-        var collection1 = new {collection1Type}<object>();
-        var collection2 = new {collection2Type}<object>();
+        var collection1 = new {collection1Type}<int>();
+        var collection2 = new {collection2Type}<int>();
 
-        Assert.{method}(collection1, collection2, (object e1, object e2) => true);
+        Assert.{method}(collection1, collection2, (int e1, int e2) => true);
     }}
 }}";
 
 		await Verify.VerifyAnalyzer(code);
 	}
 
+	public static MatrixTheoryData<string, string, string> MethodWithCollectionCreationData =>
+		new(
+			new[] { "Equal", "NotEqual" },
+			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
+			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
+		);
+
 	[Theory]
-	[InlineData("Equal", "")]
-	[InlineData("NotEqual", "")]
-	[InlineData("Equal", ".ToImmutableHashSet()")]
-	[InlineData("NotEqual", ".ToImmutableHashSet()")]
-	public async void DoesNotFindWarning_ForSameTypeSetsWithIEnumerableTOverload(string method, string toImmutableCode)
+	[MemberData(nameof(MethodWithCollectionCreationData))]
+	public async void WithCollectionComparer_DoesNotTrigger(
+		string method,
+		string collection1,
+		string collection2)
 	{
 		var code = @$"
 using Xunit;
@@ -154,22 +83,22 @@ using System.Collections.Immutable;
 public class TestClass {{
     [Fact]
     public void TestMethod() {{
-        var collection1 = new HashSet<object>(){toImmutableCode};
-        var collection2 = new HashSet<object>(){toImmutableCode};
+        var collection1 = {collection1};
+        var collection2 = {collection2};
 
-        Assert.{method}(collection1, collection2, (e1, e2) => true);
+        Assert.{method}(collection1, collection2, (IEnumerable<int> e1, IEnumerable<int> e2) => true);
     }}
 }}";
 
-		await Verify.VerifyAnalyzer(code);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
 	}
 
 	[Theory]
-	[InlineData("Equal", "")]
-	[InlineData("NotEqual", "")]
-	[InlineData("Equal", ".ToImmutableHashSet()")]
-	[InlineData("NotEqual", ".ToImmutableHashSet()")]
-	public async void DoesNotFindWarning_ForSetsComparedWithEqualityComparer(string method, string toImmutableCode)
+	[MemberData(nameof(MethodWithCollectionCreationData))]
+	public async void WithEqualityComparer_DoesNotTrigger(
+		string method,
+		string collection1,
+		string collection2)
 	{
 		var code = @$"
 using Xunit;
@@ -192,13 +121,102 @@ public class TestEqualityComparer : IEqualityComparer<int>
 public class TestClass {{
     [Fact]
     public void TestMethod() {{
-        var collection1 = new HashSet<int>(){toImmutableCode};
-        var collection2 = new HashSet<int>(){toImmutableCode};
+        var collection1 = {collection1};
+        var collection2 = {collection2};
 
         Assert.{method}(collection1, collection2, new TestEqualityComparer());
     }}
 }}";
 
-		await Verify.VerifyAnalyzer(code);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
 	}
+
+	[Theory]
+	[MemberData(nameof(MethodWithCollectionCreationData))]
+	public async void WithComparerLambda_Triggers(
+		string method,
+		string collection1,
+		string collection2)
+	{
+		var code = @$"
+using Xunit;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
+public class TestClass {{
+    [Fact]
+    public void TestMethod() {{
+        var collection1 = {collection1};
+        var collection2 = {collection2};
+
+        Assert.{method}(collection1, collection2, (int e1, int e2) => true);
+    }}
+}}";
+
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(12, 9, 12, 68 + method.Length)
+				.WithArguments(method);
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet }, expected);
+	}
+
+#if ROSLYN_4_2_OR_GREATER  // No C# 10 in Roslyn 3.11, so no local functions
+
+	public static MatrixTheoryData<string, string, string, string> ComparerFunctionData() =>
+		new(
+			new[] { "Equal", "NotEqual" },
+			new[] { "(int e1, int e2) => true", "FuncComparer", "LocalFunc", "funcDelegate" },
+			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
+			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
+		);
+
+	[Theory]
+	[MemberData(nameof(ComparerFunctionData))]
+	public async void WithComparerFunction_Triggers(
+		string method,
+		string comparerFuncSyntax,
+		string collection1,
+		string collection2)
+	{
+		var code = @$"
+using Xunit;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
+public class TestClass {{
+    private bool FuncComparer(int obj1, int obj2)
+    {{
+        return true;
+    }}
+
+    private delegate bool FuncDelegate(int obj1, int obj2);
+
+    [Fact]
+    public void TestMethod() {{
+        var collection1 = {collection1};
+        var collection2 = {collection2};
+
+        bool LocalFunc(int obj1, int obj2)
+        {{
+            return true;
+        }}
+
+        var funcDelegate = FuncComparer;
+
+        Assert.{method}(collection1, collection2, {comparerFuncSyntax});
+    }}
+}}";
+
+		var expected =
+			Verify
+				.Diagnostic()
+				.WithSpan(26, 9, 26, 44 + method.Length + comparerFuncSyntax.Length)
+				.WithArguments(method);
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, new[] { code, customSet }, expected);
+	}
+
+#endif
 }

@@ -1,3 +1,8 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -13,9 +18,6 @@ public class SetsMustBeComparedWithEqualityComparer : AssertUsageAnalyzerBase
 		Constants.Asserts.Equal,
 		Constants.Asserts.NotEqual,
 	};
-
-	const string set = "ISet";
-	const string readOnlySet = "IReadOnlySet";
 
 	public SetsMustBeComparedWithEqualityComparer()
 		: base(Descriptors.X2026_SetsMustBeComparedWithEqualityComparer, targetMethods)
@@ -39,24 +41,28 @@ public class SetsMustBeComparedWithEqualityComparer : AssertUsageAnalyzerBase
 		if (semanticModel == null)
 			return;
 
-		var collection0Type = semanticModel.GetTypeInfo(arguments[0].Value.Syntax).Type as INamedTypeSymbol;
-		if (collection0Type == null)
+		var setType = TypeSymbolFactory.ISetOfT(context.Compilation)?.ConstructUnboundGenericType();
+		var readOnlySetType = TypeSymbolFactory.IReadOnlySetOfT(context.Compilation)?.ConstructUnboundGenericType();
+		var setInterfaces = new HashSet<INamedTypeSymbol>(new[] { setType, readOnlySetType }.WhereNotNull(), SymbolEqualityComparer.Default);
+
+		if (semanticModel.GetTypeInfo(arguments[0].Value.Syntax).Type is not INamedTypeSymbol collection0Type)
+			return;
+		var interface0Type =
+			collection0Type
+				.AllInterfaces
+				.Where(i => i.IsGenericType)
+				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
+		if (interface0Type is null)
 			return;
 
-		if (!collection0Type.AllInterfaces.Select(i => i.Name).Any(n => n is set or readOnlySet))
+		if (semanticModel.GetTypeInfo(arguments[1].Value.Syntax).Type is not INamedTypeSymbol collection1Type)
 			return;
-
-		var collection1Type = semanticModel.GetTypeInfo(arguments[1].Value.Syntax).Type as INamedTypeSymbol;
-		if (collection1Type == null)
-			return;
-
-		if (!collection1Type.AllInterfaces.Select(i => i.Name).Any(n => n is set or readOnlySet))
-			return;
-
-#pragma warning disable CA1508
-		if (collection0Type.TypeArguments.Length != 1 || collection1Type.TypeArguments.Length != 1)
-#pragma warning restore CA1508
-
+		var interface1Type =
+			collection1Type
+				.AllInterfaces
+				.Where(i => i.IsGenericType)
+				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
+		if (interface1Type is null)
 			return;
 
 		if (arguments[2].Value is not IDelegateCreationOperation && arguments[2].Value is not ILocalReferenceOperation)
@@ -66,11 +72,12 @@ public class SetsMustBeComparedWithEqualityComparer : AssertUsageAnalyzerBase
 			return;
 
 		var funcDelegate = funcTypeSymbol.DelegateInvokeMethod;
-		var isFuncOverload = funcDelegate.ReturnType.SpecialType == SpecialType.System_Boolean &&
-		                     funcDelegate.Parameters.Length == 2 &&
-							 funcDelegate.Parameters[0].Type.Equals(collection0Type.TypeArguments[0], SymbolEqualityComparer.Default) &&
-		                     funcDelegate.Parameters[1].Type.Equals(collection1Type.TypeArguments[0], SymbolEqualityComparer.Default);
-		
+		var isFuncOverload =
+			funcDelegate.ReturnType.SpecialType == SpecialType.System_Boolean &&
+			funcDelegate.Parameters.Length == 2 &&
+			funcDelegate.Parameters[0].Type.Equals(interface0Type.TypeArguments[0], SymbolEqualityComparer.Default) &&
+			funcDelegate.Parameters[1].Type.Equals(interface1Type.TypeArguments[0], SymbolEqualityComparer.Default);
+
 		// Wrong method overload
 		if (!isFuncOverload)
 			return;
