@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -220,7 +224,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 		bool validateSafeTasks(IOperation op)
 		{
-			foreach (var childOperation in op.ChildOperations)
+			foreach (var childOperation in op.Children())
 			{
 				// Stop looking once we've found the operation that is ours, since any
 				// code after that operation isn't something we should consider
@@ -239,7 +243,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				if (unfoundSymbols.Count == 0)
 					return true;
 
-				if (childOperation.ChildOperations.Any(c => validateSafeTasks(c)))
+				if (childOperation.Children().Any(c => validateSafeTasks(c)))
 					return true;
 			}
 
@@ -266,9 +270,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 	{
 		if (!unfoundSymbols.Contains(operation.Symbol))
 			return;
-		if (operation.ChildOperations.FirstOrDefault() is not IVariableInitializerOperation variableInitializerOperation)
+		if (operation.Children().FirstOrDefault() is not IVariableInitializerOperation variableInitializerOperation)
 			return;
-		if (variableInitializerOperation.Value.ChildOperations.FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
+		if (variableInitializerOperation.Value.Children().FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
 			return;
 		if (!FindSymbol(variableInitializerInvocationOperation.TargetMethod, variableInitializerInvocationOperation, taskType, whenAny, xunitContext, out var _))
 			return;

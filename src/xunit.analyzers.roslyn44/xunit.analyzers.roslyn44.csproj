@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Xunit.Analyzers</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.analyzers\**\*.cs" Exclude="..\xunit.analyzers\obj\**\*.cs" />
+  </ItemGroup>
+
+</Project>

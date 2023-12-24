@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit.BuildTools.Models;
 
@@ -15,8 +16,14 @@ public static class TestCore
 		context.BuildStep("Running .NET Core tests");
 
 		var resultPath = Path.Combine(context.BaseFolder, "artifacts", "test");
+
+		var testDLLs =
+			Directory
+				.GetFiles(Path.Join(context.BaseFolder, "src"), "*.tests*.csproj", SearchOption.AllDirectories)
+				.Select(csproj => '"' + Path.Combine(Path.GetDirectoryName(csproj)!, "bin", context.ConfigurationText, "net8.0", Path.GetFileNameWithoutExtension(csproj) + ".dll") + '"');
+
 		File.Delete(Path.Combine(resultPath, "netcore.trx"));
 
-		return context.Exec("dotnet", $"test src/xunit.analyzers.tests --framework net8.0 --configuration {context.ConfigurationText} --no-build --logger trx;LogFileName=netcore.trx --results-directory \"{resultPath}\" --verbosity {context.Verbosity}");
+		return context.Exec("dotnet", $"vstest {string.Join(" ", testDLLs)} --logger:\"trx;LogFileName=netcore.trx\" --ResultsDirectory:\"{resultPath}\" --Parallel");
 	}
 }
