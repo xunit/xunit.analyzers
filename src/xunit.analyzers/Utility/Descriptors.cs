@@ -663,7 +663,14 @@ public static class Descriptors
 			"The use of Assert.{0} can be simplified to avoid using a boolean literal value in an equality test."
 		);
 
-	// Placeholder for rule X2026
+	public static DiagnosticDescriptor X2026_SetsMustBeComparedWithEqualityComparer { get; } =
+		Rule(
+			"xUnit2026",
+			"Comparison of sets must be done with IEqualityComparer",
+			Assertions,
+			Warning,
+			"Comparison of two sets may produce inconsistent results if GetHashCode() is not overriden. Consider using Assert.{0}(IEnumerable<T>, IEnumerable<T>, IEqualityComparer<T>) instead."
+		);
 
 	// Placeholder for rule X2027
 

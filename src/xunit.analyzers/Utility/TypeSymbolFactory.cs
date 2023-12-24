@@ -102,6 +102,12 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol IReadOnlyCollectionOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T);
 
+	public static INamedTypeSymbol? IReadOnlySetOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IReadOnlySet`1");
+
+	public static INamedTypeSymbol? ISetOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.ISet`1");
+
 	public static INamedTypeSymbol? ISourceInformation_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ISourceInformation");
 
