@@ -1,4 +1,4 @@
-#if NETCOREAPP && ROSLYN_4_2_OR_GREATER  // Static abstract methods are only supported on .NET, and only by Roslyn 4.2+
+#if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // Static abstract methods are only supported on .NET with C# 11
 
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
@@ -38,7 +38,7 @@ public abstract class TestClass {{
 		{
 			string source = string.Format(codeTemplate, string.Empty, methodCode);
 
-			await Verify.VerifyAnalyzer(LanguageVersion.Preview, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 		}
 
 		[Fact]
@@ -46,7 +46,7 @@ public abstract class TestClass {{
 		{
 			string source = string.Format(codeTemplate, methodCode, string.Empty);
 
-			await Verify.VerifyAnalyzer(LanguageVersion.Preview, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 		}
 
 		[Theory]
