@@ -184,6 +184,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? OptionalAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.InteropServices.OptionalAttribute");
 
+	public static INamedTypeSymbol? SortedSetOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.SortedSet`1");
+
 	public static INamedTypeSymbol? Task(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Task");
 

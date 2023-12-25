@@ -672,7 +672,14 @@ public static class Descriptors
 			"Comparison of two sets may produce inconsistent results if GetHashCode() is not overriden. Consider using Assert.{0}(IEnumerable<T>, IEnumerable<T>, IEqualityComparer<T>) instead."
 		);
 
-	// Placeholder for rule X2027
+	public static DiagnosticDescriptor X2027_SetsShouldNotBeComparedToLinearContainers { get; } =
+		Rule(
+			"xUnit2027",
+			"Comparison of sets to linear containers have undefined results",
+			Assertions,
+			Warning,
+			"Comparing an instance of {0} with an instance of {1} has undefined results, because the order of items in the set is not predictable. Create a stable order for the set (i.e., by using OrderBy from Linq)."
+		);
 
 	// Placeholder for rule X2028
 
