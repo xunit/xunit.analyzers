@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
-using Verify = CSharpVerifier<Xunit.Analyzers.SetsMustBeComparedWithEqualityComparer>;
+using Verify = CSharpVerifier<Xunit.Analyzers.SetEqualityAnalyzer>;
 
-public class SetsMustBeComparedWithEqualityComparerTests
+public class SetEqualityAnalyzerTests
 {
 	const string customSet = @"
 using System.Collections;
@@ -61,21 +61,23 @@ public class TestClass {{
 		await Verify.VerifyAnalyzer(code);
 	}
 
-	public static MatrixTheoryData<string, string, string> MethodWithCollectionCreationData =>
-		new(
-			new[] { "Equal", "NotEqual" },
-			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
-			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
-		);
-
-	[Theory]
-	[MemberData(nameof(MethodWithCollectionCreationData))]
-	public async void WithCollectionComparer_DoesNotTrigger(
-		string method,
-		string collection1,
-		string collection2)
+	public class X2026_SetsMustBeComparedWithEqualityComparer
 	{
-		var code = @$"
+		public static MatrixTheoryData<string, string, string> MethodWithCollectionCreationData =>
+			new(
+				new[] { "Equal", "NotEqual" },
+				new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
+				new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
+			);
+
+		[Theory]
+		[MemberData(nameof(MethodWithCollectionCreationData))]
+		public async void WithCollectionComparer_DoesNotTrigger(
+			string method,
+			string collection1,
+			string collection2)
+		{
+			var code = @$"
 using Xunit;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -90,17 +92,17 @@ public class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
-	}
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
+		}
 
-	[Theory]
-	[MemberData(nameof(MethodWithCollectionCreationData))]
-	public async void WithEqualityComparer_DoesNotTrigger(
-		string method,
-		string collection1,
-		string collection2)
-	{
-		var code = @$"
+		[Theory]
+		[MemberData(nameof(MethodWithCollectionCreationData))]
+		public async void WithEqualityComparer_DoesNotTrigger(
+			string method,
+			string collection1,
+			string collection2)
+		{
+			var code = @$"
 using Xunit;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -128,17 +130,17 @@ public class TestClass {{
     }}
 }}";
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
-	}
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet });
+		}
 
-	[Theory]
-	[MemberData(nameof(MethodWithCollectionCreationData))]
-	public async void WithComparerLambda_Triggers(
-		string method,
-		string collection1,
-		string collection2)
-	{
-		var code = @$"
+		[Theory]
+		[MemberData(nameof(MethodWithCollectionCreationData))]
+		public async void WithComparerLambda_Triggers(
+			string method,
+			string collection1,
+			string collection2)
+		{
+			var code = @$"
 using Xunit;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -153,34 +155,34 @@ public class TestClass {{
     }}
 }}";
 
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(12, 9, 12, 68 + method.Length)
-				.WithArguments(method);
+			var expected =
+				Verify
+					.Diagnostic("xUnit2026")
+					.WithSpan(12, 9, 12, 68 + method.Length)
+					.WithArguments(method);
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet }, expected);
-	}
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSet }, expected);
+		}
 
 #if ROSLYN_4_2_OR_GREATER  // No C# 10 in Roslyn 3.11, so no local functions
 
-	public static MatrixTheoryData<string, string, string, string> ComparerFunctionData() =>
-		new(
-			new[] { "Equal", "NotEqual" },
-			new[] { "(int e1, int e2) => true", "FuncComparer", "LocalFunc", "funcDelegate" },
-			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
-			new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
-		);
+		public static MatrixTheoryData<string, string, string, string> ComparerFunctionData() =>
+			new(
+				new[] { "Equal", "NotEqual" },
+				new[] { "(int e1, int e2) => true", "FuncComparer", "LocalFunc", "funcDelegate" },
+				new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" },
+				new[] { "new HashSet<int>()", "new HashSet<int>().ToImmutableHashSet()", "new MySet()" }
+			);
 
-	[Theory]
-	[MemberData(nameof(ComparerFunctionData))]
-	public async void WithComparerFunction_Triggers(
-		string method,
-		string comparerFuncSyntax,
-		string collection1,
-		string collection2)
-	{
-		var code = @$"
+		[Theory]
+		[MemberData(nameof(ComparerFunctionData))]
+		public async void WithComparerFunction_Triggers(
+			string method,
+			string comparerFuncSyntax,
+			string collection1,
+			string collection2)
+		{
+			var code = @$"
 using Xunit;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -209,14 +211,16 @@ public class TestClass {{
     }}
 }}";
 
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(26, 9, 26, 44 + method.Length + comparerFuncSyntax.Length)
-				.WithArguments(method);
+			var expected =
+				Verify
+					.Diagnostic("xUnit2026")
+					.WithSpan(26, 9, 26, 44 + method.Length + comparerFuncSyntax.Length)
+					.WithArguments(method);
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, new[] { code, customSet }, expected);
-	}
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, new[] { code, customSet }, expected);
+		}
 
 #endif
+
+	}
 }

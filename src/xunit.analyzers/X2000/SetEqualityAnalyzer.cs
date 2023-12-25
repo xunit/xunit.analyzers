@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class SetsMustBeComparedWithEqualityComparer : AssertUsageAnalyzerBase
+public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
 	{
@@ -19,7 +19,7 @@ public class SetsMustBeComparedWithEqualityComparer : AssertUsageAnalyzerBase
 		Constants.Asserts.NotEqual,
 	};
 
-	public SetsMustBeComparedWithEqualityComparer()
+	public SetEqualityAnalyzer()
 		: base(Descriptors.X2026_SetsMustBeComparedWithEqualityComparer, targetMethods)
 	{ }
 
