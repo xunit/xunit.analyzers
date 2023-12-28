@@ -26,6 +26,7 @@ public class TestClass {
 		public async void FailureCase_GetResult()
 		{
 			var source = @"
+using System;
 using System.Threading.Tasks.Sources;
 using Xunit;
 
@@ -33,6 +34,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         default(IValueTaskSource).[|GetResult(0)|];
+        Action<IValueTaskSource> _ = vts => vts.GetResult(0);
     }
 }";
 
@@ -46,6 +48,7 @@ public class TestClass {
 		public async void FailureCase_GetResult()
 		{
 			var source = @"
+using System;
 using System.Threading.Tasks.Sources;
 using Xunit;
 
@@ -53,6 +56,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         default(IValueTaskSource<int>).[|GetResult(0)|];
+        Func<IValueTaskSource<int>, int> _ = vts => vts.GetResult(0);
     }
 }";
 
@@ -68,6 +72,7 @@ public class TestClass {
 			public async void FailureCase()
 			{
 				var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -75,6 +80,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         Task.Delay(1).[|Wait()|];
+        Action<Task> _ = t => t.Wait();
     }
 }";
 
@@ -196,6 +202,7 @@ public class TestClass {
 			public async void FailureCase(string waitMethod)
 			{
 				var source = @$"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -203,6 +210,7 @@ public class TestClass {{
     [Fact]
     public void TestMethod() {{
         Task.[|{waitMethod}(Task.Delay(1))|];
+        Action<Task> _ = t => Task.{waitMethod}(t);
     }}
 }}";
 
@@ -334,6 +342,7 @@ public class TestClass {{
 			public async void FailureCase()
 			{
 				var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -341,6 +350,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         Task.CompletedTask.GetAwaiter().[|GetResult()|];
+        Action<Task> _ = t => t.GetAwaiter().GetResult();
     }
 }";
 
@@ -463,6 +473,7 @@ public class TestClass {
 			public async void FailureCase()
 			{
 				var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -470,6 +481,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = Task.FromResult(42).[|Result|];
+        Func<Task<int>, int> _2 = t => t.Result;
     }
 }";
 
@@ -591,6 +603,7 @@ public class TestClass {
 			public async void FailureCase()
 			{
 				var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -598,6 +611,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = Task.FromResult(42).GetAwaiter().[|GetResult()|];
+        Func<Task<int>, int> _2 = t => t.GetAwaiter().GetResult();
     }
 }";
 
@@ -720,6 +734,7 @@ public class TestClass {
 		public async void FailureCase_GetAwaiterGetResult()
 		{
 			var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -727,6 +742,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         default(ValueTask).GetAwaiter().[|GetResult()|];
+        Action<ValueTask> _ = vt => vt.GetAwaiter().GetResult();
     }
 }";
 
@@ -740,6 +756,7 @@ public class TestClass {
 		public async void FailureCase_Result()
 		{
 			var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -747,6 +764,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = new ValueTask<int>(42).[|Result|];
+        Func<ValueTask<int>, int> _2 = vt => vt.Result;
     }
 }";
 
@@ -757,6 +775,7 @@ public class TestClass {
 		public async void FailureCase_GetAwaiterGetResult()
 		{
 			var source = @"
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -764,6 +783,7 @@ public class TestClass {
     [Fact]
     public void TestMethod() {
         var _ = new ValueTask<int>(42).GetAwaiter().[|GetResult()|];
+        Func<ValueTask<int>, int> _2 = vt => vt.GetAwaiter().GetResult();
     }
 }";
 

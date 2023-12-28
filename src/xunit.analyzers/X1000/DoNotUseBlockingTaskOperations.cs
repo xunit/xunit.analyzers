@@ -37,10 +37,6 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		// These are on both Task<T> and ValueTask<T>
 		nameof(Task<int>.Result),
 	};
-	static readonly string[] continueWith = new[]
-	{
-		nameof(Task<int>.ContinueWith),
-	};
 	static readonly string[] whenAll = new[]
 	{
 		nameof(Task.WhenAll),
@@ -90,8 +86,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			if (WrappedInContinueWith(invocation, taskType, xunitContext))
-				return;
+			// Ignore anything inside a lambda expression
+			for (var current = context.Operation; current is not null; current = current.Parent)
+				if (current is IAnonymousFunctionOperation)
+					return;
 
 			var symbolsForSearch = default(IEnumerable<ILocalSymbol>);
 			switch (foundSymbolName)
@@ -160,8 +158,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			if (WrappedInContinueWith(reference, taskType, xunitContext))
-				return;
+			// Ignore anything inside a lambda expression
+			for (var current = context.Operation; current is not null; current = current.Parent)
+				if (current is IAnonymousFunctionOperation)
+					return;
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
@@ -299,22 +299,5 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 		foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
 			unfoundSymbols.Remove(arrayElement.Local);
-	}
-
-	static bool WrappedInContinueWith(
-		IOperation? operation,
-		INamedTypeSymbol taskType,
-		XunitContext xunitContext)
-	{
-		for (; operation is not null; operation = operation.Parent)
-		{
-			if (operation is not IInvocationOperation invocation)
-				continue;
-
-			if (FindSymbol(invocation.TargetMethod, invocation, taskType, continueWith, xunitContext, out var _))
-				return true;
-		}
-
-		return false;
 	}
 }
