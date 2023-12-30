@@ -234,6 +234,29 @@ public class TestClass {{
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, new[] { code, customSetAndComparer });
 		}
 
+		[Fact]
+		public async void CastedSet_DoesNotTrigger()
+		{
+			var code = @"
+using Xunit;
+using System.Collections.Generic;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() {
+        var expected = new HashSet<string> { ""bar"", ""foo"" };
+        var actual = new HashSet<string> { ""foo"", ""bar"" };
+
+         Assert.Equal(expected, actual);
+         Assert.Equal(expected, (ISet<string>)actual);
+         Assert.Equal((ISet<string>)expected, actual);
+         Assert.Equal((ISet<string>)expected, (ISet<string>)actual);
+    }
+}";
+
+			await Verify.VerifyAnalyzer(code);
+		}
+
 		public static MatrixTheoryData<string, (string type, string initializer)> MethodAndTypeAndInitializer =>
 			new(
 				new[] { "Equal", "NotEqual" },

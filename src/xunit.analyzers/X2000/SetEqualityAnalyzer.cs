@@ -56,6 +56,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 		var interface0Type =
 			collection0Type
 				.AllInterfaces
+				.Concat(new[] { collection0Type })
 				.Where(i => i.IsGenericType)
 				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
 
@@ -64,6 +65,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 		var interface1Type =
 			collection1Type
 				.AllInterfaces
+				.Concat(new[] { collection1Type })
 				.Where(i => i.IsGenericType)
 				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
 
