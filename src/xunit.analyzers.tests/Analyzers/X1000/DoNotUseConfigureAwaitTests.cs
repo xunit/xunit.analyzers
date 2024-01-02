@@ -65,6 +65,28 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
+		public async void InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
+		{
+			var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async Task TestMethod() {{
+        var booleanVar = true;
+        var t = Task.Run(async () => {{
+            await Task.Delay(1).ConfigureAwait({argumentValue});
+        }});
+        await t;
+    }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(InvalidValues))]
 		public async void InvalidValue_TaskWithAwait_Triggers(string argumentValue)
 		{
 			var source = @$"
@@ -185,27 +207,6 @@ public class TestClass {{
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
-
-		[Fact]
-		public async void False_DoesNotTriggerInNestedTask()
-		{
-			var source = @"
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {
-    [Fact]
-    public async Task TestMethod() {
-		var t = Task.Run(async () => {
-			await Task.Delay(1).ConfigureAwait(false);
-		});
-		
-		await t;
-    }
-}";
-
-			await Verify.VerifyAnalyzer(source);
-		}
 	}
 
 #if NETCOREAPP
@@ -260,7 +261,29 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskWithAwait_DoesNotTrigger(string enumValue)
+		public async void InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
+		{
+			var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async Task TestMethod() {{
+        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+        var t = Task.Run(async () => {{
+            await Task.Delay(1).ConfigureAwait({argumentValue});
+        }});
+        await t;
+    }}
+}}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(InvalidValues))]
+		public async void InvalidValue_TaskWithAwait_Triggers(string enumValue)
 		{
 			var source = $@"
 using System.Threading.Tasks;
