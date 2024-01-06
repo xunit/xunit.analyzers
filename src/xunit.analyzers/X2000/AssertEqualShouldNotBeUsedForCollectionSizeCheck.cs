@@ -13,9 +13,12 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> collectionTypesWithExceptionThrowingGetEnumeratorMethod = new()
+	static readonly HashSet<string> allowedCollections = new()
 	{
+		// ArraySegment<T>.GetEnumerator() can throw
 		"System.ArraySegment<T>",
+		// StringValues has an implicit string conversion that's preferred by the compiler, https://github.com/xunit/xunit/issues/2859
+		"Microsoft.Extensions.Primitives.StringValues",
 	};
 	static readonly HashSet<string> sizeMethods = new()
 	{
@@ -73,7 +76,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		if (symbol is null)
 			return;
 
-		if (IsCollectionsWithExceptionThrowingGetEnumeratorMethod(symbol) ||
+		if (IsAllowedCollection(symbol) ||
 				!IsWellKnownSizeMethod(symbol) &&
 				!IsICollectionCountProperty(context, symbol) &&
 				!IsICollectionOfTCountProperty(context, symbol) &&
@@ -114,8 +117,8 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		return methodName == Constants.Asserts.Equal ? Constants.Asserts.Empty : Constants.Asserts.NotEmpty;
 	}
 
-	static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(ISymbol symbol) =>
-		collectionTypesWithExceptionThrowingGetEnumeratorMethod.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
+	static bool IsAllowedCollection(ISymbol symbol) =>
+		allowedCollections.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
 
 	static bool IsWellKnownSizeMethod(ISymbol symbol) =>
 		sizeMethods.Contains(symbol.OriginalDefinition.ToDisplayString());

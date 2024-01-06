@@ -5,9 +5,10 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForColle
 
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 {
-	public static TheoryData<string> CollectionsWithExceptionThrowingGetEnumeratorMethod = new()
+	public static TheoryData<string> AllowedCollections = new()
 	{
 		"new System.ArraySegment<int>().Count",
+		"Microsoft.Extensions.Primitives.StringValues.Empty.Count",
 	};
 
 	public static TheoryData<string> Collections = new()
@@ -42,8 +43,8 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 	};
 
 	[Theory]
-	[MemberData(nameof(CollectionsWithExceptionThrowingGetEnumeratorMethod))]
-	public async void DoesNotFindWarningForCollectionsWithExceptionThrowingGetEnumeratorMethod(string collection)
+	[MemberData(nameof(AllowedCollections))]
+	public async void AllowedCollection_DoesNotTrigger(string collection)
 	{
 		var source = $@"
 using System.Linq;
