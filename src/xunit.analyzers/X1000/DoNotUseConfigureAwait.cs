@@ -63,9 +63,9 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 			if (!invocation.IsInTestMethod(xunitContext))
 				return;
 
-			// Ignore anything inside a lambda expression
+			// Ignore anything inside a lambda expression or a local function
 			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation)
+				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
 					return;
 
 			// invocation should be two nodes: "(some other code).ConfigureAwait" and the arguments (like "(false)")

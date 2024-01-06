@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
 
@@ -83,6 +84,29 @@ public class TestClass {{
 }}";
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(InvalidValues))]
+		public async void InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
+		{
+			var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async Task TestMethod() {{
+        var booleanVar = true;
+        
+        async Task AssertEventStateAsync()
+        {{
+            await Task.Delay(1).ConfigureAwait({argumentValue});
+        }}
+    }}
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 
 		[Theory]
@@ -279,6 +303,29 @@ public class TestClass {{
 }}";
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(InvalidValues))]
+		public async void InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
+		{
+			var source = @$"
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    [Fact]
+    public async Task TestMethod() {{
+        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+        
+        async Task AssertEventStateAsync()
+        {{
+            await Task.Delay(1).ConfigureAwait({argumentValue});
+        }}
+    }}
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 
 		[Theory]
