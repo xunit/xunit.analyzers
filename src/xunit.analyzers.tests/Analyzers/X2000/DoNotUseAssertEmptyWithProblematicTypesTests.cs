@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseAssertEmptyWithProblematicTypes>;
 
-public class DoNotUseAssertEmptyWithProblematicTypes
+public class DoNotUseAssertEmptyWithProblematicTypesTests
 {
 	public static TheoryData<string, string, string> ProblematicTypes = new()
 	{
@@ -25,6 +25,7 @@ using Xunit;
 public class TestClass {{
     public void TestMethod() {{
         Assert.Empty({invocation});
+        Assert.NotEmpty({invocation});
     }}
 }}";
 
@@ -47,6 +48,7 @@ using Xunit;
 public class TestClass {{
     public void TestMethod() {{
         Assert.Empty({invocation}.ToArray());
+        Assert.NotEmpty({invocation}.ToArray());
     }}
 }}";
 
@@ -68,15 +70,23 @@ using Xunit;
 public class TestClass {{
     public void TestMethod() {{
         Assert.Empty({invocation});
+        Assert.NotEmpty({invocation});
     }}
 }}";
 
-		var expected =
+		var expected = new[]
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 23 + invocation.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments(typeName, problem);
+				.WithArguments("Empty", typeName, problem),
+			Verify
+				.Diagnostic()
+				.WithSpan(9, 9, 9, 26 + invocation.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("NotEmpty", typeName, problem),
+		};
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

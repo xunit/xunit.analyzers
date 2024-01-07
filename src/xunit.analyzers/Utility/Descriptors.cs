@@ -684,10 +684,10 @@ public static class Descriptors
 	public static DiagnosticDescriptor X2028_DoNotUseAssertEmptyWithProblematicTypes { get; } =
 		Rule(
 			"xUnit2028",
-			"Do not use Assert.Empty with problematic types",
+			"Do not use Assert.Empty or Assert.NotEmpty with problematic types",
 			Assertions,
 			Warning,
-			"Using Assert.Empty with an instance of {0} is problematic, because {1}. Check the length with .Count instead."
+			"Using Assert.{0} with an instance of {1} is problematic, because {2}. Check the length with .Count instead."
 		);
 
 	// Placeholder for rule X2029

@@ -7,8 +7,14 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DoNotUseAssertEmptyWithProblematicTypes : AssertUsageAnalyzerBase
 {
+	static readonly string[] targetMethods = new[]
+	{
+		Constants.Asserts.Empty,
+		Constants.Asserts.NotEmpty,
+	};
+
 	public DoNotUseAssertEmptyWithProblematicTypes() :
-		base(Descriptors.X2028_DoNotUseAssertEmptyWithProblematicTypes, new[] { Constants.Asserts.Empty })
+		base(Descriptors.X2028_DoNotUseAssertEmptyWithProblematicTypes, targetMethods)
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -41,6 +47,7 @@ public class DoNotUseAssertEmptyWithProblematicTypes : AssertUsageAnalyzerBase
 				Diagnostic.Create(
 					Descriptors.X2028_DoNotUseAssertEmptyWithProblematicTypes,
 					invocationOperation.Syntax.GetLocation(),
+					method.Name,
 					sourceType.ToMinimalDisplayString(semanticModel, 0),
 					"it is implicitly cast to a string, not a collection"
 				)
@@ -54,6 +61,7 @@ public class DoNotUseAssertEmptyWithProblematicTypes : AssertUsageAnalyzerBase
 					Diagnostic.Create(
 						Descriptors.X2028_DoNotUseAssertEmptyWithProblematicTypes,
 						invocationOperation.Syntax.GetLocation(),
+						method.Name,
 						sourceType.ToMinimalDisplayString(semanticModel, 0),
 						"its implementation of GetEnumerator() can throw"
 					)
