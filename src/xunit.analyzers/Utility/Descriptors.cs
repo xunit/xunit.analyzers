@@ -685,6 +685,26 @@ public static class Descriptors
 
 	// Placeholder for rule X2029
 
+	// Placeholder for rule X2030
+
+	// Placeholder for rule X2031
+
+	// Placeholder for rule X2032
+
+	// Placeholder for rule X2033
+
+	// Placeholder for rule X2034
+
+	// Placeholder for rule X2035
+
+	// Placeholder for rule X2036
+
+	// Placeholder for rule X2037
+
+	// Placeholder for rule X2038
+
+	// Placeholder for rule X2039
+
 	public static DiagnosticDescriptor X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObject { get; } =
 		Rule(
 			"xUnit3000",
