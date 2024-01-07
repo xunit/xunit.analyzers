@@ -86,9 +86,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			// Ignore anything inside a lambda expression
+			// Ignore anything inside a lambda expression or a local function
 			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation)
+				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
 					return;
 
 			var symbolsForSearch = default(IEnumerable<ILocalSymbol>);
@@ -158,9 +158,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			// Ignore anything inside a lambda expression
+			// Ignore anything inside a lambda expression or a local function
 			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation)
+				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
 					return;
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
