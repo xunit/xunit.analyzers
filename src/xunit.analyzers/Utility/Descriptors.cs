@@ -681,7 +681,14 @@ public static class Descriptors
 			"Comparing an instance of {0} with an instance of {1} has undefined results, because the order of items in the set is not predictable. Create a stable order for the set (i.e., by using OrderBy from Linq)."
 		);
 
-	// Placeholder for rule X2028
+	public static DiagnosticDescriptor X2028_DoNotUseAssertEmptyWithProblematicTypes { get; } =
+		Rule(
+			"xUnit2028",
+			"Do not use Assert.Empty with problematic types",
+			Assertions,
+			Warning,
+			"Using Assert.Empty with an instance of {0} is problematic, because {1}. Check the length with .Count instead."
+		);
 
 	// Placeholder for rule X2029
 

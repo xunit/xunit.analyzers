@@ -5,6 +5,9 @@ namespace Xunit.Analyzers;
 
 public static class TypeSymbolFactory
 {
+	public static INamedTypeSymbol? ArraySegmentOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.ArraySegment`1");
+
 	public static INamedTypeSymbol? AssemblyFixtureAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.AssemblyFixtureAttribute");
 
@@ -186,6 +189,12 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? SortedSetOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.SortedSet`1");
+
+	public static INamedTypeSymbol String(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_String);
+
+	public static INamedTypeSymbol? StringValues(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Microsoft.Extensions.Primitives.StringValues");
 
 	public static INamedTypeSymbol? Task(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Task");
