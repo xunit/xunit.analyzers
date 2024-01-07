@@ -98,9 +98,7 @@ public class TestClass {{
     [Fact]
     public async Task TestMethod() {{
         var booleanVar = true;
-        
-        async Task AssertEventStateAsync()
-        {{
+        async Task AssertEventStateAsync() {{
             await Task.Delay(1).ConfigureAwait({argumentValue});
         }}
     }}
@@ -317,9 +315,7 @@ public class TestClass {{
     [Fact]
     public async Task TestMethod() {{
         var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-        
-        async Task AssertEventStateAsync()
-        {{
+        async Task AssertEventStateAsync() {{
             await Task.Delay(1).ConfigureAwait({argumentValue});
         }}
     }}

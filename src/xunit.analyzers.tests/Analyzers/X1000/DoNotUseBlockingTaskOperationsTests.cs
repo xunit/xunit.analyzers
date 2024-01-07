@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseBlockingTaskOperations>;
 
@@ -35,10 +36,13 @@ public class TestClass {
     public void TestMethod() {
         default(IValueTaskSource).[|GetResult(0)|];
         Action<IValueTaskSource> _ = vts => vts.GetResult(0);
+        void LocalFunction() {
+            default(IValueTaskSource).GetResult(0);
+        }
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 	}
 
@@ -57,10 +61,13 @@ public class TestClass {
     public void TestMethod() {
         default(IValueTaskSource<int>).[|GetResult(0)|];
         Func<IValueTaskSource<int>, int> _ = vts => vts.GetResult(0);
+        void LocalFunction() {
+            default(IValueTaskSource<int>).GetResult(0);
+        }
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 	}
 
@@ -81,10 +88,13 @@ public class TestClass {
     public void TestMethod() {
         Task.Delay(1).[|Wait()|];
         Action<Task> _ = t => t.Wait();
+        void LocalFunction() {
+            Task.Delay(1).Wait();
+        }
     }
 }";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 			}
 
 			[Fact]
@@ -211,10 +221,13 @@ public class TestClass {{
     public void TestMethod() {{
         Task.[|{waitMethod}(Task.Delay(1))|];
         Action<Task> _ = t => Task.{waitMethod}(t);
+        void LocalFunction() {{
+            Task.{waitMethod}(Task.Delay(1));
+        }}
     }}
 }}";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 			}
 
 			[Theory]
@@ -351,10 +364,13 @@ public class TestClass {
     public void TestMethod() {
         Task.CompletedTask.GetAwaiter().[|GetResult()|];
         Action<Task> _ = t => t.GetAwaiter().GetResult();
+        void LocalFunction() {
+            Task.CompletedTask.GetAwaiter().GetResult();
+        }
     }
 }";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 			}
 
 			[Fact]
@@ -482,10 +498,13 @@ public class TestClass {
     public void TestMethod() {
         var _ = Task.FromResult(42).[|Result|];
         Func<Task<int>, int> _2 = t => t.Result;
+        void LocalFunction() {
+            var _3 = Task.FromResult(42).Result;
+        }
     }
 }";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 			}
 
 			[Fact]
@@ -612,10 +631,13 @@ public class TestClass {
     public void TestMethod() {
         var _ = Task.FromResult(42).GetAwaiter().[|GetResult()|];
         Func<Task<int>, int> _2 = t => t.GetAwaiter().GetResult();
+        void LocalFunction() {
+            var _3 = Task.FromResult(42).GetAwaiter().GetResult();
+        }
     }
 }";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 			}
 
 			[Fact]
@@ -743,10 +765,13 @@ public class TestClass {
     public void TestMethod() {
         default(ValueTask).GetAwaiter().[|GetResult()|];
         Action<ValueTask> _ = vt => vt.GetAwaiter().GetResult();
+        void LocalFunction() {
+            default(ValueTask).GetAwaiter().GetResult();
+        }
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 	}
 
@@ -765,10 +790,13 @@ public class TestClass {
     public void TestMethod() {
         var _ = new ValueTask<int>(42).[|Result|];
         Func<ValueTask<int>, int> _2 = vt => vt.Result;
+        void LocalFunction() {
+            var _3 = new ValueTask<int>(42).Result;
+        }
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 
 		[Fact]
@@ -784,10 +812,13 @@ public class TestClass {
     public void TestMethod() {
         var _ = new ValueTask<int>(42).GetAwaiter().[|GetResult()|];
         Func<ValueTask<int>, int> _2 = vt => vt.GetAwaiter().GetResult();
+        void LocalFunction() {
+            var _3 = new ValueTask<int>(42).GetAwaiter().GetResult();
+        }
     }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source);
 		}
 	}
 }
