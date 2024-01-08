@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -51,7 +50,7 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublic : XunitDiagnostic
 						Diagnostic.Create(
 							Descriptors.X1043_ConstructorOnFactAttributeSubclassShouldBePublic,
 							attributeSyntax.GetLocation(),
-							attributeClass.Name
+							constructor.ToDisplayString()
 						)
 					);
 				}
