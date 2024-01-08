@@ -421,7 +421,14 @@ public static class Descriptors
 			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using TheoryData<> as the return type to provide better type safety."
 		);
 
-	// Placeholder for rule X1043
+	public static DiagnosticDescriptor X1043_ConstructorOnFactAttributeSubclassShouldBePublic { get; } =
+		Rule(
+			"xUnit1043",
+			"Constructors on classes derived from FactAttribute must be public when used on test methods",
+			Usage,
+			Error,
+			"Constructor '{0}' must be public to be used on a test method."
+		);
 
 	// Placeholder for rule X1044
 
