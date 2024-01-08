@@ -17,7 +17,7 @@ public class NonTestClass {
 		}
 	}
 
-	public class SupportedNonFixtureTypes
+	public class SupportedNonFixtureData
 	{
 		[Theory]
 		[InlineData("")]
@@ -54,6 +54,21 @@ using Xunit.v3;
 }}";
 
 			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Fact]
+		public async void OptionalParameter_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+public class TestClass {
+    public TestClass(bool value = true) { }
+
+    [Fact] public void TestMethod() { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
@@ -156,6 +171,32 @@ public class TestCollection {{ }}
 public class TestClass {{
     [Fact] public void TestMethod() {{ }}
 }}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void WithInheritedFixture_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+public class Fixture { }
+
+[CollectionDefinition(""test"")]
+public class TestCollection : ICollectionFixture<Fixture> { }
+
+[Collection(""test"")]
+public abstract class TestContext {
+    protected TestContext(Fixture fixture) { }
+}
+
+public class TestClass : TestContext {
+    public TestClass(Fixture fixture) : base(fixture) { }
+
+    [Fact]
+    public void TestMethod() { }
+}";
 
 			await Verify.VerifyAnalyzer(source);
 		}

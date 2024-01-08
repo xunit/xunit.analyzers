@@ -21,6 +21,8 @@ public class V3AssertContext : IAssertContext
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
+		Guard.ArgumentNotNull(compilation);
+
 		var version =
 			versionOverride ??
 			compilation

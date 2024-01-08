@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -16,6 +20,9 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)
@@ -25,7 +32,6 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 			if (typeSymbol.TypeKind != TypeKind.Class)
 				return;
 
-#pragma warning disable RS1024 // Compare symbols correctly
 			var methodsByName =
 				typeSymbol
 					.GetInheritedAndOwnMembers()
@@ -33,7 +39,6 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 					.Cast<IMethodSymbol>()
 					.Where(m => m.MethodKind == MethodKind.Ordinary)
 					.GroupBy(m => m.Name);
-#pragma warning restore RS1024 // Compare symbols correctly
 
 			foreach (var grouping in methodsByName)
 			{

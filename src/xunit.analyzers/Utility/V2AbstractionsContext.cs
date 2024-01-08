@@ -176,6 +176,8 @@ public class V2AbstractionsContext
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
+		Guard.ArgumentNotNull(compilation);
+
 		var version =
 			versionOverride ??
 			compilation

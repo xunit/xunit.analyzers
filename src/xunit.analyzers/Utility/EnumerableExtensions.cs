@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Xunit;
 
 /// <summary>
 /// Extension methods for <see cref="IEnumerable{T}"/>.
@@ -13,6 +15,9 @@ static partial class EnumerableExtensions
 		this HashSet<T> hashSet,
 		IEnumerable<T> source)
 	{
+		Guard.ArgumentNotNull(hashSet);
+		Guard.ArgumentNotNull(source);
+
 		foreach (var item in source)
 			hashSet.Add(item);
 	}
@@ -23,5 +28,5 @@ static partial class EnumerableExtensions
 	/// </summary>
 	public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
 		where T : class =>
-			source.Where((Func<T?, bool>)notNullTest)!;
+			Guard.ArgumentNotNull(source).Where((Func<T?, bool>)notNullTest)!;
 }

@@ -13,10 +13,14 @@ public static class AsyncHelper
 	/// <summary>
 	/// Get a method's modifiers that include the async keyword.
 	/// </summary>
-	public static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method) =>
-		method.Modifiers.Any(SyntaxKind.AsyncKeyword)
+	public static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method)
+	{
+		Guard.ArgumentNotNull(method);
+
+		return method.Modifiers.Any(SyntaxKind.AsyncKeyword)
 			? method.Modifiers
 			: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
+	}
 
 	/// <summary>
 	/// Get the syntax type for an updated return type to support using async.
@@ -28,6 +32,11 @@ public static class AsyncHelper
 		DocumentEditor editor,
 		CancellationToken cancellationToken)
 	{
+		Guard.ArgumentNotNull(method);
+		Guard.ArgumentNotNull(invocation);
+		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(editor);
+
 		// Consider the case where a custom awaiter type is awaited
 		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
 			return method.ReturnType;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,8 +54,9 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFi
 
 		if (parameterIndexText is not null)
 		{
-			var parameterIndex = int.Parse(parameterIndexText);
-			Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType);
+			var parameterIndex = int.Parse(parameterIndexText, CultureInfo.InvariantCulture);
+			if (!Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType))
+				return;
 
 			var existingParameters = method.ParameterList.Parameters.Select(p => p.Identifier.Text).ToImmutableHashSet();
 			var parameterName = "p";
@@ -74,7 +76,7 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFi
 		}
 	}
 
-	async Task<Document> AddTheoryParameter(
+	static async Task<Document> AddTheoryParameter(
 		Document document,
 		MethodDeclarationSyntax method,
 		SpecialType parameterSpecialType,

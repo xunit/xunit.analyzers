@@ -62,7 +62,7 @@ public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
 		);
 	}
 
-	async Task<Document> AddAttribute(
+	static async Task<Document> AddAttribute(
 		Document document,
 		MethodDeclarationSyntax methodDeclaration,
 		string type,

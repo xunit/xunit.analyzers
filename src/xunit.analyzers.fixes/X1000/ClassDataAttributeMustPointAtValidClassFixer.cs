@@ -25,7 +25,7 @@ public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvid
 		if (root is null)
 			return;
 
-		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 		if (semanticModel is null)
 			return;
 
@@ -45,7 +45,7 @@ public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvid
 				);
 	}
 
-	async Task<Solution> FixClass(
+	static async Task<Solution> FixClass(
 		Solution solution,
 		INamedTypeSymbol typeSymbol,
 		CancellationToken cancellationToken)

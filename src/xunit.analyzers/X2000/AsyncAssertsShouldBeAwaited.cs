@@ -26,10 +26,14 @@ public class AsyncAssertsShouldBeAwaited : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		var taskOfTType = TypeSymbolFactory.TaskOfT(context.Compilation)?.ConstructUnboundGenericType();
 
-		for (IOperation? current = invocationOperation; current is not null; current = current?.Parent)
+		for (IOperation? current = invocationOperation; current is not null; current = current.Parent)
 		{
 			// Stop looking when we've hit the enclosing block
 			if (current is IBlockOperation)

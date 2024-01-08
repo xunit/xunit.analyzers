@@ -15,6 +15,9 @@ public class FactMethodMustNotHaveParameters : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)

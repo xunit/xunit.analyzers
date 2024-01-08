@@ -27,6 +27,10 @@ public class AssertEqualLiteralValueShouldBeFirst : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var arguments = invocationOperation.Arguments;
 		if (arguments.Length < 2)
 			return;

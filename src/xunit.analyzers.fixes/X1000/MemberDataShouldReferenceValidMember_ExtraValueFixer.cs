@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixer : BatchedCodeF
 
 		// Fix #2: add a parameter to the theory for the extra data
 		// (only valid for the first item after the supported parameters are exhausted)
-		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 		if (semanticModel is null)
 			return;
 
@@ -84,15 +85,16 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixer : BatchedCodeF
 		var methodSyntaxes = methodSymbol.DeclaringSyntaxReferences;
 		if (methodSyntaxes.Length != 1)
 			return;
-		if (methodSyntaxes[0].GetSyntax() is not MethodDeclarationSyntax method)
+		if (await methodSyntaxes[0].GetSyntaxAsync().ConfigureAwait(false) is not MethodDeclarationSyntax method)
 			return;
 
 		var parameterIndexText = diagnostic.Properties[Constants.Properties.ParameterIndex];
 
 		if (parameterIndexText is not null)
 		{
-			var parameterIndex = int.Parse(parameterIndexText);
-			Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType);
+			var parameterIndex = int.Parse(parameterIndexText, CultureInfo.InvariantCulture);
+			if (!Enum.TryParse<SpecialType>(diagnostic.Properties[Constants.Properties.ParameterSpecialType], out var parameterSpecialType))
+				return;
 
 			var existingParameters = method.ParameterList.Parameters.Select(p => p.Identifier.Text).ToImmutableHashSet();
 			var parameterName = "p";
@@ -112,7 +114,7 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixer : BatchedCodeF
 		}
 	}
 
-	async Task<Document> AddMethodParameter(
+	static async Task<Document> AddMethodParameter(
 		Document document,
 		MethodDeclarationSyntax method,
 		SpecialType parameterSpecialType,

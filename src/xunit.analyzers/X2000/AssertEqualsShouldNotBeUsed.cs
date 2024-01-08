@@ -25,6 +25,10 @@ public class AssertEqualsShouldNotBeUsed : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var replacement = method.Name switch
 		{
 			nameof(object.Equals) => Constants.Asserts.Equal,

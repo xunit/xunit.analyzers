@@ -1,10 +1,11 @@
+#if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // Static abstract methods are only supported on .NET with C# 11
+
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 
 public class AssertIsTypeShouldUseGenericOverloadTypeTests
 {
-#if NETCOREAPP  // static abstract methods are only supported on .NET, not .NET Framework
 	public class StaticAbstractInterfaceMethods
 	{
 		const string methodCode = "static abstract void Method();";
@@ -37,7 +38,7 @@ public abstract class TestClass {{
 		{
 			string source = string.Format(codeTemplate, string.Empty, methodCode);
 
-			await Verify.VerifyAnalyzer(LanguageVersion.Preview, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 		}
 
 		[Fact]
@@ -45,7 +46,7 @@ public abstract class TestClass {{
 		{
 			string source = string.Format(codeTemplate, methodCode, string.Empty);
 
-			await Verify.VerifyAnalyzer(LanguageVersion.Preview, source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 		}
 
 		[Theory]
@@ -82,5 +83,6 @@ public abstract class TestClass {{
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 	}
-#endif
 }
+
+#endif

@@ -42,7 +42,8 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCode
 		if (method is null)
 			return;
 
-		Enum.TryParse<InlineDataMustMatchTheoryParameters.ParameterArrayStyleType>(arrayStyleText, out var arrayStyle);
+		if (!Enum.TryParse<InlineDataMustMatchTheoryParameters.ParameterArrayStyleType>(arrayStyleText, out var arrayStyle))
+			return;
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
@@ -54,7 +55,7 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCode
 		);
 	}
 
-	async Task<Document> AddDefaultValues(
+	static async Task<Document> AddDefaultValues(
 		Document document,
 		AttributeSyntax attribute,
 		MethodDeclarationSyntax method,
@@ -83,7 +84,7 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCode
 		return editor.GetChangedDocument();
 	}
 
-	SyntaxNode CreateDefaultValueSyntax(
+	static SyntaxNode CreateDefaultValueSyntax(
 		DocumentEditor editor,
 		TypeSyntax? type)
 	{

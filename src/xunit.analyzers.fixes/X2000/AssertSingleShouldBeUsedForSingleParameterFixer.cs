@@ -44,7 +44,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 	{
 		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
 			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-		else if (lambdaExpression.Block != null && lambdaExpression.Block.Statements.Count != 0)
+		else if (lambdaExpression.Block is not null && lambdaExpression.Block.Statements.Count != 0)
 			foreach (var statement in lambdaExpression.Block.Statements)
 				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 	}
@@ -96,7 +96,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}", replacement),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 				ct => UseSingleMethod(context.Document, invocation, replacement, ct),
 				Key_UseSingleMethod
 			),
@@ -116,7 +116,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 			invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
 		{
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (semanticModel != null && invocation.Parent != null)
+			if (semanticModel is not null && invocation.Parent is not null)
 			{
 				var statements = new List<SyntaxNode>();
 				var startLocation = invocation.GetLocation().SourceSpan.Start;
@@ -148,7 +148,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
 				{
-					var isMethod = semanticModel.GetSymbolInfo(identifierExpression).Symbol?.Kind == SymbolKind.Method;
+					var isMethod = semanticModel.GetSymbolInfo(identifierExpression, cancellationToken).Symbol?.Kind == SymbolKind.Method;
 					if (isMethod)
 					{
 						var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);

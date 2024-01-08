@@ -26,6 +26,10 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
 			return;
 

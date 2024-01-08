@@ -33,6 +33,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzer
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var arguments = invocationOperation.Arguments;
 		if (arguments.Length != 2 && arguments.Length != 3)
 			return;

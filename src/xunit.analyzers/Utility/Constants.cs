@@ -75,6 +75,7 @@ public static class Constants
 	/// </summary>
 	public static class Properties
 	{
+		public const string ArgumentValue = "ArgumentValue";
 		public const string AssertMethodName = "AssertMethodName";
 		public const string DeclaringType = "DeclaringType";
 		public const string IgnoreCase = "IgnoreCase";

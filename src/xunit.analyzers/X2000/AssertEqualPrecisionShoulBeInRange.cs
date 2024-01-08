@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -36,6 +37,10 @@ public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var numericType = GetMethodNumericType(method);
 		if (numericType is null)
 			return;
@@ -92,7 +97,7 @@ public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
 		if (numericValue < 0 || numericValue > precisionMax)
 		{
 			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-			builder[Constants.Properties.Replacement] = numericValue < 0 ? "0" : precisionMax.ToString();
+			builder[Constants.Properties.Replacement] = numericValue < 0 ? "0" : precisionMax.ToString(CultureInfo.InvariantCulture);
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(

@@ -16,8 +16,13 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
-		XunitContext xunitContext) =>
-			context.RegisterSymbolAction(context => AnalyzeMethod(context, xunitContext), SymbolKind.Method);
+		XunitContext xunitContext)
+	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
+		context.RegisterSymbolAction(context => AnalyzeMethod(context, xunitContext), SymbolKind.Method);
+	}
 
 	static void AnalyzeMethod(
 		SymbolAnalysisContext context,
@@ -54,10 +59,14 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
+#pragma warning disable CA1868 // This is not a strict guard, since we're reporting errors
+
 			if (uniqueAttributes.Contains(currentInlineData))
 				ReportDuplicate(context, currentInlineData);
 			else
 				uniqueAttributes.Add(currentInlineData);
+
+#pragma warning restore CA1868
 		}
 	}
 
@@ -93,7 +102,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			attribute.ConstructorArguments.Length == 1 &&
 			SymbolEqualityComparer.Default.Equals(objectArrayType, attribute.ConstructorArguments.FirstOrDefault().Type);
 
-	class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
+	sealed class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
 	{
 		readonly ImmutableArray<IParameterSymbol> methodParametersWithExplicitDefaults;
 
@@ -124,7 +133,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 		// Since arguments can be object[] at any level we need to compare 2 sequences of trees for equality.
 		// The algorithm traverses each tree in a sequence and compares with the corresponding tree in the other sequence.
 		// Any difference at any stage results in inequality proved and <c>false</c> returned.
-		bool AreArgumentsEqual(
+		static bool AreArgumentsEqual(
 			ImmutableArray<object> xArguments,
 			ImmutableArray<object> yArguments)
 		{
@@ -227,7 +236,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			return hash;
 		}
 
-		ImmutableArray<object?> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
+		static ImmutableArray<object?> GetFlattenedArgumentPrimitives(IEnumerable<object> arguments)
 		{
 			var results = new List<object?>();
 

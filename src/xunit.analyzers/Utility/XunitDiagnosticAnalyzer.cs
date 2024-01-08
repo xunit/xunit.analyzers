@@ -9,7 +9,7 @@ namespace Xunit.Analyzers;
 /// </summary>
 public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-	public XunitDiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) =>
+	protected XunitDiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) =>
 		SupportedDiagnostics = descriptors.ToImmutableArray();
 
 	/// <inheritdoc/>
@@ -36,6 +36,8 @@ public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
 	/// <inheritdoc/>
 	public sealed override void Initialize(AnalysisContext context)
 	{
+		Guard.ArgumentNotNull(context);
+
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 		context.EnableConcurrentExecution();
 
@@ -54,5 +56,5 @@ public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
 	/// <param name="xunitContext">The xUnit.net context</param>
 	/// <returns>Return <c>true</c> to analyze source; return <c>false</c> to skip analysis</returns>
 	protected virtual bool ShouldAnalyze(XunitContext xunitContext) =>
-		xunitContext.HasV2References || xunitContext.HasV3References;
+		Guard.ArgumentNotNull(xunitContext).HasV2References || xunitContext.HasV3References;
 }

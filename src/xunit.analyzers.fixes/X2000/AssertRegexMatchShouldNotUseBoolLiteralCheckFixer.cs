@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixer : BatchedCodeFixP
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}", replacement),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 				ct => UseRegexCheckAsync(context.Document, invocation, replacement, isStatic == bool.TrueString, ct),
 				Key_UseAlternateAssert
 			),

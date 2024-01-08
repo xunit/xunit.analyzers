@@ -41,12 +41,13 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer 
 		if (replacement is null)
 			return;
 
-		var semanticModel = context.Document.GetSemanticModelAsync(context.CancellationToken).Result;
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 		if (semanticModel is null)
 			return;
+
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}", replacement),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 				ct => UseSuggestedAssert(context.Document, invocation, replacement, isLeftLiteral == Constants.Asserts.True, ct),
 				Key_UseSuggestedAssert
 			),

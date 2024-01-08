@@ -32,6 +32,10 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheck : AssertUsageAnalyzerB
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		var arguments = invocationOperation.Arguments;
 		if (arguments.Length != 1)
 			return;

@@ -15,6 +15,9 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)
@@ -40,7 +43,7 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 		}, SymbolKind.NamedType);
 	}
 
-	private bool DoesInheritenceTreeContainTests(
+	static bool DoesInheritenceTreeContainTests(
 		INamedTypeSymbol classSymbol,
 		XunitContext xunitContext,
 		int depth)

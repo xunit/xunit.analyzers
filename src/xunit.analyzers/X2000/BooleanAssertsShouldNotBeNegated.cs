@@ -25,6 +25,10 @@ public class BooleanAssertsShouldNotBeNegated : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Arguments.Length < 1)
 			return;
 

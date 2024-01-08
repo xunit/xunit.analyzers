@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,9 +13,12 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> collectionTypesWithExceptionThrowingGetEnumeratorMethod = new()
+	static readonly HashSet<string> allowedCollections = new()
 	{
+		// ArraySegment<T>.GetEnumerator() can throw
 		"System.ArraySegment<T>",
+		// StringValues has an implicit string conversion that's preferred by the compiler, https://github.com/xunit/xunit/issues/2859
+		"Microsoft.Extensions.Primitives.StringValues",
 	};
 	static readonly HashSet<string> sizeMethods = new()
 	{
@@ -39,6 +43,10 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (method.Parameters.Length != 2 ||
 			!method.Parameters[0].Type.SpecialType.Equals(SpecialType.System_Int32) ||
 			!method.Parameters[1].Type.SpecialType.Equals(SpecialType.System_Int32))
@@ -68,7 +76,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		if (symbol is null)
 			return;
 
-		if (IsCollectionsWithExceptionThrowingGetEnumeratorMethod(symbol) ||
+		if (IsAllowedCollection(symbol) ||
 				!IsWellKnownSizeMethod(symbol) &&
 				!IsICollectionCountProperty(context, symbol) &&
 				!IsICollectionOfTCountProperty(context, symbol) &&
@@ -79,7 +87,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder[Constants.Properties.MethodName] = method.Name;
-		builder[Constants.Properties.SizeValue] = size.ToString();
+		builder[Constants.Properties.SizeValue] = size.ToString(CultureInfo.InvariantCulture);
 		builder[Constants.Properties.Replacement] = replacement;
 
 		context.ReportDiagnostic(
@@ -109,8 +117,8 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		return methodName == Constants.Asserts.Equal ? Constants.Asserts.Empty : Constants.Asserts.NotEmpty;
 	}
 
-	static bool IsCollectionsWithExceptionThrowingGetEnumeratorMethod(ISymbol symbol) =>
-		collectionTypesWithExceptionThrowingGetEnumeratorMethod.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
+	static bool IsAllowedCollection(ISymbol symbol) =>
+		allowedCollections.Contains(symbol.ContainingType.ConstructedFrom.ToDisplayString());
 
 	static bool IsWellKnownSizeMethod(ISymbol symbol) =>
 		sizeMethods.Contains(symbol.OriginalDefinition.ToDisplayString());
@@ -134,13 +142,13 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 		INamedTypeSymbol? collectionType,
 		ISymbol symbol)
 	{
-		if (collectionType == null)
+		if (collectionType is null)
 			return false;
 
 		var memberSymbol = symbol;
 		var containingType = memberSymbol.ContainingType;
 		var countSymbol = collectionType.GetMember(nameof(ICollection.Count));
-		if (countSymbol == null)
+		if (countSymbol is null)
 			return false;
 
 		if (SymbolEqualityComparer.Default.Equals(countSymbol, symbol))

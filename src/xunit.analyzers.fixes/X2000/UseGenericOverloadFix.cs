@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -39,7 +40,7 @@ public class UseGenericOverloadFix : BatchedCodeFixProvider
 		if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
 			return;
 
-		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 		var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type);
 		if (typeInfo.Type is null)
 			return;
@@ -49,7 +50,7 @@ public class UseGenericOverloadFix : BatchedCodeFixProvider
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}<{1}>", methodName, typeName),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}<{1}>", methodName, typeName),
 				ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, memberAccess, typeOfExpression, ct),
 				Key_UseAlternateAssert
 			),

@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -21,6 +25,9 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
 			if (xunitContext.Core.TheoryAttributeType is null)
@@ -31,7 +38,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 				return;
 
 			var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax);
-			if (methodSymbol == null)
+			if (methodSymbol is null)
 				return;
 
 			var attributes = methodSymbol.GetAttributes();
@@ -55,9 +62,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		if (!flowAnalysis.Succeeded)
 			return;
 
-#pragma warning disable RS1024 // Compare symbols correctly
 		var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct(SymbolEqualityComparer.Default), SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
 		for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 		{

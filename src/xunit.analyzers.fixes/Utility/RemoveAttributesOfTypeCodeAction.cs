@@ -22,12 +22,12 @@ public class RemoveAttributesOfTypeCodeAction : CodeAction
 		string attributeType,
 		bool exactMatch = false)
 	{
-		Title = title;
-		EquivalenceKey = equivalenceKey;
+		Title = Guard.ArgumentNotNull(title);
+		EquivalenceKey = Guard.ArgumentNotNull(equivalenceKey);
 
 		this.attributeLists = attributeLists;
-		this.attributeType = attributeType;
-		this.document = document;
+		this.attributeType = Guard.ArgumentNotNull(attributeType);
+		this.document = Guard.ArgumentNotNull(document);
 		this.exactMatch = exactMatch;
 	}
 
@@ -38,7 +38,7 @@ public class RemoveAttributesOfTypeCodeAction : CodeAction
 	protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
 		if (semanticModel is not null)
 		{

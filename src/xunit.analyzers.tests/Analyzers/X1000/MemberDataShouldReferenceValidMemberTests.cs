@@ -617,6 +617,56 @@ public class TestClass {{
 			await Verify.VerifyAnalyzer(source);
 		}
 
+		// https://github.com/xunit/xunit/issues/2852
+		[Theory]
+		[InlineData("")]
+		[InlineData("#nullable enable")]
+		public async void ArrayInitializerWithCorrectType_DoesNotTrigger(string header)
+		{
+			var source = $@"
+{header}
+
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {{
+    public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
+
+    [Theory]
+    [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
+    public void Test(int value) {{ }}
+}}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Theory]
+		[InlineData("")]
+		[InlineData("#nullable enable")]
+		public async void ArrayInitializerWithIncorrectType_Triggers(string header)
+		{
+			var source = $@"
+{header}
+
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {{
+    public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
+
+    [Theory]
+    [MemberData(nameof(GetSequences), new char[] {{ 'a', 'b' }})]
+    public void Test(int value) {{ }}
+}}";
+			var expected =
+				Verify
+					.Diagnostic("xUnit1035")
+					.WithSpan(11, 39, 11, 62)
+					.WithArguments("seq", "System.Collections.Generic.IEnumerable<int>");
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+		}
+
 		[Fact]
 		public async void ValidMemberWithIncorrectArgumentTypes_Triggers()
 		{

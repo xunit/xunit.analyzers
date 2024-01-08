@@ -45,7 +45,7 @@ public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : Batc
 		);
 	}
 
-	async Task<Document> RemoveUnneededArguments(
+	static async Task<Document> RemoveUnneededArguments(
 		Document document,
 		AttributeSyntax attribute,
 		TextSpan span,

@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -17,6 +21,9 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (context.Symbol is not INamedTypeSymbol namedType)
@@ -37,11 +44,14 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			// Get the collection name from [Collection], if present
 			var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
-			var collectionDefinitionName =
-				namedType
-					.GetAttributes()
-					.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
-					?.ConstructorArguments.FirstOrDefault().Value?.ToString();
+			string? collectionDefinitionName = null;
+
+			for (var type = namedType; type is not null && collectionDefinitionName is null; type = type.BaseType)
+				collectionDefinitionName =
+					type
+						.GetAttributes()
+						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
+						?.ConstructorArguments.FirstOrDefault().Value?.ToString();
 
 			// Need to construct a full set of types we know can be resolved. Start with things
 			// like ITestOutputHelper and ITestContextAccessor (since they're injected by the framework)
@@ -62,7 +72,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			// Add types from IClassFixture<> and ICollectionFixture<> on the collection definition
 			var collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
-			if (collectionDefinitionName != null)
+			if (collectionDefinitionName is not null)
 			{
 				var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
 
@@ -98,7 +108,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
 				);
 
-			foreach (var parameter in ctors[0].Parameters.Where(p => !validConstructorArgumentTypes.Contains(p.Type)))
+			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional && !validConstructorArgumentTypes.Contains(p.Type)))
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1041_EnsureFixturesHaveASource,

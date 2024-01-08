@@ -5,12 +5,13 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForColle
 
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 {
-	public static TheoryData<string> CollectionsWithExceptionThrowingGetEnumeratorMethod = new()
+	public static TheoryData<string> AllowedCollections = new()
 	{
 		"new System.ArraySegment<int>().Count",
+		"Microsoft.Extensions.Primitives.StringValues.Empty.Count",
 	};
 
-	public static TheoryData<string> Collections = new()
+	public static TheoryData<string> DisallowedCollections = new()
 	{
 		"new int[0].Length",
 		"new System.Collections.ArrayList().Count",
@@ -22,19 +23,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 		"System.Linq.Enumerable.Empty<int>().Count()",
 	};
 
-	public static TheoryData<string, int> CollectionsWithUnsupportedSize = new()
-	{
-		{ "new int[0].Length", -1 },
-		{ "new System.Collections.ArrayList().Count", -2 },
-		{ "new System.Collections.Generic.List<int>().Count", 2 },
-		{ "new System.Collections.Generic.HashSet<int>().Count", 3 },
-		{ "System.Collections.Immutable.ImmutableArray.Create<int>().Length", 42 },
-		{ "new System.Collections.ObjectModel.Collection<int>().Count", 13 },
-		{ "new System.Collections.Generic.List<int>().AsReadOnly().Count", 2 },
-		{ "System.Linq.Enumerable.Empty<int>().Count()", 354 },
-	};
-
-	public static TheoryData<string> CollectionInterfaces = new()
+	public static TheoryData<string> DisallowedCollectionInterfaces = new()
 	{
 		"ICollection",
 		"ICollection<string>",
@@ -42,14 +31,16 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 	};
 
 	[Theory]
-	[MemberData(nameof(CollectionsWithExceptionThrowingGetEnumeratorMethod))]
-	public async void DoesNotFindWarningForCollectionsWithExceptionThrowingGetEnumeratorMethod(string collection)
+	[MemberData(nameof(AllowedCollections))]
+	public async void AllowedCollection_DoesNotTrigger(string collection)
 	{
 		var source = $@"
 using System.Linq;
 
 class TestClass {{
     void TestMethod() {{
+        Xunit.Assert.Equal(0, {collection});
+        Xunit.Assert.Equal(1, {collection});
         Xunit.Assert.NotEqual(0, {collection});
     }}
 }}";
@@ -58,8 +49,29 @@ class TestClass {{
 	}
 
 	[Theory]
-	[MemberData(nameof(Collections))]
-	public async void FindsWarningForEmptyCollectionSizeCheck(string collection)
+	[MemberData(nameof(AllowedCollections))]
+	[MemberData(nameof(DisallowedCollections))]
+	public async void AllowedCheck_DoesNotTrigger(string collection)
+	{
+		// Anything that's non-zero for Equal/NotEqual and non-one for Equal is allowed
+		var source = $@"
+using System.Linq;
+
+class TestClass {{
+    void TestMethod() {{
+        Xunit.Assert.Equal(2, {collection});
+        Xunit.Assert.NotEqual(1, {collection});
+        Xunit.Assert.NotEqual(2, {collection});
+    }}
+}}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+
+	[Theory]
+	[MemberData(nameof(DisallowedCollections))]
+	public async void InvalidCheckWithConcreteType_Triggers(string collection)
 	{
 		var source = $@"
 using System.Linq;
@@ -67,21 +79,35 @@ using System.Linq;
 class TestClass {{
     void TestMethod() {{
         Xunit.Assert.Equal(0, {collection});
+        Xunit.Assert.Equal(1, {collection});
+        Xunit.Assert.NotEqual(0, {collection});
     }}
 }}";
-		var expected =
+		var expected = new[]
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(6, 9, 6, 32 + collection.Length)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()", Constants.Asserts.Empty);
+				.WithArguments("Assert.Equal()", Constants.Asserts.Empty),
+			Verify
+				.Diagnostic()
+				.WithSpan(7, 9, 7, 32 + collection.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single),
+			Verify
+				.Diagnostic()
+				.WithSpan(8, 9, 8, 35 + collection.Length)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.NotEqual()", Constants.Asserts.NotEmpty),
+		};
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
-	[MemberData(nameof(CollectionInterfaces))]
-	public async void FindsWarningForCollectionInterface_Empty(string @interface)
+	[MemberData(nameof(DisallowedCollectionInterfaces))]
+	public async void InvalidCheckWithInterfaceType_Triggers(string @interface)
 	{
 		var source = $@"
 using System.Collections;
@@ -91,88 +117,34 @@ class TestClass {{
     void TestMethod() {{
         {@interface} collection = null;
         Xunit.Assert.Equal(0, collection.Count);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 48)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()", Constants.Asserts.Empty);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(CollectionInterfaces))]
-	public async void FindsWarningForCollectionInterface_Single(string @interface)
-	{
-		var source = $@"
-using System.Collections;
-using System.Collections.Generic;
-
-class TestClass {{
-    void TestMethod() {{
-        {@interface} collection = null;
         Xunit.Assert.Equal(1, collection.Count);
+        Xunit.Assert.NotEqual(0, collection.Count);
     }}
 }}";
-		var expected =
+		var expected = new[]
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(8, 9, 8, 48)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(Collections))]
-	public async void FindsWarningForNonEmptyCollectionSizeCheck(string collection)
-	{
-		var source = $@"
-using System.Linq;
-
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.NotEqual(0, {collection});
-    }}
-}}";
-		var expected =
+				.WithArguments("Assert.Equal()", Constants.Asserts.Empty),
 			Verify
 				.Diagnostic()
-				.WithSpan(6, 9, 6, 35 + collection.Length)
+				.WithSpan(9, 9, 9, 48)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.NotEqual()", Constants.Asserts.NotEmpty);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(Collections))]
-	public async void FindsWarningForSingleItemCollectionSizeCheck(string collection)
-	{
-		var source = $@"
-using System.Linq;
-
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.Equal(1, {collection});
-    }}
-}}";
-		var expected =
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single),
 			Verify
 				.Diagnostic()
-				.WithSpan(6, 9, 6, 32 + collection.Length)
+				.WithSpan(10, 9, 10, 51)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
+				.WithArguments("Assert.NotEqual()", Constants.Asserts.NotEmpty),
+		};
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async void FindsWarningForSymbolDeclaringTypeHasZeroArity_ImplementsICollectionOfT()
+	public async void InvalidCheckWithCustomNonGenericCollection_Triggers()
 	{
 		var source = @"
 using System.Collections;
@@ -193,73 +165,35 @@ class IntCollection : ICollection<int> {
 
 class TestClass {
     void TestMethod() {
+        Assert.Equal(0, new IntCollection().Count);
         Assert.Equal(1, new IntCollection().Count);
+        Assert.NotEqual(0, new IntCollection().Count);
     }
 }";
-		var expected =
+		var expected = new[]
+		{
 			Verify
 				.Diagnostic()
 				.WithSpan(20, 9, 20, 51)
 				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.Equal()", Constants.Asserts.Single);
+				.WithArguments("Assert.Equal()", Constants.Asserts.Empty),
+			Verify
+				.Diagnostic()
+				.WithSpan(21, 9, 21, 51)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.Equal()", Constants.Asserts.Single),
+			Verify
+				.Diagnostic()
+				.WithSpan(22, 9, 22, 54)
+				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithArguments("Assert.NotEqual()", Constants.Asserts.NotEmpty),
+		};
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
-	[Theory]
-	[MemberData(nameof(Collections))]
-	public async void DoesNotFindWarningForNonSingleItemCollectionSizeCheck(string collection)
-	{
-		var source = $@"
-using System.Linq;
-
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.NotEqual(1, {collection});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(CollectionsWithUnsupportedSize))]
-	public async void DoesNotFindWarningForUnsupportedCollectionSizeCheck(
-		string collection,
-		int size)
-	{
-		var source = $@"
-using System.Linq;
-
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.Equal({size}, {collection});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(CollectionsWithUnsupportedSize))]
-	public async void DoesNotFindWarningForUnsupportedNonEqualCollectionSizeCheck(
-		string collection,
-		int size)
-	{
-		var source = $@"
-using System.Linq;
-
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.NotEqual({size}, {collection});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
 	[Fact]
-	public async void DoesNotCrashForSymbolDeclaringTypeHasDifferentArityThanICollection_Zero()
+	public async void OverridingCountMethod_DoesNotTrigger()
 	{
 		var source = @"
 using System.Collections.Generic;
@@ -268,28 +202,19 @@ interface IIntCollection : ICollection<int> {
     new int Count { get; }
 }
 
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.Equal(1, ((IIntCollection)null).Count);
-    }
-}";
+interface ICustomCollection<T> : ICollection<T> {
+    new int Count { get; }
+}
 
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Fact]
-	public async void DoesNotCrashForSymbolDeclaringTypeHasDifferentArityThanICollection_Two()
-	{
-		var source = @"
-using System.Collections.Generic;
-
-interface IDictionary2<K, V> : ICollection<KeyValuePair<K, V>> {
+interface ICustomDictionary<K, V> : ICollection<KeyValuePair<K, V>> {
     new int Count { get; }
 }
 
 class TestClass {
     void TestMethod() {
-        Xunit.Assert.Equal(1, ((IDictionary2<int, int>)null).Count);
+        Xunit.Assert.Equal(1, ((IIntCollection)null).Count);
+        Xunit.Assert.Equal(1, ((ICustomCollection<int>)null).Count);
+        Xunit.Assert.Equal(1, ((ICustomDictionary<int, int>)null).Count);
     }
 }";
 

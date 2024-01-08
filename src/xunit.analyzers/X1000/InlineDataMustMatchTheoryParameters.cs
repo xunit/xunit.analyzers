@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,6 +25,9 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.InlineDataAttributeType is null)
 			return;
 
@@ -109,7 +113,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							: null;
 
 					// For params array of object, just consume everything that's left
-					if (paramsElementType != null
+					if (paramsElementType is not null
 						&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
 						&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
 					{
@@ -120,19 +124,19 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					if (value.IsNull)
 					{
 						var isValueTypeParam =
-							paramsElementType != null
+							paramsElementType is not null
 								? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
 								: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 
 						var isNonNullableReferenceTypeParam =
-							paramsElementType != null
+							paramsElementType is not null
 								? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
 								: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
 
 						if (isValueTypeParam || isNonNullableReferenceTypeParam)
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 							builder[Constants.Properties.ParameterName] = parameter.Name;
 
 							context.ReportDiagnostic(
@@ -152,13 +156,13 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							continue;
 
 						var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext);
-						if (!isCompatible && paramsElementType != null)
+						if (!isCompatible && paramsElementType is not null)
 							isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext);
 
 						if (!isCompatible)
 						{
 							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString();
+							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
 							builder[Constants.Properties.ParameterName] = parameter.Name;
 
 							context.ReportDiagnostic(
@@ -183,7 +187,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 				for (; valueIdx < values.Length; valueIdx++)
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-					builder[Constants.Properties.ParameterIndex] = valueIdx.ToString();
+					builder[Constants.Properties.ParameterIndex] = valueIdx.ToString(CultureInfo.InvariantCulture);
 					builder[Constants.Properties.ParameterSpecialType] = values[valueIdx].Type?.SpecialType.ToString() ?? string.Empty;
 
 					context.ReportDiagnostic(

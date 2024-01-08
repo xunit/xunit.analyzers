@@ -1,6 +1,4 @@
-// Imported from xUnit.net v3, must be removed when this test project is upgraded
-
-#if NETFRAMEWORK
+#if !NETCOREAPP
 
 namespace System.Runtime.CompilerServices;
 

@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -33,10 +37,6 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		// These are on both Task<T> and ValueTask<T>
 		nameof(Task<int>.Result),
 	};
-	static readonly string[] continueWith = new[]
-	{
-		nameof(Task<int>.ContinueWith),
-	};
 	static readonly string[] whenAll = new[]
 	{
 		nameof(Task.WhenAll),
@@ -54,6 +54,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
 			return;
 
@@ -83,8 +86,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			if (WrappedInContinueWith(invocation, taskType, xunitContext))
-				return;
+			// Ignore anything inside a lambda expression or a local function
+			for (var current = context.Operation; current is not null; current = current.Parent)
+				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
+					return;
 
 			var symbolsForSearch = default(IEnumerable<ILocalSymbol>);
 			switch (foundSymbolName)
@@ -153,8 +158,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			if (WrappedInContinueWith(reference, taskType, xunitContext))
-				return;
+			// Ignore anything inside a lambda expression or a local function
+			for (var current = context.Operation; current is not null; current = current.Parent)
+				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
+					return;
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
@@ -213,13 +220,11 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		XunitContext xunitContext)
 	{
 		var ourOperations = new List<IOperation>();
-#pragma warning disable RS1024 // Compare symbols correctly
 		var unfoundSymbols = new HashSet<ILocalSymbol>(symbols, SymbolEqualityComparer.Default);
-#pragma warning restore RS1024
 
 		bool validateSafeTasks(IOperation op)
 		{
-			foreach (var childOperation in op.ChildOperations)
+			foreach (var childOperation in op.Children())
 			{
 				// Stop looking once we've found the operation that is ours, since any
 				// code after that operation isn't something we should consider
@@ -238,7 +243,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				if (unfoundSymbols.Count == 0)
 					return true;
 
-				if (childOperation.ChildOperations.Any(c => validateSafeTasks(c)))
+				if (childOperation.Children().Any(c => validateSafeTasks(c)))
 					return true;
 			}
 
@@ -265,9 +270,9 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 	{
 		if (!unfoundSymbols.Contains(operation.Symbol))
 			return;
-		if (operation.ChildOperations.FirstOrDefault() is not IVariableInitializerOperation variableInitializerOperation)
+		if (operation.Children().FirstOrDefault() is not IVariableInitializerOperation variableInitializerOperation)
 			return;
-		if (variableInitializerOperation.Value.ChildOperations.FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
+		if (variableInitializerOperation.Value.Children().FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
 			return;
 		if (!FindSymbol(variableInitializerInvocationOperation.TargetMethod, variableInitializerInvocationOperation, taskType, whenAny, xunitContext, out var _))
 			return;
@@ -294,22 +299,5 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 		foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
 			unfoundSymbols.Remove(arrayElement.Local);
-	}
-
-	static bool WrappedInContinueWith(
-		IOperation? operation,
-		INamedTypeSymbol taskType,
-		XunitContext xunitContext)
-	{
-		for (; operation != null; operation = operation.Parent)
-		{
-			if (operation is not IInvocationOperation invocation)
-				continue;
-
-			if (FindSymbol(invocation.TargetMethod, invocation, taskType, continueWith, xunitContext, out var _))
-				return true;
-		}
-
-		return false;
 	}
 }

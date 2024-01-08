@@ -12,13 +12,20 @@ public class TheoryMethodCannotHaveDefaultParameter : XunitDiagnosticAnalyzer
 		base(Descriptors.X1023_TheoryMethodCannotHaveDefaultParameter)
 	{ }
 
-	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		base.ShouldAnalyze(xunitContext) && !xunitContext.Core.TheorySupportsDefaultParameterValues;
+	protected override bool ShouldAnalyze(XunitContext xunitContext)
+	{
+		Guard.ArgumentNotNull(xunitContext);
+
+		return base.ShouldAnalyze(xunitContext) && !xunitContext.Core.TheorySupportsDefaultParameterValues;
+	}
 
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.TheoryAttributeType is null)

@@ -22,13 +22,13 @@ public class ConvertAttributeCodeAction : CodeAction
 		string fromTypeName,
 		string toTypeName)
 	{
-		Title = title;
-		EquivalenceKey = equivalenceKey;
+		Title = Guard.ArgumentNotNull(title);
+		EquivalenceKey = Guard.ArgumentNotNull(equivalenceKey);
 
-		this.toTypeName = toTypeName;
-		this.fromTypeName = fromTypeName;
+		this.toTypeName = Guard.ArgumentNotNull(toTypeName);
+		this.fromTypeName = Guard.ArgumentNotNull(fromTypeName);
 		this.attributeLists = attributeLists;
-		this.document = document;
+		this.document = Guard.ArgumentNotNull(document);
 	}
 
 	public override string EquivalenceKey { get; }
@@ -50,7 +50,7 @@ public class ConvertAttributeCodeAction : CodeAction
 					{
 						cancellationToken.ThrowIfCancellationRequested();
 
-						var currentType = semanticModel.GetTypeInfo(attribute).Type;
+						var currentType = semanticModel.GetTypeInfo(attribute, cancellationToken).Type;
 						if (SymbolEqualityComparer.Default.Equals(currentType, fromTypeSymbol))
 							editor.SetName(attribute, toTypeName);
 					}

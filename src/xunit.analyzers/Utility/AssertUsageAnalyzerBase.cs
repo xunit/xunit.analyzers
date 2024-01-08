@@ -26,6 +26,9 @@ public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		var assertType = TypeSymbolFactory.Assert(context.Compilation);
 		if (assertType is null)
 			return;

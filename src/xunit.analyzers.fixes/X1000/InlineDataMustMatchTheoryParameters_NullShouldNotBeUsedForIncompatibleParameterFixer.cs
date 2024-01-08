@@ -50,7 +50,7 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 		);
 	}
 
-	async Task<Document> MakeParameterNullable(
+	static async Task<Document> MakeParameterNullable(
 		Document document,
 		MethodDeclarationSyntax method,
 		int parameterIndex,

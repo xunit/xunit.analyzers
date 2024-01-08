@@ -1,3 +1,7 @@
+#if ROSLYN_3_11
+#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
+#endif
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -17,6 +21,9 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)
@@ -24,16 +31,14 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			if (context.Symbol is not IMethodSymbol symbol)
 				return;
 
-#pragma warning disable RS1024 // Compare symbols correctly
 			var attributeTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
 			var count = 0;
 
 			foreach (var attribute in symbol.GetAttributes())
 			{
 				var attributeType = attribute.AttributeClass;
-				if (attributeType != null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+				if (attributeType is not null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
 				{
 					attributeTypes.Add(attributeType);
 					count++;
@@ -41,7 +46,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			}
 
 			if (count > 1)
-#pragma warning disable RS1024 // Compare symbols correctly
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes,
@@ -49,7 +53,6 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 						properties: attributeTypes.ToImmutableDictionary(t => t.ToDisplayString(), t => (string?)string.Empty)
 					)
 				);
-#pragma warning restore RS1024 // Compare symbols correctly
 		}, SymbolKind.Method);
 	}
 }

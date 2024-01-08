@@ -1,7 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using SimpleExec;
 using Xunit.BuildTools.Models;
 
 namespace Xunit.BuildTools.Targets;
@@ -16,22 +16,23 @@ public static class TestFx
 	{
 		context.BuildStep("Running .NET Framework tests");
 
-		var consoleRunner = Path.Combine(context.NuGetPackageCachePath, "xunit.v3.runner.console", "0.1.1-pre.322", "tools", "net472", "xunit.v3.runner.console.exe");
-
-		if (!File.Exists(consoleRunner))
+		if (context.NeedMono)
 		{
-			context.WriteLineColor(ConsoleColor.Red, $"Cannot run .NET Framework tests because path '{consoleRunner}' does not exist");
-			throw new ExitCodeException(-1);
+			context.WriteLineColor(ConsoleColor.Yellow, ".NET Framework tests are not supported on Mono");
+			Console.WriteLine();
+
+			return Task.CompletedTask;
 		}
 
 		var resultPath = Path.Combine(context.BaseFolder, "artifacts", "test");
-		var trxFilePath = Path.Combine(resultPath, "netfx.trx");
-		File.Delete(trxFilePath);
 
-		return context.Exec(
-			consoleRunner,
-			$"xunit.analyzers.tests.dll -trx \"{trxFilePath}\"",
-			workingDirectory: $"src/xunit.analyzers.tests/bin/{context.ConfigurationText}/net472"
-		);
+		var testDLLs =
+			Directory
+				.GetFiles(Path.Join(context.BaseFolder, "src"), "*.tests*.csproj", SearchOption.AllDirectories)
+				.Select(csproj => '"' + Path.Combine(Path.GetDirectoryName(csproj)!, "bin", context.ConfigurationText, "net472", Path.GetFileNameWithoutExtension(csproj) + ".dll") + '"');
+
+		File.Delete(Path.Combine(resultPath, "netfx.trx"));
+
+		return context.Exec("dotnet", $"vstest {string.Join(" ", testDLLs)} --logger:\"trx;LogFileName=netfx.trx\" --ResultsDirectory:\"{resultPath}\" --Parallel");
 	}
 }

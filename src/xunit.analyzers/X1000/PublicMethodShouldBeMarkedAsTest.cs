@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -16,6 +17,9 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		var taskType = TypeSymbolFactory.Task(context.Compilation);
 		var configuredTaskAwaitableType = TypeSymbolFactory.ConfiguredTaskAwaitable(context.Compilation);
 		var interfacesToIgnore = new List<INamedTypeSymbol?>
@@ -65,7 +69,7 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 				hasTestMethods = hasTestMethods || isTestMethod;
 
 				if (isTestMethod ||
-					attributes.Any(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass?.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute") == true)))
+					attributes.Any(attribute => attribute.AttributeClass is not null && attribute.AttributeClass.GetAttributes().Any(att => att.AttributeClass?.Name.EndsWith("IgnoreXunitAnalyzersRule1013Attribute", StringComparison.InvariantCulture) == true)))
 				{
 					continue;
 				}

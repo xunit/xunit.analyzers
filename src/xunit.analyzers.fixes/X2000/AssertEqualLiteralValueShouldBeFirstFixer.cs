@@ -39,7 +39,7 @@ public class AssertEqualLiteralValueShouldBeFirstFixer : BatchedCodeFixProvider
 		);
 	}
 
-	async Task<Document> SwapArguments(
+	static async Task<Document> SwapArguments(
 		Document document,
 		InvocationExpressionSyntax invocation,
 		CancellationToken cancellationToken)

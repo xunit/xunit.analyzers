@@ -112,6 +112,8 @@ public class V3CoreContext : ICoreContext
 		Compilation compilation,
 		Version? versionOverride = null)
 	{
+		Guard.ArgumentNotNull(compilation);
+
 		var version =
 			versionOverride ??
 			compilation

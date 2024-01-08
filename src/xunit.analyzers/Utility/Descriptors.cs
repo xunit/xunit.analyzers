@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.DiagnosticSeverity;
@@ -311,7 +310,7 @@ public static class Descriptors
 			"Do not call ConfigureAwait(false) in test method",
 			Usage,
 			Warning,
-			"Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007."
+			"Test methods should not call ConfigureAwait({0}), as it may bypass parallelization limits. {1}"
 		);
 
 	public static DiagnosticDescriptor X1031_DoNotUseBlockingTaskOperations { get; } =
@@ -409,7 +408,7 @@ public static class Descriptors
 			"xUnit1041",
 			"Fixture arguments to test classes must have fixture sources",
 			Usage,
-			Error,
+			Warning,
 			"Fixture argument '{0}' does not have a fixture source (if it comes from a collection definition, ensure the definition is in the same assembly as the test)"
 		);
 
@@ -614,9 +613,7 @@ public static class Descriptors
 			"Do not compare an object's exact type to the {0} '{1}'. Use Assert.{2} instead."
 		);
 
-	[Obsolete("This check was unnecessary, as it's already covered by xUnit2014", error: true)]
-	public static DiagnosticDescriptor X2019_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck
-		=> throw new NotImplementedException();
+	// Note: X2019 was already covered by X2014, and should not be reused
 
 	public static DiagnosticDescriptor X2020_UseAssertFailInsteadOfBooleanAssert { get; } =
 		Rule(
@@ -673,13 +670,54 @@ public static class Descriptors
 			"The use of Assert.{0} can be simplified to avoid using a boolean literal value in an equality test."
 		);
 
-	// Placeholder for rule X2026
+	public static DiagnosticDescriptor X2026_SetsMustBeComparedWithEqualityComparer { get; } =
+		Rule(
+			"xUnit2026",
+			"Comparison of sets must be done with IEqualityComparer",
+			Assertions,
+			Warning,
+			"Comparison of two sets may produce inconsistent results if GetHashCode() is not overriden. Consider using Assert.{0}(IEnumerable<T>, IEnumerable<T>, IEqualityComparer<T>) instead."
+		);
 
-	// Placeholder for rule X2027
+	public static DiagnosticDescriptor X2027_SetsShouldNotBeComparedToLinearContainers { get; } =
+		Rule(
+			"xUnit2027",
+			"Comparison of sets to linear containers have undefined results",
+			Assertions,
+			Warning,
+			"Comparing an instance of {0} with an instance of {1} has undefined results, because the order of items in the set is not predictable. Create a stable order for the set (i.e., by using OrderBy from Linq)."
+		);
 
-	// Placeholder for rule X2028
+	public static DiagnosticDescriptor X2028_DoNotUseAssertEmptyWithProblematicTypes { get; } =
+		Rule(
+			"xUnit2028",
+			"Do not use Assert.Empty or Assert.NotEmpty with problematic types",
+			Assertions,
+			Warning,
+			"Using Assert.{0} with an instance of {1} is problematic, because {2}. Check the length with .Count instead."
+		);
 
 	// Placeholder for rule X2029
+
+	// Placeholder for rule X2030
+
+	// Placeholder for rule X2031
+
+	// Placeholder for rule X2032
+
+	// Placeholder for rule X2033
+
+	// Placeholder for rule X2034
+
+	// Placeholder for rule X2035
+
+	// Placeholder for rule X2036
+
+	// Placeholder for rule X2037
+
+	// Placeholder for rule X2038
+
+	// Placeholder for rule X2039
 
 	public static DiagnosticDescriptor X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObject { get; } =
 		Rule(

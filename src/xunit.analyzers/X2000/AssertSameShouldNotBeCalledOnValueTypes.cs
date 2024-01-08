@@ -25,6 +25,10 @@ public class AssertSameShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+		Guard.ArgumentNotNull(invocationOperation);
+		Guard.ArgumentNotNull(method);
+
 		if (invocationOperation.Arguments.Length != 2)
 			return;
 
@@ -55,7 +59,6 @@ public class AssertSameShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 			return;
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-		builder[Constants.Properties.MethodName] = method.Name;
 		builder[Constants.Properties.Replacement] = replacement;
 
 		context.ReportDiagnostic(

@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,7 +76,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
-				string.Format("Use Assert.{0}", replacement),
+				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
 				ct => UseAsyncThrowsCheck(context.Document, invocation, method, replacement, ct),
 				Key_UseAlternateAssert
 			),
@@ -95,7 +96,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
 			var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method);
-			var returnType = await AsyncHelper.GetReturnType(method, invocation, document, editor, cancellationToken);
+			var returnType = await AsyncHelper.GetReturnType(method, invocation, document, editor, cancellationToken).ConfigureAwait(false);
 			var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
 
 			if (returnType is not null)

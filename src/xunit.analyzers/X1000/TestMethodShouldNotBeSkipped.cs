@@ -17,6 +17,9 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 		CompilationStartAnalysisContext context,
 		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(context);
+		Guard.ArgumentNotNull(xunitContext);
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
 			if (xunitContext.Core.FactAttributeType is null)
