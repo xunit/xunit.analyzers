@@ -38,6 +38,75 @@ public class Tests
 	}
 
 	[Fact]
+	public async void DoesNotFindError_ForPublicConstructorWithArguments_InFactAttributeSubclass()
+	{
+		var source = @"
+using System;
+using Xunit;
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+internal sealed class CustomFactAttribute : FactAttribute
+{
+    public CustomFactAttribute(string blah)
+    {
+        this.Skip = blah;
+    }
+}
+
+public class Tests
+{
+    [CustomFact(""blah"")]
+    public void TestCustomFact()
+    {
+    }
+
+    [Fact]
+    public void TestFact()
+    {
+    }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async void DoesNotFindError_ForPublicConstructorWithOtherConstructors_InFactAttributeSubclass()
+	{
+		var source = @"
+using System;
+using Xunit;
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+internal sealed class CustomFactAttribute : FactAttribute
+{
+    public CustomFactAttribute()
+    {
+        this.Skip = ""xxx"";
+    }
+
+    internal CustomFactAttribute(string blah)
+    {
+        this.Skip = blah;
+    }
+}
+
+public class Tests
+{
+    [CustomFact]
+    public void TestCustomFact()
+    {
+    }
+
+    [Fact]
+    public void TestFact()
+    {
+    }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
 	public async void DoesNotFindError_ForDefaultConstructor_InFactAttributeSubclass()
 	{
 		var source = @"
