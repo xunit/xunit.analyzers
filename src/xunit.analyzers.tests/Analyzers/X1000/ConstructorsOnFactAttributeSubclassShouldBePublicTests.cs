@@ -38,6 +38,34 @@ public class Tests
 	}
 
 	[Fact]
+	public async void DoesNotFindError_ForDefaultConstructor_InFactAttributeSubclass()
+	{
+		var source = @"
+using System;
+using Xunit;
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+internal sealed class CustomFactAttribute : FactAttribute
+{
+}
+
+public class Tests
+{
+    [CustomFact]
+    public void TestCustomFact()
+    {
+    }
+
+    [Fact]
+    public void TestFact()
+    {
+    }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
 	public async void FindsError_ForInternalConstructor_InFactAttributeSubclass()
 	{
 		var source = @"
@@ -71,7 +99,7 @@ public class Tests
 			Verify
 				.Diagnostic("xUnit1043")
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithSpan(8, 14, 8, 33)
+				.WithSpan(16, 6, 16, 16)
 				.WithArguments("CustomFactAttribute")
 		};
 
@@ -112,7 +140,7 @@ public class Tests
 			Verify
 				.Diagnostic("xUnit1043")
 				.WithSeverity(DiagnosticSeverity.Error)
-				.WithSpan(8, 24, 8, 43)
+				.WithSpan(16, 6, 16, 16)
 				.WithArguments("CustomFactAttribute")
 		};
 

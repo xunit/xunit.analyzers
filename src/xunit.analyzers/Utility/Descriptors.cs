@@ -421,10 +421,10 @@ public static class Descriptors
 			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using TheoryData<> as the return type to provide better type safety."
 		);
 
-	public static DiagnosticDescriptor X1043_ConstructorsOnFactAttributeSubclassShouldBePublic { get; } =
+	public static DiagnosticDescriptor X1043_ConstructorOnFactAttributeSubclassShouldBePublic { get; } =
 		Rule(
 			"xUnit1043",
-			"Constructors on classes derived from FactAttribute must be public and not internal",
+			"Constructors on classes derived from FactAttribute must be public and not internal when used on test methods",
 			Usage,
 			Error,
 			"Constructors on class '{0}', derived from FactAttribute, must be marked as public and not internal to be found by test runners."
