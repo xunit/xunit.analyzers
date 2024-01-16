@@ -9,7 +9,11 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEmptyCollectionCheckShouldNotBeUsed : AssertUsageAnalyzerBase
 {
-	static readonly string[] targetMethods = { Constants.Asserts.Collection };
+	static readonly string[] targetMethods =
+	{
+		Constants.Asserts.Collection,
+		Constants.Asserts.CollectionAsync,
+	};
 
 	public AssertEmptyCollectionCheckShouldNotBeUsed()
 		: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, targetMethods)

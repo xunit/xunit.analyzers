@@ -18,6 +18,7 @@ public static class Constants
 	public static class Asserts
 	{
 		public const string Collection = "Collection";
+		public const string CollectionAsync = "CollectionAsync";
 		public const string Contains = "Contains";
 		public const string DoesNotContain = "DoesNotContain";
 		public const string DoesNotMatch = "DoesNotMatch";

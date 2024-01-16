@@ -20,6 +20,7 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedTests
 class TestClass {{
     void TestMethod() {{
         [|Xunit.Assert.Collection({collection})|];
+        [|Xunit.Assert.CollectionAsync({collection})|];
     }}
 }}";
 
@@ -34,6 +35,7 @@ class TestClass {{
 class TestClass {{
     void TestMethod() {{
         Xunit.Assert.Collection({collection}, i => Xunit.Assert.True(true));
+        Xunit.Assert.CollectionAsync({collection}, async i => {{ await System.Threading.Tasks.Task.Yield(); Xunit.Assert.True(true); }});
     }}
 }}";
 
