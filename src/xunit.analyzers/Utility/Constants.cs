@@ -17,39 +17,39 @@ public static class Constants
 	/// </summary>
 	public static class Asserts
 	{
-		public const string Collection = "Collection";
-		public const string CollectionAsync = "CollectionAsync";
-		public const string Contains = "Contains";
-		public const string DoesNotContain = "DoesNotContain";
-		public const string DoesNotMatch = "DoesNotMatch";
-		public const string Empty = "Empty";
-		public const string EndsWith = "EndsWith";
-		public const string Equal = "Equal";
-		public const string Fail = "Fail";
-		public const string False = "False";
-		public const string IsAssignableFrom = "IsAssignableFrom";
-		public const string IsNotAssignableFrom = "IsNotAssignableFrom";
-		public const string IsNotType = "IsNotType";
-		public const string IsType = "IsType";
-		public const string Matches = "Matches";
-		public const string NotEmpty = "NotEmpty";
-		public const string NotEqual = "NotEqual";
-		public const string NotNull = "NotNull";
-		public const string NotSame = "NotSame";
-		public const string NotStrictEqual = "NotStrictEqual";
-		public const string Null = "Null";
-		public const string PropertyChangedAsync = "PropertyChangedAsync";
-		public const string RaisesAnyAsync = "RaisesAnyAsync";
-		public const string RaisesAsync = "RaisesAsync";
-		public const string Same = "Same";
-		public const string Single = "Single";
-		public const string StartsWith = "StartsWith";
-		public const string StrictEqual = "StrictEqual";
-		public const string Throws = "Throws";
-		public const string ThrowsAny = "ThrowsAny";
-		public const string ThrowsAnyAsync = "ThrowsAnyAsync";
-		public const string ThrowsAsync = "ThrowsAsync";
-		public const string True = "True";
+		public const string Collection = nameof(Collection);
+		public const string CollectionAsync = nameof(CollectionAsync);
+		public const string Contains = nameof(Contains);
+		public const string DoesNotContain = nameof(DoesNotContain);
+		public const string DoesNotMatch = nameof(DoesNotMatch);
+		public const string Empty = nameof(Empty);
+		public const string EndsWith = nameof(EndsWith);
+		public const string Equal = nameof(Equal);
+		public const string Fail = nameof(Fail);
+		public const string False = nameof(False);
+		public const string IsAssignableFrom = nameof(IsAssignableFrom);
+		public const string IsNotAssignableFrom = nameof(IsNotAssignableFrom);
+		public const string IsNotType = nameof(IsNotType);
+		public const string IsType = nameof(IsType);
+		public const string Matches = nameof(Matches);
+		public const string NotEmpty = nameof(NotEmpty);
+		public const string NotEqual = nameof(NotEqual);
+		public const string NotNull = nameof(NotNull);
+		public const string NotSame = nameof(NotSame);
+		public const string NotStrictEqual = nameof(NotStrictEqual);
+		public const string Null = nameof(Null);
+		public const string PropertyChangedAsync = nameof(PropertyChangedAsync);
+		public const string RaisesAnyAsync = nameof(RaisesAnyAsync);
+		public const string RaisesAsync = nameof(RaisesAsync);
+		public const string Same = nameof(Same);
+		public const string Single = nameof(Single);
+		public const string StartsWith = nameof(StartsWith);
+		public const string StrictEqual = nameof(StrictEqual);
+		public const string Throws = nameof(Throws);
+		public const string ThrowsAny = nameof(ThrowsAny);
+		public const string ThrowsAnyAsync = nameof(ThrowsAnyAsync);
+		public const string ThrowsAsync = nameof(ThrowsAsync);
+		public const string True = nameof(True);
 	}
 
 	/// <summary>
@@ -57,8 +57,8 @@ public static class Constants
 	/// </summary>
 	public static class Attributes
 	{
-		public const string Fact = "Fact";
-		public const string Theory = "Theory";
+		public const string Fact = nameof(Fact);
+		public const string Theory = nameof(Theory);
 	}
 
 	/// <summary>
@@ -66,9 +66,9 @@ public static class Constants
 	/// </summary>
 	public static class AttributeProperties
 	{
-		public const string DeclaringType = "DeclaringType";
-		public const string MemberName = "MemberName";
-		public const string MemberType = "MemberType";
+		public const string DeclaringType = nameof(DeclaringType);
+		public const string MemberName = nameof(MemberName);
+		public const string MemberType = nameof(MemberType);
 	}
 
 	/// <summary>
@@ -76,27 +76,27 @@ public static class Constants
 	/// </summary>
 	public static class Properties
 	{
-		public const string ArgumentValue = "ArgumentValue";
-		public const string AssertMethodName = "AssertMethodName";
-		public const string DeclaringType = "DeclaringType";
-		public const string IgnoreCase = "IgnoreCase";
-		public const string IsStatic = "IsStatic";
-		public const string IsStaticMethodCall = "IsStaticMethodCall";
-		public const string LiteralValue = "LiteralValue";
-		public const string MemberName = "MemberName";
-		public const string MethodName = "MethodName";
-		public const string NewBaseType = "NewBaseType";
-		public const string ParameterArrayStyle = "ParameterArrayStyle";
-		public const string ParameterIndex = "ParameterIndex";
-		public const string ParameterName = "ParameterName";
-		public const string ParameterSpecialType = "ParameterSpecialType";
-		public const string Replacement = "Replacement";
-		public const string SizeValue = "SizeValue";
-		public const string SubstringMethodName = "SubstringMethodName";
-		public const string TestClassName = "TestClassName";
-		public const string TFixtureDisplayName = "TFixtureDisplayName";
-		public const string TFixtureName = "TFixtureName";
-		public const string TypeName = "TypeName";
+		public const string ArgumentValue = nameof(ArgumentValue);
+		public const string AssertMethodName = nameof(AssertMethodName);
+		public const string DeclaringType = nameof(DeclaringType);
+		public const string IgnoreCase = nameof(IgnoreCase);
+		public const string IsStatic = nameof(IsStatic);
+		public const string IsStaticMethodCall = nameof(IsStaticMethodCall);
+		public const string LiteralValue = nameof(LiteralValue);
+		public const string MemberName = nameof(MemberName);
+		public const string MethodName = nameof(MethodName);
+		public const string NewBaseType = nameof(NewBaseType);
+		public const string ParameterArrayStyle = nameof(ParameterArrayStyle);
+		public const string ParameterIndex = nameof(ParameterIndex);
+		public const string ParameterName = nameof(ParameterName);
+		public const string ParameterSpecialType = nameof(ParameterSpecialType);
+		public const string Replacement = nameof(Replacement);
+		public const string SizeValue = nameof(SizeValue);
+		public const string SubstringMethodName = nameof(SubstringMethodName);
+		public const string TestClassName = nameof(TestClassName);
+		public const string TFixtureDisplayName = nameof(TFixtureDisplayName);
+		public const string TFixtureName = nameof(TFixtureName);
+		public const string TypeName = nameof(TypeName);
 	}
 
 	/// <summary>
