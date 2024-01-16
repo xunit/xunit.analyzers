@@ -36,7 +36,14 @@ public class AssertEmptyCollectionCheckShouldNotBeUsed : AssertUsageAnalyzerBase
 		if (arguments.Count != 1)
 			return;
 
-		if (!method.Parameters[0].Type.OriginalDefinition.SpecialType.Equals(SpecialType.System_Collections_Generic_IEnumerable_T))
+		var matchedType = false;
+		var asyncEnumerable = TypeSymbolFactory.IAsyncEnumerableOfT(context.Compilation);
+		if (asyncEnumerable != null)
+			matchedType = SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type.OriginalDefinition, asyncEnumerable);
+
+		matchedType = matchedType || method.Parameters[0].Type.OriginalDefinition.SpecialType.Equals(SpecialType.System_Collections_Generic_IEnumerable_T);
+
+		if (!matchedType)
 			return;
 
 		context.ReportDiagnostic(

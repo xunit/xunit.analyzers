@@ -38,6 +38,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
 
+	public static INamedTypeSymbol? IAsyncEnumerableOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IAsyncEnumerable`1");
+
 	public static INamedTypeSymbol? IAsyncLifetime(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.IAsyncLifetime");
 

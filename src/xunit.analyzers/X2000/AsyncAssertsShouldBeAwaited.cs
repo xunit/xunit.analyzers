@@ -9,6 +9,8 @@ public class AsyncAssertsShouldBeAwaited : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
 	{
+		Constants.Asserts.AllAsync,
+		Constants.Asserts.CollectionAsync,
 		Constants.Asserts.PropertyChangedAsync,
 		Constants.Asserts.RaisesAnyAsync,
 		Constants.Asserts.RaisesAsync,

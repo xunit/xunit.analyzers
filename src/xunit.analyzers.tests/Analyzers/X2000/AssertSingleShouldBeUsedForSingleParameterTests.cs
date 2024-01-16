@@ -3,46 +3,50 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleP
 
 public class AssertSingleShouldBeUsedForSingleParameterTests
 {
-	[Fact]
-	public async void FindsInfo_ForSingleItemCollectionCheck()
+	[Theory]
+	[InlineData("default(IEnumerable<int>)")]
+#if NETCOREAPP3_0_OR_GREATER
+	[InlineData("default(IAsyncEnumerable<int>)")]
+#endif
+	public async void FindsInfo_ForSingleItemCollectionCheck(string collection)
 	{
-		var code = @"
+		var code = @$"
 using Xunit;
 using System.Collections.Generic;
 
-public class TestClass {
+public class TestClass {{
     [Fact]
-    public void TestMethod() {
-        IEnumerable<object> collection = new List<object>() { new object() };
-
-        Assert.Collection(collection, item => Assert.NotNull(item));
-    }
-}";
+    public void TestMethod() {{
+        Assert.Collection({collection}, item => Assert.NotNull(item));
+    }}
+}}";
 
 		var expected =
 			Verify
 				.Diagnostic()
-				.WithSpan(10, 9, 10, 68)
+				.WithSpan(8, 9, 8, 58 + collection.Length)
 				.WithArguments("Collection");
 
 		await Verify.VerifyAnalyzer(code, expected);
 	}
 
-	[Fact]
-	public async void DoesNotFindInfo_ForMultipleItemCollectionCheck()
+	[Theory]
+	[InlineData("default(IEnumerable<int>)")]
+#if NETCOREAPP3_0_OR_GREATER
+	[InlineData("default(IAsyncEnumerable<int>)")]
+#endif
+	public async void DoesNotFindInfo_ForMultipleItemCollectionCheck(string collection)
 	{
-		var code = @"
+		var code = @$"
 using Xunit;
 using System.Collections.Generic;
 
-public class TestClass {
+public class TestClass {{
     [Fact]
-    public void TestMethod() {
-        IEnumerable<object> collection = new List<object>() { new object(), new object() };
-
-        Assert.Collection(collection, item1 => Assert.NotNull(item1), item2 => Assert.NotNull(item2));
-    }
-}";
+    public void TestMethod() {{
+        Assert.Collection({collection}, item1 => Assert.NotNull(item1), item2 => Assert.NotNull(item2));
+    }}
+}}";
 
 		await Verify.VerifyAnalyzer(code);
 	}

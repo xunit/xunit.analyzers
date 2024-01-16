@@ -25,6 +25,7 @@ public class TestClass {
 
 	string codeTemplate = @"
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Xunit;
@@ -48,6 +49,14 @@ public static class MyTaskExtensions {{
 
 	public static TheoryData<string, string> AsyncAssertions = new()
 	{
+		{ "AllAsync", "Assert.AllAsync(default(IEnumerable<int>), i => Task.FromResult(true))" },
+#if NETCOREAPP3_0_OR_GREATER
+		{ "AllAsync", "Assert.AllAsync(default(IAsyncEnumerable<int>), i => Task.FromResult(true))" },
+#endif
+		{ "CollectionAsync", "Assert.CollectionAsync(default(IEnumerable<int>))" },
+#if NETCOREAPP3_0_OR_GREATER
+		{ "CollectionAsync", "Assert.CollectionAsync(default(IAsyncEnumerable<int>))" },
+#endif
 		{ "PropertyChangedAsync", "Assert.PropertyChangedAsync(this, nameof(Property), async () => throw new DivideByZeroException())" },
 		{ "RaisesAnyAsync", "Assert.RaisesAnyAsync(eh => SimpleEvent += eh, eh => SimpleEvent -= eh, async () => throw new DivideByZeroException())" },
 		{ "RaisesAnyAsync", "Assert.RaisesAnyAsync<int>(eh => SimpleIntEvent += eh, eh => SimpleIntEvent -= eh, async () => throw new DivideByZeroException())" },
@@ -112,7 +121,7 @@ public static class MyTaskExtensions {{
 		var expected =
 			Verify
 				.Diagnostic()
-				.WithSpan(16, 9, 16, 9 + assertion.Length)
+				.WithSpan(17, 9, 17, 9 + assertion.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments(assertionName);
 
@@ -129,7 +138,7 @@ public static class MyTaskExtensions {{
 		var expected =
 			Verify
 				.Diagnostic()
-				.WithSpan(16, 9, 16, 9 + assertion.Length)
+				.WithSpan(17, 9, 17, 9 + assertion.Length)
 				.WithSeverity(DiagnosticSeverity.Error)
 				.WithArguments(assertionName);
 

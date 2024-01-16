@@ -10,6 +10,9 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedTests
 		"new System.Collections.Generic.HashSet<int>()",
 		"new System.Collections.ObjectModel.Collection<int>()",
 		"System.Linq.Enumerable.Empty<int>()",
+#if NETCOREAPP3_0_OR_GREATER
+		"default(System.Collections.Generic.IAsyncEnumerable<int>)",
+#endif
 	};
 
 	[Theory]
