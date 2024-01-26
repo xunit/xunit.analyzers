@@ -86,6 +86,14 @@ public static class SymbolExtensions
 						return IsAssignableFrom(targetEnumerableType, sourceEnumerableType);
 				}
 
+				// Special handling for tuples as tuples with differently named fields are still assignable
+				if (targetType.IsTupleType && sourceType.IsTupleType)
+				{
+					ITypeSymbol targetTupleType = ((INamedTypeSymbol)targetType).TupleUnderlyingType ?? targetType;
+					ITypeSymbol sourceTupleType = ((INamedTypeSymbol)sourceType).TupleUnderlyingType ?? sourceType;
+					return SymbolEqualityComparer.Default.Equals(sourceTupleType, targetTupleType);
+				}
+
 				if (targetType.TypeKind == TypeKind.Interface)
 					return sourceType.AllInterfaces.Any(i => IsAssignableFrom(targetType, i));
 
