@@ -1138,6 +1138,38 @@ public class TestClass {
 		}
 
 		[Fact]
+		public async void DoesNotFindWarning_WhenPassingTupleWithoutFieldNames()
+		{
+			var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<(int, int)> TestData = new TheoryData<(int, int)>();
+
+    [MemberData(nameof(TestData))]
+    public void TestMethod((int a, int b) x) { }
+}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Fact]
+		public async void DoesNotFindWarning_WhenPassingTupleWithDifferentFieldNames()
+		{
+			var source = @"
+using Xunit;
+
+public class TestClass {
+	public static TheoryData<(int c, int d)> TestData = new TheoryData<(int, int)>();
+
+    [MemberData(nameof(TestData))]
+    public void TestMethod((int a, int b) x) { }
+}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Fact]
 		public async void FindWarning_WithExtraValueNotCompatibleWithParamsArray()
 		{
 			var source = @"
