@@ -18,14 +18,20 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 			this(ImmutableStack<string>.Empty)
 		{ }
 
-		protected XunitVerifier(ImmutableStack<string> context)
-		{
+		protected XunitVerifier(ImmutableStack<string> context) =>
 			Context = context ?? throw new ArgumentNullException(nameof(context));
-		}
 
 		protected ImmutableStack<string> Context { get; }
 
-		public virtual void Empty<T>(
+		protected virtual string CreateMessage(string? message)
+		{
+			foreach (var frame in Context)
+				message = "Context: " + frame + Environment.NewLine + message;
+
+			return message ?? string.Empty;
+		}
+
+		void IVerifier.Empty<T>(
 			string collectionName,
 			IEnumerable<T> collection)
 		{
@@ -36,30 +42,27 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 				throw EmptyException.ForNamedNonEmptyCollection(tracker.FormatStart(), collectionName);
 		}
 
-		public virtual void Equal<T>(
+		void IVerifier.Equal<T>(
 			T expected,
 			T actual,
-			string? message = null)
+			string? message)
 		{
+			if (EqualityComparer<T>.Default.Equals(expected, actual))
+				return;
+
 			if (message is null && Context.IsEmpty)
-				Assert.Equal(expected, actual);
-			else if (!EqualityComparer<T>.Default.Equals(expected, actual))
+				throw EqualException.ForMismatchedValues(expected, actual);
+			else
 				throw EqualException.ForMismatchedValuesWithMessage(expected, actual, CreateMessage(message));
 		}
 
-		public virtual void True(
-			[DoesNotReturnIf(false)] bool assert,
-			string? message = null)
-		{
-			if (message is null && Context.IsEmpty)
-				Assert.True(assert);
-			else
-				Assert.True(assert, CreateMessage(message));
-		}
+		[DoesNotReturn]
+		void IVerifier.Fail(string? message) =>
+			Assert.Fail(message is null ? "<no message provided>" : CreateMessage(message));
 
-		public virtual void False(
+		void IVerifier.False(
 			[DoesNotReturnIf(true)] bool assert,
-			string? message = null)
+			string? message)
 		{
 			if (message is null && Context.IsEmpty)
 				Assert.False(assert);
@@ -67,23 +70,10 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 				Assert.False(assert, CreateMessage(message));
 		}
 
-		[DoesNotReturn]
-		public virtual void Fail(string? message = null)
-		{
-			if (message is null && Context.IsEmpty)
-				Assert.True(false);
-			else
-				Assert.True(false, CreateMessage(message));
-
-			throw new InvalidOperationException("This code is unreachable");
-		}
-
-		public virtual void LanguageIsSupported(string language)
-		{
+		void IVerifier.LanguageIsSupported(string language) =>
 			Assert.False(language != LanguageNames.CSharp && language != LanguageNames.VisualBasic, CreateMessage($"Unsupported Language: '{language}'"));
-		}
 
-		public virtual void NotEmpty<T>(
+		void IVerifier.NotEmpty<T>(
 			string collectionName,
 			IEnumerable<T> collection)
 		{
@@ -93,11 +83,18 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 				throw NotEmptyException.ForNamedNonEmptyCollection(collectionName);
 		}
 
-		public virtual void SequenceEqual<T>(
+		IVerifier IVerifier.PushContext(string context)
+		{
+			Assert.IsAssignableFrom<XunitVerifier>(this);
+
+			return new XunitVerifier(Context.Push(context));
+		}
+
+		void IVerifier.SequenceEqual<T>(
 			IEnumerable<T> expected,
 			IEnumerable<T> actual,
-			IEqualityComparer<T>? equalityComparer = null,
-			string? message = null)
+			IEqualityComparer<T>? equalityComparer,
+			string? message)
 		{
 			var comparer = new SequenceEqualEnumerableEqualityComparer<T>(equalityComparer);
 			var areEqual = comparer.Equals(expected, actual);
@@ -106,34 +103,30 @@ namespace Microsoft.CodeAnalysis.Testing.Verifiers
 				throw EqualException.ForMismatchedValuesWithMessage(expected, actual, CreateMessage(message));
 		}
 
-		public virtual IVerifier PushContext(string context)
+		void IVerifier.True(
+			[DoesNotReturnIf(false)] bool assert,
+			string? message)
 		{
-			Assert.IsAssignableFrom<XunitVerifier>(this);
-
-			return new XunitVerifier(Context.Push(context));
-		}
-
-		protected virtual string CreateMessage(string? message)
-		{
-			foreach (var frame in Context)
-				message = "Context: " + frame + Environment.NewLine + message;
-
-			return message ?? string.Empty;
+			if (message is null && Context.IsEmpty)
+				Assert.True(assert);
+			else
+				Assert.True(assert, CreateMessage(message));
 		}
 
 		sealed class SequenceEqualEnumerableEqualityComparer<T> : IEqualityComparer<IEnumerable<T>?>
 		{
 			readonly IEqualityComparer<T> itemEqualityComparer;
 
-			public SequenceEqualEnumerableEqualityComparer(IEqualityComparer<T>? itemEqualityComparer)
-			{
+			public SequenceEqualEnumerableEqualityComparer(IEqualityComparer<T>? itemEqualityComparer) =>
 				this.itemEqualityComparer = itemEqualityComparer ?? EqualityComparer<T>.Default;
-			}
 
 			public bool Equals(IEnumerable<T>? x, IEnumerable<T>? y)
 			{
-				if (ReferenceEquals(x, y)) { return true; }
-				if (x is null || y is null) { return false; }
+				if (ReferenceEquals(x, y))
+					return true;
+
+				if (x is null || y is null)
+					return false;
 
 				return x.SequenceEqual(y, itemEqualityComparer);
 			}

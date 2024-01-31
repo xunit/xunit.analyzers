@@ -1,6 +1,9 @@
 using System.Collections.Immutable;
-using System.IO;
 using Microsoft.CodeAnalysis.Testing;
+
+#if !NET472
+using System.IO;
+#endif
 
 static class CodeAnalyzerHelper
 {
