@@ -21,7 +21,7 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 	{ }
 
 	public static string Key_KeepAttribute(string simpleTypeName) =>
-		string.Format(CultureInfo.CurrentCulture, "xUnit1002_KeepAttribute_{0}", simpleTypeName);
+		string.Format(CultureInfo.InvariantCulture, "xUnit1002_KeepAttribute_{0}", simpleTypeName);
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
