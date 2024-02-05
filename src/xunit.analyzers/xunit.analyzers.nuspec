@@ -25,9 +25,6 @@ Installing this package provides code analyzers to help developers find and fix 
 		<file target="analyzers\dotnet\roslyn3.11\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
 		<file target="analyzers\dotnet\roslyn3.11\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
 
-		<file target="analyzers\dotnet\roslyn4.2\cs\" src="..\xunit.analyzers.fixes.roslyn42\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
-		<file target="analyzers\dotnet\roslyn4.2\cs\" src="..\xunit.analyzers.fixes.roslyn42\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
-
 		<file target="analyzers\dotnet\roslyn4.4\cs\" src="..\xunit.analyzers.fixes.roslyn44\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
 		<file target="analyzers\dotnet\roslyn4.4\cs\" src="..\xunit.analyzers.fixes.roslyn44\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
 

@@ -36,23 +36,18 @@
     <RoslynVersion>3.11.0</RoslynVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn42'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_2;ROSLYN_3_11_OR_GREATER;ROSLYN_4_2_OR_GREATER</DefineConstants>
-    <RoslynVersion>4.2.0</RoslynVersion>
-  </PropertyGroup>
-
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn44'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_4;ROSLYN_3_11_OR_GREATER;ROSLYN_4_2_OR_GREATER;ROSLYN_4_4_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);ROSLYN_4_4;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER</DefineConstants>
     <RoslynVersion>4.4.0</RoslynVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn46'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_6;ROSLYN_3_11_OR_GREATER;ROSLYN_4_2_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);ROSLYN_4_6;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER</DefineConstants>
     <RoslynVersion>4.6.0</RoslynVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RoslynVersion)' == '4.8.0' ">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_8;ROSLYN_3_11_OR_GREATER;ROSLYN_4_2_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER;ROSLYN_4_8_OR_GREATER</DefineConstants>
+    <DefineConstants>$(DefineConstants);ROSLYN_4_8;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER;ROSLYN_4_8_OR_GREATER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

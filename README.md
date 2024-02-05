@@ -2,7 +2,7 @@
 
 This project contains source code analysis and cleanup rules for xUnit.net. Analysis and fixes are only supported with C#.
 
-**Requirements**: xUnit.net v2 2.0+. Supported in Visual Studio 2019 16.11+ or 2022 17.2+ (as well as via command line builds with Roslyn 3.11+).
+**Requirements**: xUnit.net v2 2.0+. Supported in Visual Studio 2019 16.11+ or 2022 17.4+ (as well as via command line builds with Roslyn 3.11+).
 Other environments (such as Mono or JetBrains Rider) may be able to use these analyzers as well; support and issue resolution will be provided by
 those third parties and not by xUnit.net itself.
 
