@@ -201,6 +201,32 @@ public class TestClass : TestContext {
 			await Verify.VerifyAnalyzer(source);
 		}
 
+		[Fact]
+		public async void WithInheritedGenericFixture_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+public class Fixture<T> { }
+
+[CollectionDefinition(""test"")]
+public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+
+[Collection(""test"")]
+public abstract class TestContext<TContextFixture> {
+    protected TestContext(Fixture<TContextFixture> fixture) { }
+}
+
+public class TestClass : TestContext<int> {
+    public TestClass(Fixture<int> fixture) : base(fixture) { }
+
+    [Fact]
+    public void TestMethod() { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
 		[Theory]
 		[InlineData("[Collection(nameof(TestCollection))]", "")]
 		[InlineData("", "[Collection(nameof(TestCollection))]")]
