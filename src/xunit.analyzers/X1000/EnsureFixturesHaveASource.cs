@@ -96,10 +96,9 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 							var fixtureTypeSymbol = @interface.TypeArguments.First();
 							if (fixtureTypeSymbol is INamedTypeSymbol namedFixtureType)
 							{
-								if (namedFixtureType.IsGenericType && namedFixtureType.TypeArguments.Any(t => t is ITypeParameterSymbol))
-								{
+								if (xunitContext.HasV3References && namedFixtureType.IsGenericType && namedFixtureType.TypeArguments.Any(t => t is ITypeParameterSymbol))
 									namedFixtureType = namedFixtureType.ConstructedFrom;
-								}
+
 								validConstructorArgumentTypes.Add(namedFixtureType);
 							}
 						}
@@ -120,7 +119,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional
 					&& !validConstructorArgumentTypes.Contains(p.Type)
-					&& (p.Type is not INamedTypeSymbol nts || !nts.IsGenericType || !validConstructorArgumentTypes.Contains(nts.ConstructedFrom))))
+					&& (xunitContext.HasV2References || p.Type is not INamedTypeSymbol nts || !nts.IsGenericType || !validConstructorArgumentTypes.Contains(nts.ConstructedFrom))))
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1041_EnsureFixturesHaveASource,

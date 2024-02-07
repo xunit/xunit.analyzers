@@ -202,7 +202,7 @@ public class TestClass : TestContext {
 		}
 
 		[Fact]
-		public async void WithGenericFixture_DoesNotTrigger()
+		public async void WithGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
 			var source = @"
 using Xunit;
@@ -220,11 +220,18 @@ public class TestClass {
     public void TestMethod() { }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			var expectedV2 =
+				Verify
+					.Diagnostic()
+					.WithSpan(11, 35, 11, 42)
+					.WithArguments("fixture");
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
 		}
 
 		[Fact]
-		public async void WithInheritedGenericFixture_DoesNotTrigger()
+		public async void WithInheritedGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
 			var source = @"
 using Xunit;
@@ -246,7 +253,14 @@ public class TestClass : TestContext<int> {
     public void TestMethod() { }
 }";
 
-			await Verify.VerifyAnalyzer(source);
+			var expectedV2 =
+				Verify
+					.Diagnostic()
+					.WithSpan(15, 35, 15, 42)
+					.WithArguments("fixture");
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
 		}
 
 		[Theory]
