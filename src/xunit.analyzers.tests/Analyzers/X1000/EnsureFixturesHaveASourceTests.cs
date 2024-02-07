@@ -186,13 +186,35 @@ public class Fixture { }
 [CollectionDefinition(""test"")]
 public class TestCollection : ICollectionFixture<Fixture> { }
 
-[Collection(""test"")]
 public abstract class TestContext {
     protected TestContext(Fixture fixture) { }
 }
 
+[Collection(""test"")]
 public class TestClass : TestContext {
     public TestClass(Fixture fixture) : base(fixture) { }
+
+    [Fact]
+    public void TestMethod() { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void WithGenericFixture_DoesNotTrigger()
+		{
+			var source = @"
+using Xunit;
+
+public class Fixture<T> { }
+
+[CollectionDefinition(""test"")]
+public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+
+[Collection(""test"")]
+public class TestClass {
+    public TestClass(Fixture<int> fixture) { }
 
     [Fact]
     public void TestMethod() { }
