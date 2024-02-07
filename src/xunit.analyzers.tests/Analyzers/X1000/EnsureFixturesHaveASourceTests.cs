@@ -186,11 +186,11 @@ public class Fixture { }
 [CollectionDefinition(""test"")]
 public class TestCollection : ICollectionFixture<Fixture> { }
 
-[Collection(""test"")]
 public abstract class TestContext {
     protected TestContext(Fixture fixture) { }
 }
 
+[Collection(""test"")]
 public class TestClass : TestContext {
     public TestClass(Fixture fixture) : base(fixture) { }
 
@@ -199,6 +199,68 @@ public class TestClass : TestContext {
 }";
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async void WithGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
+		{
+			var source = @"
+using Xunit;
+
+public class Fixture<T> { }
+
+[CollectionDefinition(""test"")]
+public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+
+[Collection(""test"")]
+public class TestClass {
+    public TestClass(Fixture<int> fixture) { }
+
+    [Fact]
+    public void TestMethod() { }
+}";
+
+			var expectedV2 =
+				Verify
+					.Diagnostic()
+					.WithSpan(11, 35, 11, 42)
+					.WithArguments("fixture");
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Fact]
+		public async void WithInheritedGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
+		{
+			var source = @"
+using Xunit;
+
+public class Fixture<T> { }
+
+[CollectionDefinition(""test"")]
+public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+
+[Collection(""test"")]
+public abstract class TestContext<TContextFixture> {
+    protected TestContext(Fixture<TContextFixture> fixture) { }
+}
+
+public class TestClass : TestContext<int> {
+    public TestClass(Fixture<int> fixture) : base(fixture) { }
+
+    [Fact]
+    public void TestMethod() { }
+}";
+
+			var expectedV2 =
+				Verify
+					.Diagnostic()
+					.WithSpan(15, 35, 15, 42)
+					.WithArguments("fixture");
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
 		}
 
 		[Theory]

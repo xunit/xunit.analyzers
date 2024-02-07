@@ -91,8 +91,17 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					{
 						var unboundGeneric = @interface.ConstructUnboundGenericType();
 						if (SymbolEqualityComparer.Default.Equals(classFixtureType, unboundGeneric)
-								|| SymbolEqualityComparer.Default.Equals(collectionFixtureType, unboundGeneric))
-							validConstructorArgumentTypes.Add(@interface.TypeArguments.First());
+							|| SymbolEqualityComparer.Default.Equals(collectionFixtureType, unboundGeneric))
+						{
+							var fixtureTypeSymbol = @interface.TypeArguments.First();
+							if (fixtureTypeSymbol is INamedTypeSymbol namedFixtureType)
+							{
+								if (xunitContext.HasV3References && namedFixtureType.IsGenericType && namedFixtureType.TypeArguments.Any(t => t is ITypeParameterSymbol))
+									namedFixtureType = namedFixtureType.ConstructedFrom;
+
+								validConstructorArgumentTypes.Add(namedFixtureType);
+							}
+						}
 					}
 				}
 			}
@@ -108,7 +117,9 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
 				);
 
-			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional && !validConstructorArgumentTypes.Contains(p.Type)))
+			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional
+					&& !validConstructorArgumentTypes.Contains(p.Type)
+					&& (xunitContext.HasV2References || p.Type is not INamedTypeSymbol nts || !nts.IsGenericType || !validConstructorArgumentTypes.Contains(nts.ConstructedFrom))))
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1041_EnsureFixturesHaveASource,
