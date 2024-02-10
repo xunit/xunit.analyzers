@@ -4,19 +4,9 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyn
 
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixerTests
 {
-	public static TheoryData<string> Lambdas = new()
-	{
-		"(System.Func<System.Threading.Tasks.Task>)ThrowingMethod",
-		"() => System.Threading.Tasks.Task.Delay(0)",
-		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0))",
-		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false))",
-	};
+	public static readonly TheoryData<string, string> Assertions = GenerateAssertions();
 
-	[Theory]
-	[MemberData(nameof(Lambdas))]
-	public async void WithNonArgumentException(string lambda)
-	{
-		var before = $@"
+	static readonly string template = @"
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -26,66 +16,58 @@ public class TestClass {{
         throw new NotImplementedException();
     }}
 
-    [Fact]
-    public void TestMethod() {{
-        {{|CS0619:[|Assert.Throws<Exception>({lambda})|]|}};
-    }}
+    [Fact]{0}
 }}";
 
-		var after = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
+	static TheoryData<string, string> GenerateAssertions()
+	{
+		var templates = new (string, string)[]
+		{
+			("Assert.Throws<Exception>({0})", "Assert.ThrowsAsync<Exception>({0})"),
+			("Assert.Throws<ArgumentException>(\"parameter\", {0})", "Assert.ThrowsAsync<ArgumentException>(\"parameter\", {0})"),
+		};
 
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
+		var lambdas = new[]
+		{
+			"(Func<Task>)ThrowingMethod",
+			"() => Task.Delay(0)",
+			"(Func<Task>)(async () => await Task.Delay(0))",
+			"(Func<Task>)(async () => await Task.Delay(0).ConfigureAwait(false))",
+		};
 
-    [Fact]
-    public async Task TestMethod() {{
-        await Assert.ThrowsAsync<Exception>({lambda});
-    }}
-}}";
+		var assertions = new TheoryData<string, string>();
 
-		await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
+		foreach ((var assertionTemplate, var replacementTemplate) in templates)
+		{
+			foreach (var lambda in lambdas)
+			{
+				var assertion = string.Format(assertionTemplate, lambda);
+				var replacement = string.Format(replacementTemplate, lambda);
+				assertions.Add(assertion, replacement);
+			}
+		}
+
+		return assertions;
 	}
 
 	[Theory]
-	[MemberData(nameof(Lambdas))]
-	public async void WithArgumentException(string lambda)
+	[MemberData(nameof(Assertions))]
+	public async void GivenAssertionInMethod_ReplacesWithAsyncAssertion(
+		string assertion,
+		string replacement)
 	{
-		var before = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
+		var beforeMethod = $@"
     public void TestMethod() {{
-        {{|CS0619:[|Assert.Throws<ArgumentException>(""param"", {lambda})|]|}};
-    }}
-}}";
+        {{|CS0619:[|{assertion}|]|}};
+    }}";
 
-		var after = $@"
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
-
-    [Fact]
+		var afterMethod = $@"
     public async Task TestMethod() {{
-        await Assert.ThrowsAsync<ArgumentException>(""param"", {lambda});
-    }}
-}}";
+        await {replacement};
+    }}";
+
+		var before = string.Format(template, beforeMethod);
+		var after = string.Format(template, afterMethod);
 
 		await Verify.VerifyCodeFix(before, after, AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer.Key_UseAlternateAssert);
 	}
