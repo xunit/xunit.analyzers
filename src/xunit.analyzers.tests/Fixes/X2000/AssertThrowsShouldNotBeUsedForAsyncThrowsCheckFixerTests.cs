@@ -23,8 +23,10 @@ public class TestClass {{
 	{
 		var templates = new (string, string)[]
 		{
+			("Assert.Throws(typeof(Exception), {0})", "Assert.ThrowsAsync(typeof(Exception), {0})"),
 			("Assert.Throws<Exception>({0})", "Assert.ThrowsAsync<Exception>({0})"),
 			("Assert.Throws<ArgumentException>(\"parameter\", {0})", "Assert.ThrowsAsync<ArgumentException>(\"parameter\", {0})"),
+			("Assert.ThrowsAny<Exception>({0})", "Assert.ThrowsAnyAsync<Exception>({0})"),
 		};
 
 		var lambdas = new[]
