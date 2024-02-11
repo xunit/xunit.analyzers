@@ -95,8 +95,8 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
-			var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method);
-			var returnType = await AsyncHelper.GetReturnType(method, invocation, document, editor, cancellationToken).ConfigureAwait(false);
+			var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method.Modifiers);
+			var returnType = await AsyncHelper.GetAsyncReturnType(method.ReturnType, editor, cancellationToken).ConfigureAwait(false);
 			var asyncThrowsInvocation = GetAsyncThrowsInvocation(invocation, replacement, memberAccess);
 
 			if (returnType is not null)

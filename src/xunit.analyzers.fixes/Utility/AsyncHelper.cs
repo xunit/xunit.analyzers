@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -11,48 +13,52 @@ namespace Xunit.Analyzers.Fixes;
 public static class AsyncHelper
 {
 	/// <summary>
-	/// Get a method's modifiers that include the async keyword.
+	/// Get a list of modifiers with the <see langword="async"/> keyword added if not already present.
 	/// </summary>
-	public static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(MethodDeclarationSyntax method)
+	public static SyntaxTokenList GetModifiersWithAsyncKeywordAdded(SyntaxTokenList modifiers)
 	{
-		Guard.ArgumentNotNull(method);
-
-		return method.Modifiers.Any(SyntaxKind.AsyncKeyword)
-			? method.Modifiers
-			: method.Modifiers.Add(Token(SyntaxKind.AsyncKeyword));
+		return modifiers.Any(SyntaxKind.AsyncKeyword)
+			? modifiers
+			: modifiers.Add(Token(SyntaxKind.AsyncKeyword));
 	}
 
 	/// <summary>
-	/// Get the syntax type for an updated return type to support using async.
+	/// Convert a return type to the corresponding async return type, if possible.
+	/// <para>
+	/// If the return type is already a <see cref="Task"/> or <see cref="Task{TResult}"/>, then <see langword="null"/> is returned.
+	/// If the return type is <see langword="void"/>, then a <see cref="Task"/> return type is returned.
+	/// If the return type is another type, then a <see cref="Task{TResult}"/> of that type is returned.
+	/// However, if symbols cannot be accessed or created through the semantic model, then <see langword="null"/> is returned.
+	/// </para>
 	/// </summary>
-	public static async Task<TypeSyntax?> GetReturnType(
-		MethodDeclarationSyntax method,
-		InvocationExpressionSyntax invocation,
-		Document document,
+	public static async Task<TypeSyntax?> GetAsyncReturnType(
+		TypeSyntax returnType,
 		DocumentEditor editor,
 		CancellationToken cancellationToken)
 	{
-		Guard.ArgumentNotNull(method);
-		Guard.ArgumentNotNull(invocation);
-		Guard.ArgumentNotNull(document);
+		Guard.ArgumentNotNull(returnType);
 		Guard.ArgumentNotNull(editor);
 
-		// Consider the case where a custom awaiter type is awaited
-		if (invocation.Parent.IsKind(SyntaxKind.AwaitExpression))
-			return method.ReturnType;
+		var semanticModel = await editor.OriginalDocument.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
-		var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-		if (semanticModel is null)
-			return null;
+		if (semanticModel is not null
+			&& semanticModel.GetSymbolInfo(returnType, cancellationToken).Symbol is ITypeSymbol returnTypeSymbol
+			&& TypeSymbolFactory.Task(semanticModel.Compilation) is INamedTypeSymbol taskTypeSymbol)
+		{
+			if (returnType is PredefinedTypeSyntax predefinedReturnType && predefinedReturnType.Keyword.IsKind(SyntaxKind.VoidKeyword))
+				return editor.Generator.TypeExpression(taskTypeSymbol) as TypeSyntax;
 
-		var methodSymbol = semanticModel.GetSymbolInfo(method.ReturnType, cancellationToken).Symbol as ITypeSymbol;
-		var taskType = TypeSymbolFactory.Task(semanticModel.Compilation);
-		if (taskType is null)
-			return null;
+			// Return type is already a task.
+			if (taskTypeSymbol.IsAssignableFrom(returnTypeSymbol))
+				return null;
 
-		if (taskType.IsAssignableFrom(methodSymbol))
-			return method.ReturnType;
+			if (TypeSymbolFactory.TaskOfT(semanticModel.Compilation) is INamedTypeSymbol unboundTaskTypeSymbol)
+			{
+				var constructedTaskTypeSymbol = unboundTaskTypeSymbol.Construct(returnTypeSymbol);
+				return editor.Generator.TypeExpression(constructedTaskTypeSymbol) as TypeSyntax;
+			}
+		}
 
-		return editor.Generator.TypeExpression(taskType) as TypeSyntax;
+		return null;
 	}
 }
