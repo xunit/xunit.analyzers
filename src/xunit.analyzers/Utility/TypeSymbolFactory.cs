@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 
@@ -5,6 +6,12 @@ namespace Xunit.Analyzers;
 
 public static class TypeSymbolFactory
 {
+	public static INamedTypeSymbol? Action(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Action");
+
+	public static INamedTypeSymbol? Action(Compilation compilation, int arity = 1) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName($"System.Action`{ValidateArity(arity, min: 1, max: 16)}");
+
 	public static INamedTypeSymbol? ArraySegmentOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.ArraySegment`1");
 
@@ -34,6 +41,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? FactAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.FactAttribute);
+
+	public static INamedTypeSymbol? Func(Compilation compilation, int arity = 1) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName($"System.Func`{ValidateArity(arity, min: 1, max: 17)}");
 
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
@@ -216,4 +226,12 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol Void(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Void);
+
+	static int ValidateArity(int arity, int min, int max)
+	{
+		if (arity >= min && arity <= max)
+			return arity;
+
+		throw new ArgumentOutOfRangeException(nameof(arity), $"Arity {arity} must be between {min} and {max}.");
+	}
 }
