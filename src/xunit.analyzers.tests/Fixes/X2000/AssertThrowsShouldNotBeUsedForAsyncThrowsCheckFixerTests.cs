@@ -236,6 +236,80 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
+	public async void GivenAssertionInExplicitlyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+		string assertion,
+		string replacement)
+	{
+		var beforeMethod = $@"
+    public void TestMethod() {{
+        Action<int> outerFunction = (number) => {{
+            Func<string> innerFunction = delegate () {{
+                {{|CS0619:[|{assertion}|]|}};
+                return string.Empty;
+            }};
+
+            var message = innerFunction.Invoke().ToLower();
+        }};
+
+        outerFunction.Invoke(0);
+    }}";
+
+		var afterMethod = $@"
+    public async Task TestMethod() {{
+        Func<int, Task> outerFunction = async (number) => {{
+            Func<Task<string>> innerFunction = async delegate () {{
+                await {replacement};
+                return string.Empty;
+            }};
+
+            var message = innerFunction.Invoke().{{|CS7036:ToLower|}}();
+        }};
+
+        outerFunction.Invoke(0);
+    }}";
+
+		await VerifyCodeFix(beforeMethod, afterMethod);
+	}
+
+	[Theory]
+	[MemberData(nameof(Assertions))]
+	public async void GivenAssertionInConditionallyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+		string assertion,
+		string replacement)
+	{
+		var beforeMethod = $@"
+    public void TestMethod() {{
+        Action<int> outerFunction = (number) => {{
+            Func<string> innerFunction = delegate () {{
+                {{|CS0619:[|{assertion}|]|}};
+                return string.Empty;
+            }};
+
+            var message = innerFunction?.Invoke().ToLower();
+        }};
+
+        outerFunction?.Invoke(0);
+    }}";
+
+		var afterMethod = $@"
+    public async Task TestMethod() {{
+        Func<int, Task> outerFunction = async (number) => {{
+            Func<Task<string>> innerFunction = async delegate () {{
+                await {replacement};
+                return string.Empty;
+            }};
+
+            var message = innerFunction?.Invoke().{{|CS7036:ToLower|}}();
+        }};
+
+        outerFunction?.Invoke(0);
+    }}";
+
+		await VerifyCodeFix(beforeMethod, afterMethod);
+	}
+
+	[Theory]
+	[MemberData(nameof(Assertions))]
 	public async void GivenAssertionInUninvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)

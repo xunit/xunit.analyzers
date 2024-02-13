@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Composition;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -278,8 +281,8 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 				.Select(node => semanticModel.GetOperation((InvocationExpressionSyntax)node, cancellationToken) as IInvocationOperation)
 				.Where(invocation => invocation is not null
 					&& invocation.TargetMethod.MethodKind == MethodKind.DelegateInvoke
-					&& invocation.Instance is ILocalReferenceOperation localReference
-					&& SymbolEqualityComparer.Default.Equals(localReference.Local, symbol));
+					&& GetInvocationLocalSymbol(invocation) is ILocalSymbol invocationLocalSymbol
+					&& SymbolEqualityComparer.Default.Equals(invocationLocalSymbol, symbol));
 
 			return invocations.Any();
 		}
@@ -303,6 +306,37 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 			}
 
 			return null;
+		}
+
+		static ILocalSymbol? GetInvocationLocalSymbol(IInvocationOperation invocation)
+		{
+			if (invocation.Instance is ILocalReferenceOperation localReference)
+				return localReference.Local;
+
+			if (invocation.Instance is IConditionalAccessInstanceOperation instance
+				&& GetConditionalAccessOperation(instance) is IConditionalAccessOperation conditionalAccess
+				&& conditionalAccess.Operation is ILocalReferenceOperation conditionalAccessLocalReference)
+			{
+				return conditionalAccessLocalReference.Local;
+			}
+
+			return null;
+		}
+
+		static IConditionalAccessOperation? GetConditionalAccessOperation(IConditionalAccessInstanceOperation instance)
+		{
+			return GetAncestors(instance)
+				.FirstOrDefault(operation => operation.Syntax.SpanStart >= instance.Syntax.SpanStart
+					&& operation is IConditionalAccessOperation conditionalAccess
+					&& conditionalAccess.Operation.Syntax.Equals(instance.Syntax)) as IConditionalAccessOperation;
+		}
+
+		static IEnumerable<IOperation> GetAncestors(IOperation? operation)
+		{
+			while ((operation = operation?.Parent) is not null)
+			{
+				yield return operation;
+			}
 		}
 	}
 
