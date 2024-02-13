@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -68,15 +67,15 @@ public class DoNotUseConfigureAwaitFixer : BatchedCodeFixProvider
 		var replaceConfigureAwaitNode = SyntaxFactory.ParseExpression(replaceConfigureAwaitText);
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Replace ConfigureAwait({0}) with ConfigureAwait({1})", original, replacement),
+			XunitCodeAction.Create(
 				async ct =>
 				{
 					var editor = await DocumentEditor.CreateAsync(context.Document, ct).ConfigureAwait(false);
 					editor.ReplaceNode(syntaxNode, replaceConfigureAwaitNode);
 					return editor.GetChangedDocument();
 				},
-				Key_ReplaceArgumentValue
+				Key_ReplaceArgumentValue,
+				"Replace ConfigureAwait({0}) with ConfigureAwait({1})", original, replacement
 			),
 			context.Diagnostics
 		);

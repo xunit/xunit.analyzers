@@ -95,10 +95,10 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
+			XunitCodeAction.Create(
 				ct => UseSingleMethod(context.Document, invocation, replacement, ct),
-				Key_UseSingleMethod
+				Key_UseSingleMethod,
+				"Use Assert.{0}", replacement
 			),
 			context.Diagnostics
 		);

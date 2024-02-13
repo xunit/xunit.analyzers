@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -49,10 +48,10 @@ public class UseGenericOverloadFix : BatchedCodeFixProvider
 		var methodName = memberAccess.Name.Identifier.ValueText;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}<{1}>", methodName, typeName),
+			XunitCodeAction.Create(
 				ct => RemoveTypeofInvocationAndAddGenericTypeAsync(context.Document, invocation, memberAccess, typeOfExpression, ct),
-				Key_UseAlternateAssert
+				Key_UseAlternateAssert,
+				"Use Assert.{0}<{1}>", methodName, typeName
 			),
 			context.Diagnostics
 		);

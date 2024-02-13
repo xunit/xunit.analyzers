@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,10 +41,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer : B
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Simplify the condition and use Assert.{0}", replacement),
+			XunitCodeAction.Create(
 				ct => UseSuggestedAssert(context.Document, invocation, replacement, isLeftLiteral == Constants.Asserts.True, ct),
-				Key_UseSuggestedAssert
+				Key_UseSuggestedAssert,
+				"Simplify the condition and use Assert.{0}", replacement
 			),
 			context.Diagnostics
 		);

@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -30,10 +29,10 @@ public class TheoryMethodCannotHaveDefaultParameterFixer : BatchedCodeFixProvide
 		var parameterName = parameter.Identifier.Text;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Remove parameter '{0}' default", parameterName),
+			XunitCodeAction.Create(
 				ct => context.Document.RemoveNode(parameter.Default, ct),
-				Key_RemoveParameterDefault
+				Key_RemoveParameterDefault,
+				"Remove parameter '{0}' default", parameterName
 			),
 			context.Diagnostics
 		);

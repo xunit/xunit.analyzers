@@ -44,10 +44,10 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixPr
 			var simpleName = GetAttributeSimpleName(attributeType);
 
 			context.RegisterCodeFix(
-				CodeAction.Create(
-					string.Format(CultureInfo.CurrentCulture, "Keep '{0}' attribute", simpleName),
+				XunitCodeAction.Create(
 					ct => RemoveAttributes(context.Document, methodDeclaration, attributeTypes, attributeType, ct),
-					Key_KeepAttribute(simpleName)
+					Key_KeepAttribute(simpleName),
+					"Keep '{0}' attribute", simpleName
 				),
 				context.Diagnostics
 			);

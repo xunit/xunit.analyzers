@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -39,10 +38,10 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : BatchedCodeFixPro
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacementName),
+			XunitCodeAction.Create(
 				ct => UseIsAssignableFrom(context.Document, simpleNameSyntax, replacementName, ct),
-				Key_UseAlternateAssert
+				Key_UseAlternateAssert,
+				"Use Assert.{0}", replacementName
 			),
 			context.Diagnostics
 		);

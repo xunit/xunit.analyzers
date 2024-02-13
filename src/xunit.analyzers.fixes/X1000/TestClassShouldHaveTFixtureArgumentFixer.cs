@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -44,15 +43,15 @@ public class TestClassShouldHaveTFixtureArgumentFixer : BatchedCodeFixProvider
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Generate constructor '{0}({1})'", testClassName, tFixtureName),
+			XunitCodeAction.Create(
 				ct => context.Document.AddConstructor(
 					classDeclaration,
 					typeDisplayName: tFixtureDisplayName,
 					typeName: tFixtureName,
 					ct
 				),
-				Key_GenerateConstructor
+				Key_GenerateConstructor,
+				"Generate constructor '{0}({1})'", testClassName, tFixtureName
 			),
 			context.Diagnostics
 		);

@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,10 +41,10 @@ public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFi
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
+			XunitCodeAction.Create(
 				ct => UseContainsCheck(context.Document, invocation, replacement, ct),
-				Key_UseAlternateAssert
+				Key_UseAlternateAssert,
+				"Use Assert.{0}", replacement
 			),
 			context.Diagnostics
 		);
