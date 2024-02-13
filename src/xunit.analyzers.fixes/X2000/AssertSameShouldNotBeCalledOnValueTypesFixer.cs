@@ -1,8 +1,8 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -37,8 +37,7 @@ public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvid
 
 		if (invocation.Expression is MemberAccessExpressionSyntax)
 			context.RegisterCodeFix(
-				new UseDifferentMethodCodeAction(
-					string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
+				XunitCodeAction.UseDifferentAssertMethod(
 					Key_UseAlternateAssert,
 					context.Document,
 					invocation,

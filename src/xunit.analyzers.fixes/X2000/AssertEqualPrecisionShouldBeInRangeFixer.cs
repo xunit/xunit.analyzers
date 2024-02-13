@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,10 +42,10 @@ public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use precision {0}", replacementInt),
+			XunitCodeAction.Create(
 				ct => UseRecommendedPrecision(context.Document, precisionArgument, replacementInt, ct),
-				Key_UsePrecision
+				Key_UsePrecision,
+				"Use precision {0}", replacementInt
 			),
 			context.Diagnostics
 		);

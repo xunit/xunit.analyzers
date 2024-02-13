@@ -1,6 +1,5 @@
 using System.Composition;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,10 +48,10 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 			return;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Use Assert.{0}", replacement),
-				cancellationToken => UseAsyncAssertion(context.Document, invocation, replacement, cancellationToken),
-				Key_UseAlternateAssert
+			XunitCodeAction.Create(
+				ct => UseAsyncAssertion(context.Document, invocation, replacement, ct),
+				Key_UseAlternateAssert,
+				"Use Assert.{0}", replacement
 			),
 			context.Diagnostics
 		);

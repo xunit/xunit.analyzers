@@ -1,5 +1,4 @@
 using System.Composition;
-using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -33,10 +32,10 @@ public class RemoveMethodParameterFix : BatchedCodeFixProvider
 		var parameterName = parameter.Identifier.Text;
 
 		context.RegisterCodeFix(
-			CodeAction.Create(
-				string.Format(CultureInfo.CurrentCulture, "Remove parameter '{0}'", parameterName),
+			XunitCodeAction.Create(
 				ct => context.Document.RemoveNode(parameter, ct),
-				Key_RemoveParameter
+				Key_RemoveParameter,
+				"Remove parameter '{0}'", parameterName
 			),
 			context.Diagnostics
 		);

@@ -231,4 +231,3 @@ dotnet_diagnostic.CA1720.severity  = none  # Identifier contains type name
 dotnet_diagnostic.CA1724.severity  = none  # Type names should not match namespaces
 dotnet_diagnostic.CA1859.severity  = none  # Use concrete types when possible for improved performance
 dotnet_diagnostic.IDE1006.severity = none  # Naming rule violation
-dotnet_diagnostic.RS1035.severity  = none  # The symbol 'CultureInfo.CurrentCulture' is banned for use by analyzers (unresolvable conflict with CA1305, per https://github.com/dotnet/roslyn-analyzers/issues/7086)
