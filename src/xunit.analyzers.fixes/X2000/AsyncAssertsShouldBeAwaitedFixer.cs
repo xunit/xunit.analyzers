@@ -55,8 +55,8 @@ public class AsyncAssertsShouldBeAwaitedFixer : BatchedCodeFixProvider
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-		var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method);
-		var returnType = await AsyncHelper.GetReturnType(method, invocation, document, editor, cancellationToken).ConfigureAwait(false);
+		var modifiers = AsyncHelper.GetModifiersWithAsyncKeywordAdded(method.Modifiers);
+		var returnType = await AsyncHelper.GetAsyncReturnType(method.ReturnType, editor, cancellationToken).ConfigureAwait(false);
 		var asyncThrowsInvocation = AwaitExpression(invocation.WithoutLeadingTrivia()).WithLeadingTrivia(invocation.GetLeadingTrivia());
 
 		if (returnType is not null)
