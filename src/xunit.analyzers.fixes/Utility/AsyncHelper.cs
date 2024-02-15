@@ -12,6 +12,69 @@ namespace Xunit.Analyzers.Fixes;
 
 public static class AsyncHelper
 {
+	static TypeSyntax? ConvertActionTypeToAsyncFunctionType(
+		INamedTypeSymbol declarationTypeSymbol,
+		Compilation compilation,
+		DocumentEditor editor)
+	{
+		var taskTypeSymbol = TypeSymbolFactory.Task(compilation);
+		if (taskTypeSymbol is null)
+			return null;
+
+		var unboundFunctionTypeSymbol = TypeSymbolFactory.Func(compilation, declarationTypeSymbol.Arity + 1);
+		if (unboundFunctionTypeSymbol is null)
+			return null;
+
+		var typeArgumentsLength = declarationTypeSymbol.TypeArguments.Length + 1;
+		var typeArguments = new ITypeSymbol[typeArgumentsLength];
+		var returnTypeIndex = typeArgumentsLength - 1;
+		declarationTypeSymbol.TypeArguments.CopyTo(typeArguments);
+		typeArguments[returnTypeIndex] = taskTypeSymbol;
+
+		var constructedFunctionTypeSymbol =
+			unboundFunctionTypeSymbol
+				.Construct(typeArguments.ToArray())
+				.WithNullableAnnotation(declarationTypeSymbol.NullableAnnotation);
+
+		return editor.Generator.TypeExpression(constructedFunctionTypeSymbol) as TypeSyntax;
+	}
+
+	static TypeSyntax? ConvertFunctionTypeToAsyncFunctionType(
+		INamedTypeSymbol declarationTypeSymbol,
+		Compilation compilation,
+		DocumentEditor editor)
+	{
+		var taskTypeSymbol = TypeSymbolFactory.Task(compilation);
+		if (taskTypeSymbol is null)
+			return null;
+
+		var unboundTaskTypeSymbol = TypeSymbolFactory.TaskOfT(compilation);
+		if (unboundTaskTypeSymbol is null)
+			return null;
+
+		var unboundFunctionTypeSymbol = TypeSymbolFactory.Func(compilation, declarationTypeSymbol.Arity);
+		if (unboundFunctionTypeSymbol is null)
+			return null;
+
+		var returnTypeIndex = declarationTypeSymbol.TypeArguments.Length - 1;
+		var returnTypeSymbol = declarationTypeSymbol.TypeArguments[returnTypeIndex];
+
+		// Function return type is already a task.
+		if (taskTypeSymbol.IsAssignableFrom(returnTypeSymbol))
+			return null;
+
+		var typeArguments = declarationTypeSymbol.TypeArguments.ToArray();
+		var constructedTaskTypeSymbol = unboundTaskTypeSymbol.Construct(returnTypeSymbol);
+		typeArguments[returnTypeIndex] = constructedTaskTypeSymbol;
+
+		var constructedFunctionTypeSymbol =
+			unboundFunctionTypeSymbol
+				.Construct(typeArguments)
+				.WithNullableAnnotation(declarationTypeSymbol.NullableAnnotation);
+
+		return editor.Generator.TypeExpression(constructedFunctionTypeSymbol) as TypeSyntax;
+	}
+
 	/// <summary>
 	/// Get a list of modifiers with the <see langword="async"/> keyword added if not already present.
 	/// </summary>
@@ -114,7 +177,9 @@ public static class AsyncHelper
 		return null;
 	}
 
-	static bool IsSystemActionType(INamedTypeSymbol typeSymbol, Compilation compilation)
+	static bool IsSystemActionType(
+		INamedTypeSymbol typeSymbol,
+		Compilation compilation)
 	{
 		var arity = typeSymbol.Arity;
 
@@ -130,7 +195,9 @@ public static class AsyncHelper
 		return false;
 	}
 
-	static bool IsSystemFunctionType(INamedTypeSymbol typeSymbol, Compilation compilation)
+	static bool IsSystemFunctionType(
+		INamedTypeSymbol typeSymbol,
+		Compilation compilation)
 	{
 		var arity = typeSymbol.Arity;
 
@@ -138,60 +205,5 @@ public static class AsyncHelper
 			return SymbolEqualityComparer.Default.Equals(typeSymbol.ConstructedFrom, TypeSymbolFactory.Func(compilation, arity));
 
 		return false;
-	}
-
-	static TypeSyntax? ConvertActionTypeToAsyncFunctionType(INamedTypeSymbol declarationTypeSymbol, Compilation compilation, DocumentEditor editor)
-	{
-		var taskTypeSymbol = TypeSymbolFactory.Task(compilation);
-		if (taskTypeSymbol is null)
-			return null;
-
-		var unboundFunctionTypeSymbol = TypeSymbolFactory.Func(compilation, declarationTypeSymbol.Arity + 1);
-		if (unboundFunctionTypeSymbol is null)
-			return null;
-
-		var typeArgumentsLength = declarationTypeSymbol.TypeArguments.Length + 1;
-		var typeArguments = new ITypeSymbol[typeArgumentsLength];
-		var returnTypeIndex = typeArgumentsLength - 1;
-		declarationTypeSymbol.TypeArguments.CopyTo(typeArguments);
-		typeArguments[returnTypeIndex] = taskTypeSymbol;
-
-		var constructedFunctionTypeSymbol = unboundFunctionTypeSymbol
-			.Construct(typeArguments.ToArray())
-			.WithNullableAnnotation(declarationTypeSymbol.NullableAnnotation);
-
-		return editor.Generator.TypeExpression(constructedFunctionTypeSymbol) as TypeSyntax;
-	}
-
-	static TypeSyntax? ConvertFunctionTypeToAsyncFunctionType(INamedTypeSymbol declarationTypeSymbol, Compilation compilation, DocumentEditor editor)
-	{
-		var taskTypeSymbol = TypeSymbolFactory.Task(compilation);
-		if (taskTypeSymbol is null)
-			return null;
-
-		var unboundTaskTypeSymbol = TypeSymbolFactory.TaskOfT(compilation);
-		if (unboundTaskTypeSymbol is null)
-			return null;
-
-		var unboundFunctionTypeSymbol = TypeSymbolFactory.Func(compilation, declarationTypeSymbol.Arity);
-		if (unboundFunctionTypeSymbol is null)
-			return null;
-
-		var returnTypeIndex = declarationTypeSymbol.TypeArguments.Length - 1;
-		var returnTypeSymbol = declarationTypeSymbol.TypeArguments[returnTypeIndex];
-
-		// Function return type is already a task.
-		if (taskTypeSymbol.IsAssignableFrom(returnTypeSymbol))
-			return null;
-
-		var typeArguments = declarationTypeSymbol.TypeArguments.ToArray();
-		var constructedTaskTypeSymbol = unboundTaskTypeSymbol.Construct(returnTypeSymbol);
-		typeArguments[returnTypeIndex] = constructedTaskTypeSymbol;
-
-		var constructedFunctionTypeSymbol = unboundFunctionTypeSymbol
-			.Construct(typeArguments)
-			.WithNullableAnnotation(declarationTypeSymbol.NullableAnnotation);
-
-		return editor.Generator.TypeExpression(constructedFunctionTypeSymbol) as TypeSyntax;
 	}
 }

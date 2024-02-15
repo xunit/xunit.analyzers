@@ -138,6 +138,7 @@ public class TestClass {{
 	}
 
 #if ROSLYN_4_4_OR_GREATER
+
 	[Theory]
 	[MemberData(nameof(Assertions))]
 	public async void GivenAssertionInInvokedAnonymousFunctionWithVar_ReplacesWithAsyncAssertion(
@@ -168,6 +169,7 @@ public class TestClass {{
 
 		await VerifyCodeFix(LanguageVersion.CSharp10, beforeMethod, afterMethod);
 	}
+
 #endif
 
 	[Theory]
