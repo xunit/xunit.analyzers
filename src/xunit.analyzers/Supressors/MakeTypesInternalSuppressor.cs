@@ -35,9 +35,9 @@ public sealed class MakeTypesInternalSuppressor : DiagnosticSuppressor
 				.ToList();
 			if(potentialXunitAttributes.Count > 0)
 			{
+				SemanticModel semanticModel = context.GetSemanticModel(diagnostic.Location.SourceTree!);
 				foreach (var potentialXunitAttribute in potentialXunitAttributes)
 				{
-					SemanticModel semanticModel = context.GetSemanticModel(diagnostic.Location.SourceTree!);
 					ISymbol? symbol = semanticModel.GetSymbolInfo(potentialXunitAttribute).Symbol;
 					if (symbol is IMethodSymbol methodSymbol)
 					{
