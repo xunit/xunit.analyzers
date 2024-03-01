@@ -18,6 +18,11 @@
     <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.350]" />
     <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.350]" />
     <PackageDownload Include="xunit.v3.runner.utility" Version="[0.1.1-pre.350]" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0-preview.24072.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.11.0" />
   </ItemGroup>
 
   <ItemGroup>
