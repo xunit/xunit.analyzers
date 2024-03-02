@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Xunit.Analyzers;
 
-namespace Xunit.Analyzers;
+namespace Xunit.Suppressors;
 
 /// <summary>
 /// Base class for diagnostic suppressors which support xUnit.net v2 and v3.
