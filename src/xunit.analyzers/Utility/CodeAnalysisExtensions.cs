@@ -73,12 +73,45 @@ static class CodeAnalysisExtensions
 	}
 
 	public static bool IsTestClass(
-		this ITypeSymbol type,
-		XunitContext xunitContext)
+		this ITypeSymbol? type,
+		XunitContext xunitContext,
+		bool strict)
 	{
-		Guard.ArgumentNotNull(type);
 		Guard.ArgumentNotNull(xunitContext);
 
+		if (type is null)
+			return false;
+
+		if (strict)
+			return IsTestClassStrict(type, xunitContext);
+		else
+			return IsTestClassNonStrict(type, xunitContext);
+	}
+
+	static bool IsTestClassNonStrict(
+		ITypeSymbol type,
+		XunitContext xunitContext)
+	{
+		var factAttributeType = xunitContext.Core.FactAttributeType;
+		if (factAttributeType is null)
+			return false;
+
+		return
+			type
+				.GetMembers()
+				.OfType<IMethodSymbol>()
+				.Any(method =>
+					method
+						.GetAttributes()
+						.Select(a => a.AttributeClass)
+						.Any(t => factAttributeType.IsAssignableFrom(t))
+				);
+	}
+
+	static bool IsTestClassStrict(
+		ITypeSymbol type,
+		XunitContext xunitContext)
+	{
 		var factAttributeType = xunitContext.Core.FactAttributeType;
 		var theoryAttributeType = xunitContext.Core.TheoryAttributeType;
 		if (factAttributeType is null || theoryAttributeType is null)
