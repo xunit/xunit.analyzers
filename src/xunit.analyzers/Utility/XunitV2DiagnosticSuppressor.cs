@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
+using Xunit.Analyzers;
 
-namespace Xunit.Analyzers;
+namespace Xunit.Suppressors;
 
 /// <summary>
 /// Base class for diagnostic suppressors which support xUnit.net v2 only.

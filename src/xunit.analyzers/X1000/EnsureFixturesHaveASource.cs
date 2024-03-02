@@ -30,7 +30,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				return;
 			if (namedType.IsAbstract)
 				return;
-			if (!namedType.IsTestClass(xunitContext))
+			if (!namedType.IsTestClass(xunitContext, strict: true))
 				return;
 
 			// Only evaluate if there's a single public constructor
