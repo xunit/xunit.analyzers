@@ -174,9 +174,6 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ITheoryDataRow");
 
-	public static INamedTypeSymbol? TheoryDataN(Compilation compilation, int n) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
-
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITypeInfo");
 
@@ -221,6 +218,11 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
+
+	public static INamedTypeSymbol? TheoryDataN(
+		Compilation compilation,
+		int n) =>
+			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
 
 	static int ValidateArity(
 		int arity,
