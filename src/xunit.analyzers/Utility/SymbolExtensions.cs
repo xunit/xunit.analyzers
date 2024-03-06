@@ -112,4 +112,17 @@ public static class SymbolExtensions
 				Guard.ArgumentNotNull(attribute).AttributeClass,
 				exactMatch
 			);
+
+	public static ITypeSymbol UnwrapNullable(this ITypeSymbol type)
+	{
+		Guard.ArgumentNotNull(type);
+
+		if (type is not INamedTypeSymbol namedType)
+			return type;
+
+		if (namedType.IsGenericType && namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+			return namedType.TypeArguments[0];
+
+		return type;
+	}
 }
