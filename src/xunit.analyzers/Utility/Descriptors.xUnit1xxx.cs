@@ -402,7 +402,14 @@ public static partial class Descriptors
 			"Constructor '{0}' must be public to be used on a test method."
 		);
 
-	// Placeholder for rule X1044
+	public static DiagnosticDescriptor X1044_TheoryDataTypeArgumentsShouldBeSerializable { get; } =
+		Diagnostic(
+			"xUnit1044",
+			"TheoryData type arguments should be serializable",
+			Usage,
+			Info,
+			"The type argument {0} {1}. Consider using a type that is known to be serializable."
+		);
 
 	// Placeholder for rule X1045
 
