@@ -73,6 +73,33 @@ public class TestClass {
 		await Verify.VerifyAnalyzer(source);
 	}
 
+	[Fact]
+	public async void GivenTheoryMethod_WithoutTheoryDataAsDataSource_DoesNotFindDiagnostic()
+	{
+		var source = @"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class TestClass {
+    public static IEnumerable<object[]> Property1 => Array.Empty<object[]>();
+    public static DataSource<IDisposable, Action> Property2 => new DataSource<IDisposable, Action>();
+
+    [Theory]
+    [MemberData(nameof(Property1))]
+    [MemberData(nameof(Property2))]
+    public void TestMethod(object a, object b) { }
+}
+
+public class DataSource<T1, T2> : IEnumerable<object[]> {
+    public IEnumerator<object[]> GetEnumerator() { yield break; }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
 	[Theory]
 	[MemberData(nameof(TheoryDataMembers), "string")]
 	[MemberData(nameof(TheoryDataMembers), "string[]")]
