@@ -3,9 +3,6 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataTypeArgumentsShouldBeSer
 
 public class TheoryDataTypeArgumentsShouldBeSerializableTests
 {
-	const string X1044 = "xUnit1044";
-	const string X1045 = "xUnit1045";
-
 	public static TheoryData<string, string, string, string> TheoryDataClass(
 		string type1,
 		string type2,
@@ -47,33 +44,35 @@ public class DerivedClass : BaseClass<{type1}, {type2}, object, Delegate> {{ }}"
 		};
 	}
 
-	[Fact]
-	public async void GivenMethodWithoutAttributes_DoesNotFindDiagnostic()
+	public sealed class NoDiagnostic : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
-		var source = @"
+		[Fact]
+		public async void GivenMethodWithoutAttributes_DoesNotFindDiagnostic()
+		{
+			var source = @"
 public class TestClass {
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void GivenFactMethod_DoesNotFindDiagnostic()
-	{
-		var source = @"
+		[Fact]
+		public async void GivenFactMethod_DoesNotFindDiagnostic()
+		{
+			var source = @"
 public class TestClass {
     [Xunit.Fact]
     public void TestMethod() { }
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Fact]
-	public async void GivenTheoryMethod_WithoutTheoryDataAsDataSource_DoesNotFindDiagnostic()
-	{
-		var source = @"
+		[Fact]
+		public async void GivenTheoryMethod_WithoutTheoryDataAsDataSource_DoesNotFindDiagnostic()
+		{
+			var source = @"
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -94,76 +93,76 @@ public class DataSource<T1, T2> : IEnumerable<object[]> {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "string")]
-	[MemberData(nameof(TheoryDataMembers), "string[]")]
-	[MemberData(nameof(TheoryDataMembers), "string[][]")]
-	[MemberData(nameof(TheoryDataMembers), "char")]
-	[MemberData(nameof(TheoryDataMembers), "char?")]
-	[MemberData(nameof(TheoryDataMembers), "byte")]
-	[MemberData(nameof(TheoryDataMembers), "byte?")]
-	[MemberData(nameof(TheoryDataMembers), "sbyte")]
-	[MemberData(nameof(TheoryDataMembers), "sbyte?")]
-	[MemberData(nameof(TheoryDataMembers), "short")]
-	[MemberData(nameof(TheoryDataMembers), "short?")]
-	[MemberData(nameof(TheoryDataMembers), "ushort")]
-	[MemberData(nameof(TheoryDataMembers), "ushort?")]
-	[MemberData(nameof(TheoryDataMembers), "int")]
-	[MemberData(nameof(TheoryDataMembers), "int[]")]
-	[MemberData(nameof(TheoryDataMembers), "int[][]")]
-	[MemberData(nameof(TheoryDataMembers), "int?")]
-	[MemberData(nameof(TheoryDataMembers), "int?[]")]
-	[MemberData(nameof(TheoryDataMembers), "int?[][]")]
-	[MemberData(nameof(TheoryDataMembers), "uint")]
-	[MemberData(nameof(TheoryDataMembers), "uint?")]
-	[MemberData(nameof(TheoryDataMembers), "long")]
-	[MemberData(nameof(TheoryDataMembers), "long?")]
-	[MemberData(nameof(TheoryDataMembers), "ulong")]
-	[MemberData(nameof(TheoryDataMembers), "ulong?")]
-	[MemberData(nameof(TheoryDataMembers), "float")]
-	[MemberData(nameof(TheoryDataMembers), "float?")]
-	[MemberData(nameof(TheoryDataMembers), "double")]
-	[MemberData(nameof(TheoryDataMembers), "double?")]
-	[MemberData(nameof(TheoryDataMembers), "decimal")]
-	[MemberData(nameof(TheoryDataMembers), "decimal?")]
-	[MemberData(nameof(TheoryDataMembers), "bool")]
-	[MemberData(nameof(TheoryDataMembers), "bool?")]
-	[MemberData(nameof(TheoryDataMembers), "DateTime")]
-	[MemberData(nameof(TheoryDataMembers), "DateTime?")]
-	[MemberData(nameof(TheoryDataMembers), "DateTimeOffset")]
-	[MemberData(nameof(TheoryDataMembers), "DateTimeOffset?")]
-	[MemberData(nameof(TheoryDataMembers), "TimeSpan")]
-	[MemberData(nameof(TheoryDataMembers), "TimeSpan?")]
-	[MemberData(nameof(TheoryDataMembers), "BigInteger")]
-	[MemberData(nameof(TheoryDataMembers), "BigInteger?")]
-	[MemberData(nameof(TheoryDataMembers), "Type")]
-	[MemberData(nameof(TheoryDataMembers), "Enum")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
-	[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "string")]
+		[MemberData(nameof(TheoryDataMembers), "string[]")]
+		[MemberData(nameof(TheoryDataMembers), "string[][]")]
+		[MemberData(nameof(TheoryDataMembers), "char")]
+		[MemberData(nameof(TheoryDataMembers), "char?")]
+		[MemberData(nameof(TheoryDataMembers), "byte")]
+		[MemberData(nameof(TheoryDataMembers), "byte?")]
+		[MemberData(nameof(TheoryDataMembers), "sbyte")]
+		[MemberData(nameof(TheoryDataMembers), "sbyte?")]
+		[MemberData(nameof(TheoryDataMembers), "short")]
+		[MemberData(nameof(TheoryDataMembers), "short?")]
+		[MemberData(nameof(TheoryDataMembers), "ushort")]
+		[MemberData(nameof(TheoryDataMembers), "ushort?")]
+		[MemberData(nameof(TheoryDataMembers), "int")]
+		[MemberData(nameof(TheoryDataMembers), "int[]")]
+		[MemberData(nameof(TheoryDataMembers), "int[][]")]
+		[MemberData(nameof(TheoryDataMembers), "int?")]
+		[MemberData(nameof(TheoryDataMembers), "int?[]")]
+		[MemberData(nameof(TheoryDataMembers), "int?[][]")]
+		[MemberData(nameof(TheoryDataMembers), "uint")]
+		[MemberData(nameof(TheoryDataMembers), "uint?")]
+		[MemberData(nameof(TheoryDataMembers), "long")]
+		[MemberData(nameof(TheoryDataMembers), "long?")]
+		[MemberData(nameof(TheoryDataMembers), "ulong")]
+		[MemberData(nameof(TheoryDataMembers), "ulong?")]
+		[MemberData(nameof(TheoryDataMembers), "float")]
+		[MemberData(nameof(TheoryDataMembers), "float?")]
+		[MemberData(nameof(TheoryDataMembers), "double")]
+		[MemberData(nameof(TheoryDataMembers), "double?")]
+		[MemberData(nameof(TheoryDataMembers), "decimal")]
+		[MemberData(nameof(TheoryDataMembers), "decimal?")]
+		[MemberData(nameof(TheoryDataMembers), "bool")]
+		[MemberData(nameof(TheoryDataMembers), "bool?")]
+		[MemberData(nameof(TheoryDataMembers), "DateTime")]
+		[MemberData(nameof(TheoryDataMembers), "DateTime?")]
+		[MemberData(nameof(TheoryDataMembers), "DateTimeOffset")]
+		[MemberData(nameof(TheoryDataMembers), "DateTimeOffset?")]
+		[MemberData(nameof(TheoryDataMembers), "TimeSpan")]
+		[MemberData(nameof(TheoryDataMembers), "TimeSpan?")]
+		[MemberData(nameof(TheoryDataMembers), "BigInteger")]
+		[MemberData(nameof(TheoryDataMembers), "BigInteger?")]
+		[MemberData(nameof(TheoryDataMembers), "Type")]
+		[MemberData(nameof(TheoryDataMembers), "Enum")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
+		[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
 
 #if NET6_0_OR_GREATER && ROSLYN_4_4_OR_GREATER
 
-	[MemberData(nameof(TheoryDataMembers), "DateOnly")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly?")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly?[]")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly[]")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly?")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly?[]")]
+		[MemberData(nameof(TheoryDataMembers), "DateOnly")]
+		[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
+		[MemberData(nameof(TheoryDataMembers), "DateOnly?")]
+		[MemberData(nameof(TheoryDataMembers), "DateOnly?[]")]
+		[MemberData(nameof(TheoryDataMembers), "TimeOnly")]
+		[MemberData(nameof(TheoryDataMembers), "TimeOnly[]")]
+		[MemberData(nameof(TheoryDataMembers), "TimeOnly?")]
+		[MemberData(nameof(TheoryDataMembers), "TimeOnly?[]")]
 
 #endif
 
-	public async void GivenTheoryMethod_WithSerializableTheoryDataMember_DoesNotFindDiagnostic(
-		string member,
-		string attribute,
-		string type)
-	{
-		var source = $@"
+		public async void GivenTheoryMethod_WithSerializableTheoryDataMember_DoesNotFindDiagnostic(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = $@"
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -179,34 +178,34 @@ public class TestClass {{
 
 public enum SerializableEnumeration {{ Zero }}";
 
-		await Verify.VerifyAnalyzer(source);
-	}
+			await Verify.VerifyAnalyzer(source);
+		}
 
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "IXunitSerializable")]
-	[MemberData(nameof(TheoryDataMembers), "IXunitSerializable[]")]
-	[MemberData(nameof(TheoryDataMembers), "ISerializableInterface")]
-	[MemberData(nameof(TheoryDataMembers), "ISerializableInterface[]")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableClass")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableClass[]")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableStruct")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableStruct[]")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableStruct?")]
-	[MemberData(nameof(TheoryDataMembers), "SerializableStruct?[]")]
-	public async void GivenTheoryMethod_WithIXunitSerializableTheoryDataMember_DoesNotFindDiagnostic(
-		string member,
-		string attribute,
-		string type)
-	{
-		var sourceV2 = GetSource(iXunitSerializableNamespace: "Xunit.Abstractions");
-		var sourceV3 = GetSource(iXunitSerializableNamespace: "Xunit.Sdk");
-
-		await Verify.VerifyAnalyzerV2(sourceV2);
-		await Verify.VerifyAnalyzerV3(sourceV3);
-
-		string GetSource(string iXunitSerializableNamespace)
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "IXunitSerializable")]
+		[MemberData(nameof(TheoryDataMembers), "IXunitSerializable[]")]
+		[MemberData(nameof(TheoryDataMembers), "ISerializableInterface")]
+		[MemberData(nameof(TheoryDataMembers), "ISerializableInterface[]")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableClass")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableClass[]")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableStruct")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableStruct[]")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?[]")]
+		public async void GivenTheoryMethod_WithIXunitSerializableTheoryDataMember_DoesNotFindDiagnostic(
+			string member,
+			string attribute,
+			string type)
 		{
-			return $@"
+			var sourceV2 = GetSource(iXunitSerializableNamespace: "Xunit.Abstractions");
+			var sourceV3 = GetSource(iXunitSerializableNamespace: "Xunit.Sdk");
+
+			await Verify.VerifyAnalyzerV2(sourceV2);
+			await Verify.VerifyAnalyzerV3(sourceV3);
+
+			string GetSource(string iXunitSerializableNamespace)
+			{
+				return $@"
 using Xunit;
 using {iXunitSerializableNamespace};
 
@@ -229,26 +228,42 @@ public struct SerializableStruct : ISerializableInterface {{
     public void Deserialize(IXunitSerializationInfo info) {{ }}
     public void Serialize(IXunitSerializationInfo info) {{ }}
 }}";
+			}
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataClass), "int", "double", "string")]
+		public async void GivenTheoryMethod_WithSerializableTheoryDataClass_DoesNotFindDiagnostic(
+			string source,
+			string _1,
+			string _2,
+			string _3)
+		{
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "Delegate")]
-	[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
-	[MemberData(nameof(TheoryDataMembers), "Func<int>")]
-	[MemberData(nameof(TheoryDataMembers), "Func<int>[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
-	public async void GivenTheoryMethod_WithNonSerializableTheoryDataMember_FindsDiagnosticX1044(
-		string member,
-		string attribute,
-		string type)
+	public sealed class X1044_TheoryDataTypeArgumentsShouldBeSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
-		var source = $@"
+		const string Id = "xUnit1044";
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Delegate")]
+		[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
+		[MemberData(nameof(TheoryDataMembers), "Func<int>")]
+		[MemberData(nameof(TheoryDataMembers), "Func<int>[]")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass[]")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
+		public async void GivenTheoryMethod_WithNonSerializableTheoryDataMember_FindsDiagnostic(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = $@"
 using System;
 using System.Text;
 using Xunit;
@@ -265,38 +280,77 @@ public sealed class NonSerializableSealedClass {{ }}
 
 public struct NonSerializableStruct {{ }}";
 
-		var expected =
-			Verify
-				.Diagnostic(X1044)
-				.WithSpan(10, 6, 10, 6 + attribute.Length)
-				.WithArguments(type);
+			var expected =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(10, 6, 10, 6 + attribute.Length)
+					.WithArguments(type);
 
-		await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
+		public async void GivenTheoryMethod_WithNonSerializableTheoryDataClass_FindsDiagnostic(
+			string source,
+			string type1,
+			string type2,
+			string type3)
+		{
+			var expectedForType1 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type1);
+
+			var expectedForType2 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type2);
+
+			var expectedForType3 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type3);
+
+			await Verify.VerifyAnalyzer(
+				source,
+				expectedForType1,
+				expectedForType2,
+				expectedForType3
+			);
+		}
 	}
 
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "object")]
-	[MemberData(nameof(TheoryDataMembers), "object[]")]
-	[MemberData(nameof(TheoryDataMembers), "Array")]
-	[MemberData(nameof(TheoryDataMembers), "Array[]")]
-	[MemberData(nameof(TheoryDataMembers), "ValueType")]
-	[MemberData(nameof(TheoryDataMembers), "ValueType[]")]
-	[MemberData(nameof(TheoryDataMembers), "IEnumerable")]
-	[MemberData(nameof(TheoryDataMembers), "IEnumerable[]")]
-	[MemberData(nameof(TheoryDataMembers), "IEnumerable<int>")]
-	[MemberData(nameof(TheoryDataMembers), "IEnumerable<int>[]")]
-	[MemberData(nameof(TheoryDataMembers), "Dictionary<int, string>")]
-	[MemberData(nameof(TheoryDataMembers), "Dictionary<int, string>[]")]
-	[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
-	[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface[]")]
-	[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
-	[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass[]")]
-	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataMember_FindsDiagnosticX1045(
-		string member,
-		string attribute,
-		string type)
+	public sealed class X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
-		var source = $@"
+		const string Id = "xUnit1045";
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "object")]
+		[MemberData(nameof(TheoryDataMembers), "object[]")]
+		[MemberData(nameof(TheoryDataMembers), "Array")]
+		[MemberData(nameof(TheoryDataMembers), "Array[]")]
+		[MemberData(nameof(TheoryDataMembers), "ValueType")]
+		[MemberData(nameof(TheoryDataMembers), "ValueType[]")]
+		[MemberData(nameof(TheoryDataMembers), "IEnumerable")]
+		[MemberData(nameof(TheoryDataMembers), "IEnumerable[]")]
+		[MemberData(nameof(TheoryDataMembers), "IEnumerable<int>")]
+		[MemberData(nameof(TheoryDataMembers), "IEnumerable<int>[]")]
+		[MemberData(nameof(TheoryDataMembers), "Dictionary<int, string>")]
+		[MemberData(nameof(TheoryDataMembers), "Dictionary<int, string>[]")]
+		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
+		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface[]")]
+		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
+		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass[]")]
+		public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataMember_FindsDiagnostic(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = $@"
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -314,91 +368,47 @@ public interface IPossiblySerializableInterface {{ }}
 
 public class PossiblySerializableUnsealedClass {{ }}";
 
-		var expected =
-			Verify
-				.Diagnostic(X1045)
-				.WithSpan(11, 6, 11, 6 + attribute.Length)
-				.WithArguments(type);
+			var expected =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(11, 6, 11, 6 + attribute.Length)
+					.WithArguments(type);
 
-		await Verify.VerifyAnalyzer(source, expected);
-	}
+			await Verify.VerifyAnalyzer(source, expected);
+		}
 
-	[Theory]
-	[MemberData(nameof(TheoryDataClass), "int", "double", "string")]
-	public async void GivenTheoryMethod_WithSerializableTheoryDataClass_DoesNotFindDiagnostic(
-		string source,
-		string _1,
-		string _2,
-		string _3)
-	{
-		await Verify.VerifyAnalyzer(source);
-	}
+		[Theory]
+		[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
+		public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataClass_FindsDiagnostic(
+			string source,
+			string type1,
+			string type2,
+			string type3)
+		{
+			var expectedForType1 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type1);
 
-	[Theory]
-	[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
-	public async void GivenTheoryMethod_WithNonSerializableTheoryDataClass_FindsDiagnosticX1044(
-		string source,
-		string type1,
-		string type2,
-		string type3)
-	{
-		var expectedForType1 =
-			Verify
-				.Diagnostic(X1044)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type1);
+			var expectedForType2 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type2);
 
-		var expectedForType2 =
-			Verify
-				.Diagnostic(X1044)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type2);
+			var expectedForType3 =
+				Verify
+					.Diagnostic(Id)
+					.WithSpan(7, 6, 7, 37)
+					.WithArguments(type3);
 
-		var expectedForType3 =
-			Verify
-				.Diagnostic(X1044)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type3);
-
-		await Verify.VerifyAnalyzer(
-			source,
-			expectedForType1,
-			expectedForType2,
-			expectedForType3
-		);
-	}
-
-	[Theory]
-	[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
-	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataClass_FindsDiagnosticX1045(
-		string source,
-		string type1,
-		string type2,
-		string type3)
-	{
-		var expectedForType1 =
-			Verify
-				.Diagnostic(X1045)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type1);
-
-		var expectedForType2 =
-			Verify
-				.Diagnostic(X1045)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type2);
-
-		var expectedForType3 =
-			Verify
-				.Diagnostic(X1045)
-				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type3);
-
-		await Verify.VerifyAnalyzer(
-			source,
-			expectedForType1,
-			expectedForType2,
-			expectedForType3
-		);
+			await Verify.VerifyAnalyzer(
+				source,
+				expectedForType1,
+				expectedForType2,
+				expectedForType3
+			);
+		}
 	}
 }
