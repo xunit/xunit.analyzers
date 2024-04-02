@@ -145,6 +145,20 @@ public class DataSource<T1, T2> : IEnumerable<object[]> {
 	[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
 	[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
 	[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
+
+#if NET6_0_OR_GREATER && ROSLYN_4_4_OR_GREATER
+
+	[MemberData(nameof(TheoryDataMembers), "DateOnly")]
+	[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
+	[MemberData(nameof(TheoryDataMembers), "DateOnly?")]
+	[MemberData(nameof(TheoryDataMembers), "DateOnly?[]")]
+	[MemberData(nameof(TheoryDataMembers), "TimeOnly")]
+	[MemberData(nameof(TheoryDataMembers), "TimeOnly[]")]
+	[MemberData(nameof(TheoryDataMembers), "TimeOnly?")]
+	[MemberData(nameof(TheoryDataMembers), "TimeOnly?[]")]
+
+#endif
+
 	public async void GivenTheoryMethod_WithSerializableTheoryDataMember_DoesNotFindDiagnostic(
 		string member,
 		string attribute,
@@ -218,39 +232,6 @@ public struct SerializableStruct : ISerializableInterface {{
 }}";
 		}
 	}
-
-#if NET6_0_OR_GREATER && ROSLYN_4_4_OR_GREATER
-
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly?")]
-	[MemberData(nameof(TheoryDataMembers), "DateOnly?[]")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly[]")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly?")]
-	[MemberData(nameof(TheoryDataMembers), "TimeOnly?[]")]
-	public async void GivenTheoryMethod_WithDateOnlyOrTimeOnlyInTheoryDataMember_DoesNotFindDiagnostic(
-		string member,
-		string attribute,
-		string type)
-	{
-		var source = $@"
-using System;
-using Xunit;
-
-public class TestClass {{
-    {member}
-
-    [Theory]
-    [{attribute}]
-    public void TestMethod({type} parameter) {{ }}
-}}";
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, source);
-	}
-
-#endif
 
 	[Theory]
 	[MemberData(nameof(TheoryDataMembers), "object")]
