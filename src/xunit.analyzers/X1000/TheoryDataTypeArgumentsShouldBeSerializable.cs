@@ -281,10 +281,10 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			AttributeData dataAttribute,
 			INamedTypeSymbol testClass)
 		{
-			if (dataAttribute.IsInstanceOf(typeSymbols.ClassDataAttribute))
+			if (dataAttribute.IsInstanceOf(typeSymbols.ClassDataAttribute, exactMatch: true))
 				return dataAttribute.ConstructorArguments.FirstOrDefault().Value as INamedTypeSymbol;
 
-			if (dataAttribute.IsInstanceOf(typeSymbols.MemberDataAttribute))
+			if (dataAttribute.IsInstanceOf(typeSymbols.MemberDataAttribute, exactMatch: true))
 				return GetMemberType(dataAttribute, testClass) as INamedTypeSymbol;
 
 			return null;
