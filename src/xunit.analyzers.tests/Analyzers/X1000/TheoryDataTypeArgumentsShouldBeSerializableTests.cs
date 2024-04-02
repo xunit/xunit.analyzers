@@ -1,11 +1,10 @@
-using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataTypeArgumentsShouldBeSerializable>;
 
 public class TheoryDataTypeArgumentsShouldBeSerializableTests
 {
-	const string IsNotSerializable = "is not serializable";
-	const string MightNotBeSerializable = "might not be serializable";
+	const string X1044 = "xUnit1044";
+	const string X1045 = "xUnit1045";
 
 	public static TheoryData<string, string, string, string> TheoryDataClass(
 		string type1,
@@ -234,6 +233,48 @@ public struct SerializableStruct : ISerializableInterface {{
 	}
 
 	[Theory]
+	[MemberData(nameof(TheoryDataMembers), "Delegate")]
+	[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
+	[MemberData(nameof(TheoryDataMembers), "Func<int>")]
+	[MemberData(nameof(TheoryDataMembers), "Func<int>[]")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass[]")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
+	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
+	public async void GivenTheoryMethod_WithNonSerializableTheoryDataMember_FindsDiagnosticX1044(
+		string member,
+		string attribute,
+		string type)
+	{
+		var source = $@"
+using System;
+using System.Text;
+using Xunit;
+
+public class TestClass {{
+    {member}
+
+    [Theory]
+    [{attribute}]
+    public void TestMethod({type} parameter) {{ }}
+}}
+
+public sealed class NonSerializableSealedClass {{ }}
+
+public struct NonSerializableStruct {{ }}";
+
+		var expected =
+			Verify
+				.Diagnostic(X1044)
+				.WithSpan(10, 6, 10, 6 + attribute.Length)
+				.WithArguments(type);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
 	[MemberData(nameof(TheoryDataMembers), "object")]
 	[MemberData(nameof(TheoryDataMembers), "object[]")]
 	[MemberData(nameof(TheoryDataMembers), "Array")]
@@ -250,7 +291,7 @@ public struct SerializableStruct : ISerializableInterface {{
 	[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface[]")]
 	[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
 	[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass[]")]
-	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataMember_FindsWeakDiagnostic(
+	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataMember_FindsDiagnosticX1045(
 		string member,
 		string attribute,
 		string type)
@@ -275,51 +316,9 @@ public class PossiblySerializableUnsealedClass {{ }}";
 
 		var expected =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1045)
 				.WithSpan(11, 6, 11, 6 + attribute.Length)
-				.WithArguments(type, MightNotBeSerializable);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(TheoryDataMembers), "Delegate")]
-	[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
-	[MemberData(nameof(TheoryDataMembers), "Func<int>")]
-	[MemberData(nameof(TheoryDataMembers), "Func<int>[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
-	[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
-	public async void GivenTheoryMethod_WithNonSerializableTheoryDataMember_FindsStrongDiagnostic(
-		string member,
-		string attribute,
-		string type)
-	{
-		var source = $@"
-using System;
-using System.Text;
-using Xunit;
-
-public class TestClass {{
-    {member}
-
-    [Theory]
-    [{attribute}]
-    public void TestMethod({type} parameter) {{ }}
-}}
-
-public sealed class NonSerializableSealedClass {{ }}
-
-public struct NonSerializableStruct {{ }}";
-
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(10, 6, 10, 6 + attribute.Length)
-				.WithArguments(type, IsNotSerializable);
+				.WithArguments(type);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -336,8 +335,8 @@ public struct NonSerializableStruct {{ }}";
 	}
 
 	[Theory]
-	[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
-	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataClass_FindsWeakDiagnostic(
+	[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
+	public async void GivenTheoryMethod_WithNonSerializableTheoryDataClass_FindsDiagnosticX1044(
 		string source,
 		string type1,
 		string type2,
@@ -345,21 +344,21 @@ public struct NonSerializableStruct {{ }}";
 	{
 		var expectedForType1 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1044)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type1, MightNotBeSerializable);
+				.WithArguments(type1);
 
 		var expectedForType2 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1044)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type2, MightNotBeSerializable);
+				.WithArguments(type2);
 
 		var expectedForType3 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1044)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type3, MightNotBeSerializable);
+				.WithArguments(type3);
 
 		await Verify.VerifyAnalyzer(
 			source,
@@ -370,8 +369,8 @@ public struct NonSerializableStruct {{ }}";
 	}
 
 	[Theory]
-	[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
-	public async void GivenTheoryMethod_WithNonSerializableTheoryDataClass_FindsStrongDiagnostic(
+	[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
+	public async void GivenTheoryMethod_WithPossiblySerializableTheoryDataClass_FindsDiagnosticX1045(
 		string source,
 		string type1,
 		string type2,
@@ -379,21 +378,21 @@ public struct NonSerializableStruct {{ }}";
 	{
 		var expectedForType1 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1045)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type1, IsNotSerializable);
+				.WithArguments(type1);
 
 		var expectedForType2 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1045)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type2, IsNotSerializable);
+				.WithArguments(type2);
 
 		var expectedForType3 =
 			Verify
-				.Diagnostic()
+				.Diagnostic(X1045)
 				.WithSpan(7, 6, 7, 37)
-				.WithArguments(type3, IsNotSerializable);
+				.WithArguments(type3);
 
 		await Verify.VerifyAnalyzer(
 			source,

@@ -408,10 +408,17 @@ public static partial class Descriptors
 			"TheoryData type arguments should be serializable",
 			Usage,
 			Info,
-			"The type argument {0} {1}. Consider using a type that is known to be serializable."
+			"The type argument {0} is not serializable, which will cause Test Explorer to not enumerate individual data rows. Consider using a type that is known to be serializable."
 		);
 
-	// Placeholder for rule X1045
+	public static DiagnosticDescriptor X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable { get; } =
+		Diagnostic(
+			"xUnit1045",
+			"TheoryData type arguments should be definitely serializable",
+			Usage,
+			Info,
+			"The type argument {0} might not be serializable, which may cause Test Explorer to not enumerate individual data rows. Consider using a type that is known to be serializable."
+		);
 
 	// Placeholder for rule X1046
 

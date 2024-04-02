@@ -12,11 +12,11 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyzer
 {
-	const string IsNotSerializable = "is not serializable";
-	const string MightNotBeSerializable = "might not be serializable";
-
 	public TheoryDataTypeArgumentsShouldBeSerializable() :
-		base(Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable)
+		base(
+			Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable,
+			Descriptors.X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable
+		)
 	{ }
 
 	public override void AnalyzeCompilation(
@@ -69,12 +69,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 					if (serializability != Serializability.AlwaysSerializable)
 						context.ReportDiagnostic(
 							Diagnostic.Create(
-								Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable,
-								dataAttributeSyntax.GetLocation(),
-								type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart),
 								serializability == Serializability.NeverSerializable
-									? IsNotSerializable
-									: MightNotBeSerializable
+									? Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable
+									: Descriptors.X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable,
+								dataAttributeSyntax.GetLocation(),
+								type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
 							)
 						);
 				}
