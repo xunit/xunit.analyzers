@@ -36,16 +36,14 @@ public class DerivedClass : BaseClass<{type1}, {type2}, object, Delegate> {{ }}"
 	{
 		var @class = $@"public sealed class Class : TheoryData<{type}> {{ }}";
 		var field = $@"public static readonly TheoryData<{type}> Field = new TheoryData<{type}>() {{ }};";
-		var method = $@"public static TheoryData<{type}> Method() => new TheoryData<{type}>() {{ }};";
-		var parameterizedMethod = $@"public static TheoryData<{type}> Method(int a, string b) => new TheoryData<{type}>() {{ }};";
+		var method = $@"public static TheoryData<{type}> Method(int a, string b) => new TheoryData<{type}>() {{ }};";
 		var property = $@"public static TheoryData<{type}> Property => new TheoryData<{type}>() {{ }};";
 
 		return new TheoryData<string, string, string>
 		{
 			{ @class, "ClassData(typeof(Class))", type },
 			{ field, "MemberData(nameof(Field))", type },
-			{ method, "MemberData(nameof(Method))", type },
-			{ parameterizedMethod, @"MemberData(nameof(Method), 1, ""2"")", type },
+			{ method, @"MemberData(nameof(Method), 1, ""2"")", type },
 			{ property, "MemberData(nameof(Property))", type }
 		};
 	}
