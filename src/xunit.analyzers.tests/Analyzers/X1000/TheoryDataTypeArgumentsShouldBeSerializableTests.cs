@@ -44,6 +44,20 @@ public class DerivedClass : BaseClass<{type1}, {type2}, object, Delegate> {{ }}"
 		};
 	}
 
+	public static TheoryData<string, string, string> TheoryDataMembersWithDiscoveryEnumerationDisabled(string type)
+	{
+		var field = $@"public static readonly TheoryData<{type}> Field = new TheoryData<{type}>() {{ }};";
+		var method = $@"public static TheoryData<{type}> Method(int a, string b) => new TheoryData<{type}>() {{ }};";
+		var property = $@"public static TheoryData<{type}> Property => new TheoryData<{type}>() {{ }};";
+
+		return new TheoryData<string, string, string>
+		{
+			{ field, "MemberData(nameof(Field), DisableDiscoveryEnumeration = true)", type },
+			{ method, @"MemberData(nameof(Method), 1, ""2"", DisableDiscoveryEnumeration = true)", type },
+			{ property, "MemberData(nameof(Property), DisableDiscoveryEnumeration = true)", type }
+		};
+	}
+
 	public sealed class NoDiagnostic : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		[Fact]
@@ -229,6 +243,80 @@ public struct SerializableStruct : ISerializableInterface {{
     public void Serialize(IXunitSerializationInfo info) {{ }}
 }}";
 			}
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Delegate")]
+		[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableSealedClass")]
+		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct")]
+		[MemberData(nameof(TheoryDataMembers), "object")]
+		[MemberData(nameof(TheoryDataMembers), "object[]")]
+		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
+		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
+		public async void GivenTheoryMethod_WithNonSerializableDataButDiscoveryEnumerationDisabledForTheory_DoesNotFindDiagnostic(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = $@"
+using System;
+using Xunit;
+
+public class TestClass {{
+    {member}
+
+    [Theory(DisableDiscoveryEnumeration = true)]
+    [{attribute}]
+    public void TestMethod({type} parameter) {{ }}
+}}
+
+public sealed class NonSerializableSealedClass {{ }}
+
+public struct NonSerializableStruct {{ }}
+
+public interface IPossiblySerializableInterface {{ }}
+
+public class PossiblySerializableUnsealedClass {{ }}";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "Delegate")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "Delegate[]")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "NonSerializableSealedClass")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "NonSerializableStruct")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "object")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "object[]")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "IPossiblySerializableInterface")]
+		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "PossiblySerializableUnsealedClass")]
+		public async void GivenTheoryMethod_WithNonSerializableDataButDiscoveryEnumerationDisabledForData_DoesNotFindDiagnostic(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = $@"
+using System;
+using Xunit;
+
+public class TestClass {{
+    {member}
+
+    [Theory]
+    [{attribute}]
+    public void TestMethod({type} parameter) {{ }}
+}}
+
+public sealed class NonSerializableSealedClass {{ }}
+
+public struct NonSerializableStruct {{ }}
+
+public interface IPossiblySerializableInterface {{ }}
+
+public class PossiblySerializableUnsealedClass {{ }}";
+
+			await Verify.VerifyAnalyzer(source);
 		}
 
 		[Theory]

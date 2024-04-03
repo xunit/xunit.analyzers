@@ -45,6 +45,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 				return;
 			if (!method.GetAttributes().ContainsAttributeType(typeSymbols.TheoryAttribute))
 				return;
+			if (DiscoveryEnumerationIsDisabled(method, typeSymbols))
+				return;
 
 			var dataAttributes =
 				methodSyntax
@@ -80,6 +82,17 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			}
 		}, SyntaxKind.MethodDeclaration);
 	}
+
+	static bool AttributeIsTheoryOrDataAttribute(AttributeData attribute, TypeSymbols typeSymbols) =>
+		attribute.IsInstanceOf(typeSymbols.TheoryAttribute) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
+
+	static bool DiscoveryEnumerationIsDisabled(IMethodSymbol method, TypeSymbols typeSymbols) =>
+		method
+			.GetAttributes()
+			.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
+			.SelectMany(attribute => attribute.NamedArguments)
+			.Where(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true)
+			.Any();
 
 	enum Serializability
 	{
