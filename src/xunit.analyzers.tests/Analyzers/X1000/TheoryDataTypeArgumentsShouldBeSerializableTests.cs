@@ -6,6 +6,13 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 	public static TheoryData<string, string, string, string> TheoryDataClass(
 		string type1,
 		string type2,
+		string type3) =>
+			TheoryDataClass(theoryAttribute: "Theory", type1, type2, type3);
+
+	public static TheoryData<string, string, string, string> TheoryDataClass(
+		string theoryAttribute,
+		string type1,
+		string type2,
 		string type3)
 	{
 		var source = $@"
@@ -13,7 +20,7 @@ using System;
 using Xunit;
 
 public class TestClass {{
-    [Theory]
+    [{theoryAttribute}]
     [ClassData(typeof(DerivedClass))]
     public void TestMethod({type1} a, {type2} b, {type3} c) {{ }}
 }}
@@ -254,7 +261,7 @@ public struct SerializableStruct : ISerializableInterface {{
 		[MemberData(nameof(TheoryDataMembers), "object[]")]
 		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
-		public async void GivenTheory_WithNonSerializableDataButDiscoveryEnumerationDisabledForTheory_FindsNoDiagnostic(
+		public async void GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForTheory_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -291,7 +298,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "object[]")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "PossiblySerializableUnsealedClass")]
-		public async void GivenTheory_WithNonSerializableDataButDiscoveryEnumerationDisabledForData_FindsNoDiagnostic(
+		public async void GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForMemberData_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -328,6 +335,18 @@ public class PossiblySerializableUnsealedClass {{ }}";
 			string _3)
 		{
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
+		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "object[]", "Array", "IDisposable")]
+		public async void GivenTheory_WithNonSerializableTheoryDataClass_WithDiscoveryEnumerationDisabled_FindsNoDiagnostic(
+			string source,
+			string _1,
+			string _2,
+			string _3)
+		{
+			await Verify.VerifyAnalyzerV3(source);
 		}
 	}
 
