@@ -218,11 +218,10 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 		/// Arrays and generic types are ignored if they are composed of ignored types, recursively.
 		/// </summary>
 		/// <remarks>
-		/// Enumerations are serializable if and only if they are from a local assembly and not from
-		/// the Global Assembly Cache. However, static analysis cannot determine whether a type is from
-		/// a local assembly or the GAC, because this requires trying to load the assembly by name
-		/// using reflection, which is banned in analyzers. Therefore, <see cref="TypeKind.Enum"/> and
-		/// <see cref="SpecialType.System_Enum"/> are ignored, in order to prevent a diagnostic from
+		/// Enumerations are serializable if and only if they are not from the Global Assembly Cache,
+		/// which exists in .NET Framework only. However, static analysis cannot reliably determine
+		/// whether a type is from a local assembly or the GAC. Therefore, <see cref="TypeKind.Enum"/>
+		/// and <see cref="SpecialType.System_Enum"/> are ignored, in order to prevent a diagnostic from
 		/// being always found for all enumeration types.
 		/// </remarks>
 		public bool TypeShouldBeIgnored(ITypeSymbol type)
