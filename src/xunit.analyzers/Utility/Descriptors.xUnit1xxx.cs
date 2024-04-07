@@ -402,19 +402,19 @@ public static partial class Descriptors
 			"Constructor '{0}' must be public to be used on a test method."
 		);
 
-	public static DiagnosticDescriptor X1044_TheoryDataTypeArgumentsShouldBeSerializable { get; } =
+	public static DiagnosticDescriptor X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable { get; } =
 		Diagnostic(
 			"xUnit1044",
-			"TheoryData type arguments should be serializable",
+			"Avoid using TheoryData type arguments that are not serializable",
 			Usage,
 			Info,
 			"The type argument {0} is not serializable, which will cause Test Explorer to not enumerate individual data rows. Consider using a type that is known to be serializable."
 		);
 
-	public static DiagnosticDescriptor X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable { get; } =
+	public static DiagnosticDescriptor X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable { get; } =
 		Diagnostic(
 			"xUnit1045",
-			"TheoryData type arguments should be definitely serializable",
+			"Avoid using TheoryData type arguments that might not be serializable",
 			Usage,
 			Info,
 			"The type argument {0} might not be serializable, which may cause Test Explorer to not enumerate individual data rows. Consider using a type that is known to be serializable."

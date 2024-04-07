@@ -350,7 +350,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 		}
 	}
 
-	public sealed class X1044_TheoryDataTypeArgumentsShouldBeSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
+	public sealed class X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		const string Id = "xUnit1044";
 
@@ -431,7 +431,7 @@ public struct NonSerializableStruct {{ }}";
 		}
 	}
 
-	public sealed class X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
+	public sealed class X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		const string Id = "xUnit1045";
 

@@ -14,8 +14,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 {
 	public TheoryDataTypeArgumentsShouldBeSerializable() :
 		base(
-			Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable,
-			Descriptors.X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable
+			Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable,
+			Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable
 		)
 	{ }
 
@@ -72,8 +72,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 						context.ReportDiagnostic(
 							Diagnostic.Create(
 								serializability == Serializability.NeverSerializable
-									? Descriptors.X1044_TheoryDataTypeArgumentsShouldBeSerializable
-									: Descriptors.X1045_TheoryDataTypeArgumentsShouldBeDefinitelySerializable,
+									? Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable
+									: Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable,
 								dataAttributeSyntax.GetLocation(),
 								type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
 							)
@@ -546,7 +546,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 				classDataAttribute,
 				dataAttribute,
 				memberDataAttribute,
-				theoryAttribute);
+				theoryAttribute
+			);
 		}
 
 		static INamedTypeSymbol? GetTraitDictionary(Compilation compilation)
