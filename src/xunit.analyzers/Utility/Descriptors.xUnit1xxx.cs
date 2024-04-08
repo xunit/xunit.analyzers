@@ -420,9 +420,23 @@ public static partial class Descriptors
 			"The type argument {0} might not be serializable, which may cause Test Explorer to not enumerate individual data rows. Consider using a type that is known to be serializable."
 		);
 
-	// Placeholder for rule X1046
+	public static DiagnosticDescriptor X1046_AvoidUsingTheoryDataRowArgumentsThatAreNotSerializable { get; } =
+		Diagnostic(
+			"xUnit1046",
+			"Avoid using TheoryDataRow arguments that are not serializable",
+			Usage,
+			Info,
+			"The argument '{0}' of type '{1}' is not serializable, which will cause Test Explorer to not enumerate individual data rows. Consider using a value that is known to be serializable."
+		);
 
-	// Placeholder for rule X1047
+	public static DiagnosticDescriptor X1047_AvoidUsingTheoryDataRowArgumentsThatMightNotBeSerializable { get; } =
+		Diagnostic(
+			"xUnit1047",
+			"Avoid using TheoryDataRow arguments that might not be serializable",
+			Usage,
+			Info,
+			"The argument '{0}' of type '{1}' might not be serializable, which may cause Test Explorer to not enumerate individual data rows. Consider using a value that is known to be serializable."
+		);
 
 	// Placeholder for rule X1048
 
