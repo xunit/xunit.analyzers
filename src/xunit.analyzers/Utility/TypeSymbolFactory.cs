@@ -23,6 +23,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Assert");
 
+	public static INamedTypeSymbol? BigInteger(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Numerics.BigInteger");
+
 	public static INamedTypeSymbol? ClassDataAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ClassDataAttribute");
 
@@ -40,6 +43,15 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? DataAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Sdk.DataAttribute);
+
+	public static INamedTypeSymbol? DateOnly(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.DateOnly");
+
+	public static INamedTypeSymbol? DateTimeOffset(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.DateTimeOffset");
+
+	public static INamedTypeSymbol? DictionaryofTKeyTValue(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.Dictionary`2");
 
 	public static INamedTypeSymbol? FactAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.FactAttribute);
@@ -174,14 +186,17 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ITheoryDataRow");
 
-	public static INamedTypeSymbol? TheoryDataN(Compilation compilation, int n) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
-
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITypeInfo");
 
 	public static INamedTypeSymbol? IXunitSerializable_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IXunitSerializable");
+
+	public static INamedTypeSymbol? IXunitSerializable_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Sdk.IXunitSerializable");
+
+	public static INamedTypeSymbol? ListOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.List`1");
 
 	public static INamedTypeSymbol? LongLivedMarshalByRefObject_ExecutionV2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.LongLivedMarshalByRefObject);
@@ -221,6 +236,23 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
+
+	public static INamedTypeSymbol? TheoryData(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData");
+
+	public static INamedTypeSymbol? TheoryDataN(
+		Compilation compilation,
+		int n) =>
+			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
+
+	public static INamedTypeSymbol? TimeOnly(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.TimeOnly");
+
+	public static INamedTypeSymbol? TimeSpan(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.TimeSpan");
+
+	public static INamedTypeSymbol? Type(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Type");
 
 	static int ValidateArity(
 		int arity,

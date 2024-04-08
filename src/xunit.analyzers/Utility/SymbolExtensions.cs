@@ -11,7 +11,7 @@ public static class SymbolExtensions
 		this ImmutableArray<AttributeData> attributes,
 		INamedTypeSymbol attributeType,
 		bool exactMatch = false) =>
-			attributes.Any(a => Guard.ArgumentNotNull(attributeType).IsAssignableFrom(a.AttributeClass, exactMatch));
+			attributes.Any(a => a.IsInstanceOf(attributeType, exactMatch));
 
 	/// <summary>
 	/// If the passed <paramref name="typeSymbol"/> is <see cref="IEnumerable{T}"/>, then returns
@@ -102,5 +102,27 @@ public static class SymbolExtensions
 		}
 
 		return false;
+	}
+
+	public static bool IsInstanceOf(
+		this AttributeData attribute,
+		INamedTypeSymbol attributeType,
+		bool exactMatch = false) =>
+			Guard.ArgumentNotNull(attributeType).IsAssignableFrom(
+				Guard.ArgumentNotNull(attribute).AttributeClass,
+				exactMatch
+			);
+
+	public static ITypeSymbol UnwrapNullable(this ITypeSymbol type)
+	{
+		Guard.ArgumentNotNull(type);
+
+		if (type is not INamedTypeSymbol namedType)
+			return type;
+
+		if (namedType.IsGenericType && namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+			return namedType.TypeArguments[0];
+
+		return type;
 	}
 }
