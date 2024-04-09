@@ -23,6 +23,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Assert");
 
+	public static INamedTypeSymbol? AttributeUsageAttribute(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.AttributeUsageAttribute");
+
 	public static INamedTypeSymbol? BigInteger(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Numerics.BigInteger");
 

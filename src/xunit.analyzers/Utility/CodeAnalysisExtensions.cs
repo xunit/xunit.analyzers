@@ -1,14 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-
-#if !ROSLYN_4_4_OR_GREATER
-using System.Collections.Generic;
-#endif
 
 namespace Xunit.Analyzers;
 
@@ -34,6 +31,55 @@ static class CodeAnalysisExtensions
 		var visitor = new NamedTypeVisitor(selector);
 		visitor.Visit(assembly);
 		return visitor.MatchingType;
+	}
+
+	public static ImmutableArray<AttributeData> GetAttributesWithInheritance(
+		this IMethodSymbol method,
+		ITypeSymbol? attributeUsageType)
+	{
+#pragma warning disable RS1024 // This is correct usage
+		var result = new Dictionary<INamedTypeSymbol, List<AttributeData>>(SymbolEqualityComparer.Default);
+#pragma warning restore RS1024
+
+		foreach (var attribute in method.GetAttributes())
+			if (attribute.AttributeClass is not null)
+				result.Add(attribute.AttributeClass, attribute);
+
+		if (method.IsOverride && attributeUsageType is not null)
+			for (var baseMethod = method.OverriddenMethod; baseMethod != null; baseMethod = baseMethod.OverriddenMethod)
+				foreach (var attribute in baseMethod.GetAttributes())
+				{
+					if (attribute.AttributeClass is null || result.ContainsKey(attribute.AttributeClass))
+						continue;
+
+					var inherited = true;
+					var allowMultiple = false;
+
+					var usageAttribute = attribute.AttributeClass.GetAttributes().FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeUsageType));
+					if (usageAttribute is not null)
+					{
+						var inheritedNamedArgument =
+							usageAttribute
+								.NamedArguments
+								.FirstOrDefault(n => n.Key == nameof(AttributeUsageAttribute.Inherited));
+
+						if (inheritedNamedArgument.Value.Value is not null)
+							inherited = (bool)inheritedNamedArgument.Value.Value;
+
+						var allowMultipleNamedArgument =
+							usageAttribute
+								.NamedArguments
+								.FirstOrDefault(n => n.Key == nameof(AttributeUsageAttribute.AllowMultiple));
+
+						if (allowMultipleNamedArgument.Value.Value is not null)
+							allowMultiple = (bool)allowMultipleNamedArgument.Value.Value;
+					}
+
+					if ((allowMultiple || !result.ContainsKey(attribute.AttributeClass)) && inherited)
+						result.Add(attribute.AttributeClass, attribute);
+				}
+
+		return result.Values.SelectMany(x => x).ToImmutableArray();
 	}
 
 	public static bool IsInTestMethod(

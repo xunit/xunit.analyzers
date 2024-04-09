@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using Xunit;
 
 /// <summary>
@@ -10,6 +9,21 @@ using Xunit;
 static partial class EnumerableExtensions
 {
 	static readonly Func<object, bool> notNullTest = x => x is not null;
+
+	public static void Add<TKey, TValue>(
+		this Dictionary<TKey, List<TValue>> dictionary,
+		TKey key,
+		TValue value)
+			where TKey : notnull
+	{
+		if (!dictionary.TryGetValue(key, out var list))
+		{
+			list = new();
+			dictionary[key] = list;
+		}
+
+		list.Add(value);
+	}
 
 	public static void AddRange<T>(
 		this HashSet<T> hashSet,

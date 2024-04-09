@@ -58,6 +58,25 @@ public abstract class TestClass {
 	}
 
 	[Fact]
+	public async void DoesNotFindErrorForDerivedMethodWithFactOnBaseAbstractMethod()
+	{
+		var source = @"
+public abstract class BaseClass {
+    [Xunit.Fact]
+    public abstract void TestMethod();
+}
+
+public class TestClass : BaseClass {
+    public override void TestMethod() { }
+
+    [Xunit.Fact]
+    public void TestMethod2() { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
 	public async void DoesNotFindErrorForPublicAbstractMethodMarkedWithFact()
 	{
 		var source = @"

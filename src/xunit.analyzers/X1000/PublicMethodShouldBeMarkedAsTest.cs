@@ -35,6 +35,8 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 			if (context.Symbol is not INamedTypeSymbol type)
 				return;
 
+			var attributeUsageType = TypeSymbolFactory.AttributeUsageAttribute(context.Compilation);
+
 			if (type.TypeKind != TypeKind.Class ||
 					type.DeclaredAccessibility != Accessibility.Public ||
 					type.IsAbstract)
@@ -64,7 +66,7 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 				if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
 					continue;
 
-				var attributes = method.GetAttributes();
+				var attributes = method.GetAttributesWithInheritance(attributeUsageType);
 				var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
 				hasTestMethods = hasTestMethods || isTestMethod;
 
