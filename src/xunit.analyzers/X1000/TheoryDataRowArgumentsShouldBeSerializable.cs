@@ -23,6 +23,10 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var theoryDataRowType = TypeSymbolFactory.TheoryDataRow(context.Compilation);
+		if (theoryDataRowType is null)
+			return;
+
 		if (SerializableTypeSymbols.Create(context.Compilation, xunitContext) is not SerializableTypeSymbols typeSymbols)
 			return;
 
@@ -31,6 +35,9 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 		context.RegisterOperationAction(context =>
 		{
 			if (context.Operation is not IObjectCreationOperation objectCreation)
+				return;
+
+			if (!SymbolEqualityComparer.Default.Equals(theoryDataRowType, objectCreation.Type))
 				return;
 
 			var argumentOperations = GetConstructorArguments(objectCreation);
@@ -106,4 +113,7 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 
 		return null;
 	}
+
+	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+		Guard.ArgumentNotNull(xunitContext).HasV3References;
 }

@@ -248,6 +248,9 @@ public static class TypeSymbolFactory
 		int n) =>
 			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
 
+	public static INamedTypeSymbol? TheoryDataRow(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Sdk.TheoryDataRow");
+
 	public static INamedTypeSymbol? TimeOnly(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.TimeOnly");
 
