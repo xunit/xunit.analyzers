@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -23,7 +24,7 @@ public class TestClass {{
 	[InlineData("Assert.Equal(comparer: default(IEqualityComparer<int>), actual: 0, expected: i)", "Assert.Equal(comparer: default(IEqualityComparer<int>), actual: i, expected: 0)")]
 	[InlineData("Assert.Equal(comparer: (x, y) => true, actual: 0, expected: i)", "Assert.Equal(comparer: (x, y) => true, actual: i, expected: 0)")]
 	[InlineData("Assert.Equal(expected: i, 0)", "Assert.Equal(expected: 0, i)", LanguageVersion.CSharp7_2)]
-	public async void SwapArguments(
+	public async Task SwapArguments(
 		string beforeAssert,
 		string afterAssert,
 		LanguageVersion? languageVersion = null)

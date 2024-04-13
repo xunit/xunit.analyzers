@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 
 public class TheoryMethodMustHaveTestDataTests
 {
 	[Fact]
-	public async void DoesNotFindErrorForFactMethod()
+	public async Task DoesNotFindErrorForFactMethod()
 	{
 		var source = @"
 public class TestClass {
@@ -19,7 +20,7 @@ public class TestClass {
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	public async Task DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -32,7 +33,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void FindsErrorForTheoryMethodMissingData()
+	public async Task FindsErrorForTheoryMethodMissingData()
 	{
 		var source = @"
 class TestClass {

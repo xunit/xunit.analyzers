@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataTypeArgumentsShouldBeSerializable>;
 
@@ -68,7 +69,7 @@ public class DerivedClass : BaseClass<{type1}, {type2}, object, Delegate> {{ }}"
 	public sealed class NoDiagnostic : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		[Fact]
-		public async void GivenMethodWithoutAttributes_FindsNoDiagnostic()
+		public async Task GivenMethodWithoutAttributes_FindsNoDiagnostic()
 		{
 			var source = @"
 public class TestClass {
@@ -79,7 +80,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void GivenFact_FindsNoDiagnostic()
+		public async Task GivenFact_FindsNoDiagnostic()
 		{
 			var source = @"
 public class TestClass {
@@ -91,7 +92,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void GivenTheory_WithoutTheoryDataAsDataSource_FindsNoDiagnostic()
+		public async Task GivenTheory_WithoutTheoryDataAsDataSource_FindsNoDiagnostic()
 		{
 			var source = @"
 using System;
@@ -178,7 +179,7 @@ public class DataSource<T1, T2> : IEnumerable<object[]> {
 
 #endif
 
-		public async void GivenTheory_WithSerializableTheoryDataMember_FindsNoDiagnostic(
+		public async Task GivenTheory_WithSerializableTheoryDataMember_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -213,7 +214,7 @@ public enum SerializableEnumeration {{ Zero }}";
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct[]")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?[]")]
-		public async void GivenTheory_WithIXunitSerializableTheoryDataMember_FindsNoDiagnostic(
+		public async Task GivenTheory_WithIXunitSerializableTheoryDataMember_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -261,7 +262,7 @@ public struct SerializableStruct : ISerializableInterface {{
 		[MemberData(nameof(TheoryDataMembers), "object[]")]
 		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
-		public async void GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForTheory_FindsNoDiagnostic(
+		public async Task GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForTheory_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -298,7 +299,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "object[]")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "PossiblySerializableUnsealedClass")]
-		public async void GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForMemberData_FindsNoDiagnostic(
+		public async Task GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForMemberData_FindsNoDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -328,7 +329,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "int", "double", "string")]
-		public async void GivenTheory_WithSerializableTheoryDataClass_FindsNoDiagnostic(
+		public async Task GivenTheory_WithSerializableTheoryDataClass_FindsNoDiagnostic(
 			string source,
 			string _1,
 			string _2,
@@ -340,7 +341,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
 		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "object[]", "Array", "IDisposable")]
-		public async void GivenTheory_WithNonSerializableTheoryDataClass_WithDiscoveryEnumerationDisabled_FindsNoDiagnostic(
+		public async Task GivenTheory_WithNonSerializableTheoryDataClass_WithDiscoveryEnumerationDisabled_FindsNoDiagnostic(
 			string source,
 			string _1,
 			string _2,
@@ -365,7 +366,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
-		public async void GivenTheory_WithNonSerializableTheoryDataMember_FindsDiagnostic(
+		public async Task GivenTheory_WithNonSerializableTheoryDataMember_FindsDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -398,7 +399,7 @@ public struct NonSerializableStruct {{ }}";
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
-		public async void GivenTheory_WithNonSerializableTheoryDataClass_FindsDiagnostic(
+		public async Task GivenTheory_WithNonSerializableTheoryDataClass_FindsDiagnostic(
 			string source,
 			string type1,
 			string type2,
@@ -452,7 +453,7 @@ public struct NonSerializableStruct {{ }}";
 		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface[]")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass[]")]
-		public async void GivenTheory_WithPossiblySerializableTheoryDataMember_FindsDiagnostic(
+		public async Task GivenTheory_WithPossiblySerializableTheoryDataMember_FindsDiagnostic(
 			string member,
 			string attribute,
 			string type)
@@ -486,7 +487,7 @@ public class PossiblySerializableUnsealedClass {{ }}";
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
-		public async void GivenTheory_WithPossiblySerializableTheoryDataClass_FindsDiagnostic(
+		public async Task GivenTheory_WithPossiblySerializableTheoryDataClass_FindsDiagnostic(
 			string source,
 			string type1,
 			string type2,

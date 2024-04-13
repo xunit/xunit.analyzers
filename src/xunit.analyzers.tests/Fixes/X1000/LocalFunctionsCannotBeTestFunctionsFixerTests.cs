@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -8,7 +9,7 @@ public class LocalFunctionsCannotBeTestFunctionsFixerTests
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async void LocalFunctionsCannotHaveTestAttributes(string attribute)
+	public async Task LocalFunctionsCannotHaveTestAttributes(string attribute)
 	{
 		var before = $@"
 using Xunit;

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
@@ -8,7 +9,7 @@ public class MemberDataShouldReferenceValidMember_VisibilityFixerTests
 	[InlineData("")]
 	[InlineData("protected ")]
 	[InlineData("internal ")]
-	public async void SetsPublicModifier(string badModifier)
+	public async Task SetsPublicModifier(string badModifier)
 	{
 		var before = $@"
 using System.Collections.Generic;

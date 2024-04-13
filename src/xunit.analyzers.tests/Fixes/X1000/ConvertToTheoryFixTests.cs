@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify_X1001 = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
@@ -6,7 +7,7 @@ using Verify_X1005 = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestD
 public class ConvertToTheoryFixTests
 {
 	[Fact]
-	public async void From_X1001()
+	public async Task From_X1001()
 	{
 		var before = @"
 using Xunit;
@@ -28,7 +29,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void From_X1005()
+	public async Task From_X1005()
 	{
 		var before = @"
 using Xunit;

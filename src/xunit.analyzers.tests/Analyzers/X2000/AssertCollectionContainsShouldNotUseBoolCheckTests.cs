@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertCollectionContainsShouldNotUseBoolCheck>;
@@ -18,7 +19,7 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void FindsWarningForTrueCollectionContainsCheck(string collection)
+	public async Task FindsWarningForTrueCollectionContainsCheck(string collection)
 	{
 		var source = $@"
 class TestClass {{
@@ -37,7 +38,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void FindsWarningForFalseCollectionContainsCheck(string collection)
+	public async Task FindsWarningForFalseCollectionContainsCheck(string collection)
 	{
 		var source = $@"
 class TestClass {{
@@ -56,7 +57,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void FindsWarningForTrueLinqContainsCheck(string enumerable)
+	public async Task FindsWarningForTrueLinqContainsCheck(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -77,7 +78,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void FindsWarningForTrueLinqContainsCheckWithEqualityComparer(string enumerable)
+	public async Task FindsWarningForTrueLinqContainsCheckWithEqualityComparer(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -98,7 +99,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void FindsWarningForFalseLinqContainsCheck(string enumerable)
+	public async Task FindsWarningForFalseLinqContainsCheck(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -119,7 +120,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void FindsWarningForFalseLinqContainsCheckWithEqualityComparer(string enumerable)
+	public async Task FindsWarningForFalseLinqContainsCheckWithEqualityComparer(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -140,7 +141,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void DoesNotFindWarningForTrueCollectionContainsCheckWithAssertionMessage(string collection)
+	public async Task DoesNotFindWarningForTrueCollectionContainsCheckWithAssertionMessage(string collection)
 	{
 		var source = $@"
 class TestClass {{
@@ -154,7 +155,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void DoesNotFindWarningForFalseCollectionContainsCheckWithAssertionMessage(string collection)
+	public async Task DoesNotFindWarningForFalseCollectionContainsCheckWithAssertionMessage(string collection)
 	{
 		var source = $@"
 class TestClass {{
@@ -168,7 +169,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void DoesNotFindWarningForTrueLinqContainsCheckWithAssertionMessage(string enumerable)
+	public async Task DoesNotFindWarningForTrueLinqContainsCheckWithAssertionMessage(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -184,7 +185,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Enumerables))]
-	public async void DoesNotFindWarningForFalseLinqContainsCheckWithAssertionMessage(string enumerable)
+	public async Task DoesNotFindWarningForFalseLinqContainsCheckWithAssertionMessage(string enumerable)
 	{
 		var source = $@"
 using System.Linq;
@@ -199,7 +200,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_ZeroParameters()
+	public async Task DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_ZeroParameters()
 	{
 		var source = @"
 using System.Collections.Generic;
@@ -216,7 +217,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_TwoParameters()
+	public async Task DoesNotCrashForCollectionWithDifferentTypeParametersThanICollectionImplementation_TwoParameters()
 	{
 		var source = @"
 using System.Collections.Generic;

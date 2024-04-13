@@ -1,5 +1,6 @@
 #if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // Static abstract methods are only supported on .NET with C# 11
 
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
@@ -34,7 +35,7 @@ public abstract class TestClass {{
 }}";
 
 		[Fact]
-		public async void DoesNotFindWarning_ForStaticAbstractInterfaceMembers()
+		public async Task DoesNotFindWarning_ForStaticAbstractInterfaceMembers()
 		{
 			string source = string.Format(codeTemplate, string.Empty, methodCode);
 
@@ -42,7 +43,7 @@ public abstract class TestClass {{
 		}
 
 		[Fact]
-		public async void DoesNotFindWarning_ForNestedStaticAbstractInterfaceMembers()
+		public async Task DoesNotFindWarning_ForNestedStaticAbstractInterfaceMembers()
 		{
 			string source = string.Format(codeTemplate, methodCode, string.Empty);
 
@@ -52,7 +53,7 @@ public abstract class TestClass {{
 		[Theory]
 		[InlineData("static", "", "{ }")]
 		[InlineData("", "abstract", ";")]
-		public async void FindsWarning_ForNotStaticAbstractInterfaceMembers(string staticModifier, string abstractModifier, string methodBody)
+		public async Task FindsWarning_ForNotStaticAbstractInterfaceMembers(string staticModifier, string abstractModifier, string methodBody)
 		{
 			string source = $@"
 using Xunit;

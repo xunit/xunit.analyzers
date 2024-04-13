@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeNegated>;
 
@@ -6,7 +7,7 @@ public class BooleanAssertsShouldNotBeNegatedTests
 	[Theory]
 	[InlineData("False", "True")]
 	[InlineData("True", "False")]
-	public async void NegatedBooleanAssertionTriggers(
+	public async Task NegatedBooleanAssertionTriggers(
 		string assertion,
 		string replacement)
 	{

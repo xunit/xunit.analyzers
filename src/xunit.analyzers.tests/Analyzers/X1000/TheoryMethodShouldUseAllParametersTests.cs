@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldUseAllParameters>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldUseAllParameters
 public class TheoryMethodShouldUseAllParametersTests
 {
 	[Fact]
-	public async void FindsWarning_ParameterNotReferenced()
+	public async Task FindsWarning_ParameterNotReferenced()
 	{
 		var source = @"
 using Xunit;
@@ -25,7 +26,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_ParameterUnread()
+	public async Task FindsWarning_ParameterUnread()
 	{
 		var source = @"
 using System;
@@ -49,7 +50,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_MultipleUnreadParameters()
+	public async Task FindsWarning_MultipleUnreadParameters()
 	{
 		var source = @"
 using Xunit;
@@ -81,7 +82,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_SomeUnreadParameters()
+	public async Task FindsWarning_SomeUnreadParameters()
 	{
 		var source = @"
 using System;
@@ -112,7 +113,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_ExpressionBodiedMethod()
+	public async Task FindsWarning_ExpressionBodiedMethod()
 	{
 		var source = @"
 using Xunit;
@@ -132,7 +133,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ParameterRead()
+	public async Task DoesNotFindWarning_ParameterRead()
 	{
 		var source = @"
 using System;
@@ -149,7 +150,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ParameterCapturedAsOutParameterInMockSetup()
+	public async Task DoesNotFindWarning_ParameterCapturedAsOutParameterInMockSetup()
 	{
 		var source = @"
 using System;
@@ -169,7 +170,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ExpressionBodiedMethod()
+	public async Task DoesNotFindWarning_ExpressionBodiedMethod()
 	{
 		var source = @"
 using Xunit;
@@ -183,7 +184,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_WhenParameterIsDiscardNamed()
+	public async Task DoesNotFindWarning_WhenParameterIsDiscardNamed()
 	{
 		var source = @"
 using System;
@@ -209,7 +210,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotCrash_MethodWithoutBody()
+	public async Task DoesNotCrash_MethodWithoutBody()
 	{
 		var source = @"
 using Xunit;

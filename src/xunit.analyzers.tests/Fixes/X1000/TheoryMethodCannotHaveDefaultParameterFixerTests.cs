@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -8,7 +9,7 @@ using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterFi
 public class TheoryMethodCannotHaveDefaultParameterFixerTests
 {
 	[Fact]
-	public async void RemovesDefaultParameterValue()
+	public async Task RemovesDefaultParameterValue()
 	{
 		var before = @"
 using Xunit;

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
@@ -18,7 +19,7 @@ public class DoNotUseConfigureAwaitFixerTests
 		{
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void Task_Async(string argumentValue)
+			public async Task Task_Async(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -49,7 +50,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void Task_NonAsync(string argumentValue)
+			public async Task Task_NonAsync(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -80,7 +81,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void TaskOfT(string argumentValue)
+			public async Task TaskOfT(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -113,7 +114,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void ValueTask(string argumentValue)
+			public async Task ValueTask(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -146,7 +147,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void ValueTaskOfT(string argumentValue)
+			public async Task ValueTaskOfT(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -182,7 +183,7 @@ public class TestClass {
 		{
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void Task_Async(string argumentValue)
+			public async Task Task_Async(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -213,7 +214,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void Task_NonAsync(string argumentValue)
+			public async Task Task_NonAsync(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -244,7 +245,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void TaskOfT(string argumentValue)
+			public async Task TaskOfT(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -277,7 +278,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void ValueTask(string argumentValue)
+			public async Task ValueTask(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -310,7 +311,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(InvalidValues), MemberType = typeof(ConfigureAwait_Boolean))]
-			public async void ValueTaskOfT(string argumentValue)
+			public async Task ValueTaskOfT(string argumentValue)
 			{
 				var before = @$"
 using System.Threading.Tasks;
@@ -359,7 +360,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void Task_Async(string argumentValue)
+		public async Task Task_Async(string argumentValue)
 		{
 			var before = @$"
 using System.Threading.Tasks;
@@ -390,7 +391,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void Task_NonAsync(string argumentValue)
+		public async Task Task_NonAsync(string argumentValue)
 		{
 			var before = @$"
 using System.Threading.Tasks;
@@ -421,7 +422,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void TaskOfT(string argumentValue)
+		public async Task TaskOfT(string argumentValue)
 		{
 			var before = @$"
 using System.Threading.Tasks;

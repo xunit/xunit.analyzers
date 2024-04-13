@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodCannotHaveOverloads>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodCannotHaveOverloads>;
 public class TestMethodCannotHaveOverloadsTests
 {
 	[Fact]
-	public async void FindsErrors_ForInstanceMethodOverloads_InSameInstanceClass()
+	public async Task FindsErrors_ForInstanceMethodOverloads_InSameInstanceClass()
 	{
 		var source = @"
 public class TestClass {
@@ -33,7 +34,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void FindsErrors_ForStaticMethodOverloads_InSameStaticClass()
+	public async Task FindsErrors_ForStaticMethodOverloads_InSameStaticClass()
 	{
 		var source = @"
 public static class TestClass {
@@ -61,7 +62,7 @@ public static class TestClass {
 	}
 
 	[Fact]
-	public async void FindsErrors_ForInstanceMethodOverload_InDerivedClass()
+	public async Task FindsErrors_ForInstanceMethodOverload_InDerivedClass()
 	{
 		var source1 = @"
 public class TestClass : BaseClass {
@@ -93,7 +94,7 @@ public class BaseClass {
 	}
 
 	[Fact]
-	public async void FindsError_ForStaticAndInstanceMethodOverload()
+	public async Task FindsError_ForStaticAndInstanceMethodOverload()
 	{
 		var source1 = @"
 public class TestClass : BaseClass {
@@ -116,7 +117,7 @@ public class BaseClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindError_ForMethodOverrides()
+	public async Task DoesNotFindError_ForMethodOverrides()
 	{
 		var source1 = @"
 public class BaseClass {

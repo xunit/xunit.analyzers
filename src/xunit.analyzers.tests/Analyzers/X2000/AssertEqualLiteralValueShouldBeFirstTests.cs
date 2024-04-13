@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFirst>;
 
 public class AssertEqualLiteralValueShouldBeFirstTests
 {
 	[Fact]
-	public async void DoesNotFindWarningWhenConstantOrLiteralUsedForBothArguments()
+	public async Task DoesNotFindWarningWhenConstantOrLiteralUsedForBothArguments()
 	{
 		var source = @"
 class TestClass {
@@ -31,7 +32,7 @@ class TestClass {
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsFirstArgument(
+	public async Task DoesNotFindWarningForExpectedConstantOrLiteralValueAsFirstArgument(
 		string type,
 		string value)
 	{
@@ -47,7 +48,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void DoesNotFindWarningForConstantsUsedInStringConstructorAsFirstArgument()
+	public async Task DoesNotFindWarningForConstantsUsedInStringConstructorAsFirstArgument()
 	{
 		var source = @"
 class TestClass {
@@ -61,7 +62,7 @@ class TestClass {
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async void FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(
+	public async Task FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(
 		string type,
 		string value)
 	{
@@ -84,7 +85,7 @@ class TestClass {{
 	[Theory]
 	[InlineData(true)]
 	[InlineData(false)]
-	public async void DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(bool useAlternateForm)
+	public async Task DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(bool useAlternateForm)
 	{
 		var prefix = useAlternateForm ? "@" : "";
 		var source = $@"
@@ -100,7 +101,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async void FindsWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(
+	public async Task FindsWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(
 		string type,
 		string value)
 	{
@@ -125,7 +126,7 @@ class TestClass {{
 	[InlineData("{|CS1501:Equal|}", "expected", "expected")]
 	[InlineData("{|CS1501:Equal|}", "actual", "actual")]
 	[InlineData("Equal", "{|CS1739:foo|}", "bar")]
-	public async void DoesNotFindWarningWhenArgumentsAreNotNamedCorrectly(
+	public async Task DoesNotFindWarningWhenArgumentsAreNotNamedCorrectly(
 		string methodName,
 		string firstArgumentName,
 		string secondArgumentName)

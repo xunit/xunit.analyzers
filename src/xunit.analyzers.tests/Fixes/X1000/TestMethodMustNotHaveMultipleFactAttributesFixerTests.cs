@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactA
 public class TestMethodMustNotHaveMultipleFactAttributesFixerTests
 {
 	[Fact]
-	public async void RemovesSecondAttribute()
+	public async Task RemovesSecondAttribute()
 	{
 		var before = $@"
 using Xunit;

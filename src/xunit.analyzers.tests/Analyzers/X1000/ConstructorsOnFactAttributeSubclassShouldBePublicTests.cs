@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.ConstructorsOnFactAttributeSubclassShouldBePublic>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.ConstructorsOnFactAttributeSubclas
 public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 {
 	[Fact]
-	public async void DefaultConstructor_DoesNotTrigger()
+	public async Task DefaultConstructor_DoesNotTrigger()
 	{
 		var source = @"
 using System;
@@ -26,7 +27,7 @@ public class Tests {
 	}
 
 	[Fact]
-	public async void ParameterlessPublicConstructor_DoesNotTrigger()
+	public async Task ParameterlessPublicConstructor_DoesNotTrigger()
 	{
 		var source = @"
 using System;
@@ -51,7 +52,7 @@ public class Tests {
 	}
 
 	[Fact]
-	public async void PublicConstructorWithParameters_DoesNotTrigger()
+	public async Task PublicConstructorWithParameters_DoesNotTrigger()
 	{
 		var source = @"
 using System;
@@ -76,7 +77,7 @@ public class Tests {
 	}
 
 	[Fact]
-	public async void PublicConstructorWithOtherConstructors_DoesNotTrigger()
+	public async Task PublicConstructorWithOtherConstructors_DoesNotTrigger()
 	{
 		var source = @"
 using System;
@@ -105,7 +106,7 @@ public class Tests {
 	}
 
 	[Fact]
-	public async void InternalConstructor_Triggers()
+	public async Task InternalConstructor_Triggers()
 	{
 		var source = @"
 using System;
@@ -134,7 +135,7 @@ public class Tests {
 	}
 
 	[Fact]
-	public async void ProtectedInternalConstructor_Triggers()
+	public async Task ProtectedInternalConstructor_Triggers()
 	{
 		var source = @"
 using System;

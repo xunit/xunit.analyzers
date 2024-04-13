@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodMustNotHaveMultipleFactAttributes>;
 
@@ -6,7 +7,7 @@ public class TestMethodMustNotHaveMultipleFactAttributesTests
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async void DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
+	public async Task DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -18,7 +19,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void FindsErrorForMethodWithTheoryAndFact()
+	public async Task FindsErrorForMethodWithTheoryAndFact()
 	{
 		var source = @"
 public class TestClass {
@@ -35,7 +36,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void FindsErrorForMethodWithCustomFactAttribute()
+	public async Task FindsErrorForMethodWithCustomFactAttribute()
 	{
 		var source1 = @"
 public class TestClass {

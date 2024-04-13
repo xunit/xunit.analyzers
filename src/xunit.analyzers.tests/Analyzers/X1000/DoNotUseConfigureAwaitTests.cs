@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
 public class DoNotUseConfigureAwaitTests
 {
 	[Fact]
-	public async void NoCall_DoesNotTrigger()
+	public async Task NoCall_DoesNotTrigger()
 	{
 		var source = @"
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ public class TestClass {
 	public class ConfigureAwait_Boolean
 	{
 		[Fact]
-		public async void NonTestMethod_DoesNotTrigger()
+		public async Task NonTestMethod_DoesNotTrigger()
 		{
 			var source = @"
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ public class NonTestClass {
 		}
 
 		[Fact]
-		public async void True_DoesNotTrigger()
+		public async Task True_DoesNotTrigger()
 		{
 			var source = @"
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
+		public async Task InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -88,7 +89,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
+		public async Task InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -109,7 +110,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskWithAwait_Triggers(string argumentValue)
+		public async Task InvalidValue_TaskWithAwait_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -133,7 +134,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskWithoutAwait_Triggers(string argumentValue)
+		public async Task InvalidValue_TaskWithoutAwait_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -157,7 +158,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskOfT_Triggers(string argumentValue)
+		public async Task InvalidValue_TaskOfT_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -182,7 +183,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_ValueTask_Triggers(string argumentValue)
+		public async Task InvalidValue_ValueTask_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -207,7 +208,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_ValueTaskOfT_Triggers(string argumentValue)
+		public async Task InvalidValue_ValueTaskOfT_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -236,7 +237,7 @@ public class TestClass {{
 	public class ConfigureAwait_ConfigureAwaitOptions
 	{
 		[Fact]
-		public async void NonTestMethod_DoesNotTrigger()
+		public async Task NonTestMethod_DoesNotTrigger()
 		{
 			var source = @"
 using System.Threading.Tasks;
@@ -255,7 +256,7 @@ public class NonTestClass {
 		[InlineData("ConfigureAwaitOptions.ContinueOnCapturedContext")]
 		[InlineData("ConfigureAwaitOptions.SuppressThrowing | ConfigureAwaitOptions.ContinueOnCapturedContext")]
 		[InlineData("ConfigureAwaitOptions.ForceYielding | ConfigureAwaitOptions.SuppressThrowing | ConfigureAwaitOptions.ContinueOnCapturedContext")]
-		public async void ValidValue_DoesNotTrigger(string enumValue)
+		public async Task ValidValue_DoesNotTrigger(string enumValue)
 		{
 			var source = $@"
 using System.Threading.Tasks;
@@ -283,7 +284,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
+		public async Task InvalidValue_InsideLambda_DoesNotTrigger(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -305,7 +306,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
+		public async Task InvalidValue_InsideLocalFunction_DoesNotTrigger(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -326,7 +327,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskWithAwait_Triggers(string enumValue)
+		public async Task InvalidValue_TaskWithAwait_Triggers(string enumValue)
 		{
 			var source = $@"
 using System.Threading.Tasks;
@@ -350,7 +351,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskWithoutAwait_Triggers(string argumentValue)
+		public async Task InvalidValue_TaskWithoutAwait_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;
@@ -374,7 +375,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(InvalidValues))]
-		public async void InvalidValue_TaskOfT_Triggers(string argumentValue)
+		public async Task InvalidValue_TaskOfT_Triggers(string argumentValue)
 		{
 			var source = @$"
 using System.Threading.Tasks;

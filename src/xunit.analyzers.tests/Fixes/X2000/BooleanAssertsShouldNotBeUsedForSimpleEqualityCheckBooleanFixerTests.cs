@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck>;
@@ -41,7 +42,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AssertExpressionReplacement))]
-	public async void SimplifiesBooleanAssert(
+	public async Task SimplifiesBooleanAssert(
 		string assertion,
 		string expression,
 		string replacement)
@@ -54,7 +55,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AssertExpressionReplacement))]
-	public async void SimplifiesBooleanAssertWithMessage(
+	public async Task SimplifiesBooleanAssertWithMessage(
 		string assertion,
 		string expression,
 		string replacement)

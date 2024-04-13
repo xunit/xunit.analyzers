@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodSupportedReturnType>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodSupportedReturnType>;
 public class TestMethodSupportedReturnTypeTests
 {
 	[Fact]
-	public async void NonTestMethod()
+	public async Task NonTestMethod()
 	{
 		var source = @"
 public class NonTestClass {
@@ -20,7 +21,7 @@ public class NonTestClass {
 	[Theory]
 	[InlineData("int")]
 	[InlineData("object")]
-	public async void InvalidReturnType(string returnType)
+	public async Task InvalidReturnType(string returnType)
 	{
 		var sourceTemplate = @"
 using Xunit;
@@ -54,7 +55,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void V2DoesNotSupportValueTask()
+	public async Task V2DoesNotSupportValueTask()
 	{
 		var source = @"
 using System.Threading.Tasks;
@@ -80,7 +81,7 @@ public class TestClass {
 	[Theory]
 	[InlineData("MyTest")]
 	[InlineData("MyTestAttribute")]
-	public async void CustomTestAttribute(string attribute)
+	public async Task CustomTestAttribute(string attribute)
 	{
 		var sourceTemplate = @"
 using Xunit;

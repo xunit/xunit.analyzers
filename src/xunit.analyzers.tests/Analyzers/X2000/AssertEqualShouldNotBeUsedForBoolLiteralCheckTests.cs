@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -18,7 +19,7 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	[InlineData(Constants.Asserts.StrictEqual, Constants.Asserts.True)]
 	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.False)]
 	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.False)]
-	public async void FindsWarning_ForFirstBoolLiteral(
+	public async Task FindsWarning_ForFirstBoolLiteral(
 		string method,
 		string replacement)
 	{
@@ -42,7 +43,7 @@ class TestClass {{
 	[Theory]
 	[InlineData(Constants.Asserts.Equal, Constants.Asserts.False)]
 	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.True)]
-	public async void FindsWarning_ForFirstBoolLiteral_WithCustomComparer(
+	public async Task FindsWarning_ForFirstBoolLiteral_WithCustomComparer(
 		string method,
 		string replacement)
 	{
@@ -65,7 +66,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForFirstBoolLiteral_ObjectOverload(string method)
+	public async Task DoesNotFindWarning_ForFirstBoolLiteral_ObjectOverload(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -80,7 +81,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForOtherLiteral(string method)
+	public async Task DoesNotFindWarning_ForOtherLiteral(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -95,7 +96,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForSecondBoolLiteral(string method)
+	public async Task DoesNotFindWarning_ForSecondBoolLiteral(string method)
 	{
 		var source = $@"
 class TestClass {{

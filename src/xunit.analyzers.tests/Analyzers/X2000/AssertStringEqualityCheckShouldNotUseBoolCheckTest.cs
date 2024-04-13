@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -35,7 +36,7 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarning_ForInstanceEqualsCheck(
+	public async Task FindsWarning_ForInstanceEqualsCheck(
 		string method,
 		string replacement)
 	{
@@ -57,7 +58,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(SupportedStringComparisons))]
-	public async void FindsWarning_ForTrueInstanceEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
+	public async Task FindsWarning_ForTrueInstanceEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{
@@ -77,7 +78,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(UnsupportedStringComparisons))]
-	public async void DoesNotFindWarning_ForTrueInstanceEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
+	public async Task DoesNotFindWarning_ForTrueInstanceEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{
@@ -91,7 +92,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AllStringComparisons))]
-	public async void DoesNotFindWarning_ForFalseInstanceEqualsCheck_WithStringComparison(StringComparison comparison)
+	public async Task DoesNotFindWarning_ForFalseInstanceEqualsCheck_WithStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{
@@ -105,7 +106,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarning_ForStaticEqualsCheck(
+	public async Task FindsWarning_ForStaticEqualsCheck(
 		string method,
 		string replacement)
 	{
@@ -127,7 +128,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(SupportedStringComparisons))]
-	public async void FindsWarning_ForTrueStaticEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
+	public async Task FindsWarning_ForTrueStaticEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{
@@ -147,7 +148,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(UnsupportedStringComparisons))]
-	public async void DoesNotFindWarning_ForTrueStaticEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
+	public async Task DoesNotFindWarning_ForTrueStaticEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{
@@ -161,7 +162,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AllStringComparisons))]
-	public async void DoesNotFindWarning_ForFalseStaticEqualsCheck_WithStringComparison(StringComparison comparison)
+	public async Task DoesNotFindWarning_ForFalseStaticEqualsCheck_WithStringComparison(StringComparison comparison)
 	{
 		var source = $@"
 class TestClass {{

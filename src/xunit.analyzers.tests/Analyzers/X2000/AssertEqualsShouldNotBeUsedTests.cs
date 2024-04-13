@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -8,7 +9,7 @@ public class AssertEqualsShouldNotBeUsedTests
 	[Theory]
 	[InlineData(nameof(object.Equals), Constants.Asserts.Equal)]
 	[InlineData(nameof(object.ReferenceEquals), Constants.Asserts.Same)]
-	public async void FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(
+	public async Task FindsHiddenDiagnosticWhenProhibitedMethodIsUsed(
 		string method,
 		string replacement)
 	{

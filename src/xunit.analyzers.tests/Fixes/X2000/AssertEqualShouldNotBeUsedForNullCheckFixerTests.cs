@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullCheck>;
@@ -21,7 +22,7 @@ public class TestClass {{
 	[InlineData("[|Assert.StrictEqual(null, data)|]", "Assert.Null(data)")]
 	[InlineData("[|Assert.NotEqual(null, data)|]", "Assert.NotNull(data)")]
 	[InlineData("[|Assert.NotStrictEqual(null, data)|]", "Assert.NotNull(data)")]
-	public async void ConvertsToAppropriateNullAssert(
+	public async Task ConvertsToAppropriateNullAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

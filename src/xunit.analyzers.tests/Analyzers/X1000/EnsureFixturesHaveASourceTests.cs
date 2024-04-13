@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.EnsureFixturesHaveASource>;
 
@@ -6,7 +7,7 @@ public class EnsureFixturesHaveASourceTests
 	public class NonTestClass
 	{
 		[Fact]
-		public async void DoesNotTrigger()
+		public async Task DoesNotTrigger()
 		{
 			var source = @"
 public class NonTestClass {
@@ -22,7 +23,7 @@ public class NonTestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData("[Collection(\"TestCollection\")]")]
-		public async void V2SupportedTypes(string attribute)
+		public async Task V2SupportedTypes(string attribute)
 		{
 			var source = $@"
 using Xunit;
@@ -40,7 +41,7 @@ using Xunit.Abstractions;
 		[Theory]
 		[InlineData("")]
 		[InlineData("[Collection(\"TestCollection\")]")]
-		public async void V3SupportedTypes(string attribute)
+		public async Task V3SupportedTypes(string attribute)
 		{
 			// TODO: This will need to be updated when v3 names are finalized
 			var source = $@"
@@ -57,7 +58,7 @@ using Xunit.v3;
 		}
 
 		[Fact]
-		public async void OptionalParameter_DoesNotTrigger()
+		public async Task OptionalParameter_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -91,7 +92,7 @@ public class TestClass {
 		[InlineData(
 			"[Collection(\"TestCollection\")]", "",
 			"", ", IClassFixture<object>")]
-		public async void SupportsDerivation(
+		public async Task SupportsDerivation(
 			string baseAttribute,
 			string baseInterface,
 			string derivedAttribute,
@@ -115,7 +116,7 @@ public class TestClass : BaseClass {derivedInterface} {{
 		}
 
 		[Fact]
-		public async void ClassFixtureOnCollectionDefinition_DoesNotTrigger()
+		public async Task ClassFixtureOnCollectionDefinition_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -134,7 +135,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MissingClassFixtureDefinition_Triggers()
+		public async Task MissingClassFixtureDefinition_Triggers()
 		{
 			var source = @"
 using Xunit;
@@ -159,7 +160,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
-		public async void NoFixture_DoesNotTrigger(string definitionAttribute)
+		public async Task NoFixture_DoesNotTrigger(string definitionAttribute)
 		{
 			var source = $@"
 using Xunit;
@@ -176,7 +177,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void WithInheritedFixture_DoesNotTrigger()
+		public async Task WithInheritedFixture_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -202,7 +203,7 @@ public class TestClass : TestContext {
 		}
 
 		[Fact]
-		public async void WithGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
+		public async Task WithGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
 			var source = @"
 using Xunit;
@@ -231,7 +232,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void WithInheritedGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
+		public async Task WithInheritedGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
 			var source = @"
 using Xunit;
@@ -266,7 +267,7 @@ public class TestClass : TestContext<int> {
 		[Theory]
 		[InlineData("[Collection(nameof(TestCollection))]", "")]
 		[InlineData("", "[Collection(nameof(TestCollection))]")]
-		public async void WithFixture_SupportsDerivation(
+		public async Task WithFixture_SupportsDerivation(
 			string baseAttribute,
 			string derivedAttribute)
 		{
@@ -289,7 +290,7 @@ public class TestClass : BaseClass {{
 		}
 
 		[Fact]
-		public async void WithFixture_WithDefinition_DoesNotTrigger()
+		public async Task WithFixture_WithDefinition_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -310,7 +311,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
-		public async void WithFixture_WithoutCollectionFixtureInterface_Triggers(string definitionAttribute)
+		public async Task WithFixture_WithoutCollectionFixtureInterface_Triggers(string definitionAttribute)
 		{
 			var source = @$"
 using Xunit;
@@ -337,7 +338,7 @@ public class TestClass {{
 	public class AssemblyFixtures
 	{
 		[Fact]
-		public async void WithAssemblyFixture_DoesNotTrigger()
+		public async Task WithAssemblyFixture_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -359,7 +360,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
-		public async void WithClassFixture_WithCollection_DoesNotTrigger(string definitionAttribute)
+		public async Task WithClassFixture_WithCollection_DoesNotTrigger(string definitionAttribute)
 		{
 			var source = $@"
 using Xunit;
@@ -378,7 +379,7 @@ public class TestClass : IClassFixture<object> {{
 		}
 
 		[Fact]
-		public async void WithMixedClassAndCollectionFixture_AndSupportedNonFixture_DoesNotTrigger()
+		public async Task WithMixedClassAndCollectionFixture_AndSupportedNonFixture_DoesNotTrigger()
 		{
 			var source = @"
 using Xunit;
@@ -401,7 +402,7 @@ public class TestClass : IClassFixture<ClassFixture> {{
 		}
 
 		[Fact]
-		public async void MissingClassFixture_Triggers()
+		public async Task MissingClassFixture_Triggers()
 		{
 			var source = @"
 using Xunit;
@@ -428,7 +429,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MissingCollectionFixture_Triggers()
+		public async Task MissingCollectionFixture_Triggers()
 		{
 			var source = @"
 using Xunit;

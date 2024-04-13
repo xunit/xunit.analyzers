@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
@@ -13,7 +14,7 @@ public class AssertIsTypeShouldUseGenericOverloadTests
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForNonGenericCall(string method)
+	public async Task FindsWarning_ForNonGenericCall(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -33,7 +34,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForGenericCall(string method)
+	public async Task DoesNotFindWarning_ForGenericCall(string method)
 	{
 		var source = $@"
 class TestClass {{

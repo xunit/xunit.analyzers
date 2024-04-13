@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
@@ -7,7 +8,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AsyncAssertsShouldBeAwaited>;
 public class AsyncAssertsShouldBeAwaitedTests
 {
 	[Fact]
-	public async void UnawaitedNonAssertionDoesNotTrigger()
+	public async Task UnawaitedNonAssertionDoesNotTrigger()
 	{
 		var code = @"
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ public class TestClass : INotifyPropertyChanged {{
     public event EventHandler<int>? SimpleIntEvent;
 
     [Fact]
-    public async void TestMethod() {{
+    public async Task TestMethod() {{
         {0}
     }}
 }}
@@ -69,7 +70,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AwaitedAssertDoesNotTrigger(
+	public async Task AwaitedAssertDoesNotTrigger(
 		string _,
 		string assertion)
 	{
@@ -80,7 +81,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AssertionWithConsumptionNotTrigger(
+	public async Task AssertionWithConsumptionNotTrigger(
 		string _,
 		string assertion)
 	{
@@ -91,7 +92,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AssertionWithConsumptionViaExtensionNotTrigger(
+	public async Task AssertionWithConsumptionViaExtensionNotTrigger(
 		string _,
 		string assertion)
 	{
@@ -102,7 +103,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AssertionWithStoredTaskDoesNotTrigger(
+	public async Task AssertionWithStoredTaskDoesNotTrigger(
 		string _,
 		string assertion)
 	{
@@ -113,7 +114,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AssertionWithoutAwaitTriggers(
+	public async Task AssertionWithoutAwaitTriggers(
 		string assertionName,
 		string assertion)
 	{
@@ -130,7 +131,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AssertionWithUnawaitedContinuationTriggers(
+	public async Task AssertionWithUnawaitedContinuationTriggers(
 		string assertionName,
 		string assertion)
 	{

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -23,7 +24,7 @@ public class Foo : {0}
 
 	[Theory]
 	[MemberData(nameof(Interfaces))]
-	public async void ImplicitConstructors_NoDiagnostics(string @interface)
+	public async Task ImplicitConstructors_NoDiagnostics(string @interface)
 	{
 		var source = string.Format(Template, @interface, "");
 
@@ -32,7 +33,7 @@ public class Foo : {0}
 
 	[Theory]
 	[MemberData(nameof(Interfaces))]
-	public async void WrongConstructor_ReturnsError(string @interface)
+	public async Task WrongConstructor_ReturnsError(string @interface)
 	{
 		var source = string.Format(Template, @interface, "public Foo(int x) { }");
 		var expected =
@@ -46,7 +47,7 @@ public class Foo : {0}
 
 	[Theory]
 	[MemberData(nameof(Interfaces))]
-	public async void NonPublicConstructor_ReturnsError(string @interface)
+	public async Task NonPublicConstructor_ReturnsError(string @interface)
 	{
 		var source = string.Format(Template, @interface, "protected Foo() { }");
 		var expected =
@@ -60,7 +61,7 @@ public class Foo : {0}
 
 	[Theory]
 	[MemberData(nameof(Interfaces))]
-	public async void PublicParameterlessConstructor_NoDiagnostics(string @interface)
+	public async Task PublicParameterlessConstructor_NoDiagnostics(string @interface)
 	{
 		var source = string.Format(Template, @interface, "public Foo() { }");
 

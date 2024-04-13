@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNotBeUsed>;
@@ -17,7 +18,7 @@ public class TestClass {
 }";
 
 	[Fact]
-	public async void UseEmptyCheck()
+	public async Task UseEmptyCheck()
 	{
 		var after = @"
 using Xunit;
@@ -35,7 +36,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void AddElementInspector()
+	public async Task AddElementInspector()
 	{
 		var after = @"
 using Xunit;

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataShouldBeUniqueWithinTheory>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataShouldBeUniqueWithinTheo
 public class InlineDataShouldBeUniqueWithinTheoryFixerTests
 {
 	[Fact]
-	public async void RemovesDuplicateData()
+	public async Task RemovesDuplicateData()
 	{
 		var before = @"
 using Xunit;

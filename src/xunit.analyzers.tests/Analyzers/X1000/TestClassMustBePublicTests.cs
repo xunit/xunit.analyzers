@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
@@ -11,7 +12,7 @@ public class TestClassMustBePublicTests
 		select new[] { attribute, modifier };
 
 	[Fact]
-	public async void ForPublicClass_DoesNotFindError()
+	public async Task ForPublicClass_DoesNotFindError()
 	{
 		var source = @"
 public class TestClass {
@@ -24,7 +25,7 @@ public class TestClass {
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async void ForFriendOrInternalClass_FindsError(
+	public async Task ForFriendOrInternalClass_FindsError(
 		string attribute,
 		string modifier)
 	{
@@ -44,7 +45,7 @@ public class TestClass {
 	[Theory]
 	[InlineData("")]
 	[InlineData("public")]
-	public async void ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string modifier)
+	public async Task ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string modifier)
 	{
 		var source = $@"
 public partial class TestClass {{
@@ -63,7 +64,7 @@ public partial class TestClass {{
 	[Theory]
 	[InlineData("")]
 	[InlineData("public")]
-	public async void ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotFindError(string modifier)
+	public async Task ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotFindError(string modifier)
 	{
 		var source1 = @"
 public partial class TestClass {
@@ -83,7 +84,7 @@ public partial class TestClass {
 	[InlineData("", "")]
 	[InlineData("", "internal")]
 	[InlineData("internal", "internal")]
-	public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
+	public async Task ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
 		string modifier1,
 		string modifier2)
 	{
@@ -110,7 +111,7 @@ public partial class TestClass {
 	[InlineData("", "")]
 	[InlineData("", "internal")]
 	[InlineData("internal", "internal")]
-	public async void ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(
+	public async Task ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(
 		string modifier1,
 		string modifier2)
 	{

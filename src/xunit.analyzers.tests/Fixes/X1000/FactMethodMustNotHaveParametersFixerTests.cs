@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodMustNotHaveParameters>;
 public class FactMethodMustNotHaveParametersFixerTests
 {
 	[Fact]
-	public async void RemovesParameter()
+	public async Task RemovesParameter()
 	{
 		var before = @"
 using Xunit;

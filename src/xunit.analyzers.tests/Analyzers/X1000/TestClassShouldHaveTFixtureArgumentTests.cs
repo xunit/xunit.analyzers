@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
 
@@ -12,7 +13,7 @@ public class TestClassShouldHaveTFixtureArgumentTests
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async void ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(
+	public async Task ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(
 		string attribute,
 		string @interface)
 	{
@@ -34,7 +35,7 @@ public class TestClass: {@interface}<FixtureData> {{
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async void ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(
+	public async Task ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(
 		string attribute,
 		string @interface)
 	{
@@ -53,7 +54,7 @@ public class TestClass: {@interface}<FixtureData> {{
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async void ForClassWithIClassFixtureWithConstructorMultipleArg_DonnotFindInfo(
+	public async Task ForClassWithIClassFixtureWithConstructorMultipleArg_DonnotFindInfo(
 		string attribute,
 		string @interface)
 	{

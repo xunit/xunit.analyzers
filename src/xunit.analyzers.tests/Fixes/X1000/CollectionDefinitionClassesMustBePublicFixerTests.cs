@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.CollectionDefinitionClassesMustBePublic>;
@@ -7,7 +8,7 @@ public class CollectionDefinitionClassesMustBePublicFixerTests
 	[Theory]
 	[InlineData("")]
 	[InlineData("internal ")]
-	public async void MakesClassPublic(string modifier)
+	public async Task MakesClassPublic(string modifier)
 	{
 		var before = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]
@@ -23,7 +24,7 @@ public class CollectionDefinitionClass { }";
 	[Theory]
 	[InlineData("")]
 	[InlineData("internal ")]
-	public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic(string modifier)
+	public async Task ForPartialClassDeclarations_MakesSingleDeclarationPublic(string modifier)
 	{
 		var before = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]

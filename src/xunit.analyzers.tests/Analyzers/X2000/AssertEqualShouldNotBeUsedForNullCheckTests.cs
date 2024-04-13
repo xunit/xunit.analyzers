@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -22,7 +23,7 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 
 	[Theory]
 	[MemberData(nameof(Methods_Equal_WithReplacement))]
-	public async void FindsWarning_ForFirstNullLiteral_StringOverload(
+	public async Task FindsWarning_ForFirstNullLiteral_StringOverload(
 		string method,
 		string replacement)
 	{
@@ -45,7 +46,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_Equal_WithReplacement))]
-	public async void FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(
+	public async Task FindsWarning_ForFirstNullLiteral_StringOverload_WithCustomComparer(
 		string method,
 		string replacement)
 	{
@@ -73,7 +74,7 @@ class TestClass {{
 	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.NotNull)]
 	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.NotNull)]
 	[InlineData(Constants.Asserts.NotSame, Constants.Asserts.NotNull)]
-	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload(
+	public async Task FindsWarning_ForFirstNullLiteral_ObjectOverload(
 		string method,
 		string replacement)
 	{
@@ -96,7 +97,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_Equal_WithReplacement))]
-	public async void FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(
+	public async Task FindsWarning_ForFirstNullLiteral_ObjectOverload_WithCustomComparer(
 		string method,
 		string replacement)
 	{
@@ -122,7 +123,7 @@ class TestClass {{
 	[InlineData(Constants.Asserts.NotEqual, Constants.Asserts.NotNull)]
 	[InlineData(Constants.Asserts.StrictEqual, Constants.Asserts.Null)]
 	[InlineData(Constants.Asserts.NotStrictEqual, Constants.Asserts.NotNull)]
-	public async void FindsWarning_ForFirstNullLiteral_GenericOverload(
+	public async Task FindsWarning_ForFirstNullLiteral_GenericOverload(
 		string method,
 		string replacement)
 	{
@@ -145,7 +146,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_Equal_WithReplacement))]
-	public async void FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(
+	public async Task FindsWarning_ForFirstNullLiteral_GenericOverload_WithCustomComparer(
 		string method,
 		string replacement)
 	{
@@ -168,7 +169,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_All))]
-	public async void DoesNotFindWarning_ForOtherLiteral(string method)
+	public async Task DoesNotFindWarning_ForOtherLiteral(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -183,7 +184,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_All))]
-	public async void DoesNotFindWarning_ForSecondNullLiteral(string method)
+	public async Task DoesNotFindWarning_ForSecondNullLiteral(string method)
 	{
 		var source = $@"
 class TestClass {{

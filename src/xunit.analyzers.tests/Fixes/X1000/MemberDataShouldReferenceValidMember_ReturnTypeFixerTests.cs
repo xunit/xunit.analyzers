@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 {
 	[Fact]
-	public async void ChangesReturnType_ObjectArray()
+	public async Task ChangesReturnType_ObjectArray()
 	{
 		var before = @"
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void ChangesReturnType_TheoryDataRow()
+	public async Task ChangesReturnType_TheoryDataRow()
 	{
 		var before = @"
 using System.Collections.Generic;

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.UseAssertFailInsteadOfBooleanAssert>;
@@ -17,7 +18,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(@"[|Assert.True(false, ""message"")|]")]
 	[InlineData(@"[|Assert.False(true, ""message"")|]")]
-	public async void ReplacesBooleanAssert(string badAssert)
+	public async Task ReplacesBooleanAssert(string badAssert)
 	{
 		var before = string.Format(template, badAssert);
 		var after = string.Format(template, @"Assert.Fail(""message"")");

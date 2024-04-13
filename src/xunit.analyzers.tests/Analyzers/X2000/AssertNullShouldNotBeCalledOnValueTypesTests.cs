@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
@@ -12,7 +13,7 @@ public class AssertNullShouldNotBeCalledOnValueTypesTests
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForValueType(string method)
+	public async Task FindsWarning_ForValueType(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -33,7 +34,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForNullableValueType(string method)
+	public async Task DoesNotFindWarning_ForNullableValueType(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -48,7 +49,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForNullableReferenceType(string method)
+	public async Task DoesNotFindWarning_ForNullableReferenceType(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -63,7 +64,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForClassConstrainedGenericTypes(string method)
+	public async Task DoesNotFindWarning_ForClassConstrainedGenericTypes(string method)
 	{
 		var source = $@"
 class Class<T> where T : class {{
@@ -77,7 +78,7 @@ class Class<T> where T : class {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForInterfaceConstrainedGenericTypes(string method)
+	public async Task DoesNotFindWarning_ForInterfaceConstrainedGenericTypes(string method)
 	{
 		var source = $@"
 interface IDo {{ }}
@@ -95,7 +96,7 @@ class Class<T> where T : IDo {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForUnconstrainedGenericTypes(string method)
+	public async Task DoesNotFindWarning_ForUnconstrainedGenericTypes(string method)
 	{
 		var source = $@"
 class Class<T> {{
@@ -112,7 +113,7 @@ class Class<T> {{
 	[Theory]
 	[MemberData(nameof(Methods))]
 	// https://github.com/xunit/xunit/issues/2395
-	public async void DoesNotFindWarning_ForUserDefinedImplicitConversion(string method)
+	public async Task DoesNotFindWarning_ForUserDefinedImplicitConversion(string method)
 	{
 		var source = $@"
 public class TestClass

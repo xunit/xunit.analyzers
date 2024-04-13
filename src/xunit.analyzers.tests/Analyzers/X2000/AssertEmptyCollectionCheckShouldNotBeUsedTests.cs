@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNotBeUsed>;
 
@@ -17,7 +18,7 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedTests
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void FindsWarningForCollectionCheckWithoutAction(string collection)
+	public async Task FindsWarningForCollectionCheckWithoutAction(string collection)
 	{
 		var source = $@"
 class TestClass {{
@@ -32,7 +33,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Collections))]
-	public async void DoesNotFindWarningForCollectionCheckWithAction(string collection)
+	public async Task DoesNotFindWarningForCollectionCheckWithAction(string collection)
 	{
 		var source = $@"
 class TestClass {{

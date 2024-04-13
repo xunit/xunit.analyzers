@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 public class FactMethodShouldNotHaveTestDataFixerTests
 {
 	[Fact]
-	public async void RemovesDataAttribute()
+	public async Task RemovesDataAttribute()
 	{
 		var before = @"
 using Xunit;

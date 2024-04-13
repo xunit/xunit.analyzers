@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbstractType>;
@@ -12,7 +13,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_Interface(
+	public async Task FindsError_Interface(
 		string method,
 		string replacement)
 	{
@@ -37,7 +38,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_AbstractClass(
+	public async Task FindsError_AbstractClass(
 		string method,
 		string replacement)
 	{
@@ -62,7 +63,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsError_UsingStatic(
+	public async Task FindsError_UsingStatic(
 		string method,
 		string replacement)
 	{
@@ -87,7 +88,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindError_NonAbstractClass(
+	public async Task DoesNotFindError_NonAbstractClass(
 		string method,
 		string _)
 	{

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -13,7 +14,7 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarningForTwoValueParameters(
+	public async Task FindsWarningForTwoValueParameters(
 		string method,
 		string replacement)
 	{
@@ -36,7 +37,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarningForFirstValueParameters(
+	public async Task FindsWarningForFirstValueParameters(
 		string method,
 		string replacement)
 	{
@@ -59,7 +60,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarningForSecondValueParameters(
+	public async Task FindsWarningForSecondValueParameters(
 		string method,
 		string replacement)
 	{
@@ -83,7 +84,7 @@ class TestClass {{
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
 	// https://github.com/xunit/xunit/issues/2395
-	public async void DoesNotFindWarningForUserDefinedImplicitConversion(
+	public async Task DoesNotFindWarningForUserDefinedImplicitConversion(
 		string method,
 		string replacement)
 	{
@@ -125,7 +126,7 @@ public class MyBuggyInt : MyBuggyIntBase
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarningForFirstValueParametersIfSecondIsNull(
+	public async Task FindsWarningForFirstValueParametersIfSecondIsNull(
 		string method,
 		string replacement)
 	{
@@ -147,7 +148,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarningForSecondValueParametersIfFirstIsNull(
+	public async Task FindsWarningForSecondValueParametersIfFirstIsNull(
 		string method,
 		string replacement)
 	{

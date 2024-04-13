@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgumen
 public class TestClassShouldHaveTFixtureArgumentFixerTests
 {
 	[Fact]
-	public async void ForClassWithoutField_GenerateFieldAndConstructor()
+	public async Task ForClassWithoutField_GenerateFieldAndConstructor()
 	{
 		var before = @"
 public class FixtureData { }
@@ -34,7 +35,7 @@ public class [|TestClass|]: Xunit.IClassFixture<FixtureData> {
 	}
 
 	[Fact]
-	public async void ForGenericTFixture_GenerateFieldAndConstructor()
+	public async Task ForGenericTFixture_GenerateFieldAndConstructor()
 	{
 		var before = @"
 public class FixtureData<T> { }

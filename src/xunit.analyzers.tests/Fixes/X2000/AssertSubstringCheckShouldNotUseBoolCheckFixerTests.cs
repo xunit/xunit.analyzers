@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBoolCheck>;
@@ -24,7 +25,7 @@ public class TestClass {{
 	[InlineData(@"[|Assert.True(data.EndsWith(""foo""))|]", @"Assert.EndsWith(""foo"", data)")]
 	[InlineData(@"[|Assert.True(data.EndsWith(""foo"", StringComparison.OrdinalIgnoreCase))|]", @"Assert.EndsWith(""foo"", data, StringComparison.OrdinalIgnoreCase)")]
 	[InlineData(@"[|Assert.False(data.Contains(""foo""))|]", @"Assert.DoesNotContain(""foo"", data)")]
-	public async void ConvertsBooleanAssertToStringSpecificAssert(
+	public async Task ConvertsBooleanAssertToStringSpecificAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

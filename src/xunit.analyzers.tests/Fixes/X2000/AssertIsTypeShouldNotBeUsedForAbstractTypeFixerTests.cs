@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldNotBeUsedForAbstractType>;
@@ -22,7 +23,7 @@ public abstract class TestClass {{
 	[InlineData("[|Assert.IsType<TestClass>(data)|]", "Assert.IsAssignableFrom<TestClass>(data)")]
 	[InlineData("[|Assert.IsNotType<IDisposable>(data)|]", "Assert.IsNotAssignableFrom<IDisposable>(data)")]
 	[InlineData("[|Assert.IsNotType<TestClass>(data)|]", "Assert.IsNotAssignableFrom<TestClass>(data)")]
-	public async void Conversions(
+	public async Task Conversions(
 		string beforeAssert,
 		string afterAssert)
 	{

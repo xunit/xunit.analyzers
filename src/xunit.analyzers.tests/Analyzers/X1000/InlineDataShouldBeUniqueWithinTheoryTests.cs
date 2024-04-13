@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataShouldBeUniqueWithinTheory>;
@@ -7,7 +8,7 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 	public class ForNonRelatedToInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
 	{
 		[Fact]
-		public async void DoesNotFindError_WhenNoDataAttributes()
+		public async Task DoesNotFindError_WhenNoDataAttributes()
 		{
 			var source = @"
 public class TestClass {
@@ -21,7 +22,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("MemberData(\"\")")]
 		[InlineData("ClassData(typeof(string))")]
-		public async void DoesNotFindError_WhenDataAttributesOtherThanInline(
+		public async Task DoesNotFindError_WhenDataAttributesOtherThanInline(
 			string dataAttribute)
 		{
 			var source = $@"
@@ -38,7 +39,7 @@ public class TestClass {{
 	public class ForUniqueInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
 	{
 		[Fact]
-		public async void DoesNotFindError_WhenNonTheorySingleInlineData()
+		public async Task DoesNotFindError_WhenNonTheorySingleInlineData()
 		{
 			var source = @"
 public class TestClass {
@@ -51,7 +52,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenNonTheoryDoubledInlineData()
+		public async Task DoesNotFindError_WhenNonTheoryDoubledInlineData()
 		{
 			var source = @"
 public class TestClass {
@@ -65,7 +66,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenSingleInlineDataContainingValue()
+		public async Task DoesNotFindError_WhenSingleInlineDataContainingValue()
 		{
 			var source = @"
 public class TestClass {
@@ -78,7 +79,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenInlineDataAttributesHaveDifferentParameterValues()
+		public async Task DoesNotFindError_WhenInlineDataAttributesHaveDifferentParameterValues()
 		{
 			var source = @"
 public class TestClass {
@@ -92,7 +93,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenInlineDataAttributesDifferAtLastParameterValue()
+		public async Task DoesNotFindError_WhenInlineDataAttributesDifferAtLastParameterValue()
 		{
 			var source = @"
 public class TestClass {
@@ -110,7 +111,7 @@ public class TestClass {
 		[InlineData("data: new object[] { 1, 3 }")]
 		[InlineData("new object[] { }")]
 		[InlineData("data: new object[] { 1 }")]
-		public async void DoesNotFindError_WhenUniquenessProvidedWithParamsInitializerValues(string data)
+		public async Task DoesNotFindError_WhenUniquenessProvidedWithParamsInitializerValues(string data)
 		{
 			var source = $@"
 public class TestClass {{
@@ -124,7 +125,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenUniquenessProvidedWithOverridingDefaultValues()
+		public async Task DoesNotFindError_WhenUniquenessProvidedWithOverridingDefaultValues()
 		{
 			var source = @"
 public class TestClass {
@@ -138,7 +139,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenNullAndEmptyInlineDataAttributes()
+		public async Task DoesNotFindError_WhenNullAndEmptyInlineDataAttributes()
 		{
 			var source = @"
 public class TestClass {
@@ -152,7 +153,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenNewArrayAndNullDataAttributes()
+		public async Task DoesNotFindError_WhenNewArrayAndNullDataAttributes()
 		{
 			var source = @"
 public class TestClass{
@@ -166,7 +167,7 @@ public class TestClass{
 		}
 
 		[Fact]
-		public async void DoesNotFindError_WhenFirstArrayIsEqualAndEmptyArraysAreUsed()
+		public async Task DoesNotFindError_WhenFirstArrayIsEqualAndEmptyArraysAreUsed()
 		{
 			// Specially crafted InlineData values that will cause the InlineDataUniquenessComparer
 			// to return same hashcodes, because GetFlattenedArgumentPrimitives ignores empty arrays.
@@ -187,7 +188,7 @@ public class TestClass {
 	public class ForDuplicatedInlineDataMethod : InlineDataShouldBeUniqueWithinTheoryTests
 	{
 		[Fact]
-		public async void FindsError_WhenEmptyInlineDataRepeatedTwice()
+		public async Task FindsError_WhenEmptyInlineDataRepeatedTwice()
 		{
 			var source = @"
 public class TestClass {
@@ -207,7 +208,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsError_WhenNullInlineDataRepeatedTwice()
+		public async Task FindsError_WhenNullInlineDataRepeatedTwice()
 		{
 			var source = @"
 public class TestClass {
@@ -227,7 +228,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsError_WhenInlineDataAttributesHaveExactlySameDeclarations()
+		public async Task FindsError_WhenInlineDataAttributesHaveExactlySameDeclarations()
 		{
 			var source = @"
 public class TestClass {
@@ -247,7 +248,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsError_WhenInlineDataAttributesHaveSameCompilationTimeEvaluation()
+		public async Task FindsError_WhenInlineDataAttributesHaveSameCompilationTimeEvaluation()
 		{
 			var source = @"
 public class TestClass {
@@ -270,7 +271,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("new object[] { 10, 20 }")]
 		[InlineData("data: new object[] { 10, 20 }")]
-		public async void FindsError_WhenInlineDataHaveSameParameterValuesButDeclaredArrayCollectionOfArguments(string data)
+		public async Task FindsError_WhenInlineDataHaveSameParameterValuesButDeclaredArrayCollectionOfArguments(string data)
 		{
 			var source = $@"
 public class TestClass {{
@@ -292,7 +293,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("new object[] { 10, 20 }")]
 		[InlineData("data: new object[] { 10, 20 }")]
-		public async void FindsError_WhenTestMethodIsDefinedWithParamsArrayOfArguments(string data)
+		public async Task FindsError_WhenTestMethodIsDefinedWithParamsArrayOfArguments(string data)
 		{
 			var source = $@"
 public class TestClass {{
@@ -312,7 +313,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void FindsError_WhenBothInlineDataHaveObjectArrayCollectionOfArguments()
+		public async Task FindsError_WhenBothInlineDataHaveObjectArrayCollectionOfArguments()
 		{
 			var source = @"
 public class TestClass {
@@ -332,7 +333,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsError_WhenArgumentsAreArrayOfValues()
+		public async Task FindsError_WhenArgumentsAreArrayOfValues()
 		{
 			var source = @"
 public class TestClass {
@@ -352,7 +353,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsError_WhenArgumentsAreArrayOfValuesAndTestMethodOffersDefaultParameterValues()
+		public async Task FindsError_WhenArgumentsAreArrayOfValuesAndTestMethodOffersDefaultParameterValues()
 		{
 			var source = @"
 public class TestClass {
@@ -378,7 +379,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(DefaultValueData))]
-		public async void FindsError_WhenFirstDuplicatedByDefaultValueOfParameter_DefaultInlineDataFirst(int defaultValue)
+		public async Task FindsError_WhenFirstDuplicatedByDefaultValueOfParameter_DefaultInlineDataFirst(int defaultValue)
 		{
 			var source = $@"
 public class TestClass {{
@@ -399,7 +400,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(DefaultValueData))]
-		public async void FindsError_WhenSecondDuplicatedByDefaultValueOfParameter(int defaultValue)
+		public async Task FindsError_WhenSecondDuplicatedByDefaultValueOfParameter(int defaultValue)
 		{
 			var source = $@"
 public class TestClass {{
@@ -420,7 +421,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(DefaultValueData))]
-		public async void FindsError_WhenTwoDuplicatedByDefaultValueOfParameter(int defaultValue)
+		public async Task FindsError_WhenTwoDuplicatedByDefaultValueOfParameter(int defaultValue)
 		{
 			var source = $@"
 public class TestClass {{
@@ -444,7 +445,7 @@ public class TestClass {{
 		[InlineData("null", "")]
 		[InlineData("", "null")]
 		[InlineData("", "")]
-		public async void FindsError_WhenBothNullEntirelyOrBySingleDefaultParameterNullValue(
+		public async Task FindsError_WhenBothNullEntirelyOrBySingleDefaultParameterNullValue(
 			string firstArg,
 			string secondArg)
 		{
@@ -466,7 +467,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void FindsError_WhenDuplicateContainsNulls()
+		public async Task FindsError_WhenDuplicateContainsNulls()
 		{
 			var source = @"
 public class TestClass {
@@ -490,7 +491,7 @@ public class TestClass {
 		[InlineData("", ", null")]
 		[InlineData(", null", "")]
 		[InlineData(", null", ", null")]
-		public async void FindsError_WhenDuplicateContainsDefaultOfStruct(
+		public async Task FindsError_WhenDuplicateContainsDefaultOfStruct(
 			string firstDefaultOverride,
 			string secondDefaultOverride)
 		{
@@ -516,7 +517,7 @@ public class TestClass {{
 		[InlineData("", ", null")]
 		[InlineData(", null", "")]
 		[InlineData(", null", ", null")]
-		public async void FindsError_WhenDuplicateContainsDefaultOfString(
+		public async Task FindsError_WhenDuplicateContainsDefaultOfString(
 			string firstDefaultOverride,
 			string secondDefaultOverride)
 		{
@@ -538,7 +539,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void FindsError_WhenInlineDataDuplicateAndOriginalAreItemsOfDistinctAttributesLists()
+		public async Task FindsError_WhenInlineDataDuplicateAndOriginalAreItemsOfDistinctAttributesLists()
 		{
 			var source = @"
 public class TestClass {
@@ -560,7 +561,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsErrorsTwiceOnCorrectLinesReferringToInitialOccurence_WhenThreeInlineDataAttributesConstituteDuplication()
+		public async Task FindsErrorsTwiceOnCorrectLinesReferringToInitialOccurence_WhenThreeInlineDataAttributesConstituteDuplication()
 		{
 			var source = @"
 public class TestClass {
@@ -588,7 +589,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsErrorOnCorrectLineReferringToInitialOccurence_WhenDuplicateIsSeparatedByOtherNonDuplicateData()
+		public async Task FindsErrorOnCorrectLineReferringToInitialOccurence_WhenDuplicateIsSeparatedByOtherNonDuplicateData()
 		{
 			var source = @"
 public class TestClass {
@@ -609,7 +610,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindsErrorOnCorrectLineReferringToInitialOccurence_WhenTwoDuplicationEquivalenceSetsExistWithinTheory()
+		public async Task FindsErrorOnCorrectLineReferringToInitialOccurence_WhenTwoDuplicationEquivalenceSetsExistWithinTheory()
 		{
 			var source = @"
 public class TestClass {

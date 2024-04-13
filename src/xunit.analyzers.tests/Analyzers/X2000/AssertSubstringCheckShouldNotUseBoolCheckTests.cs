@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -14,7 +15,7 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	[Theory]
 	[InlineData(Constants.Asserts.True, Constants.Asserts.Contains)]
 	[InlineData(Constants.Asserts.False, Constants.Asserts.DoesNotContain)]
-	public async void FindsWarning_ForBooleanContainsCheck(
+	public async Task FindsWarning_ForBooleanContainsCheck(
 		string method,
 		string replacement)
 	{
@@ -36,7 +37,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanContainsCheck_WithUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanContainsCheck_WithUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -49,7 +50,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void FindsWarning_ForBooleanTrueStartsWithCheck()
+	public async Task FindsWarning_ForBooleanTrueStartsWithCheck()
 	{
 		var source = @"
 class TestClass {
@@ -68,7 +69,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_ForBooleanTrueStartsWithCheck_WithStringComparison()
+	public async Task FindsWarning_ForBooleanTrueStartsWithCheck_WithStringComparison()
 	{
 		var source = @"
 class TestClass {
@@ -87,7 +88,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForBooleanFalseStartsWithCheck()
+	public async Task DoesNotFindWarning_ForBooleanFalseStartsWithCheck()
 	{
 		var source = @"
 class TestClass {
@@ -100,7 +101,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForBooleanFalseStartsWithCheck_WithStringComparison()
+	public async Task DoesNotFindWarning_ForBooleanFalseStartsWithCheck_WithStringComparison()
 	{
 		var source = @"
 class TestClass {
@@ -114,7 +115,7 @@ class TestClass {
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -128,7 +129,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithStringComparison_AndUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithStringComparison_AndUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -142,7 +143,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture(string method)
+	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -156,7 +157,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -169,7 +170,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void FindsWarning_ForBooleanTrueEndsWithCheck()
+	public async Task FindsWarning_ForBooleanTrueEndsWithCheck()
 	{
 		var source = @"
 class TestClass {
@@ -188,7 +189,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarning_ForBooleanTrueEndsWithCheck_WithStringComparison()
+	public async Task FindsWarning_ForBooleanTrueEndsWithCheck_WithStringComparison()
 	{
 		var source = @"
 class TestClass {
@@ -207,7 +208,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForBooleanFalseEndsWithCheck()
+	public async Task DoesNotFindWarning_ForBooleanFalseEndsWithCheck()
 	{
 		var source = @"
 class TestClass {
@@ -220,7 +221,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForBooleanFalseEndsWithCheck_WithStringComparison()
+	public async Task DoesNotFindWarning_ForBooleanFalseEndsWithCheck_WithStringComparison()
 	{
 		var source = @"
 class TestClass {
@@ -234,7 +235,7 @@ class TestClass {
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -248,7 +249,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithStringComparison_AndUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithStringComparison_AndUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -262,7 +263,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture(string method)
+	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture(string method)
 	{
 		var source = $@"
 class TestClass {{
@@ -276,7 +277,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
+	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
 	{
 		var source = $@"
 class TestClass {{

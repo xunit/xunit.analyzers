@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers;
@@ -29,7 +30,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(MethodOperatorValue))]
-	public async void BooleanAssertAgainstLiteralValue_ReplaceWithEquality(
+	public async Task BooleanAssertAgainstLiteralValue_ReplaceWithEquality(
 		string method,
 		string @operator,
 		string value)
@@ -65,7 +66,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(MethodOperatorType))]
-	public async void BooleanAssertAgainstNull_ReplaceWithNull(
+	public async Task BooleanAssertAgainstNull_ReplaceWithNull(
 		string method,
 		string @operator,
 		string type)

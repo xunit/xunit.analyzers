@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify_X2007 = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
@@ -6,7 +7,7 @@ using Verify_X2015 = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGeneric
 public class UseGenericOverloadFixTests
 {
 	[Fact]
-	public async void X2007_SwitchesToGenericIsType()
+	public async Task X2007_SwitchesToGenericIsType()
 	{
 		var before = @"
 using Xunit;
@@ -36,7 +37,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void X2015_SwitchesToGenericThrows()
+	public async Task X2015_SwitchesToGenericThrows()
 	{
 		var before = @"
 using System;

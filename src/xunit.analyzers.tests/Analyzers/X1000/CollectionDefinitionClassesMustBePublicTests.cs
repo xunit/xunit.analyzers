@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.CollectionDefinitionClassesMustBePublic>;
 
 public class CollectionDefinitionClassesMustBePublicTests
 {
 	[Fact]
-	public async void ForPublicClass_DoesNotFindError()
+	public async Task ForPublicClass_DoesNotFindError()
 	{
 		var source = @"
 [Xunit.CollectionDefinition(""MyCollection"")]
@@ -16,7 +17,7 @@ public class CollectionDefinitionClass { }";
 	[Theory]
 	[InlineData("")]
 	[InlineData("internal ")]
-	public async void ForFriendOrInternalClass_FindsError(string classAccessModifier)
+	public async Task ForFriendOrInternalClass_FindsError(string classAccessModifier)
 	{
 		var source = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]
@@ -32,7 +33,7 @@ public class CollectionDefinitionClass { }";
 	[Theory]
 	[InlineData("")]
 	[InlineData("public ")]
-	public async void ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string otherPartAccessModifier)
+	public async Task ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string otherPartAccessModifier)
 	{
 		var source = $@"
 [Xunit.CollectionDefinition(""MyCollection"")]
@@ -46,7 +47,7 @@ public partial class CollectionDefinitionClass {{ }}
 	[InlineData("", "")]
 	[InlineData("", "internal ")]
 	[InlineData("internal ", "internal ")]
-	public async void ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
+	public async Task ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
 		string part1AccessModifier,
 		string part2AccessModifier)
 	{

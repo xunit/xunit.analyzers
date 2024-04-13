@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
@@ -21,7 +22,7 @@ public class OtherClass {
 }";
 
 		[Fact]
-		public async void NameofOnSameClass_DoesNotTrigger()
+		public async Task NameofOnSameClass_DoesNotTrigger()
 		{
 			var source = @"
 public partial class TestClass {
@@ -33,7 +34,7 @@ public partial class TestClass {
 		}
 
 		[Fact]
-		public async void NameofOnOtherClass_DoesNotTrigger()
+		public async Task NameofOnOtherClass_DoesNotTrigger()
 		{
 			var source = @"
 public partial class TestClass {
@@ -45,7 +46,7 @@ public partial class TestClass {
 		}
 
 		[Fact]
-		public async void StringNameOnSameClass_Triggers()
+		public async Task StringNameOnSameClass_Triggers()
 		{
 			var source = @"
 public partial class TestClass {
@@ -62,7 +63,7 @@ public partial class TestClass {
 		}
 
 		[Fact]
-		public async void StringNameOnOtherClass_Triggers()
+		public async Task StringNameOnOtherClass_Triggers()
 		{
 			var source = @"
 public partial class TestClass {
@@ -84,7 +85,7 @@ public partial class TestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData(", MemberType = typeof(TestClass)")]
-		public async void InvalidStringNameOnSameClass_Triggers(string memberType)
+		public async Task InvalidStringNameOnSameClass_Triggers(string memberType)
 		{
 			var source = @$"
 public class TestClass {{
@@ -102,7 +103,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void InvalidStringNameOnOtherClass_Triggers()
+		public async Task InvalidStringNameOnOtherClass_Triggers()
 		{
 			var source1 = @"
 public class TestClass {
@@ -121,7 +122,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void InvalidNameofOnOtherClass_Triggers()
+		public async Task InvalidNameofOnOtherClass_Triggers()
 		{
 			var source1 = @"
 public class TestClass {
@@ -143,7 +144,7 @@ public class TestClass {
 	public class X1016_MemberDataMustReferencePublicMember
 	{
 		[Fact]
-		public async void PublicMember_DoesNotTrigger()
+		public async Task PublicMember_DoesNotTrigger()
 		{
 			var source = @"
 public class TestClass {
@@ -164,7 +165,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(NonPublicTestData))]
-		public async void NonPublicNameExpression_Triggers(
+		public async Task NonPublicNameExpression_Triggers(
 			string accessModifier,
 			string dataNameExpression)
 		{
@@ -195,7 +196,7 @@ public class TestClass {{
 	public class X1017_MemberDataMustReferenceStaticMember
 	{
 		[Fact]
-		public async void StaticMember_DoesNotTrigger()
+		public async Task StaticMember_DoesNotTrigger()
 		{
 			var source = @"
 public class TestClass {
@@ -209,7 +210,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void InstanceMember_Triggers()
+		public async Task InstanceMember_Triggers()
 		{
 			var source = @"
 public class TestClass {
@@ -234,7 +235,7 @@ public class TestClass {
 		[InlineData("Data;")]
 		[InlineData("Data { get; set; }")]
 		[InlineData("Data() { return null; }")]
-		public async void ValidMemberKind_DoesNotTrigger(string member)
+		public async Task ValidMemberKind_DoesNotTrigger(string member)
 		{
 			var source = $@"
 public class TestClass {{
@@ -251,7 +252,7 @@ public class TestClass {{
 		[InlineData("public delegate System.Collections.Generic.IEnumerable<object[]> Data();")]
 		[InlineData("public static class Data { }")]
 		[InlineData("public static event System.EventHandler Data;")]
-		public async void InvalidMemberKind_Triggers(string member)
+		public async Task InvalidMemberKind_Triggers(string member)
 		{
 			var source = $@"
 public class TestClass {{
@@ -277,7 +278,7 @@ public class TestClass {{
 		// test TheoryData<> and IEnumerable<ITheoryDataRow> here.
 
 		[Fact]
-		public async void TheoryData_DoesNotTrigger()
+		public async Task TheoryData_DoesNotTrigger()
 		{
 			var source = @"
 using System.Collections.Generic;
@@ -294,7 +295,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void ITheoryDataRow_DoesNotTrigger()
+		public async Task ITheoryDataRow_DoesNotTrigger()
 		{
 			var source = @"
 using System.Collections.Generic;
@@ -325,7 +326,7 @@ public class TestClass
 		[InlineData("object")]
 		[InlineData("System.Tuple<string, int>")]
 		[InlineData("System.Tuple<string, int>[]")]
-		public async void InvalidMemberType_Triggers(string memberType)
+		public async Task InvalidMemberType_Triggers(string memberType)
 		{
 			var source = $@"
 public class TestClass {{
@@ -357,7 +358,7 @@ public class TestClass {{
 	public class X1020_MemberDataPropertyMustHaveGetter
 	{
 		[Fact]
-		public async void PropertyWithoutGetter_Triggers()
+		public async Task PropertyWithoutGetter_Triggers()
 		{
 			var source = @"
 public class TestClass {
@@ -379,7 +380,7 @@ public class TestClass {
 		[InlineData("internal")]
 		[InlineData("protected")]
 		[InlineData("private")]
-		public async void PropertyWithNonPublicGetter_Triggers(string visibility)
+		public async Task PropertyWithNonPublicGetter_Triggers(string visibility)
 		{
 			var source = $@"
 public class TestClass {{
@@ -403,7 +404,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1")]                   // implicit params
 		[InlineData("new object[] { 1 }")]  // explicit params
-		public async void MethodMemberWithParameters_DoesNotTrigger(string parameter)
+		public async Task MethodMemberWithParameters_DoesNotTrigger(string parameter)
 		{
 			var source = @$"
 public class TestClass {{
@@ -421,7 +422,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1, 2")]                   // implicit params
 		[InlineData("new object[] { 1, 2 }")]  // explicit params
-		public async void MethodMemberWithParamsArrayParameters_DoesNotTrigger(string parameters)
+		public async Task MethodMemberWithParamsArrayParameters_DoesNotTrigger(string parameters)
 		{
 			var source = @$"
 public class TestClass {{
@@ -437,7 +438,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1")]                   // implicit params
 		[InlineData("new object[] { 1 }")]  // explicit params
-		public async void MethodMemberOnBaseType_DoesNotTrigger(string parameter)
+		public async Task MethodMemberOnBaseType_DoesNotTrigger(string parameter)
 		{
 			var source = $@"
 public class TestClassBase {{
@@ -458,7 +459,7 @@ public class TestClass : TestClassBase {{
 		[InlineData("'a', 123")]
 		[InlineData("new object[] {{ 'a', 123 }}")]
 		[InlineData("{0}: new object[] {{ 'a', 123 }}")]
-		public async void FieldMemberWithParameters_Triggers(string paramsArgument)
+		public async Task FieldMemberWithParameters_Triggers(string paramsArgument)
 		{
 			var sourceTemplate = @"
 public class TestClass {{
@@ -493,7 +494,7 @@ public class TestClass {{
 		[InlineData("'a', 123")]
 		[InlineData("new object[] {{ 'a', 123 }}")]
 		[InlineData("{0}: new object[] {{ 'a', 123 }}")]
-		public async void PropertyMemberWithParameters_Triggers(string paramsArgument)
+		public async Task PropertyMemberWithParameters_Triggers(string paramsArgument)
 		{
 			var sourceTemplate = @"
 public class TestClass {{
@@ -530,7 +531,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("", "string")]
 		[InlineData("#nullable enable", "string?")]
-		public async void PassingNullForNullableReferenceType_DoesNotTrigger(
+		public async Task PassingNullForNullableReferenceType_DoesNotTrigger(
 			string header,
 			string argumentType)
 		{
@@ -547,7 +548,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void PassingNullForStructType_Triggers()
+		public async Task PassingNullForStructType_Triggers()
 		{
 			var source = @"
 public class TestClass {
@@ -568,7 +569,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void PassingNullForNonNullableReferenceType_Triggers()
+		public async Task PassingNullForNonNullableReferenceType_Triggers()
 		{
 			var source = @"
 #nullable enable
@@ -597,7 +598,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("Foo.Bar")]
 		[InlineData("(Foo)42")]
-		public async void ValidEnumValue_DoesNotTrigger(string enumValue)
+		public async Task ValidEnumValue_DoesNotTrigger(string enumValue)
 		{
 			var source = $@"
 using System;
@@ -621,7 +622,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("")]
 		[InlineData("#nullable enable")]
-		public async void ArrayInitializerWithCorrectType_DoesNotTrigger(string header)
+		public async Task ArrayInitializerWithCorrectType_DoesNotTrigger(string header)
 		{
 			var source = $@"
 {header}
@@ -643,7 +644,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("")]
 		[InlineData("#nullable enable")]
-		public async void ArrayInitializerWithIncorrectType_Triggers(string header)
+		public async Task ArrayInitializerWithIncorrectType_Triggers(string header)
 		{
 			var source = $@"
 {header}
@@ -668,7 +669,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void ValidMemberWithIncorrectArgumentTypes_Triggers()
+		public async Task ValidMemberWithIncorrectArgumentTypes_Triggers()
 		{
 			var source = @"
 public class TestClass {
@@ -688,7 +689,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void ValidMemberWithIncorrectArgumentTypesParams_Triggers()
+		public async Task ValidMemberWithIncorrectArgumentTypesParams_Triggers()
 		{
 			var source = @"
 public class TestClass {
@@ -713,7 +714,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("1")]
 		[InlineData("new object[] { 1 }")]
-		public async void ValidArgumentCount_DoesNotTrigger(string parameter)
+		public async Task ValidArgumentCount_DoesNotTrigger(string parameter)
 		{
 			var source = $@"
 public class TestClass {{
@@ -731,7 +732,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1")]
 		[InlineData("new object[] { 1 }")]
-		public async void ValidArgumentCount_InNullableContext_DoesNotTrigger(string parameter)
+		public async Task ValidArgumentCount_InNullableContext_DoesNotTrigger(string parameter)
 		{
 			var source = $@"
 #nullable enable
@@ -749,7 +750,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1, 2", 44)]
 		[InlineData("new object[] { 1, 2 }", 59)]
-		public async void TooManyArguments_Triggers(
+		public async Task TooManyArguments_Triggers(
 			string parameters,
 			int startColumn)
 		{
@@ -783,7 +784,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async void ValidTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
+		public async Task ValidTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
 			string memberSyntax,
 			string memberArgs)
 		{
@@ -806,7 +807,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async void ValidSubclassedTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
+		public async Task ValidSubclassedTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
 			string memberSyntax,
 			string memberArgs)
 		{
@@ -853,7 +854,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryData_DoesNotTrigger(
+		public async Task ValidTheoryData_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -875,7 +876,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryDataWithOptionalParameters_DoesNotTrigger(
+		public async Task ValidTheoryDataWithOptionalParameters_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -897,7 +898,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryDataWithNoValuesForParamsArray_DoesNotTrigger(
+		public async Task ValidTheoryDataWithNoValuesForParamsArray_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -919,7 +920,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryDataWithSingleValueForParamsArray_DoesNotTrigger(
+		public async Task ValidTheoryDataWithSingleValueForParamsArray_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -941,7 +942,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryDataWithGenericTestParameter_DoesNotTrigger(
+		public async Task ValidTheoryDataWithGenericTestParameter_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -963,7 +964,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async void ValidTheoryDataWithNullableGenericTestParameter_DoesNotTrigger(
+		public async Task ValidTheoryDataWithNullableGenericTestParameter_DoesNotTrigger(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -990,7 +991,7 @@ public class TestClass {{
 		[InlineData(" => ", "")]             // Property
 		[InlineData("() => ", "")]           // Method w/o args
 		[InlineData("(int n) => ", ", 42")]  // Method w/ args
-		public async void ValidTheoryDataDoubleGenericSubclassMember_DoesNotTrigger(
+		public async Task ValidTheoryDataDoubleGenericSubclassMember_DoesNotTrigger(
 			string memberSyntax,
 			string memberArgs)
 		{
@@ -1010,7 +1011,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void WithIntArrayArguments_DoesNotTrigger()
+		public async Task WithIntArrayArguments_DoesNotTrigger()
 		{
 			var source = @"
 using System.Collections.Generic;
@@ -1032,7 +1033,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string", DisableDiscoveryEnumeration = true)]
-		public async void ValidSubclassTheoryDataMemberWithTooManyTypeParameters_Triggers(
+		public async Task ValidSubclassTheoryDataMemberWithTooManyTypeParameters_Triggers(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -1060,7 +1061,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string[], string", DisableDiscoveryEnumeration = true)]
-		public async void ExtraTypeExistsPastArrayForParamsArray_Triggers(
+		public async Task ExtraTypeExistsPastArrayForParamsArray_Triggers(
 			(string syntax, string args) member,
 			string theoryDataType)
 		{
@@ -1106,7 +1107,7 @@ public class TestClass {{
 			);
 
 		[Fact]
-		public async void DoesNotFindWarning_WhenPassingMultipleValuesForParamsArray()
+		public async Task DoesNotFindWarning_WhenPassingMultipleValuesForParamsArray()
 		{
 			var source = @"
 using Xunit;
@@ -1122,7 +1123,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindWarning_WhenPassingArrayForParamsArray()
+		public async Task DoesNotFindWarning_WhenPassingArrayForParamsArray()
 		{
 			var source = @"
 using Xunit;
@@ -1138,7 +1139,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindWarning_WhenPassingTupleWithoutFieldNames()
+		public async Task DoesNotFindWarning_WhenPassingTupleWithoutFieldNames()
 		{
 			var source = @"
 using Xunit;
@@ -1154,7 +1155,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void DoesNotFindWarning_WhenPassingTupleWithDifferentFieldNames()
+		public async Task DoesNotFindWarning_WhenPassingTupleWithDifferentFieldNames()
 		{
 			var source = @"
 using Xunit;
@@ -1170,7 +1171,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FindWarning_WithExtraValueNotCompatibleWithParamsArray()
+		public async Task FindWarning_WithExtraValueNotCompatibleWithParamsArray()
 		{
 			var source = @"
 using Xunit;
@@ -1194,7 +1195,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(TypeWithMemberSyntaxAndArgs), DisableDiscoveryEnumeration = true)]
-		public async void FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(
+		public async Task FindWarning_IfHasValidTheoryDataMemberWithIncompatibleTypeParameters(
 			(string syntax, string args) member,
 			string type)
 		{
@@ -1231,7 +1232,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async void ValidTheoryDataMemberWithMismatchedNullability_Triggers(
+		public async Task ValidTheoryDataMemberWithMismatchedNullability_Triggers(
 			string memberSyntax,
 			string memberArgs)
 		{
@@ -1261,7 +1262,7 @@ public class TestClass {{
 	public class X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
 	{
 		[Fact]
-		public async void TheoryData_DoesNotTrigger()
+		public async Task TheoryData_DoesNotTrigger()
 		{
 			var source = @"
 using System.Collections.Generic;
@@ -1278,7 +1279,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MatrixTheoryData_DoesNotTrigger()
+		public async Task MatrixTheoryData_DoesNotTrigger()
 		{
 			var source = @"
 using System.Collections.Generic;
@@ -1298,7 +1299,7 @@ public class TestClass {
 		[InlineData("IEnumerable<ITheoryDataRow>")]
 		[InlineData("List<ITheoryDataRow>")]
 		[InlineData("ITheoryDataRow[]")]
-		public async void TheoryDataRow_DoesNotTrigger(string memberType)
+		public async Task TheoryDataRow_DoesNotTrigger(string memberType)
 		{
 			var source = $@"
 using System.Collections.Generic;
@@ -1318,7 +1319,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("IEnumerable<object[]>")]
 		[InlineData("List<object[]>")]
-		public async void ValidTypesWhichAreNotTheoryData_Trigger(string memberType)
+		public async Task ValidTypesWhichAreNotTheoryData_Trigger(string memberType)
 		{
 			var source = $@"
 using System.Collections.Generic;

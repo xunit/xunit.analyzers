@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.LocalFunctionsCannotBeTestFunctions>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.LocalFunctionsCannotBeTestFunction
 public class LocalFunctionsCannotBeTestFunctionsTests
 {
 	[Fact]
-	public async void DoesNotTriggerOnLocalFunctionWithoutAttributes()
+	public async Task DoesNotTriggerOnLocalFunctionWithoutAttributes()
 	{
 		var source = @"
 using Xunit;
@@ -26,7 +27,7 @@ public class TestClass {
 	[InlineData("InlineData(42)")]
 	[InlineData("MemberData(nameof(MyData))")]
 	[InlineData("ClassData(typeof(TestClass))")]
-	public async void LocalFunctionsCannotHaveTestAttributes(string attribute)
+	public async Task LocalFunctionsCannotHaveTestAttributes(string attribute)
 	{
 		var source = $@"
 using System.Collections.Generic;

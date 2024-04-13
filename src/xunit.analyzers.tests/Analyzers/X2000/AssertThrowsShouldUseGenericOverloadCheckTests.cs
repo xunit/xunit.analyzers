@@ -79,7 +79,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
+	public async Task FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingMethod()
 	{
 		var source = @"
 class TestClass {
@@ -101,7 +101,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingMethod()
+	public async Task DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingMethod()
 	{
 		var source = @"
 class TestClass {
@@ -118,7 +118,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
+	public async Task FindsCompilerError_ForThrowsCheck_WithExceptionTypeArgument_OnThrowingLambda()
 	{
 		var source = @"
 class TestClass {
@@ -136,7 +136,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingLambda()
+	public async Task DoesNotFindWarning_ForThrowsAsyncCheck_WithExceptionTypeArgument_OnThrowingLambda()
 	{
 		var source = @"
 class TestClass {

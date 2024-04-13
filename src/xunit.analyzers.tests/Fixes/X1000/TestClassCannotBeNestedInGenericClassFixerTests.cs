@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassCannotBeNestedInGenericClass>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestClassCannotBeNestedInGenericCl
 public class TestClassCannotBeNestedInGenericClassFixerTests
 {
 	[Fact]
-	public async void MovesTestClassOutOfGenericParent()
+	public async Task MovesTestClassOutOfGenericParent()
 	{
 		const string before = @"
 public abstract class OpenGenericType<T>

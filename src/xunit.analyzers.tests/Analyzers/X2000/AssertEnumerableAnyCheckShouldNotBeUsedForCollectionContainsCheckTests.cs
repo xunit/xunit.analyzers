@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
@@ -12,7 +13,7 @@ public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTe
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async void FindsWarning_ForLinqAnyCheck(string method)
+	public async Task FindsWarning_ForLinqAnyCheck(string method)
 	{
 		var source = $@"
 using System.Linq;

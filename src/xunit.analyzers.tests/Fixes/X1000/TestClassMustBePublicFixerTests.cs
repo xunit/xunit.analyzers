@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
@@ -7,7 +8,7 @@ public class TestClassMustBePublicFixerTests
 	[Theory]
 	[InlineData("")]
 	[InlineData("internal")]
-	public async void MakesClassPublic(string nonPublicAccessModifier)
+	public async Task MakesClassPublic(string nonPublicAccessModifier)
 	{
 		var before = $@"
 {nonPublicAccessModifier} class [|TestClass|] {{
@@ -25,7 +26,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void ForPartialClassDeclarations_MakesSingleDeclarationPublic()
+	public async Task ForPartialClassDeclarations_MakesSingleDeclarationPublic()
 	{
 		var before = @"
 partial class [|TestClass|] {

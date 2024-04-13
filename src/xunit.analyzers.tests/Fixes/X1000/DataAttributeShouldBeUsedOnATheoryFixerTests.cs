@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory
 public class DataAttributeShouldBeUsedOnATheoryFixerTests
 {
 	[Fact]
-	public async void AddsMissingTheoryAttribute()
+	public async Task AddsMissingTheoryAttribute()
 	{
 		var before = @"
 using Xunit;
@@ -28,7 +29,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void RemovesDataAttributes()
+	public async Task RemovesDataAttributes()
 	{
 		var before = @"
 using Xunit;

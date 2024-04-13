@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -18,7 +19,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(Constants.Asserts.True, "false")]
 	[InlineData(Constants.Asserts.False, "true")]
-	public async void SignalsFor25(
+	public async Task SignalsFor25(
 		string assertion,
 		string targetValue)
 	{
@@ -35,7 +36,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(Constants.Asserts.True, "true")]
 	[InlineData(Constants.Asserts.False, "false")]
-	public async void DoesNotSignalForNonFailure(
+	public async Task DoesNotSignalForNonFailure(
 		string assertion,
 		string targetValue)
 	{
@@ -45,7 +46,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void DoesNotSignalForNonConstantInvocation()
+	public async Task DoesNotSignalForNonConstantInvocation()
 	{
 		var source = @"
 public class TestClass {
@@ -62,7 +63,7 @@ public class TestClass {
 	[Theory]
 	[InlineData(Constants.Asserts.True, "false")]
 	[InlineData(Constants.Asserts.False, "true")]
-	public async void DoNotSignalForPre25(
+	public async Task DoNotSignalForPre25(
 		string assertion,
 		string targetValue)
 	{

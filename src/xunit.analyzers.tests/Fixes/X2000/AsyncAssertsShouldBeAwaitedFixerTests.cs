@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -42,7 +43,7 @@ public static class MyTaskExtensions {{
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]
-	public async void AddsAsyncAndAwait(string assertion)
+	public async Task AddsAsyncAndAwait(string assertion)
 	{
 		var before = string.Format(codeTemplate, $"[|{assertion}|];");
 		var after = string.Format(codeTemplate, $"await {assertion};").Replace("public void TestMethod", "public async Task TestMethod");

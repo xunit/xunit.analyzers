@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameterlessConstructor>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.SerializableClassMustHaveParameter
 public class SerializableClassMustHaveParameterlessConstructorFixerTests
 {
 	[Fact]
-	public async void WithPublicParameteredConstructor_AddsNewConstructor()
+	public async Task WithPublicParameteredConstructor_AddsNewConstructor()
 	{
 		var before = @"
 public class [|MyTestCase|]: Xunit.Abstractions.IXunitSerializable {
@@ -32,7 +33,7 @@ public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
 	}
 
 	[Fact]
-	public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
+	public async Task WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
 	{
 		var before = @"
 public class [|MyTestCase|]: Xunit.Abstractions.IXunitSerializable {
@@ -55,7 +56,7 @@ public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
 	}
 
 	[Fact]
-	public async void WithNonPublicParameterlessConstructor_ChangesVisibility_WithUsing()
+	public async Task WithNonPublicParameterlessConstructor_ChangesVisibility_WithUsing()
 	{
 		var before = @"
 using System;
@@ -84,7 +85,7 @@ public class MyTestCase: IXunitSerializable {
 	}
 
 	[Fact]
-	public async void PreservesExistingObsoleteAttribute()
+	public async Task PreservesExistingObsoleteAttribute()
 	{
 		var before = @"
 using Xunit.Abstractions;

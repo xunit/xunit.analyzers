@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 public class PublicMethodShouldBeMarkedAsTestTests
 {
 	[Fact]
-	public async void DoesNotFindErrorForPublicMethodInNonTestClass()
+	public async Task DoesNotFindErrorForPublicMethodInNonTestClass()
 	{
 		var source = @"
 public class TestClass {
@@ -18,7 +19,7 @@ public class TestClass {
 	[Theory]
 	[InlineData("Xunit.Fact")]
 	[InlineData("Xunit.Theory")]
-	public async void DoesNotFindErrorForTestMethods(string attribute)
+	public async Task DoesNotFindErrorForTestMethods(string attribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -30,7 +31,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIDisposableDisposeMethod()
+	public async Task DoesNotFindErrorForIDisposableDisposeMethod()
 	{
 		var source = @"
 public class TestClass: System.IDisposable {
@@ -44,7 +45,7 @@ public class TestClass: System.IDisposable {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForPublicAbstractMethod()
+	public async Task DoesNotFindErrorForPublicAbstractMethod()
 	{
 		var source = @"
 public abstract class TestClass {
@@ -58,7 +59,7 @@ public abstract class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForDerivedMethodWithFactOnBaseAbstractMethod()
+	public async Task DoesNotFindErrorForDerivedMethodWithFactOnBaseAbstractMethod()
 	{
 		var source = @"
 public abstract class BaseClass {
@@ -77,7 +78,7 @@ public class TestClass : BaseClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForPublicAbstractMethodMarkedWithFact()
+	public async Task DoesNotFindErrorForPublicAbstractMethodMarkedWithFact()
 	{
 		var source = @"
 public abstract class TestClass {
@@ -92,7 +93,7 @@ public abstract class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
+	public async Task DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClass()
 	{
 		var source = @"
 public class BaseClass: System.IDisposable {
@@ -110,7 +111,7 @@ public class TestClass: BaseClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClassWithRepeatedInterfaceDeclaration()
+	public async Task DoesNotFindErrorForIDisposableDisposeMethodOverrideFromParentClassWithRepeatedInterfaceDeclaration()
 	{
 		var source = @"
 public class BaseClass: System.IDisposable {
@@ -128,7 +129,7 @@ public class TestClass: BaseClass, System.IDisposable {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
+	public async Task DoesNotFindErrorForIDisposableDisposeMethodOverrideFromGrandParentClass()
 	{
 		var source = @"
 public abstract class BaseClass: System.IDisposable {
@@ -148,7 +149,7 @@ public class TestClass: IntermediateClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIAsyncLifetimeMethods_V2()
+	public async Task DoesNotFindErrorForIAsyncLifetimeMethods_V2()
 	{
 		var source = @"
 public class TestClass: Xunit.IAsyncLifetime {
@@ -170,7 +171,7 @@ public class TestClass: Xunit.IAsyncLifetime {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForIAsyncLifetimeMethods_V3()
+	public async Task DoesNotFindErrorForIAsyncLifetimeMethods_V3()
 	{
 		var source = @"
 public class TestClass: Xunit.IAsyncLifetime {
@@ -192,7 +193,7 @@ public class TestClass: Xunit.IAsyncLifetime {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForPublicMethodMarkedWithAttributeWhichIsMarkedWithIgnoreXunitAnalyzersRule1013()
+	public async Task DoesNotFindErrorForPublicMethodMarkedWithAttributeWhichIsMarkedWithIgnoreXunitAnalyzersRule1013()
 	{
 		var source = @"
 public class IgnoreXunitAnalyzersRule1013Attribute: System.Attribute { }
@@ -212,7 +213,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void FindsWarningForPublicMethodMarkedWithAttributeWhichInheritsFromAttributeMarkedWithIgnoreXunitAnalyzersRule1013()
+	public async Task FindsWarningForPublicMethodMarkedWithAttributeWhichInheritsFromAttributeMarkedWithIgnoreXunitAnalyzersRule1013()
 	{
 		var source = @"
 public class IgnoreXunitAnalyzersRule1013Attribute: System.Attribute { }
@@ -242,7 +243,7 @@ public class TestClass {
 	[Theory]
 	[InlineData("Xunit.Fact")]
 	[InlineData("Xunit.Theory")]
-	public async void FindsWarningForPublicMethodWithoutParametersInTestClass(string attribute)
+	public async Task FindsWarningForPublicMethodWithoutParametersInTestClass(string attribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -264,7 +265,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("Xunit.Fact")]
 	[InlineData("Xunit.Theory")]
-	public async void FindsWarningForPublicMethodWithParametersInTestClass(string attribute)
+	public async Task FindsWarningForPublicMethodWithParametersInTestClass(string attribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -286,7 +287,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("Xunit.Fact")]
 	[InlineData("Xunit.Theory")]
-	public async void DoesNotFindErrorForOverridenMethod(string attribute)
+	public async Task DoesNotFindErrorForOverridenMethod(string attribute)
 	{
 		var source = $@"
 public class TestClass {{

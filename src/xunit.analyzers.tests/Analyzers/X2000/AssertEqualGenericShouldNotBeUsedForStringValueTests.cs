@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedForStringValue>;
 
@@ -16,7 +17,7 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async void DoesNotFindWarningForStringEqualityCheckWithoutGenericType(
+	public async Task DoesNotFindWarningForStringEqualityCheckWithoutGenericType(
 		string expected,
 		string value)
 	{
@@ -32,7 +33,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async void FindsWarningForStringEqualityCheckWithGenericType(
+	public async Task FindsWarningForStringEqualityCheckWithGenericType(
 		string expected,
 		string value)
 	{
@@ -48,7 +49,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async void FindsWarningForStrictStringEqualityCheck(
+	public async Task FindsWarningForStrictStringEqualityCheck(
 		string expected,
 		string value)
 	{
@@ -64,7 +65,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async void FindsWarningForStrictStringEqualityCheckWithGenericType(
+	public async Task FindsWarningForStrictStringEqualityCheckWithGenericType(
 		string expected,
 		string value)
 	{

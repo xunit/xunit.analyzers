@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValueTypes>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertNullShouldNotBeCalledOnValue
 public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
 {
 	[Fact]
-	public async void ForValueTypeNullAssert_RemovesAssertion()
+	public async Task ForValueTypeNullAssert_RemovesAssertion()
 	{
 		const string before = @"
 using Xunit;
@@ -33,7 +34,7 @@ public class Tests {
 
 	[Fact]
 	// https://github.com/xunit/xunit/issues/1753
-	public async void ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
+	public async Task ForAssertionWithTrivia_RemovesAssertionAndLeavesLeadingTriviaInPlace()
 	{
 		const string before = @"
 using System;

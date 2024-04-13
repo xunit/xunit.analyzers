@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 public class TestMethodShouldNotBeSkippedFixerTests
 {
 	[Fact]
-	public async void RemovesSkipProperty()
+	public async Task RemovesSkipProperty()
 	{
 		var before = @"
 using Xunit;

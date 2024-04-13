@@ -56,7 +56,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInMethod_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInMethod_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -75,7 +75,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -106,7 +106,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedAnonymousFunctionWithAssignment_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedAnonymousFunctionWithAssignment_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -141,7 +141,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedAnonymousFunctionWithVar_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedAnonymousFunctionWithVar_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -174,7 +174,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInUninvokedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInUninvokedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -199,7 +199,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -238,7 +238,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInExplicitlyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInExplicitlyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -275,7 +275,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInConditionallyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInConditionallyInvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -312,7 +312,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInUninvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInUninvokedNestedAnonymousFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -341,7 +341,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedLocalFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedLocalFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -372,7 +372,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInUninvokedLocalFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInUninvokedLocalFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -397,7 +397,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInInvokedNestedLocalFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInInvokedNestedLocalFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -440,7 +440,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInUninvokedNestedLocalFunction_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInUninvokedNestedLocalFunction_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{
@@ -473,7 +473,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
-	public async void GivenAssertionInMixedNestedFunctions_ReplacesWithAsyncAssertion(
+	public async Task GivenAssertionInMixedNestedFunctions_ReplacesWithAsyncAssertion(
 		string assertion,
 		string replacement)
 	{

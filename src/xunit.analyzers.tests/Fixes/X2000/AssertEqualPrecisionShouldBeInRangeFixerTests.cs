@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualPrecisionShouldBeInRange>;
@@ -21,7 +22,7 @@ public class TestClass {{
 	// decimal = [0..28]
 	[InlineData("Assert.Equal(10.1m, 10.2m, [|-1|])", "Assert.Equal(10.1m, 10.2m, 0)")]
 	[InlineData("Assert.Equal(10.1m, 10.2m, [|29|])", "Assert.Equal(10.1m, 10.2m, 28)")]
-	public async void ChangesPrecisionToZero(
+	public async Task ChangesPrecisionToZero(
 		string beforeAssert,
 		string afterAssert)
 	{

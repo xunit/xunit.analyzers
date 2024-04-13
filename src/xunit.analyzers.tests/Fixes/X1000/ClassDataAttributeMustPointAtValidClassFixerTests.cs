@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValid
 public class ClassDataAttributeMustPointAtValidClassFixerTests
 {
 	[Fact]
-	public async void AddsIEnumerable()
+	public async Task AddsIEnumerable()
 	{
 		var before = @"
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void ConvertsParameterlessConstructorToPublic()
+	public async Task ConvertsParameterlessConstructorToPublic()
 	{
 		var before = @"
 using System.Collections;
@@ -80,7 +81,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void AddsPublicParameterlessConstructor()
+	public async Task AddsPublicParameterlessConstructor()
 	{
 		var before = @"
 using System.Collections;
@@ -126,7 +127,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void RemovesAbstractModifierFromDataClass()
+	public async Task RemovesAbstractModifierFromDataClass()
 	{
 		var before = @"
 using System.Collections;

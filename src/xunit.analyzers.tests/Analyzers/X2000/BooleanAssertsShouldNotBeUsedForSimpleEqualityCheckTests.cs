@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
@@ -17,7 +18,7 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 
 		[Theory]
 		[MemberData(nameof(MethodOperator))]
-		public async void ComparingAgainstNonLiteral_DoesNotTrigger(
+		public async Task ComparingAgainstNonLiteral_DoesNotTrigger(
 			string method,
 			string @operator)
 		{
@@ -47,7 +48,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodOperatorValue))]
-		public async void ComparingAgainstLiteral_WithMessage_DoesNotTrigger(
+		public async Task ComparingAgainstLiteral_WithMessage_DoesNotTrigger(
 			string method,
 			string @operator,
 			string value)
@@ -71,7 +72,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodOperatorValue))]
-		public async void ComparingAgainstLiteral_WithoutMessage_Triggers(
+		public async Task ComparingAgainstLiteral_WithoutMessage_Triggers(
 			string method,
 			string @operator,
 			string value)
@@ -121,7 +122,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodOperatorType))]
-		public async void ComparingAgainstNull_WithMessage_DoesNotTrigger(
+		public async Task ComparingAgainstNull_WithMessage_DoesNotTrigger(
 			string method,
 			string @operator,
 			string type)
@@ -145,7 +146,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodOperatorType))]
-		public async void ComparingAgainstNull_WithoutMessage_Triggers(
+		public async Task ComparingAgainstNull_WithoutMessage_Triggers(
 			string method,
 			string @operator,
 			string type)
@@ -198,7 +199,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodOperatorValue))]
-		public async void ComparingAgainstBooleanLiteral_Triggers(
+		public async Task ComparingAgainstBooleanLiteral_Triggers(
 			string method,
 			string @operator,
 			string value)

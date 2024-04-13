@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
 
 public class DataAttributeShouldBeUsedOnATheoryTests
 {
 	[Fact]
-	public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
+	public async Task DoesNotFindErrorForFactMethodWithNoDataAttributes()
 	{
 		var source = @"
 public class TestClass {
@@ -19,7 +20,7 @@ public class TestClass {
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void DoesNotFindErrorForFactMethodWithDataAttributes(string dataAttribute)
+	public async Task DoesNotFindErrorForFactMethodWithDataAttributes(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -35,7 +36,7 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	public async Task DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -51,7 +52,7 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void FindsErrorForMethodsWithDataAttributesButNotFactOrTheory(string dataAttribute)
+	public async Task FindsErrorForMethodsWithDataAttributesButNotFactOrTheory(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{

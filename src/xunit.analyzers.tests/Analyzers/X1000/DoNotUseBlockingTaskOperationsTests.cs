@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseBlockingTaskOperations>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseBlockingTaskOperations>;
 public class DoNotUseBlockingTaskOperationsTests
 {
 	[Fact]
-	public async void SuccessCase()
+	public async Task SuccessCase()
 	{
 		var source = @"
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ public class TestClass {
 	public class IValueTaskSource_NonGeneric
 	{
 		[Fact]
-		public async void FailureCase_GetResult()
+		public async Task FailureCase_GetResult()
 		{
 			var source = @"
 using System;
@@ -49,7 +50,7 @@ public class TestClass {
 	public class IValueTaskSource_Generic
 	{
 		[Fact]
-		public async void FailureCase_GetResult()
+		public async Task FailureCase_GetResult()
 		{
 			var source = @"
 using System;
@@ -76,7 +77,7 @@ public class TestClass {
 		public class Wait
 		{
 			[Fact]
-			public async void FailureCase()
+			public async Task FailureCase()
 			{
 				var source = @"
 using System;
@@ -98,7 +99,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_BeforeWhenAll()
+			public async Task FailureCase_BeforeWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task = Task.Delay(1);
 
         task.[|Wait()|];
@@ -119,7 +120,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_WhenAllForOtherTask()
+			public async Task FailureCase_WhenAllForOtherTask()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -127,7 +128,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -142,7 +143,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_InContinueWithLambda()
+			public async Task SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -159,7 +160,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAll()
+			public async Task SuccessCase_AfterWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -167,7 +168,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -182,7 +183,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAny()
+			public async Task SuccessCase_AfterWhenAny()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -190,7 +191,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -209,7 +210,7 @@ public class TestClass {
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void FailureCase(string waitMethod)
+			public async Task FailureCase(string waitMethod)
 			{
 				var source = @$"
 using System;
@@ -233,7 +234,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void FailureCase_BeforeWhenAll(string waitMethod)
+			public async Task FailureCase_BeforeWhenAll(string waitMethod)
 			{
 				var source = @$"
 using System.Threading.Tasks;
@@ -241,7 +242,7 @@ using Xunit;
 
 public class TestClass {{
     [Fact]
-    public async void TestMethod() {{
+    public async Task TestMethod() {{
         var task = Task.Delay(1);
 
         Task.[|{waitMethod}(task)|];
@@ -256,7 +257,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void FailureCase_WhenAllForOtherTask(string waitMethod)
+			public async Task FailureCase_WhenAllForOtherTask(string waitMethod)
 			{
 				var source = @$"
 using System.Threading.Tasks;
@@ -264,7 +265,7 @@ using Xunit;
 
 public class TestClass {{
     [Fact]
-    public async void TestMethod() {{
+    public async Task TestMethod() {{
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -282,7 +283,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void SuccessCase_InContinueWithLambda(string waitMethod)
+			public async Task SuccessCase_InContinueWithLambda(string waitMethod)
 			{
 				var source = @$"
 using System.Threading.Tasks;
@@ -301,7 +302,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void SuccessCase_AfterWhenAll(string waitMethod)
+			public async Task SuccessCase_AfterWhenAll(string waitMethod)
 			{
 				var source = @$"
 using System.Threading.Tasks;
@@ -309,7 +310,7 @@ using Xunit;
 
 public class TestClass {{
     [Fact]
-    public async void TestMethod() {{
+    public async Task TestMethod() {{
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -327,7 +328,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("WaitAny")]
 			[InlineData("WaitAll")]
-			public async void SuccessCase_AfterWhenAny(string waitMethod)
+			public async Task SuccessCase_AfterWhenAny(string waitMethod)
 			{
 				var source = @$"
 using System.Threading.Tasks;
@@ -335,7 +336,7 @@ using Xunit;
 
 public class TestClass {{
     [Fact]
-    public async void TestMethod() {{
+    public async Task TestMethod() {{
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -352,7 +353,7 @@ public class TestClass {{
 		public class GetAwaiterGetResult
 		{
 			[Fact]
-			public async void FailureCase()
+			public async Task FailureCase()
 			{
 				var source = @"
 using System;
@@ -374,7 +375,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_BeforeWhenAll()
+			public async Task FailureCase_BeforeWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -382,7 +383,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task = Task.Delay(1);
 
         task.GetAwaiter().[|GetResult()|];
@@ -395,7 +396,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_WhenAllForOtherTask()
+			public async Task FailureCase_WhenAllForOtherTask()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -403,7 +404,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -418,7 +419,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_InContinueWithLambda()
+			public async Task SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -435,7 +436,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAll()
+			public async Task SuccessCase_AfterWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -443,7 +444,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -458,7 +459,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAny()
+			public async Task SuccessCase_AfterWhenAny()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -466,7 +467,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.Delay(1);
         var task2 = Task.Delay(2);
 
@@ -486,7 +487,7 @@ public class TestClass {
 		public class Result
 		{
 			[Fact]
-			public async void FailureCase()
+			public async Task FailureCase()
 			{
 				var source = @"
 using System;
@@ -508,7 +509,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_BeforeWhenAll()
+			public async Task FailureCase_BeforeWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -516,7 +517,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task = Task.FromResult(42);
 
         Assert.Equal(42, task.[|Result|]);
@@ -529,7 +530,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_WhenAllForOtherTask()
+			public async Task FailureCase_WhenAllForOtherTask()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -537,7 +538,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -553,7 +554,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_InContinueWithLambda()
+			public async Task SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -570,7 +571,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAll()
+			public async Task SuccessCase_AfterWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -578,7 +579,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -594,7 +595,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAny()
+			public async Task SuccessCase_AfterWhenAny()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -602,7 +603,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -619,7 +620,7 @@ public class TestClass {
 		public class GetAwaiterGetResult
 		{
 			[Fact]
-			public async void FailureCase()
+			public async Task FailureCase()
 			{
 				var source = @"
 using System;
@@ -641,7 +642,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_BeforeWhenAll()
+			public async Task FailureCase_BeforeWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -649,7 +650,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task = Task.FromResult(42);
 
         Assert.Equal(42, task.GetAwaiter().[|GetResult()|]);
@@ -662,7 +663,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FailureCase_WhenAllForOtherTask()
+			public async Task FailureCase_WhenAllForOtherTask()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -670,7 +671,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -686,7 +687,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_InContinueWithLambda()
+			public async Task SuccessCase_InContinueWithLambda()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -703,7 +704,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAll()
+			public async Task SuccessCase_AfterWhenAll()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -711,7 +712,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -727,7 +728,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SuccessCase_AfterWhenAny()
+			public async Task SuccessCase_AfterWhenAny()
 			{
 				var source = @"
 using System.Threading.Tasks;
@@ -735,7 +736,7 @@ using Xunit;
 
 public class TestClass {
     [Fact]
-    public async void TestMethod() {
+    public async Task TestMethod() {
         var task1 = Task.FromResult(42);
         var task2 = Task.FromResult(2112);
 
@@ -753,7 +754,7 @@ public class TestClass {
 	public class ValueTask_NonGeneric
 	{
 		[Fact]
-		public async void FailureCase_GetAwaiterGetResult()
+		public async Task FailureCase_GetAwaiterGetResult()
 		{
 			var source = @"
 using System;
@@ -778,7 +779,7 @@ public class TestClass {
 	public class ValueTask_Generic
 	{
 		[Fact]
-		public async void FailureCase_Result()
+		public async Task FailureCase_Result()
 		{
 			var source = @"
 using System;
@@ -800,7 +801,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void FailureCase_GetAwaiterGetResult()
+		public async Task FailureCase_GetAwaiterGetResult()
 		{
 			var source = @"
 using System;

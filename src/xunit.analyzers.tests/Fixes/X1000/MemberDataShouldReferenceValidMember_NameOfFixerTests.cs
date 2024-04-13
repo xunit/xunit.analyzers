@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 {
 	[Fact]
-	public async void ConvertStringToNameOf()
+	public async Task ConvertStringToNameOf()
 	{
 		var before = @"
 using System;

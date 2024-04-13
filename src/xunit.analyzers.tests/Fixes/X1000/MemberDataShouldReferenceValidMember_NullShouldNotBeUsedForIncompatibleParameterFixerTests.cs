@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -6,7 +7,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixerTests
 {
 	[Fact]
-	public async void MakesParameterNullable()
+	public async Task MakesParameterNullable()
 	{
 		var before = @"
 using Xunit;
@@ -34,7 +35,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void MakesReferenceParameterNullable()
+	public async Task MakesReferenceParameterNullable()
 	{
 		var before = @"
 #nullable enable

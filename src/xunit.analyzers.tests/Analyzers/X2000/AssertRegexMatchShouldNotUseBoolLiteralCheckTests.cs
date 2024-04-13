@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -13,7 +14,7 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarning_ForStaticRegexIsMatch(
+	public async Task FindsWarning_ForStaticRegexIsMatch(
 		string method,
 		string replacement)
 	{
@@ -35,7 +36,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(
+	public async Task FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(
 		string method,
 		string replacement)
 	{
@@ -57,7 +58,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async void FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(
+	public async Task FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(
 		string method,
 		string replacement)
 	{

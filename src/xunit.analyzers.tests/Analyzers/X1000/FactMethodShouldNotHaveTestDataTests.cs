@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
 public class FactMethodShouldNotHaveTestDataTests
 {
 	[Fact]
-	public async void DoesNotFindErrorForFactMethodWithNoDataAttributes()
+	public async Task DoesNotFindErrorForFactMethodWithNoDataAttributes()
 	{
 		var source = @"
 public class TestClass {
@@ -19,7 +20,7 @@ public class TestClass {
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	public async Task DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -35,7 +36,7 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void DoesNotFindErrorForDerivedFactMethodWithDataAttributes(string dataAttribute)
+	public async Task DoesNotFindErrorForDerivedFactMethodWithDataAttributes(string dataAttribute)
 	{
 		var source1 = "public class DerivedFactAttribute: Xunit.FactAttribute {}";
 		var source2 = $@"
@@ -52,7 +53,7 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async void FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
+	public async Task FindsErrorForFactMethodsWithDataAttributes(string dataAttribute)
 	{
 		var source = $@"
 public class TestClass {{

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
@@ -14,7 +15,7 @@ public class InlineDataMustMatchTheoryParametersTests
 	public class NonErrors
 	{
 		[Fact]
-		public async void MethodUsingParamsArgument()
+		public async Task MethodUsingParamsArgument()
 		{
 			var source = @"
 public class TestClass {
@@ -27,7 +28,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingNormalAndParamsArgument()
+		public async Task MethodUsingNormalAndParamsArgument()
 		{
 			var source = @"
 public class TestClass {
@@ -40,7 +41,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingNormalAndUnusedParamsArgument()
+		public async Task MethodUsingNormalAndUnusedParamsArgument()
 		{
 			var source = @"
 public class TestClass {
@@ -53,7 +54,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingEmptyArrayForParams()
+		public async Task MethodUsingEmptyArrayForParams()
 		{
 			var source = @"
 public class TestClass {
@@ -66,7 +67,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingMixedArgumentsAndEmptyArrayForParams()
+		public async Task MethodUsingMixedArgumentsAndEmptyArrayForParams()
 		{
 			var source = @"
 public class TestClass {
@@ -79,7 +80,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingNonEmptyArrayForParams()
+		public async Task MethodUsingNonEmptyArrayForParams()
 		{
 			var source = @"
 public class TestClass {
@@ -92,7 +93,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingMixedArgumentsAndNonEmptyArrayForParams()
+		public async Task MethodUsingMixedArgumentsAndNonEmptyArrayForParams()
 		{
 			var source = @"
 public class TestClass {
@@ -105,7 +106,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void MethodUsingIncompatibleExplicitArrayForParams()
+		public async Task MethodUsingIncompatibleExplicitArrayForParams()
 		{
 			var source = @"
 public class TestClass {
@@ -118,7 +119,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingParameters()
+		public async Task UsingParameters()
 		{
 			var source = @"
 public class TestClass {
@@ -131,7 +132,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingParametersWithDefaultValues()
+		public async Task UsingParametersWithDefaultValues()
 		{
 			var source = @"
 public class TestClass {
@@ -144,7 +145,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingParametersWithDefaultValuesAndParamsArgument()
+		public async Task UsingParametersWithDefaultValuesAndParamsArgument()
 		{
 			var source = @"
 public class TestClass {
@@ -157,7 +158,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingParameterWithOptionalAttribute()
+		public async Task UsingParameterWithOptionalAttribute()
 		{
 			var source = @"
 public class TestClass {
@@ -170,7 +171,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingMultipleParametersWithOptionalAttributes()
+		public async Task UsingMultipleParametersWithOptionalAttributes()
 		{
 			var source = @"
 public class TestClass {
@@ -186,7 +187,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingExplicitArray()
+		public async Task UsingExplicitArray()
 		{
 			var source = @"
 public class TestClass {
@@ -199,7 +200,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingExplicitNamedArray()
+		public async Task UsingExplicitNamedArray()
 		{
 			var source = @"
 public class TestClass {
@@ -212,7 +213,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingImplicitArray()
+		public async Task UsingImplicitArray()
 		{
 			var source = @"
 public class TestClass {
@@ -225,7 +226,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void UsingImplicitNamedArray()
+		public async Task UsingImplicitNamedArray()
 		{
 			var source = @"
 public class TestClass {
@@ -238,7 +239,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void EmptyArray()
+		public async Task EmptyArray()
 		{
 			var source = @"
 public class TestClass {
@@ -254,7 +255,7 @@ public class TestClass {
 	public class X1009_TooFewValues
 	{
 		[Fact]
-		public async void IgnoresFact()
+		public async Task IgnoresFact()
 		{
 			var source = @"
 public class TestClass {
@@ -269,7 +270,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("Xunit.InlineData()")]
 		[InlineData("Xunit.InlineData")]
-		public async void NoArguments(string attribute)
+		public async Task NoArguments(string attribute)
 		{
 			var source = $@"
 public class TestClass {{
@@ -287,7 +288,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void TooFewArguments()
+		public async Task TooFewArguments()
 		{
 			var source = @"
 public class TestClass {
@@ -305,7 +306,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void TooFewArguments_WithParams()
+		public async Task TooFewArguments_WithParams()
 		{
 			var source = @"
 public class TestClass {
@@ -354,7 +355,7 @@ public class TestClass {
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
-			public async void CompatibleNumericValue_NonNullableType(
+			public async Task CompatibleNumericValue_NonNullableType(
 				string value,
 				string type)
 			{
@@ -370,7 +371,7 @@ public class TestClass {{
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
-			public async void CompatibleNumericValue_NullableType(
+			public async Task CompatibleNumericValue_NullableType(
 				string value,
 				string type)
 			{
@@ -386,7 +387,7 @@ public class TestClass {{
 
 			[Theory]
 			[MemberData(nameof(BoolValuesAndNumericTypes))]
-			public async void BooleanValue_NumericType(
+			public async Task BooleanValue_NumericType(
 				string value,
 				string type)
 			{
@@ -407,7 +408,7 @@ public class TestClass {{
 
 			[Theory]
 			[MemberData(nameof(NumericTypes))]
-			public async void CharValue_NumericType(string type)
+			public async Task CharValue_NumericType(string type)
 			{
 				var source = $@"
 public class TestClass {{
@@ -421,7 +422,7 @@ public class TestClass {{
 
 			[Theory]
 			[MemberData(nameof(NumericTypes))]
-			public async void EnumValue_NumericType(string type)
+			public async Task EnumValue_NumericType(string type)
 			{
 				var source = $@"
 public class TestClass {{
@@ -443,7 +444,7 @@ public class TestClass {{
 		{
 			[Theory]
 			[MemberData(nameof(BoolValues))]
-			public async void FromBooleanValue_ToNonNullable(string value)
+			public async Task FromBooleanValue_ToNonNullable(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -457,7 +458,7 @@ public class TestClass {{
 
 			[Theory]
 			[MemberData(nameof(BoolValues))]
-			public async void FromBooleanValue_ToNullable(string value)
+			public async Task FromBooleanValue_ToNullable(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -475,7 +476,7 @@ public class TestClass {{
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -498,7 +499,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("'a'")]
 			[MemberData(nameof(IntegerValues))]
-			public async void FromCharOrIntegerValue_ToNonNullable(string value)
+			public async Task FromCharOrIntegerValue_ToNonNullable(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -513,7 +514,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("'a'")]
 			[MemberData(nameof(IntegerValues))]
-			public async void FromCharOrIntegerValue_ToNullable(string value)
+			public async Task FromCharOrIntegerValue_ToNullable(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -531,7 +532,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("typeof(string)")]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -552,7 +553,7 @@ public class TestClass {{
 		public class EnumParameter : X1010_IncompatibleValueType
 		{
 			[Fact]
-			public async void FromEnumValue_ToNonNullable()
+			public async Task FromEnumValue_ToNonNullable()
 			{
 				var source = @"
 public class TestClass {
@@ -565,7 +566,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FromEnumValue_ToNullable()
+			public async Task FromEnumValue_ToNullable()
 			{
 				var source = @"
 public class TestClass {
@@ -583,7 +584,7 @@ public class TestClass {
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -606,7 +607,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async void FromTypeValue(string value)
+			public async Task FromTypeValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -621,7 +622,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async void FromTypeValue_ToParams(string value)
+			public async Task FromTypeValue_ToParams(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -639,7 +640,7 @@ public class TestClass {{
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -663,7 +664,7 @@ public class TestClass {{
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
-			public async void FromIncompatibleValue_ToParams(string value)
+			public async Task FromIncompatibleValue_ToParams(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -686,7 +687,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
-			public async void FromStringValue(string value)
+			public async Task FromStringValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -704,7 +705,7 @@ public class TestClass {{
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("typeof(string)")]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -728,7 +729,7 @@ public class TestClass {{
 			[MemberData(nameof(NumericValues))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("null")]
-			public async void FromTypeImplementingInterface(string value)
+			public async Task FromTypeImplementingInterface(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -747,7 +748,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
 			[MemberData(nameof(BoolValues))]
-			public async void FromIncompatibleValue(string value)
+			public async Task FromIncompatibleValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -775,7 +776,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async void FromAnyValue(string value)
+			public async Task FromAnyValue(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -795,7 +796,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async void FromAnyValue_ToParams(string value)
+			public async Task FromAnyValue_ToParams(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -818,7 +819,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async void FromAnyValue_NoConstraint(string value)
+			public async Task FromAnyValue_NoConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -835,7 +836,7 @@ public class TestClass {{
 			[MemberData(nameof(NumericValues))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
-			public async void FromValueTypeValue_WithStructConstraint(string value)
+			public async Task FromValueTypeValue_WithStructConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -850,7 +851,7 @@ public class TestClass {{
 			[Theory]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async void FromReferenceTypeValue_WithStructConstraint(string value)
+			public async Task FromReferenceTypeValue_WithStructConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -871,7 +872,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async void FromReferenceTypeValue_WithClassConstraint(string value)
+			public async Task FromReferenceTypeValue_WithClassConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -888,7 +889,7 @@ public class TestClass {{
 			[MemberData(nameof(NumericValues))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
-			public async void FromValueTypeValue_WithClassConstraint(string value)
+			public async Task FromValueTypeValue_WithClassConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -909,7 +910,7 @@ public class TestClass {{
 			[InlineData("null")]
 			[InlineData("System.StringComparison.Ordinal")]
 			[MemberData(nameof(NumericValues))]
-			public async void FromCompatibleValue_WithTypeConstraint(string value)
+			public async Task FromCompatibleValue_WithTypeConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -928,7 +929,7 @@ public class TestClass {{
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
 			[MemberData(nameof(BoolValues))]
-			public async void FromIncompatibleValue_WithTypeConstraint(string value)
+			public async Task FromIncompatibleValue_WithTypeConstraint(string value)
 			{
 				var source = $@"
 public class TestClass {{
@@ -946,7 +947,7 @@ public class TestClass {{
 			}
 
 			[Fact]
-			public async void FromIncompatibleArray()
+			public async Task FromIncompatibleArray()
 			{
 				var source = @"
 public class TestClass {
@@ -964,7 +965,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void FromCompatibleArray()
+			public async Task FromCompatibleArray()
 			{
 				var source = @"
 public class TestClass {
@@ -998,7 +999,7 @@ public class TestClass {
 			[MemberData(nameof(ValueTypedArgumentsCombinedWithDateTimeLikeTypes))]
 			[InlineData("MyConstInt", "System.DateTime")]
 			[InlineData("MyConstInt", "System.DateTimeOffset")]
-			public async void NonStringValue(
+			public async Task NonStringValue(
 				string data,
 				string parameterType)
 			{
@@ -1022,7 +1023,7 @@ public class TestClass
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async void StringValue_ToDateTime(string data)
+			public async Task StringValue_ToDateTime(string data)
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTime");
 
@@ -1031,7 +1032,7 @@ public class TestClass
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async void StringValue_ToDateTimeOffset(string data)
+			public async Task StringValue_ToDateTimeOffset(string data)
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
 
@@ -1040,7 +1041,7 @@ public class TestClass
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async void StringValue_ToDateTimeOffset_Pre240(string data)
+			public async Task StringValue_ToDateTimeOffset_Pre240(string data)
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
 				var expected =
@@ -1079,7 +1080,7 @@ public class TestClass
 			[Theory]
 			[MemberData(nameof(ValueTypedValues))]
 			[InlineData("MyConstInt")]
-			public async void NonStringValue(string data)
+			public async Task NonStringValue(string data)
 			{
 				var source = $@"
 public class TestClass
@@ -1101,7 +1102,7 @@ public class TestClass
 
 			[Theory]
 			[MemberData(nameof(ValidGuidStrings))]
-			public async void StringValue(string inlineData)
+			public async Task StringValue(string inlineData)
 			{
 				var source = CreateSource(inlineData);
 
@@ -1110,7 +1111,7 @@ public class TestClass
 
 			[Theory]
 			[MemberData(nameof(ValidGuidStrings))]
-			public async void StringValue_Pre240(string data)
+			public async Task StringValue_Pre240(string data)
 			{
 				var source = CreateSource(data);
 				var expected =
@@ -1134,7 +1135,7 @@ public class TestClass
 		public class UserDefinedConversionOperators : X1010_IncompatibleValueType
 		{
 			[Fact]
-			public async void SupportsImplicitConversion()
+			public async Task SupportsImplicitConversion()
 			{
 				var source = @"
 using Xunit;
@@ -1155,7 +1156,7 @@ public class TestClass {
 			}
 
 			[Fact]
-			public async void SupportsExplicitConversion()
+			public async Task SupportsExplicitConversion()
 			{
 				var source = @"
 using Xunit;
@@ -1224,7 +1225,7 @@ public class TestClass {
 	public class X1011_ExtraValue
 	{
 		[Fact]
-		public async void IgnoresFact()
+		public async Task IgnoresFact()
 		{
 			var source = @"
 public class TestClass {
@@ -1237,7 +1238,7 @@ public class TestClass {
 		}
 
 		[Fact]
-		public async void ExtraArguments()
+		public async Task ExtraArguments()
 		{
 			var source = @"
 public class TestClass {
@@ -1266,7 +1267,7 @@ public class TestClass {
 	public class X1012_NullShouldNotBeUsedForIncompatibleParameter
 	{
 		[Fact]
-		public async void IgnoresFact()
+		public async Task IgnoresFact()
 		{
 			var source = @"
 public class TestClass {
@@ -1281,7 +1282,7 @@ public class TestClass {
 		[Theory]
 		[InlineData("int")]
 		[InlineData("params int[]")]
-		public async void SingleNullValue(string type)
+		public async Task SingleNullValue(string type)
 		{
 			var source = $@"
 public class TestClass {{
@@ -1301,7 +1302,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(ValueTypes))]
-		public async void NonNullableValueTypes(string type)
+		public async Task NonNullableValueTypes(string type)
 		{
 			var source = $@"
 public class TestClass {{
@@ -1328,7 +1329,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(ValueTypes))]
-		public async void NullableValueTypes(string type)
+		public async Task NullableValueTypes(string type)
 		{
 			var source = $@"
 public class TestClass {{
@@ -1344,7 +1345,7 @@ public class TestClass {{
 		[InlineData("object")]
 		[InlineData("string")]
 		[InlineData("System.Exception")]
-		public async void ReferenceTypes(string type)
+		public async Task ReferenceTypes(string type)
 		{
 			var source = $@"
 public class TestClass {{
@@ -1360,7 +1361,7 @@ public class TestClass {{
 		[InlineData("object")]
 		[InlineData("string")]
 		[InlineData("System.Exception")]
-		public async void NonNullableReferenceTypes(string type)
+		public async Task NonNullableReferenceTypes(string type)
 		{
 			var source = $@"
 #nullable enable
@@ -1387,7 +1388,7 @@ public class TestClass {{
 		[InlineData("object")]
 		[InlineData("string")]
 		[InlineData("System.Exception")]
-		public async void NullableReferenceTypes(string type)
+		public async Task NullableReferenceTypes(string type)
 		{
 			var source = $@"
 #nullable enable
@@ -1404,7 +1405,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1", "object")]
 		[InlineData("\"bob\"", "string")]
-		public async void NullableParamsReferenceTypes(string param, string type)
+		public async Task NullableParamsReferenceTypes(string param, string type)
 		{
 			var source = $@"
 #nullable enable
@@ -1421,7 +1422,7 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1", "object")]
 		[InlineData("\"bob\"", "string")]
-		public async void NonNullableParamsReferenceTypes(string param, string type)
+		public async Task NonNullableParamsReferenceTypes(string param, string type)
 		{
 			var source = $@"
 #nullable enable

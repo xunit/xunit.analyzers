@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers.Fixes;
@@ -123,7 +124,7 @@ public class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(Statements))]
-	public async void ReplacesCollectionMethod(
+	public async Task ReplacesCollectionMethod(
 		string statementBefore,
 		string statementAfter)
 	{

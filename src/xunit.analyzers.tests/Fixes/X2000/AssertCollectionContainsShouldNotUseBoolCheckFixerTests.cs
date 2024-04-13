@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertCollectionContainsShouldNotUseBoolCheck>;
@@ -31,7 +32,7 @@ public class TestClass {{
 	[InlineData(
 		@"[|Assert.False(items.Contains(""b"", StringComparer.Ordinal))|]",
 		@"Assert.DoesNotContain(""b"", items, StringComparer.Ordinal)")]
-	public async void ReplacesBooleanAssert(
+	public async Task ReplacesBooleanAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

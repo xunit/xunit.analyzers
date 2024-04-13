@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
@@ -22,7 +23,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async void Throws_NonGeneric_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_NonGeneric_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -40,7 +41,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async void Throws_Generic_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_Generic_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -58,7 +59,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async void Throws_Generic_WithNamedArgumentException_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_Generic_WithNamedArgumentException_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -76,7 +77,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void Throws_NonGeneric_WithAsyncLambda_FindsDiagnostic(string lambda)
+	public async Task Throws_NonGeneric_WithAsyncLambda_FindsDiagnostic(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -106,7 +107,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void Throws_Generic_WithAsyncLambda_FindsDiagnostic(string lambda)
+	public async Task Throws_Generic_WithAsyncLambda_FindsDiagnostic(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -136,7 +137,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void Throws_Generic_WithNamedArgumentException_WithAsyncLambda_FindsDiagnostic(string lambda)
+	public async Task Throws_Generic_WithNamedArgumentException_WithAsyncLambda_FindsDiagnostic(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -166,7 +167,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void ThrowsAsync_NonGeneric_WithAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task ThrowsAsync_NonGeneric_WithAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -184,7 +185,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void ThrowsAsync_Generic_WithAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task ThrowsAsync_Generic_WithAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -202,7 +203,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async void ThrowsAny_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task ThrowsAny_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -220,7 +221,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void ThrowsAny_WithAsyncLambda_FindsDiagnostic(string lambda)
+	public async Task ThrowsAny_WithAsyncLambda_FindsDiagnostic(string lambda)
 	{
 		var source = $@"
 class TestClass {{
@@ -250,7 +251,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async void ThrowsAnyAsync_WithAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task ThrowsAnyAsync_WithAsyncLambda_FindsNoDiagnostics(string lambda)
 	{
 		var source = $@"
 class TestClass {{

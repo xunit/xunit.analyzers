@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualsShouldNotBeUsed>;
@@ -19,7 +20,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("{|CS0619:[|Assert.Equals(1, data)|]|}", "Assert.Equal(1, data)")]
 	[InlineData("{|CS0619:[|Assert.ReferenceEquals(1, data)|]|}", "Assert.Same(1, data)")]
-	public async void ConvertsObjectCallToAssert(
+	public async Task ConvertsObjectCallToAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

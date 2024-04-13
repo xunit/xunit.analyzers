@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertStringEqualityCheckShouldNotUseBoolCheck>;
@@ -30,7 +31,7 @@ public class TestClass {{
 	[InlineData(@"[|Assert.False(""foo bar baz"".Equals(data))|]", @"Assert.NotEqual(""foo bar baz"", data)")]
 	// Static Equals (false)
 	[InlineData(@"[|Assert.False(string.Equals(""foo bar baz"", data))|]", @"Assert.NotEqual(""foo bar baz"", data)")]
-	public async void ConvertsBooleanAssertToEqualityAssert(
+	public async Task ConvertsBooleanAssertToEqualityAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

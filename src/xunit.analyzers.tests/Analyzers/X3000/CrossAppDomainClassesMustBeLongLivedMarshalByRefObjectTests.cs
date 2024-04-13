@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -49,7 +50,7 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async void SuccessCase_NoInterfaces()
+		public async Task SuccessCase_NoInterfaces()
 		{
 			var source = "public class Foo { }";
 
@@ -58,7 +59,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async void FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
 		{
 			var source = string.Format(Template, @interface);
 			var expected =
@@ -114,7 +115,7 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async void SuccessCase_NoInterfaces()
+		public async Task SuccessCase_NoInterfaces()
 		{
 			var source = "public class Foo { }";
 
@@ -122,7 +123,7 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async void SuccessCase_WithXunitTestCase()
+		public async Task SuccessCase_WithXunitTestCase()
 		{
 			var source = string.Format(Template, "Xunit.Sdk.XunitTestCase");
 
@@ -131,7 +132,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(InterfacesWithBaseClasses))]
-		public async void SuccessCase_CompatibleBaseClass(
+		public async Task SuccessCase_CompatibleBaseClass(
 			string @interface,
 			string baseClass)
 		{
@@ -142,7 +143,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async void FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
 		{
 			var source = string.Format(Template, @interface);
 			var expected =
@@ -156,7 +157,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async void FailureCase_IncompatibleBaseClass(string @interface)
+		public async Task FailureCase_IncompatibleBaseClass(string @interface)
 		{
 			var source = string.Format(Template, $"Foo, {@interface}");
 			var expected =
@@ -204,7 +205,7 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async void SuccessCase_NoInterfaces()
+		public async Task SuccessCase_NoInterfaces()
 		{
 			var source = "public class Foo { }";
 
@@ -213,7 +214,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(InterfacesWithBaseClasses))]
-		public async void SuccessCase_CompatibleBaseClass(
+		public async Task SuccessCase_CompatibleBaseClass(
 			string @interface,
 			string baseClass)
 		{
@@ -224,7 +225,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async void FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
 		{
 			var source = string.Format(Template, @interface);
 			var expected =
@@ -238,7 +239,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async void FailureCase_IncompatibleBaseClass(string @interface)
+		public async Task FailureCase_IncompatibleBaseClass(string @interface)
 		{
 			var source = string.Format(Template, $"Foo, {@interface}");
 			var expected =

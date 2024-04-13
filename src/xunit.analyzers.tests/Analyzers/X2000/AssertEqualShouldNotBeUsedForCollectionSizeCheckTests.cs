@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -32,7 +33,7 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 
 	[Theory]
 	[MemberData(nameof(AllowedCollections))]
-	public async void AllowedCollection_DoesNotTrigger(string collection)
+	public async Task AllowedCollection_DoesNotTrigger(string collection)
 	{
 		var source = $@"
 using System.Linq;
@@ -51,7 +52,7 @@ class TestClass {{
 	[Theory]
 	[MemberData(nameof(AllowedCollections))]
 	[MemberData(nameof(DisallowedCollections))]
-	public async void AllowedCheck_DoesNotTrigger(string collection)
+	public async Task AllowedCheck_DoesNotTrigger(string collection)
 	{
 		// Anything that's non-zero for Equal/NotEqual and non-one for Equal is allowed
 		var source = $@"
@@ -71,7 +72,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(DisallowedCollections))]
-	public async void InvalidCheckWithConcreteType_Triggers(string collection)
+	public async Task InvalidCheckWithConcreteType_Triggers(string collection)
 	{
 		var source = $@"
 using System.Linq;
@@ -107,7 +108,7 @@ class TestClass {{
 
 	[Theory]
 	[MemberData(nameof(DisallowedCollectionInterfaces))]
-	public async void InvalidCheckWithInterfaceType_Triggers(string @interface)
+	public async Task InvalidCheckWithInterfaceType_Triggers(string @interface)
 	{
 		var source = $@"
 using System.Collections;
@@ -144,7 +145,7 @@ class TestClass {{
 	}
 
 	[Fact]
-	public async void InvalidCheckWithCustomNonGenericCollection_Triggers()
+	public async Task InvalidCheckWithCustomNonGenericCollection_Triggers()
 	{
 		var source = @"
 using System.Collections;
@@ -193,7 +194,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void OverridingCountMethod_DoesNotTrigger()
+	public async Task OverridingCountMethod_DoesNotTrigger()
 	{
 		var source = @"
 using System.Collections.Generic;
@@ -222,7 +223,7 @@ class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotCrash_ForNonIntArguments()
+	public async Task DoesNotCrash_ForNonIntArguments()
 	{
 		var source = @"
 class TestClass {

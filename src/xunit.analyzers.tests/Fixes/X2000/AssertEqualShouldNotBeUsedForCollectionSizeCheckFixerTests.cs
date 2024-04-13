@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForCollectionSizeCheck>;
@@ -21,7 +22,7 @@ public class TestClass {{
 	[InlineData("[|Assert.Equal(1, data.Count())|]", "Assert.Single(data)")]
 	[InlineData("[|Assert.Equal(0, data.Count())|]", "Assert.Empty(data)")]
 	[InlineData("[|Assert.NotEqual(0, data.Count())|]", "Assert.NotEmpty(data)")]
-	public async void ReplacesCollectionCountWithAppropriateAssert(
+	public async Task ReplacesCollectionCountWithAppropriateAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

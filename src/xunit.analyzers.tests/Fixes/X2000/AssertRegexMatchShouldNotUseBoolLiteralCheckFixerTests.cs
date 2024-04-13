@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLiteralCheck>;
@@ -20,7 +21,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(@"[|Assert.True(Regex.IsMatch(result, ""foo (.*?) baz""))|]", @"Assert.Matches(""foo (.*?) baz"", result)")]
 	[InlineData(@"[|Assert.False(Regex.IsMatch(result, ""foo (.*?) baz""))|]", @"Assert.DoesNotMatch(""foo (.*?) baz"", result)")]
-	public async void ConvertsBooleanAssertToRegexAssert(
+	public async Task ConvertsBooleanAssertToRegexAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

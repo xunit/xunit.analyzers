@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
 
@@ -13,7 +14,7 @@ public class TestClass {
 }";
 
 	[Fact]
-	public async void SuccessCase()
+	public async Task SuccessCase()
 	{
 		var dataClassSource = @"
 using System.Collections;
@@ -81,7 +82,7 @@ class DataClass: IEnumerable<object[]> {
 
 	[Theory]
 	[MemberData(nameof(FailureCases))]
-	public async void FailureCase(string dataClassSource)
+	public async Task FailureCase(string dataClassSource)
 	{
 		var expected =
 			Verify

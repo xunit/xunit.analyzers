@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.SetEqualityAnalyzer>;
@@ -48,7 +49,7 @@ public class MyComparer : IEqualityComparer<int> {
 
 		[Theory]
 		[MemberData(nameof(MethodWithCollectionCreationData))]
-		public async void WithCollectionComparer_DoesNotTrigger(
+		public async Task WithCollectionComparer_DoesNotTrigger(
 			string method,
 			string collection1,
 			string collection2)
@@ -73,7 +74,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodWithCollectionCreationData))]
-		public async void WithEqualityComparer_DoesNotTrigger(
+		public async Task WithEqualityComparer_DoesNotTrigger(
 			string method,
 			string collection1,
 			string collection2)
@@ -111,7 +112,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodWithCollectionCreationData))]
-		public async void WithComparerLambda_Triggers(
+		public async Task WithComparerLambda_Triggers(
 			string method,
 			string collection1,
 			string collection2)
@@ -152,7 +153,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(ComparerFunctionData))]
-		public async void WithComparerFunction_Triggers(
+		public async Task WithComparerFunction_Triggers(
 			string method,
 			string comparerFuncSyntax,
 			string collection1,
@@ -210,7 +211,7 @@ public class TestClass {{
 
 		[Theory]
 		[MemberData(nameof(MethodAndLinearContainers))]
-		public async void LinearContainers_DoesNotTrigger(
+		public async Task LinearContainers_DoesNotTrigger(
 			string method,
 			string collection)
 		{
@@ -235,7 +236,7 @@ public class TestClass {{
 		}
 
 		[Fact]
-		public async void CastedSet_DoesNotTrigger()
+		public async Task CastedSet_DoesNotTrigger()
 		{
 			var code = @"
 using Xunit;
@@ -269,7 +270,7 @@ public class TestClass {
 
 		[Theory]
 		[MemberData(nameof(MethodAndTypeAndInitializer), DisableDiscoveryEnumeration = true)]
-		public async void SetWithLinearContainer_Triggers(
+		public async Task SetWithLinearContainer_Triggers(
 			string method,
 			(string type, string initializer) collection)
 		{

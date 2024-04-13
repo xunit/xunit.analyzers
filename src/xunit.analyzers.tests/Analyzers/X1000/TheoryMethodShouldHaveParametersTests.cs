@@ -1,10 +1,11 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
 
 public class TheoryMethodShouldHaveParametersTests
 {
 	[Fact]
-	public async void DoesNotFindErrorForFactMethod()
+	public async Task DoesNotFindErrorForFactMethod()
 	{
 		var source = @"
 public class TestClass {
@@ -16,7 +17,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void DoesNotFindErrorForTheoryMethodWithParameters()
+	public async Task DoesNotFindErrorForTheoryMethodWithParameters()
 	{
 		var source = @"
 public class TestClass {
@@ -28,7 +29,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void FindsErrorForTheoryMethodWithoutParameters()
+	public async Task FindsErrorForTheoryMethodWithoutParameters()
 	{
 		var source = @"
 class TestClass {

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValueTypes>;
@@ -19,7 +20,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("[|Assert.Same(1, data)|]", "Assert.Equal(1, data)")]
 	[InlineData("[|Assert.NotSame(1, data)|]", "Assert.NotEqual(1, data)")]
-	public async void ConvertsSameToEqual(
+	public async Task ConvertsSameToEqual(
 		string beforeAssert,
 		string afterAssert)
 	{

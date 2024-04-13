@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
@@ -7,7 +8,7 @@ public class TestMethodShouldNotBeSkippedTests
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async void DoesNotFindErrorForNotSkippedTest(string attribute)
+	public async Task DoesNotFindErrorForNotSkippedTest(string attribute)
 	{
 		var source = $@"
 public class TestClass {{
@@ -21,7 +22,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async void FindsErrorForSkippedTests(string attribute)
+	public async Task FindsErrorForSkippedTests(string attribute)
 	{
 		var source = $@"
 class TestClass {{

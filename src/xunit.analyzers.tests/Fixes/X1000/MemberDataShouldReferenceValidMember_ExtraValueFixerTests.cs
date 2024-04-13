@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
@@ -5,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 {
 	[Fact]
-	public async void RemovesUnusedData()
+	public async Task RemovesUnusedData()
 	{
 		var before = @"
 using Xunit;
@@ -35,7 +36,7 @@ public class TestClass {
 	[Theory]
 	[InlineData("21.12", "double")]
 	[InlineData(@"""Hello world""", "string")]
-	public async void AddsParameterWithCorrectType(
+	public async Task AddsParameterWithCorrectType(
 		string value,
 		string valueType)
 	{
@@ -65,7 +66,7 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async void AddsParameterWithNonConflictingName()
+	public async Task AddsParameterWithNonConflictingName()
 	{
 		var before = $@"
 using Xunit;

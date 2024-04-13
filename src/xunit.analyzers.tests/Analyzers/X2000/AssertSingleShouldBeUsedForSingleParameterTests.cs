@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleParameter>;
 
@@ -8,7 +9,7 @@ public class AssertSingleShouldBeUsedForSingleParameterTests
 #if NETCOREAPP3_0_OR_GREATER
 	[InlineData("default(IAsyncEnumerable<int>)")]
 #endif
-	public async void FindsInfo_ForSingleItemCollectionCheck(string collection)
+	public async Task FindsInfo_ForSingleItemCollectionCheck(string collection)
 	{
 		var code = @$"
 using Xunit;
@@ -35,7 +36,7 @@ public class TestClass {{
 #if NETCOREAPP3_0_OR_GREATER
 	[InlineData("default(IAsyncEnumerable<int>)")]
 #endif
-	public async void DoesNotFindInfo_ForMultipleItemCollectionCheck(string collection)
+	public async Task DoesNotFindInfo_ForMultipleItemCollectionCheck(string collection)
 	{
 		var code = @$"
 using Xunit;

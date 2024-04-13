@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
@@ -13,7 +14,7 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
 	[InlineData("string", "\"\"")]
 	[InlineData("object", "null")]
 	[InlineData("Color", "default(Color)")]
-	public async void MakesParameterNullable(
+	public async Task MakesParameterNullable(
 		string valueType,
 		string defaultValue)
 	{

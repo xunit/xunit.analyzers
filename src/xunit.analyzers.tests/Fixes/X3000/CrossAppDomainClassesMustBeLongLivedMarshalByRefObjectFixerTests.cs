@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -14,7 +15,7 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixerTests
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithAbstractions.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithAbstractions))]
-		public async void DoesNotAttemptToFix(string @interface)
+		public async Task DoesNotAttemptToFix(string @interface)
 		{
 			var source = string.Format(Template, "[|MyClass|]", @interface);
 
@@ -48,7 +49,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
-		public async void WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
+		public async Task WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.LongLivedMarshalByRefObject, {@interface}");
@@ -62,7 +63,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
-		public async void WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
+		public async Task WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithUsing, "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
@@ -76,7 +77,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
-		public async void WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
+		public async Task WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.LongLivedMarshalByRefObject, {@interface}");
@@ -90,7 +91,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
-		public async void WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
+		public async Task WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithUsing, "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
@@ -125,7 +126,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
-		public async void WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
+		public async Task WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.Sdk.LongLivedMarshalByRefObject, {@interface}");
@@ -139,7 +140,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
-		public async void WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
+		public async Task WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithUsing, "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
@@ -153,7 +154,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
-		public async void WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
+		public async Task WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.Sdk.LongLivedMarshalByRefObject, {@interface}");
@@ -167,7 +168,7 @@ public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
-		public async void WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
+		public async Task WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
 		{
 			var before = string.Format(Template_WithUsing, "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");

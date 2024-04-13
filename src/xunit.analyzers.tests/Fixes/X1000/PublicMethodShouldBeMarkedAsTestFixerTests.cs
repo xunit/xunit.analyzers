@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
@@ -24,7 +25,7 @@ public class TestClass {
 }";
 
 	[Fact]
-	public async void AddsFactToPublicMethodWithoutParameters()
+	public async Task AddsFactToPublicMethodWithoutParameters()
 	{
 		var after = @"
 using Xunit;
@@ -41,7 +42,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void AddsFactToPublicMethodWithParameters()
+	public async Task AddsFactToPublicMethodWithParameters()
 	{
 		var after = @"
 using Xunit;
@@ -60,7 +61,7 @@ public class TestClass {
 	[Theory]
 	[InlineData(beforeNoParams)]
 	[InlineData(beforeWithParams)]
-	public async void MarksMethodAsInternal(string before)
+	public async Task MarksMethodAsInternal(string before)
 	{
 		var after = before.Replace("public void [|TestMethod2|]", "internal void TestMethod2");
 

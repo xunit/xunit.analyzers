@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck>;
@@ -24,7 +25,7 @@ public class TestClass {{
 	[InlineData(
 		"[|Assert.False(collection.Any(x => x == 2))|]",
 		"Assert.DoesNotContain(collection, x => x == 2)")]
-	public async void ReplacesAssert(
+	public async Task ReplacesAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

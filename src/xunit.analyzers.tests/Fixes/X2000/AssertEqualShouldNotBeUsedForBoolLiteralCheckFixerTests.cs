@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForBoolLiteralCheck>;
@@ -25,7 +26,7 @@ public class TestClass {{
 	[InlineData("[|Assert.NotEqual(true, actual)|]", "Assert.False(actual)")]
 	[InlineData("[|Assert.NotStrictEqual(false, actual)|]", "Assert.True(actual)")]
 	[InlineData("[|Assert.NotStrictEqual(true, actual)|]", "Assert.False(actual)")]
-	public async void ConvertsToBooleanAssert(
+	public async Task ConvertsToBooleanAssert(
 		string beforeAssert,
 		string afterAssert)
 	{

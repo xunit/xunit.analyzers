@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeNegated>;
@@ -19,7 +20,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData("False", "True")]
 	[InlineData("True", "False")]
-	public async void ReplacesBooleanAssert(
+	public async Task ReplacesBooleanAssert(
 		string assertion,
 		string replacement)
 	{

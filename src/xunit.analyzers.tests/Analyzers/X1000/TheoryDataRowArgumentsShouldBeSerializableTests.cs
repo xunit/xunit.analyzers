@@ -50,7 +50,7 @@ public class TestClass {
 	[InlineData("DateOnly.MinValue", "DateOnly")]
 	[InlineData("TimeOnly.MinValue", "TimeOnly")]
 #endif
-	public async void IntrinsicallySerializableValue_DoesNotTrigger(
+	public async Task IntrinsicallySerializableValue_DoesNotTrigger(
 		string value,
 		string type)
 	{
@@ -80,7 +80,7 @@ public class MyClass {{
 	[Theory]
 	[InlineData("SerializableClass")]
 	[InlineData("SerializableStruct")]
-	public async void IXunitSerializableValue_DoesNotTrigger(string type)
+	public async Task IXunitSerializableValue_DoesNotTrigger(string type)
 	{
 		var source = $@"
 #nullable enable
@@ -120,7 +120,7 @@ public struct SerializableStruct : ISerializableInterface {{
 	[InlineData("Func<int>", "Func<int>?", "Func<int>?")]
 	[InlineData("NonSerializableSealedClass", "NonSerializableSealedClass?", "NonSerializableSealedClass?")]
 	[InlineData("NonSerializableStruct", "NonSerializableStruct", "NonSerializableStruct?")]
-	public async void KnownNonSerializableValue_Triggers1046(
+	public async Task KnownNonSerializableValue_Triggers1046(
 		string type,
 		string defaultValueType,
 		string nullValueType)
@@ -186,7 +186,7 @@ public struct NonSerializableStruct {{ }}";
 	[InlineData("Dictionary<int, string>")]
 	[InlineData("IPossiblySerializableInterface")]
 	[InlineData("PossiblySerializableUnsealedClass")]
-	public async void MaybeNonSerializableValue_Triggers1047(string type)
+	public async Task MaybeNonSerializableValue_Triggers1047(string type)
 	{
 		var source = $@"
 #nullable enable

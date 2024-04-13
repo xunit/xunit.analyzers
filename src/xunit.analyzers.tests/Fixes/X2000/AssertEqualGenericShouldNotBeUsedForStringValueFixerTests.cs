@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Analyzers;
 using Xunit.Analyzers.Fixes;
@@ -20,7 +21,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(Constants.Asserts.Equal)]
 	[InlineData(Constants.Asserts.StrictEqual)]
-	public async void RemovesGeneric(string assert)
+	public async Task RemovesGeneric(string assert)
 	{
 		var before = string.Format(template, $@"[|Assert.{assert}<string>(""foo"", result)|]");
 		var after = string.Format(template, @"Assert.Equal(""foo"", result)");

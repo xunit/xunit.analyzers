@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
@@ -9,7 +10,7 @@ using Verify_X1026 = CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldUseAllPara
 public class RemoveMethodParameterFixTests
 {
 	[Fact]
-	public async void X1022_RemoveParamsArray()
+	public async Task X1022_RemoveParamsArray()
 	{
 		var before = @"
 using Xunit;
@@ -33,7 +34,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void X1026_RemovesUnusedParameter()
+	public async Task X1026_RemovesUnusedParameter()
 	{
 		var before = @"
 using Xunit;
@@ -57,7 +58,7 @@ public class TestClass {
 	}
 
 	[Fact]
-	public async void X1026_DoesNotCrashWhenParameterDeclarationIsMissing()
+	public async Task X1026_DoesNotCrashWhenParameterDeclarationIsMissing()
 	{
 		var before = @"
 using Xunit;
