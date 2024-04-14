@@ -438,9 +438,23 @@ public static partial class Descriptors
 			"The argument '{0}' of type '{1}' might not be serializable, which may cause Test Explorer to not enumerate individual data rows. Consider using a value that is known to be serializable."
 		);
 
-	// Placeholder for rule X1048
+	public static DiagnosticDescriptor X1048_DoNotUseAsyncVoidForTestMethods_V2 { get; } =
+		Diagnostic(
+			"xUnit1048",
+			"Avoid using 'async void' for test methods as it is deprecated in xUnit.net v3",
+			Usage,
+			Warning,
+			"Support for 'async void' unit tests has been removed from xUnit.net v3. To simplify upgrading, convert the test to 'async Task' instead."
+		);
 
-	// Placeholder for rule X1049
+	public static DiagnosticDescriptor X1049_DoNotUseAsyncVoidForTestMethods_V3 { get; } =
+		Diagnostic(
+			"xUnit1049",
+			"Using 'async void' for test methods as it is deprecated in xUnit.net v3",
+			Usage,
+			Error,
+			"Support for 'async void' unit tests has been removed from xUnit.net v3. Convert the test to 'async Task' or 'async ValueTask' instead."
+		);
 
 	// Placeholder for rule X1050
 

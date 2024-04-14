@@ -179,6 +179,29 @@ static class CodeAnalysisExtensions
 				);
 	}
 
+	public static bool IsTestMethod(
+		this IMethodSymbol method,
+		XunitContext xunitContext,
+		ITypeSymbol attributeUsageType,
+		bool strict)
+	{
+		Guard.ArgumentNotNull(method);
+		Guard.ArgumentNotNull(xunitContext);
+
+		var factAttributeType = xunitContext.Core.FactAttributeType;
+		var theoryAttributeType = xunitContext.Core.TheoryAttributeType;
+		if (factAttributeType is null || theoryAttributeType is null)
+			return false;
+
+		var attributes = method.GetAttributesWithInheritance(attributeUsageType);
+		var comparer = SymbolEqualityComparer.Default;
+
+		return
+			strict
+				? attributes.Any(a => comparer.Equals(a.AttributeClass, factAttributeType) || comparer.Equals(a.AttributeClass, theoryAttributeType))
+				: attributes.Any(a => factAttributeType.IsAssignableFrom(a.AttributeClass));
+	}
+
 	public static IOperation WalkDownImplicitConversions(this IOperation operation)
 	{
 		Guard.ArgumentNotNull(operation);
