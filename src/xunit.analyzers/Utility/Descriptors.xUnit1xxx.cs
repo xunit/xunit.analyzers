@@ -444,13 +444,13 @@ public static partial class Descriptors
 			"Avoid using 'async void' for test methods as it is deprecated in xUnit.net v3",
 			Usage,
 			Warning,
-			"Support for 'async void' unit tests has been removed from xUnit.net v3. To simplify upgrading, convert the test to 'async Task' instead."
+			"Support for 'async void' unit tests is being removed from xUnit.net v3. To simplify upgrading, convert the test to 'async Task' instead."
 		);
 
 	public static DiagnosticDescriptor X1049_DoNotUseAsyncVoidForTestMethods_V3 { get; } =
 		Diagnostic(
 			"xUnit1049",
-			"Using 'async void' for test methods as it is deprecated in xUnit.net v3",
+			"Do not use 'async void' for test methods as it is no longer supported",
 			Usage,
 			Error,
 			"Support for 'async void' unit tests has been removed from xUnit.net v3. Convert the test to 'async Task' or 'async ValueTask' instead."

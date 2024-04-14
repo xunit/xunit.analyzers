@@ -20,6 +20,20 @@ public class MyClass {
 	}
 
 	[Fact]
+	public async Task NonAsyncTestMethod_DoesNotTrigger()
+	{
+		var source = @"
+using Xunit;
+
+public class TestClass {
+    [Fact]
+    public void TestMethod() { }
+}";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
 	public async Task AsyncTaskMethod_DoesNotTrigger()
 	{
 		var source = @"

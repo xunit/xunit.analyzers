@@ -31,10 +31,10 @@ public class DoNotUseAsyncVoidForTestMethods : XunitDiagnosticAnalyzer
 			if (context.Symbol is not IMethodSymbol method)
 				return;
 
-			if (!method.IsTestMethod(xunitContext, attributeUsageType, strict: true))
+			if (!method.IsAsync || !method.ReturnsVoid)
 				return;
 
-			if (!method.ReturnsVoid)
+			if (!method.IsTestMethod(xunitContext, attributeUsageType, strict: true))
 				return;
 
 			var location = context.Symbol.Locations.FirstOrDefault();
