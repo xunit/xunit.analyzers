@@ -22,6 +22,10 @@ Installing this package provides code analyzers to help developers find and fix 
 		<file target="_content\" src="..\..\README.md" />
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 
+		<!-- Put a non-Roslyn copy in just the CS folder, for pre-SDK style projects -->
+		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
+		<file target="analyzers\dotnet\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
+
 		<file target="analyzers\dotnet\roslyn3.11\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.dll" />
 		<file target="analyzers\dotnet\roslyn3.11\cs\" src="..\xunit.analyzers.fixes.roslyn311\bin\$Configuration$\netstandard2.0\xunit.analyzers.fixes.dll" />
 
