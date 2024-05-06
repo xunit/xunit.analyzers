@@ -14,7 +14,7 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
@@ -24,7 +24,7 @@ jobs:
         shell: bash
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             8.0.x
@@ -49,15 +49,17 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- PublishPackages --timing
 
       - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test
           path: artifacts/test
+          compression-level: 9
         if: always()
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: artifacts/packages
+          compression-level: 0
         if: always()
