@@ -14,6 +14,7 @@
 Installing this package provides code analyzers to help developers find and fix frequent issues when writing tests and xUnit.net extensibility code.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit.analyzers" commit="$GitCommitId$" />
+		<developmentDependency>true</developmentDependency>
 		<tags>xunit.analyzers, analyzers, roslyn, xunit, xunit.net</tags>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/analyzers/$PackageVersion$</releaseNotes>
