@@ -294,6 +294,32 @@ public class TestClass {
 			await Verify.VerifyAnalyzer(source);
 		}
 
+		[Theory]
+		[InlineData("Task")]
+		[InlineData("ValueTask")]
+		public async Task Async_TheoryData_TriggersInV2_DoesNotTriggerInV3(string taskType)
+		{
+			var source = @$"
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    public static {taskType}<TheoryData<int>> Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) {{ }}
+}}";
+			var expectedV2 =
+				Verify
+					.Diagnostic("xUnit1019")
+					.WithSpan(9, 6, 9, 30)
+					.WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", $"System.Threading.Tasks.{taskType}<Xunit.TheoryData<int>>");
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+		}
+
 		[Fact]
 		public async Task ITheoryDataRow_DoesNotTrigger()
 		{
@@ -316,6 +342,39 @@ public class TestClass
             new TheoryDataRow(0, null) { Skip = ""Don't run this!"" },
         };
 }";
+
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Theory]
+		[InlineData("Task")]
+		[InlineData("ValueTask")]
+		public async Task Async_ITheoryDataRow_DoesNotTrigger(string taskType)
+		{
+			var source = @$"
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
+using Xunit.Sdk;
+
+public class TestClass
+{{
+    [Theory]
+    [MemberData(nameof(DataRowSource))]
+    public void SkippedDataRow(int x, string y)
+    {{ }}
+
+    public static async {taskType}<List<TheoryDataRow>> DataRowSource()
+    {{
+        await Task.Yield();
+
+        return new List<TheoryDataRow>()
+        {{
+            new TheoryDataRow(42, ""Hello, world!""),
+            new TheoryDataRow(0, null) {{ Skip = ""Don't run this!"" }},
+        }};
+    }}
+}}";
 
 			await Verify.VerifyAnalyzerV3(source);
 		}
@@ -1339,6 +1398,34 @@ public class TestClass {{
 					.WithSeverity(DiagnosticSeverity.Info);
 
 			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		// For v2, we test for xUnit1019 above, since it's incompatible rather than "compatible,
+		// but you could do better".
+		[Theory]
+		[InlineData("Task<IEnumerable<object[]>>")]
+		[InlineData("ValueTask<List<object[]>>")]
+		public async Task Async_ValidTypesWhichAreNotTheoryData_TriggersInV3(string memberType)
+		{
+			var source = $@"
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xunit;
+
+public class TestClass {{
+    public static {memberType} Data;
+
+    [MemberData(nameof(Data))]
+    public void TestMethod(int _) {{ }}
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1042")
+					.WithSpan(9, 6, 9, 30)
+					.WithSeverity(DiagnosticSeverity.Info);
+
+			await Verify.VerifyAnalyzerV3(source, expected);
 		}
 	}
 }

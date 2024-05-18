@@ -143,6 +143,22 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (!memberSymbol.IsStatic)
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
+				// Unwrap Task or ValueTask, but only for v3
+				if (xunitContext.HasV3References &&
+					memberReturnType is INamedTypeSymbol namedMemberReturnType &&
+					namedMemberReturnType.IsGenericType)
+				{
+					var taskTypes = new[] {
+						TypeSymbolFactory.TaskOfT(compilation)?.ConstructUnboundGenericType(),
+						TypeSymbolFactory.ValueTaskOfT(compilation)?.ConstructUnboundGenericType(),
+					}.WhereNotNull().ToArray();
+
+					var unboundGeneric = namedMemberReturnType.ConstructUnboundGenericType();
+
+					if (taskTypes.Any(taskType => SymbolEqualityComparer.Default.Equals(unboundGeneric, taskType)))
+						memberReturnType = namedMemberReturnType.TypeArguments[0];
+				}
+
 				// Make sure the member returns a compatible type
 				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 				var IsValidMemberReturnType =
