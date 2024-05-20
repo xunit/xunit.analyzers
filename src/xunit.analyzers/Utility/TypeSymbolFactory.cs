@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
 
@@ -243,13 +244,51 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TheoryData(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData");
 
-	public static INamedTypeSymbol? TheoryDataN(
-		Compilation compilation,
-		int n) =>
-			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData`" + n.ToString(CultureInfo.InvariantCulture));
+	// Centralized here so we don't repeat knowledge of how many arities exist
+	// (in case we decide to add more later).
+	public static Dictionary<int, INamedTypeSymbol> TheoryData_ByGenericArgumentCount(Compilation compilation)
+	{
+		var result = new Dictionary<int, INamedTypeSymbol>();
 
+		var type = TheoryData(compilation);
+		if (type is not null)
+			result[0] = type;
+
+		for (int i = 1; i <= 10; i++)
+		{
+			type = compilation.GetTypeByMetadataName("Xunit.TheoryData`" + i.ToString(CultureInfo.InvariantCulture));
+			if (type is not null)
+				result[i] = type;
+		}
+
+		return result;
+	}
+
+	// Namespace fallback for builds before TheoryDataRow was moved from Xunit.Sdk to Xunit, should
+	// eventually be able to get rid of this fallback once v3 goes 1.0.
 	public static INamedTypeSymbol? TheoryDataRow(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Sdk.TheoryDataRow");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryDataRow")
+			?? compilation.GetTypeByMetadataName("Xunit.Sdk.TheoryDataRow");
+
+	// Centralized here so we don't repeat knowledge of how many arities exist
+	// (in case we decide to add more later).
+	public static Dictionary<int, INamedTypeSymbol> TheoryDataRow_ByGenericArgumentCount(Compilation compilation)
+	{
+		var result = new Dictionary<int, INamedTypeSymbol>();
+
+		var type = TheoryDataRow(compilation);
+		if (type is not null)
+			result[0] = type;
+
+		for (int i = 1; i <= 10; i++)
+		{
+			type = compilation.GetTypeByMetadataName("Xunit.TheoryDataRow`" + i.ToString(CultureInfo.InvariantCulture));
+			if (type is not null)
+				result[i] = type;
+		}
+
+		return result;
+	}
 
 	public static INamedTypeSymbol? TimeOnly(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.TimeOnly");

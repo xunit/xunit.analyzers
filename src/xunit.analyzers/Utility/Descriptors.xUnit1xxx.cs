@@ -342,25 +342,25 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1037",
-			"There are fewer TheoryData type arguments than required by the parameters of the test method",
+			"There are fewer theory data type arguments than required by the parameters of the test method",
 			Usage,
 			Error,
-			"There are fewer TheoryData type arguments than required by the parameters of the test method. Add more type parameters to match the method signature, or remove parameters from the test method."
+			"There are fewer {0} type arguments than required by the parameters of the test method. Add more type parameters to match the method signature, or remove parameters from the test method."
 		);
 
 	public static DiagnosticDescriptor X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1038",
-			"There are more TheoryData type arguments than allowed by the parameters of the test method",
+			"There are more theory data type arguments than allowed by the parameters of the test method",
 			Usage,
 			Error,
-			"There are more TheoryData type arguments than allowed by the parameters of the test method. Remove unused type arguments, or add more parameters."
+			"There are more {0} type arguments than allowed by the parameters of the test method. Remove unused type arguments, or add more parameters."
 		);
 
 	public static DiagnosticDescriptor X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
 		Diagnostic(
 			"xUnit1039",
-			"The type argument to TheoryData is not compatible with the type of the corresponding test method parameter",
+			"The type argument to theory data is not compatible with the type of the corresponding test method parameter",
 			Usage,
 			Error,
 			"The type argument {0} from {1}.{2} is not compatible with the type of the corresponding test method parameter {3}."
@@ -369,7 +369,7 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
 		Diagnostic(
 			"xUnit1040",
-			"The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not",
+			"The type argument to theory data is nullable, while the type of the corresponding test method parameter is not",
 			Usage,
 			Warning,
 			"The type argument {0} from {1}.{2} is nullable, while the type of the corresponding test method parameter {3} is not. Make the TheoryData type non-nullable, or make the test method parameter nullable."
@@ -390,7 +390,7 @@ public static partial class Descriptors
 			"The member referenced by the MemberData attribute returns untyped data rows",
 			Usage,
 			Info,
-			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using TheoryData<> as the return type to provide better type safety."
+			"The member referenced by the MemberData attribute returns untyped data rows, such as object[]. Consider using {0} as the return type to provide better type safety."
 		);
 
 	public static DiagnosticDescriptor X1043_ConstructorOnFactAttributeSubclassShouldBePublic { get; } =

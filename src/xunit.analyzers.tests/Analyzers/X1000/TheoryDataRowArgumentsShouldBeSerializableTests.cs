@@ -60,7 +60,7 @@ public class TestClass {
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Xunit.Sdk;
+using Xunit;
 
 public class MyClass {{
     public IEnumerable<TheoryDataRow> MyMethod() {{
@@ -70,7 +70,7 @@ public class MyClass {{
         var arrayValue = new {type}[0];
 
         yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow({value}, default({type}), default({type}?), new {type}[0]);
+        yield return new TheoryDataRow<{type}, {type}?, {type}?, {type}[]>({value}, default({type}), default({type}?), new {type}[0]);
     }}
 }}";
 
@@ -86,6 +86,7 @@ public class MyClass {{
 #nullable enable
 
 using System.Collections.Generic;
+using Xunit;
 using Xunit.Sdk;
 
 public class MyClass {{
@@ -96,7 +97,7 @@ public class MyClass {{
         var arrayValue = new {type}[0];
 
         yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow(new {type}(), default({type}), default({type}?), new {type}[0]);
+        yield return new TheoryDataRow<{type}, {type}?, {type}?, {type}[]>(new {type}(), default({type}), default({type}?), new {type}[0]);
     }}
 }}
 
@@ -130,7 +131,7 @@ public struct SerializableStruct : ISerializableInterface {{
 
 using System;
 using System.Collections.Generic;
-using Xunit.Sdk;
+using Xunit;
 
 public class MyClass {{
     public IEnumerable<TheoryDataRow> MyMethod() {{
@@ -139,7 +140,7 @@ public class MyClass {{
         var arrayValue = new {type}[0];
 
         yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow(default({type}), default({type}?), new {type}[0]);
+        yield return new TheoryDataRow<{defaultValueType}, {nullValueType}, {type}[]>(default({type}), default({type}?), new {type}[0]);
     }}
 }}
 
@@ -147,6 +148,7 @@ public sealed class NonSerializableSealedClass {{ }}
 
 public struct NonSerializableStruct {{ }}";
 
+		var leftGeneric = 48 + defaultValueType.Length + nullValueType.Length + type.Length;
 		var expected = new[] {
 				Verify
 					.Diagnostic("xUnit1046")
@@ -162,16 +164,64 @@ public struct NonSerializableStruct {{ }}";
 					.WithArguments("arrayValue", $"{type}[]"),
 				Verify
 					.Diagnostic("xUnit1046")
-					.WithSpan(15, 40, 15, 49 + type.Length)
+					.WithSpan(15, leftGeneric, 15, leftGeneric + 9 + type.Length)  // +9 for "default()"
 					.WithArguments($"default({type})", defaultValueType),
 				Verify
 					.Diagnostic("xUnit1046")
-					.WithSpan(15, 51 + type.Length, 15, 61 + type.Length * 2)
+					.WithSpan(15, leftGeneric + 11 + type.Length, 15, leftGeneric + 21 + type.Length * 2)  // +10 for "default(?)"
 					.WithArguments($"default({type}?)", nullValueType),
 				Verify
 					.Diagnostic("xUnit1046")
-					.WithSpan(15, 63 + type.Length * 2, 15, 70 + type.Length * 3)
+					.WithSpan(15, leftGeneric + 23 + type.Length * 2, 15, leftGeneric + 30 + type.Length * 3)  // +7 for "new [0]"
 					.WithArguments($"new {type}[0]", $"{type}[]"),
+			};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+	}
+
+	[Theory]
+	[InlineData("NonSerializableSealedClass")]
+	[InlineData("NonSerializableStruct")]
+	public async Task KnownNonSerializableValue_Constructable_Triggers1046(string type)
+	{
+		var source = $@"
+#nullable enable
+
+using System.Collections.Generic;
+using Xunit;
+
+public class MyClass {{
+    public IEnumerable<TheoryDataRow> MyMethod() {{
+        var value = new {type}();
+
+        yield return new TheoryDataRow(value);
+        yield return new TheoryDataRow(new {type}());
+        yield return new TheoryDataRow<{type}>(value);
+        yield return new TheoryDataRow<{type}>(new {type}());
+    }}
+}}
+
+public sealed class NonSerializableSealedClass {{ }}
+
+public struct NonSerializableStruct {{ }}";
+
+		var expected = new[] {
+				Verify
+					.Diagnostic("xUnit1046")
+					.WithSpan(11, 40, 11, 45)
+					.WithArguments("value", type),
+				Verify
+					.Diagnostic("xUnit1046")
+					.WithSpan(12, 40, 12, 46 + type.Length)
+					.WithArguments($"new {type}()", type),
+				Verify
+					.Diagnostic("xUnit1046")
+					.WithSpan(13, 42 + type.Length, 13, 47 + type.Length)
+					.WithArguments("value", type),
+				Verify
+					.Diagnostic("xUnit1046")
+					.WithSpan(14, 42 + type.Length, 14, 48 + type.Length * 2)
+					.WithArguments($"new {type}()", type),
 			};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
@@ -194,7 +244,7 @@ public struct NonSerializableStruct {{ }}";
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xunit.Sdk;
+using Xunit;
 
 public class MyClass {{
     public IEnumerable<TheoryDataRow> MyMethod() {{
@@ -203,7 +253,7 @@ public class MyClass {{
         var arrayValue = new {type}[0];
 
         yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow(default({type}), default({type}?), new {type}[0]);
+        yield return new TheoryDataRow<{type}, {type}, {type}[]>(default({type}), default({type}?), new {type}[0]);
     }}
 }}
 
@@ -211,6 +261,7 @@ public interface IPossiblySerializableInterface {{ }}
 
 public class PossiblySerializableUnsealedClass {{ }}";
 
+		var leftGeneric = 48 + type.Length * 3;
 		var expected = new[] {
 			Verify
 				.Diagnostic("xUnit1047")
@@ -226,16 +277,63 @@ public class PossiblySerializableUnsealedClass {{ }}";
 				.WithArguments("arrayValue", $"{type}[]"),
 			Verify
 				.Diagnostic("xUnit1047")
-				.WithSpan(16, 40, 16, 49 + type.Length)
+				.WithSpan(16, leftGeneric, 16, leftGeneric + 9 + type.Length)  // +9 for "default()"
 				.WithArguments($"default({type})", $"{type}?"),
 			Verify
 				.Diagnostic("xUnit1047")
-				.WithSpan(16, 51 + type.Length, 16, 61 + type.Length * 2)
+				.WithSpan(16, leftGeneric + 11 + type.Length, 16, leftGeneric + 21 + type.Length * 2)  // +10 for "default(?)"
 				.WithArguments($"default({type}?)", $"{type}?"),
 			Verify
 				.Diagnostic("xUnit1047")
-				.WithSpan(16, 63 + type.Length * 2, 16, 70 + type.Length * 3)
+				.WithSpan(16, leftGeneric + 23 + type.Length * 2, 16, leftGeneric + 30 + type.Length * 3)  // +7 for "new [0]"
 				.WithArguments($"new {type}[0]", $"{type}[]"),
+		};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+	}
+
+	[Theory]
+	[InlineData("object")]
+	[InlineData("Dictionary<int, string>")]
+	[InlineData("PossiblySerializableUnsealedClass")]
+	public async Task MaybeNonSerializableValue_Constructable_Triggers1047(string type)
+	{
+		var source = $@"
+#nullable enable
+
+using System.Collections.Generic;
+using Xunit;
+
+public class MyClass {{
+    public IEnumerable<TheoryDataRow> MyMethod() {{
+        var value = new {type}();
+
+        yield return new TheoryDataRow(value);
+        yield return new TheoryDataRow(new {type}());
+        yield return new TheoryDataRow<{type}>(value);
+        yield return new TheoryDataRow<{type}>(new {type}());
+    }}
+}}
+
+public class PossiblySerializableUnsealedClass {{ }}";
+
+		var expected = new[] {
+			Verify
+				.Diagnostic("xUnit1047")
+				.WithSpan(11, 40, 11, 45)
+				.WithArguments("value", type),
+			Verify
+				.Diagnostic("xUnit1047")
+				.WithSpan(12, 40, 12, 46 + type.Length)
+				.WithArguments($"new {type}()", type),
+			Verify
+				.Diagnostic("xUnit1047")
+				.WithSpan(13, 42 + type.Length, 13, 47 + type.Length)
+				.WithArguments("value", type),
+			Verify
+				.Diagnostic("xUnit1047")
+				.WithSpan(14, 42 + type.Length, 14, 48 + type.Length * 2)
+				.WithArguments($"new {type}()", type),
 		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);

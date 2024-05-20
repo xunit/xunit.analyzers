@@ -7,11 +7,10 @@ namespace Xunit.Analyzers;
 public sealed class SerializableTypeSymbols
 {
 	readonly Lazy<INamedTypeSymbol?> bigInteger;
-	readonly Compilation compilation;
 	readonly Lazy<INamedTypeSymbol?> dateOnly;
 	readonly Lazy<INamedTypeSymbol?> dateTimeOffset;
 	readonly Lazy<INamedTypeSymbol?> iXunitSerializable;
-	readonly Dictionary<int, INamedTypeSymbol?> theoryDataTypes;
+	readonly Dictionary<int, INamedTypeSymbol> theoryDataTypes;
 	readonly Lazy<INamedTypeSymbol?> timeOnly;
 	readonly Lazy<INamedTypeSymbol?> timeSpan;
 	readonly Lazy<INamedTypeSymbol?> traitDictionary;
@@ -23,15 +22,15 @@ public sealed class SerializableTypeSymbols
 		INamedTypeSymbol classDataAttribute,
 		INamedTypeSymbol dataAttribute,
 		INamedTypeSymbol memberDataAttribute,
-		INamedTypeSymbol theoryAttribute)
+		INamedTypeSymbol theoryAttribute,
+		Dictionary<int, INamedTypeSymbol> theoryDataTypes)
 	{
-		this.compilation = compilation;
+		this.theoryDataTypes = theoryDataTypes;
 
 		bigInteger = new(() => TypeSymbolFactory.BigInteger(compilation));
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
 		type = new(() => TypeSymbolFactory.Type(compilation));
-		theoryDataTypes = [];
 		timeOnly = new(() => TypeSymbolFactory.TimeOnly(compilation));
 		timeSpan = new(() => TypeSymbolFactory.TimeSpan(compilation));
 		traitDictionary = new(() => GetTraitDictionary(compilation));
@@ -82,7 +81,8 @@ public sealed class SerializableTypeSymbols
 			classDataAttribute,
 			dataAttribute,
 			memberDataAttribute,
-			theoryAttribute
+			theoryAttribute,
+			TypeSymbolFactory.TheoryData_ByGenericArgumentCount(compilation)
 		);
 	}
 
@@ -101,14 +101,7 @@ public sealed class SerializableTypeSymbols
 
 	public INamedTypeSymbol? TheoryData(int arity)
 	{
-		if (!theoryDataTypes.ContainsKey(arity))
-		{
-			if (arity == 0)
-				theoryDataTypes[arity] = TypeSymbolFactory.TheoryData(compilation);
-			else
-				theoryDataTypes[arity] = TypeSymbolFactory.TheoryDataN(compilation, arity);
-		}
-
-		return theoryDataTypes[arity];
+		theoryDataTypes.TryGetValue(arity, out var result);
+		return result;
 	}
 }

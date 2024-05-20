@@ -23,8 +23,8 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		var theoryDataRowType = TypeSymbolFactory.TheoryDataRow(context.Compilation);
-		if (theoryDataRowType is null)
+		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount(context.Compilation);
+		if (theoryDataRowTypes.Count == 0)
 			return;
 
 		if (SerializableTypeSymbols.Create(context.Compilation, xunitContext) is not SerializableTypeSymbols typeSymbols)
@@ -37,7 +37,11 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 			if (context.Operation is not IObjectCreationOperation objectCreation)
 				return;
 
-			if (!SymbolEqualityComparer.Default.Equals(theoryDataRowType, objectCreation.Type))
+			var creationType = objectCreation.Type as INamedTypeSymbol;
+			if (creationType is not null && creationType.IsGenericType)
+				creationType = creationType.OriginalDefinition;
+
+			if (!theoryDataRowTypes.Values.Contains(creationType, SymbolEqualityComparer.Default))
 				return;
 
 			var argumentOperations = GetConstructorArguments(objectCreation);
@@ -76,6 +80,30 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 
 	static IReadOnlyList<IOperation>? GetConstructorArguments(IObjectCreationOperation objectCreation)
 	{
+		// If this is the generic TheoryDataRow, then just return the arguments as-is
+		if (objectCreation.Type is INamedTypeSymbol creationType && creationType.IsGenericType)
+		{
+			var result = new List<IOperation>();
+
+			for (var idx = 0; idx < objectCreation.Arguments.Length; ++idx)
+			{
+#if ROSLYN_3_11
+				var elementValue = objectCreation.Arguments[idx].Children.FirstOrDefault();
+#else
+				var elementValue = objectCreation.Arguments[idx].ChildOperations.FirstOrDefault();
+#endif
+				while (elementValue is IConversionOperation conversion)
+					elementValue = conversion.Operand;
+
+				if (elementValue is not null)
+					result.Add(elementValue);
+			}
+
+			return result;
+		}
+
+		// Non-generic TheoryDataRow, which means we should have a single argument
+		// which is the params array of values, which we need to unpack.
 		if (objectCreation.Arguments.FirstOrDefault() is not IArgumentOperation argumentOperation)
 			return null;
 
