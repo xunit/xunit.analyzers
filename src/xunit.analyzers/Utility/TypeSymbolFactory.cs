@@ -68,17 +68,7 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
 
-	public static INamedTypeSymbol? IAsyncEnumerableOfObjectArray(Compilation compilation)
-	{
-		var iAsyncEnumerableOfT = IAsyncEnumerableOfT(compilation);
-		if (iAsyncEnumerableOfT is null)
-			return null;
-
-		var objectArray = ObjectArray(compilation);
-		return iAsyncEnumerableOfT.Construct(objectArray);
-	}
-
-	public static INamedTypeSymbol? IAsyncEnumerableOfTheoryDataRow(Compilation compilation)
+	public static INamedTypeSymbol? IAsyncEnumerableOfITheoryDataRow(Compilation compilation)
 	{
 		var iAsyncEnumerableOfT = IAsyncEnumerableOfT(compilation);
 		if (iAsyncEnumerableOfT is null)
@@ -89,6 +79,16 @@ public static class TypeSymbolFactory
 			return null;
 
 		return iAsyncEnumerableOfT.Construct(iTheoryDataRow);
+	}
+
+	public static INamedTypeSymbol? IAsyncEnumerableOfObjectArray(Compilation compilation)
+	{
+		var iAsyncEnumerableOfT = IAsyncEnumerableOfT(compilation);
+		if (iAsyncEnumerableOfT is null)
+			return null;
+
+		var objectArray = ObjectArray(compilation);
+		return iAsyncEnumerableOfT.Construct(objectArray);
 	}
 
 	public static INamedTypeSymbol? IAsyncEnumerableOfT(Compilation compilation) =>
@@ -118,15 +118,6 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol IDisposable(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_IDisposable);
 
-	public static INamedTypeSymbol IEnumerableOfObjectArray(Compilation compilation)
-	{
-		var iEnumerableOfT = Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
-		var objectArray = ObjectArray(compilation);
-		var iEnumerableOfObjectArray = iEnumerableOfT.Construct(objectArray);
-
-		return iEnumerableOfObjectArray;
-	}
-
 	public static INamedTypeSymbol? IEnumerableOfITheoryDataRow(Compilation compilation)
 	{
 		var iTheoryDataRow = ITheoryDataRow(compilation);
@@ -135,6 +126,15 @@ public static class TypeSymbolFactory
 
 		var iEnumerableOfT = Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
 		return iEnumerableOfT.Construct(iTheoryDataRow);
+	}
+
+	public static INamedTypeSymbol IEnumerableOfObjectArray(Compilation compilation)
+	{
+		var iEnumerableOfT = Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
+		var objectArray = ObjectArray(compilation);
+		var iEnumerableOfObjectArray = iEnumerableOfT.Construct(objectArray);
+
+		return iEnumerableOfObjectArray;
 	}
 
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>

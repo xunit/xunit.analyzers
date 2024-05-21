@@ -155,7 +155,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 				// Make sure the member returns a compatible type
 				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
-				var iAsyncEnumerableOfTheoryDataRowType = TypeSymbolFactory.IAsyncEnumerableOfTheoryDataRow(compilation);
+				var iAsyncEnumerableOfTheoryDataRowType = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
 				var IsValidMemberReturnType =
 					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType);
 
