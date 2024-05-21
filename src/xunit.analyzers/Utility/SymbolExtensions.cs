@@ -14,6 +14,24 @@ public static class SymbolExtensions
 			attributes.Any(a => a.IsInstanceOf(attributeType, exactMatch));
 
 	/// <summary>
+	/// If the passed <paramref name="typeSymbol"/> is <see cref="IAsyncEnumerable{T}"/>, then returns
+	/// the enumerable type (aka, T); otherwise, returns <c>null</c>.
+	/// </summary>
+	public static ITypeSymbol? GetAsyncEnumerableType(this ITypeSymbol? typeSymbol)
+	{
+		if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+			return null;
+
+		// Ideally we'd use symbol comparison here, but that would require threading the
+		// Compilation object here, and with 44 callers to IsAssignableFrom that seemed
+		// like an unnecessarily daunting task. We cross fingers that this is good. :)
+		if (namedTypeSymbol.Name == "IAsyncEnumerable" && namedTypeSymbol.ContainingNamespace.ToString() == "System.Collections.Generic")
+			return namedTypeSymbol.TypeArguments[0];
+
+		return null;
+	}
+
+	/// <summary>
 	/// If the passed <paramref name="typeSymbol"/> is <see cref="IEnumerable{T}"/>, then returns
 	/// the enumerable type (aka, T); otherwise, returns <c>null</c>.
 	/// </summary>
@@ -68,6 +86,7 @@ public static class SymbolExtensions
 		if (targetType is not null)
 		{
 			var targetEnumerableType = targetType.GetEnumerableType();
+			var targetAsyncEnumerableType = targetType.GetAsyncEnumerableType();
 
 			while (sourceType is not null)
 			{
@@ -84,6 +103,14 @@ public static class SymbolExtensions
 					var sourceEnumerableType = sourceType.GetEnumerableType();
 					if (sourceEnumerableType is not null)
 						return IsAssignableFrom(targetEnumerableType, sourceEnumerableType);
+				}
+
+				// Special handling for IAsyncEnumerable<T> == IAsyncEnumerable<T> as well
+				if (targetAsyncEnumerableType is not null)
+				{
+					var sourceAsyncEnumerableType = sourceType.GetAsyncEnumerableType();
+					if (sourceAsyncEnumerableType is not null)
+						return IsAssignableFrom(targetAsyncEnumerableType, sourceAsyncEnumerableType);
 				}
 
 				// Special handling for tuples as tuples with differently named fields are still assignable

@@ -155,8 +155,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 				// Make sure the member returns a compatible type
 				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+				var iAsyncEnumerableOfTheoryDataRowType = TypeSymbolFactory.IAsyncEnumerableOfTheoryDataRow(compilation);
 				var IsValidMemberReturnType =
-					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType);
+					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType);
 
 				// Make sure public properties have a public getter
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -167,12 +168,13 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 							ReportNonPublicPropertyGetter(context, attributeSyntax);
 					}
 
-				// If the member returns TheoryData, ensure that the types are compatible
-				// If the member does not return TheoryData (or IEnumerable<TheoryDataRow<>>, gently suggest to the user to switch for better type safety
+				// If the member returns TheoryData<> or TheoryDataRow<>, ensure that the types are compatible.
+				// If the member does not return TheoryData<> or TheoryDataRow<>, gently suggest to the user
+				// to switch for better type safety.
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
-					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryDataTypes[0], theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
-				else if (IsGenericTheoryDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType, theoryDataRowTypes, out var theoryDataReturnType))
-					VerifyTheoryDataUsage(semanticModel, context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataTypes[0], theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+				else if (IsGenericTheoryDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType, theoryDataRowTypes, out var theoryDataReturnType))
+					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
 				else if (IsValidMemberReturnType)
 					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax, xunitContext.HasV3References ? "TheoryData<> or IEnumerable<TheoryDataRow<>>" : "TheoryData<>");
 
@@ -291,6 +293,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	static bool IsGenericTheoryDataRowType(
 		ITypeSymbol? memberReturnType,
 		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType,
 		Dictionary<int, INamedTypeSymbol> theoryDataRowTypes,
 		[NotNullWhen(true)] out INamedTypeSymbol? theoryReturnType)
 	{
@@ -298,7 +301,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		if (iEnumerableOfTheoryDataRowType is null)
 			return false;
-		var namedReturnType = UnwrapIEnumerableOfT(memberReturnType, iEnumerableOfTheoryDataRowType.OriginalDefinition);
+		var namedReturnType = UnwrapEnumerable(memberReturnType, iEnumerableOfTheoryDataRowType.OriginalDefinition);
+		if (namedReturnType is null && iAsyncEnumerableOfTheoryDataRowType is not null)
+			namedReturnType = UnwrapEnumerable(memberReturnType, iAsyncEnumerableOfTheoryDataRowType.OriginalDefinition);
 		if (namedReturnType is null)
 			return false;
 
@@ -374,15 +379,28 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 	static void ReportIncorrectReturnType(
 		SyntaxNodeAnalysisContext context,
 		INamedTypeSymbol iEnumerableOfObjectArrayType,
+		INamedTypeSymbol? iAsyncEnumerableOfObjectArrayType,
 		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType,
 		AttributeSyntax attribute,
 		ImmutableDictionary<string, string?> memberProperties,
 		ITypeSymbol memberType)
 	{
 		var validSymbols = "'" + SymbolDisplay.ToDisplayString(iEnumerableOfObjectArrayType) + "'";
 
-		if (iEnumerableOfTheoryDataRowType is not null)
-			validSymbols += " or '" + SymbolDisplay.ToDisplayString(iEnumerableOfTheoryDataRowType) + "'";
+		// Only want the extra types when we know ITheoryDataRow is valid
+		if (iAsyncEnumerableOfObjectArrayType is not null &&
+				iEnumerableOfTheoryDataRowType is not null &&
+				iAsyncEnumerableOfTheoryDataRowType is not null)
+#pragma warning disable RS1035  // The suggested fix is not available in this context
+			validSymbols += string.Format(
+				CultureInfo.CurrentCulture,
+				", '{0}', '{1}', or '{2}'",
+				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfObjectArrayType),
+				SymbolDisplay.ToDisplayString(iEnumerableOfTheoryDataRowType),
+				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfTheoryDataRowType)
+			);
+#pragma warning restore RS1035
 
 		context.ReportDiagnostic(
 			Diagnostic.Create(
@@ -587,9 +605,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		);
 	}
 
-	static INamedTypeSymbol? UnwrapIEnumerableOfT(
+	static INamedTypeSymbol? UnwrapEnumerable(
 		ITypeSymbol? type,
-		INamedTypeSymbol iEnumerableType)
+		INamedTypeSymbol enumerableType)
 	{
 		if (type is null)
 			return null;
@@ -599,7 +617,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			interfaces = interfaces.Concat([namedType]);
 
 		foreach (var @interface in interfaces)
-			if (SymbolEqualityComparer.Default.Equals(@interface.OriginalDefinition, iEnumerableType))
+			if (SymbolEqualityComparer.Default.Equals(@interface.OriginalDefinition, enumerableType))
 				return @interface.TypeArguments[0] as INamedTypeSymbol;
 
 		return null;
@@ -723,21 +741,40 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ITypeSymbol memberType,
 		ImmutableDictionary<string, string?> memberProperties,
 		AttributeSyntax attributeSyntax,
-		INamedTypeSymbol? iEnumerableOfTheoryDataRowType)
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType)
 	{
+		var v3 = xunitContext.HasV3References;
 		var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+		var iAsyncEnumerableOfObjectArrayType = TypeSymbolFactory.IAsyncEnumerableOfObjectArray(compilation);
+
 		var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
 
-		if (!valid && xunitContext.HasV3References && iEnumerableOfTheoryDataRowType is not null)
+		if (!valid && v3 && iAsyncEnumerableOfObjectArrayType is not null)
+			valid = iAsyncEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
+
+		if (!valid && v3 && iEnumerableOfTheoryDataRowType is not null)
 			valid = iEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
 
+		if (!valid && v3 && iAsyncEnumerableOfTheoryDataRowType is not null)
+			valid = iAsyncEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
+
 		if (!valid)
-			ReportIncorrectReturnType(context, iEnumerableOfObjectArrayType, iEnumerableOfTheoryDataRowType, attributeSyntax, memberProperties, memberType);
+			ReportIncorrectReturnType(
+				context,
+				iEnumerableOfObjectArrayType,
+				iAsyncEnumerableOfObjectArrayType,
+				iEnumerableOfTheoryDataRowType,
+				iAsyncEnumerableOfTheoryDataRowType,
+				attributeSyntax,
+				memberProperties,
+				memberType
+			);
 
 		return valid;
 	}
 
-	static void VerifyTheoryDataUsage(
+	static void VerifyGenericArgumentTypes(
 		SemanticModel semanticModel,
 		SyntaxNodeAnalysisContext context,
 		MethodDeclarationSyntax testMethod,

@@ -68,6 +68,29 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
 
+	public static INamedTypeSymbol? IAsyncEnumerableOfObjectArray(Compilation compilation)
+	{
+		var iAsyncEnumerableOfT = IAsyncEnumerableOfT(compilation);
+		if (iAsyncEnumerableOfT is null)
+			return null;
+
+		var objectArray = ObjectArray(compilation);
+		return iAsyncEnumerableOfT.Construct(objectArray);
+	}
+
+	public static INamedTypeSymbol? IAsyncEnumerableOfTheoryDataRow(Compilation compilation)
+	{
+		var iAsyncEnumerableOfT = IAsyncEnumerableOfT(compilation);
+		if (iAsyncEnumerableOfT is null)
+			return null;
+
+		var iTheoryDataRow = ITheoryDataRow(compilation);
+		if (iTheoryDataRow is null)
+			return null;
+
+		return iAsyncEnumerableOfT.Construct(iTheoryDataRow);
+	}
+
 	public static INamedTypeSymbol? IAsyncEnumerableOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IAsyncEnumerable`1");
 

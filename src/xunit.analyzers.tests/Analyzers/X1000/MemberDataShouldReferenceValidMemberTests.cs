@@ -273,9 +273,9 @@ public class TestClass {{
 
 	public class X1019_MemberDataMustReferenceMemberOfValidType
 	{
-		// The base type of IEnumerable<object[]> triggers xUnit1042, which is covered in the tests
-		// below in X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis, so we'll only
-		// test TheoryData<> and IEnumerable<ITheoryDataRow> here.
+		// The base type of IEnumerable<object[]> and IEnumerable<ITheoryDataRow> trigger xUnit1042,
+		// which is covered below in X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
+		// so we'll only test TheoryData<> and IEnumerable<TheoryDataRow<>> here.
 
 		[Fact]
 		public async Task TheoryData_DoesNotTrigger()
@@ -320,38 +320,39 @@ public class TestClass {{
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 		}
 
-		[Fact]
-		public async Task GenericTheoryDataRow_DoesNotTrigger()
+		[Theory]
+		[InlineData("List<TheoryDataRow<int, string>>")]
+		[InlineData("IAsyncEnumerable<TheoryDataRow<int, string>>")]
+		public async Task GenericTheoryDataRow_DoesNotTrigger(string dataType)
 		{
-			var source = @"
+			var source = @$"
+using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
 public class TestClass
-{
+{{
     [Theory]
     [MemberData(nameof(DataRowSource))]
     public void SkippedDataRow(int x, string y)
-    { }
+    {{ }}
 
-    public static List<TheoryDataRow<int, string>> DataRowSource() =>
-        new()
-        {
-            new(42, ""Hello, world!""),
-            new(0, null) { Skip = ""Don't run this!"" },
-        };
-}";
+    public static {dataType} DataRowSource() {{
+        throw new NotImplementedException();
+    }}
+}}";
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 		}
 
 		[Theory]
-		[InlineData("Task")]
-		[InlineData("ValueTask")]
+		[InlineData("Task<List<TheoryDataRow<int, string>>>")]
+		[InlineData("ValueTask<IAsyncEnumerable<TheoryDataRow<int, string>>>")]
 		public async Task Async_GenericTheoryDataRow_DoesNotTrigger(string taskType)
 		{
 			var source = @$"
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -364,15 +365,8 @@ public class TestClass
     public void SkippedDataRow(int x, string y)
     {{ }}
 
-    public static async {taskType}<List<TheoryDataRow<int, string>>> DataRowSource()
-    {{
-        await Task.Yield();
-
-        return new()
-        {{
-            new(42, ""Hello, world!""),
-            new(0, null) {{ Skip = ""Don't run this!"" }},
-        }};
+    public static async {taskType} DataRowSource() {{
+        throw new NotImplementedException();
     }}
 }}";
 
@@ -408,7 +402,7 @@ public class TestClass {{
 					.Diagnostic("xUnit1019")
 					.WithSpan(5, 6, 5, 36)
 					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments("'System.Collections.Generic.IEnumerable<object[]>' or 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>'", memberType);
+					.WithArguments("'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', or 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>'", memberType);
 
 			await Verify.VerifyAnalyzerV3(source, expectedV3);
 		}
@@ -1843,6 +1837,7 @@ public class TestClass {
 
 		[Theory]
 		[InlineData("IEnumerable<TheoryDataRow<int>>")]
+		[InlineData("IAsyncEnumerable<TheoryDataRow<int>>")]
 		[InlineData("List<TheoryDataRow<int>>")]
 		[InlineData("TheoryDataRow<int>[]")]
 		public async Task GenericTheoryDataRow_DoesNotTrigger(string memberType)
@@ -1898,13 +1893,17 @@ public class TestClass {{
 		// For v2, we test for xUnit1019 above, since it's incompatible rather than "compatible,
 		// but you could do better".
 		[Theory]
+		[InlineData("IAsyncEnumerable<object[]>")]
 		[InlineData("Task<IEnumerable<object[]>>")]
 		[InlineData("ValueTask<List<object[]>>")]
 		[InlineData("IEnumerable<TheoryDataRow>")]
+		[InlineData("IAsyncEnumerable<TheoryDataRow>")]
 		[InlineData("Task<IEnumerable<TheoryDataRow>>")]
+		[InlineData("Task<IAsyncEnumerable<TheoryDataRow>>")]
 		[InlineData("ValueTask<List<TheoryDataRow>>")]
 		[InlineData("IEnumerable<ITheoryDataRow>")]
 		[InlineData("Task<IEnumerable<ITheoryDataRow>>")]
+		[InlineData("Task<IAsyncEnumerable<ITheoryDataRow>>")]
 		[InlineData("ValueTask<EnumerableOfITheoryDataRow>")]
 		public async Task ValidTypesWhichAreNotTheoryDataOrGenericTheoryDataRow_TriggersInV3(string memberType)
 		{
