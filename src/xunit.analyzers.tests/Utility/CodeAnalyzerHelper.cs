@@ -34,6 +34,7 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV2 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
@@ -45,6 +46,7 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV2RunnerUtility = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),

@@ -75,7 +75,7 @@ public static partial class Descriptors
 			"ClassData must point at a valid class",
 			Usage,
 			Error,
-			"ClassData must point at a valid class. The class {0} must be public, not sealed, with an empty constructor, and implement IEnumerable<object[]>."
+			"ClassData must point at a valid class. The class {0} must be public, not sealed, with an empty constructor, and implement {1}."
 		);
 
 	public static DiagnosticDescriptor X1008_DataAttributeShouldBeUsedOnATheory { get; } =

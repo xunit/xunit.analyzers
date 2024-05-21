@@ -9,6 +9,9 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 {
+	const string typesV2 = "IEnumerable<object[]>";
+	const string typesV3 = "IEnumerable<object[]>, IAsyncEnumerable<object[]>, IEnumerable<ITheoryDataRow>, or IAsyncEnumerable<ITheoryDataRow>";
+
 	public ClassDataAttributeMustPointAtValidClass() :
 		base(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass)
 	{ }
@@ -22,6 +25,9 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 
 		var compilation = context.Compilation;
 		var iEnumerableOfObjectArray = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
+		var iEnumerableOfTheoryDataRow = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
+		var iAsyncEnumerableOfObjectArray = TypeSymbolFactory.IAsyncEnumerableOfObjectArray(compilation);
+		var iAsyncEnumerableOfTheoryDataRow = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -40,6 +46,16 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 				return;
 
 			var missingInterface = !iEnumerableOfObjectArray.IsAssignableFrom(classType);
+			if (xunitContext.HasV3References)
+			{
+				if (missingInterface && iEnumerableOfTheoryDataRow is not null)
+					missingInterface = !iEnumerableOfTheoryDataRow.IsAssignableFrom(classType);
+				if (missingInterface && iAsyncEnumerableOfObjectArray is not null)
+					missingInterface = !iAsyncEnumerableOfObjectArray.IsAssignableFrom(classType);
+				if (missingInterface && iAsyncEnumerableOfTheoryDataRow is not null)
+					missingInterface = !iAsyncEnumerableOfTheoryDataRow.IsAssignableFrom(classType);
+			}
+
 			var isAbstract = classType.IsAbstract;
 			var noValidConstructor = !classType.InstanceConstructors.Any(c => c.Parameters.IsEmpty && c.DeclaredAccessibility == Accessibility.Public);
 
@@ -48,7 +64,8 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 					Diagnostic.Create(
 						Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
 						argumentExpression.Type.GetLocation(),
-						classType.Name
+						classType.Name,
+						xunitContext.HasV3References ? typesV3 : typesV2
 					)
 				);
 		}, SyntaxKind.Attribute);
