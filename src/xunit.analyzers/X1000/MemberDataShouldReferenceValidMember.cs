@@ -301,21 +301,20 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		if (iEnumerableOfTheoryDataRowType is null)
 			return false;
-		var namedReturnType = UnwrapEnumerable(memberReturnType, iEnumerableOfTheoryDataRowType.OriginalDefinition);
-		if (namedReturnType is null && iAsyncEnumerableOfTheoryDataRowType is not null)
-			namedReturnType = UnwrapEnumerable(memberReturnType, iAsyncEnumerableOfTheoryDataRowType.OriginalDefinition);
-		if (namedReturnType is null)
+		var rowType = memberReturnType.UnwrapEnumerable(iEnumerableOfTheoryDataRowType.OriginalDefinition);
+		if (rowType is null && iAsyncEnumerableOfTheoryDataRowType is not null)
+			rowType = memberReturnType.UnwrapEnumerable(iAsyncEnumerableOfTheoryDataRowType.OriginalDefinition);
+		if (rowType is null)
 			return false;
 
-		INamedTypeSymbol? working = namedReturnType;
-		while (working is not null)
+		var working = rowType as INamedTypeSymbol;
+		for (; working is not null; working = working.BaseType)
 		{
 			var returnTypeArguments = working.TypeArguments;
 			if (returnTypeArguments.Length != 0
 				&& theoryDataRowTypes.TryGetValue(returnTypeArguments.Length, out var theoryDataType)
 				&& SymbolEqualityComparer.Default.Equals(theoryDataType, working.OriginalDefinition))
 				break;
-			working = working.BaseType;
 		}
 
 		if (working is null)
@@ -601,24 +600,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				memberSymbol.ContainingType.ToDisplayString()
 			)
 		);
-	}
-
-	static INamedTypeSymbol? UnwrapEnumerable(
-		ITypeSymbol? type,
-		INamedTypeSymbol enumerableType)
-	{
-		if (type is null)
-			return null;
-
-		IEnumerable<INamedTypeSymbol> interfaces = type.AllInterfaces;
-		if (type is INamedTypeSymbol namedType)
-			interfaces = interfaces.Concat([namedType]);
-
-		foreach (var @interface in interfaces)
-			if (SymbolEqualityComparer.Default.Equals(@interface.OriginalDefinition, enumerableType))
-				return @interface.TypeArguments[0] as INamedTypeSymbol;
-
-		return null;
 	}
 
 	static void VerifyDataMethodParameterUsage(

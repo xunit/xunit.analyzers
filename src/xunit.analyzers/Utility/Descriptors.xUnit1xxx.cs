@@ -456,7 +456,14 @@ public static partial class Descriptors
 			"Support for 'async void' unit tests has been removed from xUnit.net v3. Convert the test to 'async Task' or 'async ValueTask' instead."
 		);
 
-	// Placeholder for rule X1050
+	public static DiagnosticDescriptor X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis { get; } =
+		Diagnostic(
+			"xUnit1050",
+			"The class referenced by the ClassData attribute returns untyped data rows",
+			Usage,
+			Info,
+			"The class referenced by the ClassData attribute returns untyped data rows, such as object[] or ITheoryDataRow. Consider using generic TheoryDataRow<> as the row type to provide better type safety."
+		);
 
 	// Placeholder for rule X1051
 

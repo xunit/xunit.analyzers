@@ -124,18 +124,14 @@ public static class TypeSymbolFactory
 		if (iTheoryDataRow is null)
 			return null;
 
-		var iEnumerableOfT = Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
-		return iEnumerableOfT.Construct(iTheoryDataRow);
+		return IEnumerableOfT(compilation).Construct(iTheoryDataRow);
 	}
 
-	public static INamedTypeSymbol IEnumerableOfObjectArray(Compilation compilation)
-	{
-		var iEnumerableOfT = Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
-		var objectArray = ObjectArray(compilation);
-		var iEnumerableOfObjectArray = iEnumerableOfT.Construct(objectArray);
+	public static INamedTypeSymbol IEnumerableOfObjectArray(Compilation compilation) =>
+		IEnumerableOfT(compilation).Construct(ObjectArray(compilation));
 
-		return iEnumerableOfObjectArray;
-	}
+	public static INamedTypeSymbol IEnumerableOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
 
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IMessageSink");

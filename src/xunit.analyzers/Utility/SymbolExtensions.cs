@@ -121,6 +121,18 @@ public static class SymbolExtensions
 					return SymbolEqualityComparer.Default.Equals(sourceTupleType, targetTupleType);
 				}
 
+				// Special handling when the target type is an open generic, we need to get the open
+				// generic of the source type for the compatibility test
+				if (targetType is INamedTypeSymbol namedTargetType && namedTargetType.IsUnboundGenericType)
+				{
+					var namedSourceType = sourceType as INamedTypeSymbol;
+					if (namedSourceType is not null &&
+							namedSourceType.IsGenericType &&
+							!namedSourceType.IsUnboundGenericType &&
+							IsAssignableFrom(targetType, namedSourceType.ConstructUnboundGenericType()))
+						return true;
+				}
+
 				if (targetType.TypeKind == TypeKind.Interface)
 					return sourceType.AllInterfaces.Any(i => IsAssignableFrom(targetType, i));
 
@@ -139,6 +151,44 @@ public static class SymbolExtensions
 				Guard.ArgumentNotNull(attribute).AttributeClass,
 				exactMatch
 			);
+
+	public static ITypeSymbol? UnwrapEnumerable(
+		this ITypeSymbol? type,
+		Compilation compilation)
+	{
+		if (type is null)
+			return null;
+
+		var iEnumerableOfT = TypeSymbolFactory.IEnumerableOfT(compilation);
+		var result = UnwrapEnumerable(type, iEnumerableOfT);
+
+		if (result is null)
+		{
+			var iAsyncEnumerableOfT = TypeSymbolFactory.IAsyncEnumerableOfT(compilation);
+			if (iAsyncEnumerableOfT is not null)
+				result = UnwrapEnumerable(type, iAsyncEnumerableOfT);
+		}
+
+		return result;
+	}
+
+	public static ITypeSymbol? UnwrapEnumerable(
+		this ITypeSymbol? type,
+		ITypeSymbol enumerableType)
+	{
+		if (type is null)
+			return null;
+
+		IEnumerable<INamedTypeSymbol> interfaces = type.AllInterfaces;
+		if (type is INamedTypeSymbol namedType)
+			interfaces = interfaces.Concat([namedType]);
+
+		foreach (var @interface in interfaces)
+			if (SymbolEqualityComparer.Default.Equals(@interface.OriginalDefinition, enumerableType))
+				return @interface.TypeArguments[0];
+
+		return null;
+	}
 
 	public static ITypeSymbol UnwrapNullable(this ITypeSymbol type)
 	{

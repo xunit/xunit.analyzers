@@ -13,7 +13,10 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 	const string typesV3 = "IEnumerable<object[]>, IAsyncEnumerable<object[]>, IEnumerable<ITheoryDataRow>, or IAsyncEnumerable<ITheoryDataRow>";
 
 	public ClassDataAttributeMustPointAtValidClass() :
-		base(Descriptors.X1007_ClassDataAttributeMustPointAtValidClass)
+		base(
+			Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
+			Descriptors.X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis
+		)
 	{ }
 
 	public override void AnalyzeCompilation(
@@ -28,6 +31,12 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		var iEnumerableOfTheoryDataRow = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 		var iAsyncEnumerableOfObjectArray = TypeSymbolFactory.IAsyncEnumerableOfObjectArray(compilation);
 		var iAsyncEnumerableOfTheoryDataRow = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
+		var theoryDataRows =
+			TypeSymbolFactory
+				.TheoryDataRow_ByGenericArgumentCount(compilation)
+				.Where(kvp => kvp.Key != 0)
+				.Select(kvp => kvp.Value.ConstructUnboundGenericType())
+				.ToArray();
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -60,6 +69,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			var noValidConstructor = !classType.InstanceConstructors.Any(c => c.Parameters.IsEmpty && c.DeclaredAccessibility == Accessibility.Public);
 
 			if (missingInterface || isAbstract || noValidConstructor)
+			{
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
@@ -68,6 +78,24 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 						xunitContext.HasV3References ? typesV3 : typesV2
 					)
 				);
+				return;
+			}
+
+			// For v3, recommend I(Async)Enumerable<TheoryDataRow<>> over I(Async)Enumerable<object[]>.
+			// Can't make any recommendations for v2 projects, since deriving from TheoryData<> doesn't make sense.
+			if (!xunitContext.HasV3References)
+				return;
+
+			var rowType = classType.UnwrapEnumerable(compilation);
+			if (rowType is null || theoryDataRows.Any(tdr => tdr.IsAssignableFrom(rowType.OriginalDefinition)))
+				return;
+
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis,
+					argumentExpression.Type.GetLocation()
+				)
+			);
 		}, SyntaxKind.Attribute);
 	}
 }

@@ -17,11 +17,10 @@ public class TestData {
 
 public class TestClass {
     [Theory]
-    [ClassData(typeof([|TestData|]))]
+    [ClassData(typeof({|xUnit1007:TestData|}))]
     public void TestMethod(int _) { }
 }";
-
-		var after = @"
+		var afterV2 = @"
 using System.Collections.Generic;
 using Xunit;
 
@@ -34,8 +33,10 @@ public class TestClass {
     [ClassData(typeof(TestData))]
     public void TestMethod(int _) { }
 }";
+		var afterV3 = afterV2.Replace("typeof(TestData)", "typeof({|xUnit1050:TestData|})");
 
-		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV2(before, afterV2, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV3(before, afterV3, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -55,11 +56,10 @@ public class TestData : IEnumerable<object[]> {
 
 public class TestClass {
     [Theory]
-    [ClassData(typeof([|TestData|]))]
+    [ClassData(typeof({|xUnit1007:TestData|}))]
     public void TestMethod(int _) { }
 }";
-
-		var after = @"
+		var afterV2 = @"
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
@@ -76,8 +76,10 @@ public class TestClass {
     [ClassData(typeof(TestData))]
     public void TestMethod(int _) { }
 }";
+		var afterV3 = afterV2.Replace("typeof(TestData)", "typeof({|xUnit1050:TestData|})");
 
-		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV2(before, afterV2, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV3(before, afterV3, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -97,11 +99,10 @@ public class TestData : IEnumerable<object[]> {
 
 public class TestClass {
     [Theory]
-    [ClassData(typeof([|TestData|]))]
+    [ClassData(typeof({|xUnit1007:TestData|}))]
     public void TestMethod(int _) { }
 }";
-
-		var after = @"
+		var afterV2 = @"
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
@@ -122,8 +123,10 @@ public class TestClass {
     [ClassData(typeof(TestData))]
     public void TestMethod(int _) { }
 }";
+		var afterV3 = afterV2.Replace("typeof(TestData)", "typeof({|xUnit1050:TestData|})");
 
-		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV2(before, afterV2, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV3(before, afterV3, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 
 	[Fact]
@@ -141,11 +144,10 @@ public abstract class TestData : IEnumerable<object[]> {
 
 public class TestClass {
     [Theory]
-    [ClassData(typeof([|TestData|]))]
+    [ClassData(typeof({|xUnit1007:TestData|}))]
     public void TestMethod(int _) { }
 }";
-
-		var after = @"
+		var afterV2 = @"
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
@@ -160,7 +162,9 @@ public class TestClass {
     [ClassData(typeof(TestData))]
     public void TestMethod(int _) { }
 }";
+		var afterV3 = afterV2.Replace("typeof(TestData)", "typeof({|xUnit1050:TestData|})");
 
-		await Verify.VerifyCodeFix(before, after, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV2(before, afterV2, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
+		await Verify.VerifyCodeFixV3(before, afterV3, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
 	}
 }
