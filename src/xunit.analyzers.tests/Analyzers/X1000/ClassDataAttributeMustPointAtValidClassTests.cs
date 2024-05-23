@@ -1,23 +1,28 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.ClassDataAttributeMustPointAtValidClass>;
 
 public class ClassDataAttributeMustPointAtValidClassTests
 {
-	static readonly string TestMethodSource = @"
+	static string TestMethodSource(string testMethodParams = "(int n)") => @$"
+#nullable enable
+
 using Xunit;
 
-public class TestClass {
+public class TestClass {{
     [Theory]
     [ClassData(typeof(DataClass))]
-    public void TestMethod() { }
-}";
+    public void TestMethod{testMethodParams} {{ }}
+}}";
 
-	[Fact]
-	public async Task SuccessCaseV2()
+	public class SuccessCases
 	{
-		var dataClassSource = @"
+		[Fact]
+		public async Task SuccessCaseV2()
+		{
+			var dataClassSource = @"
 using System.Collections;
 using System.Collections.Generic;
 
@@ -26,13 +31,13 @@ class DataClass: IEnumerable<object[]> {
     IEnumerator IEnumerable.GetEnumerator() => null;
 }";
 
-		await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp7_1, [TestMethodSource, dataClassSource]);
-	}
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource]);
+		}
 
-	public static TheoryData<string> SuccessCasesV3Data = new()
-	{
-		// IEnumerable<ITheoryDataRow<>>
-		@"
+		public static TheoryData<string, string> SuccessCasesV3Data = new()
+		{
+			// IEnumerable<ITheoryDataRow<int>> maps to int
+			{ "(int n)", @"
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
@@ -40,36 +45,146 @@ using Xunit;
 class DataClass: IEnumerable<TheoryDataRow<int>> {
     public IEnumerator<TheoryDataRow<int>> GetEnumerator() => null;
     IEnumerator IEnumerable.GetEnumerator() => null;
-}",
-		// IAsyncEnumerable<TheoryDataRow<>>
-		@"
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int>> maps to int
+			{ "(int n)", @"
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
 public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
     public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}",
-		// IAsyncEnumerable<DerivedTheoryDataRow>
-		@"
+}" },
+			// IAsyncEnumerable<DerivedTheoryDataRow> maps to int
+			{ "(int n)", @"
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
-public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow> {
-    public IAsyncEnumerator<DerivedTheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}
-
 public class DerivedTheoryDataRow : TheoryDataRow<int> {
     public DerivedTheoryDataRow(int t) : base(t) { }
-}",
-	};
+}
 
-	[Theory]
-	[MemberData(nameof(SuccessCasesV3Data))]
-	public async Task SuccessCasesV3(string dataClassSource)
-	{
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, [TestMethodSource, dataClassSource]);
+public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow> {
+    public IAsyncEnumerator<DerivedTheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<DerivedTheoryDataRow<int>> maps to int
+			{ "(int n)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {
+    public DerivedTheoryDataRow(T t) : base(t) { }
+}
+
+public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow<int>> {
+    public IAsyncEnumerator<DerivedTheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<DerivedTheoryDataRow<int, string>> maps to int
+			{ "(int n)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {
+    public DerivedTheoryDataRow(T t, U u) : base(t) { }
+}
+
+public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow<int, string>> {
+    public IAsyncEnumerator<DerivedTheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int>> with optional parameter
+			{ "(int n, int p = 0)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
+    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int>> with params array (no values)
+			{ "(int n, params int[] a)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
+    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int, string>> with params array (one value)
+			{ "(int n, params string[] a)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string>> {
+    public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int, string, string>> with params array (multiple values)
+			{ "(int n, params string[] a)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string, string>> {
+    public IAsyncEnumerator<TheoryDataRow<int, string, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int, string[]>> with params array (array for params array)
+			{ "(int n, params string[] a)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string[]>> {
+    public IAsyncEnumerator<TheoryDataRow<int, string[]>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int>> maps to generic T
+			{ "<T>(T t)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
+    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<int>> maps to generic T?
+			{ "<T>(T? t)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
+    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<(int, int)>> maps unnamed tuple to named tuple
+			{ "((int x, int y) point)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<(int, int)>> {
+    public IAsyncEnumerator<TheoryDataRow<(int, int)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+			// IAsyncEnumerable<TheoryDataRow<(int, int)>> maps tuples with mismatched names
+			{ "((int x, int y) point)", @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<(int x1, int y1)>> {
+    public IAsyncEnumerator<TheoryDataRow<(int x1, int y1)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}" },
+		};
+
+		[Theory]
+		[MemberData(nameof(SuccessCasesV3Data))]
+		public async Task SuccessCasesV3(
+			string methodParams,
+			string dataClassSource)
+		{
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource(methodParams), dataClassSource]);
+		}
 	}
 
 	public class X1007_ClassDataAttributeMustPointAtValidClass
@@ -133,16 +248,16 @@ class DataClass: IEnumerable<object[]> {
 			var expectedV2 =
 				Verify
 					.Diagnostic("xUnit1007")
-					.WithSpan(6, 23, 6, 32)
+					.WithSpan(8, 6, 8, 34)
 					.WithArguments("DataClass", "IEnumerable<object[]>");
 			var expectedV3 =
 				Verify
 					.Diagnostic("xUnit1007")
-					.WithSpan(6, 23, 6, 32)
+					.WithSpan(8, 6, 8, 34)
 					.WithArguments("DataClass", "IEnumerable<object[]>, IAsyncEnumerable<object[]>, IEnumerable<ITheoryDataRow>, or IAsyncEnumerable<ITheoryDataRow>");
 
-			await Verify.VerifyAnalyzerV2([TestMethodSource, dataClassSource], expectedV2);
-			await Verify.VerifyAnalyzerV3([TestMethodSource, dataClassSource], expectedV3);
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expectedV3);
 		}
 
 		[Fact]
@@ -158,10 +273,166 @@ public class DataClass : IAsyncEnumerable<object[]> {
 			var expected =
 				Verify
 					.Diagnostic("xUnit1007")
-					.WithSpan(6, 23, 6, 32)
+					.WithSpan(8, 6, 8, 34)
 					.WithArguments("DataClass", "IEnumerable<object[]>");
 
-			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp7_1, [TestMethodSource, dataClassSource], expected);
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expected);
+		}
+	}
+
+	public class X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
+	{
+		[Theory]
+		[InlineData("TheoryDataRow<int>")]
+		[InlineData("DerivedTheoryDataRow<int, string>")]
+		public async Task NotEnoughTypeParameters_Triggers(string theoryDataRowType)
+		{
+			var source = $@"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {{
+    public DerivedTheoryDataRow(T t, U u) : base(t) {{ }}
+}}
+
+public class DataClass : IAsyncEnumerable<{theoryDataRowType}> {{
+    public IAsyncEnumerator<{theoryDataRowType}> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1037")
+					.WithSpan(8, 6, 8, 34)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("Xunit.TheoryDataRow");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, string f)"), source], expected);
+		}
+	}
+
+	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
+	{
+		[Theory]
+		[InlineData("TheoryDataRow<int, double>")]
+		[InlineData("DerivedTheoryDataRow<int>")]
+		public async Task TooManyTypeParameters_Triggers(string theoryDataRowType)
+		{
+			var source = $@"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DerivedTheoryDataRow<T> : TheoryDataRow<T, double> {{
+    public DerivedTheoryDataRow(T t) : base(t, 21.12) {{ }}
+}}
+
+public class DataClass : IAsyncEnumerable<{theoryDataRowType}> {{
+    public IAsyncEnumerator<{theoryDataRowType}> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1038")
+					.WithSpan(8, 6, 8, 34)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("Xunit.TheoryDataRow");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n)"), source], expected);
+		}
+
+		[Fact]
+		public async Task ExtraDataPastParamsArray_Triggers()
+		{
+			var source = $@"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, double[], long>> {{
+    public IAsyncEnumerator<TheoryDataRow<int, double[], long>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1038")
+					.WithSpan(8, 6, 8, 34)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("Xunit.TheoryDataRow");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, params double[] d)"), source], expected);
+		}
+	}
+
+	public class X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
+	{
+		[Fact]
+		public async Task WithIncompatibleType_Triggers()
+		{
+			var source = @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string>> {
+    public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1039")
+					.WithSpan(9, 35, 9, 41)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("string", "DataClass", "d");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, double d)"), source], expected);
+		}
+
+		[Fact]
+		public async Task WithExtraValueNotCompatibleWithParamsArray_Triggers()
+		{
+			var source = @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string, int>> {
+    public IAsyncEnumerator<TheoryDataRow<int, string, int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1039")
+					.WithSpan(9, 42, 9, 50)
+					.WithSeverity(DiagnosticSeverity.Error)
+					.WithArguments("int", "DataClass", "s");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, params string[] s)"), source], expected);
+		}
+	}
+
+	public class X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
+	{
+		[Fact]
+		public async Task ValidTheoryDataRowMemberWithMismatchedNullability_Triggers()
+		{
+			var source = @"
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+public class DataClass : IAsyncEnumerable<TheoryDataRow<string?>> {
+    public IAsyncEnumerator<TheoryDataRow<string?>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}";
+
+			var expected =
+				Verify
+					.Diagnostic("xUnit1040")
+					.WithSpan(9, 28, 9, 34)
+					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithArguments("string?", "DataClass", "s");
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(string s)"), source], expected);
 		}
 	}
 
@@ -235,9 +506,9 @@ public class DataClass : IAsyncEnumerable<TheoryDataRow> {
 			var expected =
 				Verify
 					.Diagnostic("xUnit1050")
-					.WithSpan(6, 23, 6, 32);
+					.WithSpan(8, 6, 8, 34);
 
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, [TestMethodSource, dataClassSource], expected);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expected);
 		}
 	}
 }

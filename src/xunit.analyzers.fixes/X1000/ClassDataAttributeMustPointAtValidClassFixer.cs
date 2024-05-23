@@ -29,7 +29,21 @@ public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvid
 		if (semanticModel is null)
 			return;
 
-		var typeOfExpression = root.FindNode(context.Span).FirstAncestorOrSelf<TypeOfExpressionSyntax>();
+		// The context wraps "ClassData(typeof(T))", which is an attribute syntax
+		var attribute = root.FindNode(context.Span);
+
+		// Dig in to find the attribute arguments
+		var attributeArgumentList = attribute.ChildNodes().OfType<AttributeArgumentListSyntax>().FirstOrDefault();
+		if (attributeArgumentList is null)
+			return;
+
+		// Dig into that to get the attribute argument
+		var attributeArgument = attributeArgumentList.ChildNodes().OfType<AttributeArgumentSyntax>().FirstOrDefault();
+		if (attributeArgument is null)
+			return;
+
+		// And finally, dig in to get the typeof expression
+		var typeOfExpression = attributeArgument.ChildNodes().OfType<TypeOfExpressionSyntax>().FirstOrDefault();
 		if (typeOfExpression is null)
 			return;
 
