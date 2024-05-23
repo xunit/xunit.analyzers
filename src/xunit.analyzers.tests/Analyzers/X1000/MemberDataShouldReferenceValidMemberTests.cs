@@ -825,7 +825,7 @@ public class TestClass {{
 		}
 	}
 
-	public class X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
+	public class X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
 	{
 		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
 		{
@@ -948,7 +948,7 @@ public class TestClass {{
 		}
 	}
 
-	public class X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
+	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
 		public static MatrixTheoryData<(string syntax, string args), string> MemberSyntaxAndArgs_WithTheoryDataType(string theoryDataTypes) =>
 			new(
@@ -1481,7 +1481,7 @@ public class TestClass {{
 		}
 	}
 
-	public class X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
+	public class X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
 	{
 		public static MatrixTheoryData<(string syntax, string args), string> TypeWithMemberSyntaxAndArgs =
 			new(
@@ -1648,7 +1648,7 @@ public class TestClass {
 					.Diagnostic("xUnit1039")
 					.WithSpan(8, 42, 8, 50)
 					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments("int", "TestClass", "TestData", "_2");
+					.WithArguments("int", "TestClass.TestData", "_2");
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -1672,7 +1672,7 @@ public class TestClass {
 					.Diagnostic("xUnit1039")
 					.WithSpan(9, 42, 9, 50)
 					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments("int", "TestClass", "TestData", "_2");
+					.WithArguments("int", "TestClass.TestData", "_2");
 
 			await Verify.VerifyAnalyzerV3(source, expected);
 		}
@@ -1698,7 +1698,7 @@ public class TestClass {{
 					.Diagnostic("xUnit1039")
 					.WithSpan(8, 28, 8, 34)
 					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments(type, "TestClass", "TestData", "f");
+					.WithArguments(type, "TestClass.TestData", "f");
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -1725,13 +1725,13 @@ public class TestClass {{
 					.Diagnostic("xUnit1039")
 					.WithSpan(9, 28, 9, 34)
 					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments(type, "TestClass", "TestData", "f");
+					.WithArguments(type, "TestClass.TestData", "f");
 
 			await Verify.VerifyAnalyzerV3(source, expected);
 		}
 	}
 
-	public class X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
+	public class X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 	{
 		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
 		{
@@ -1764,7 +1764,7 @@ public class TestClass {{
 					.Diagnostic("xUnit1040")
 					.WithSpan(10, 28, 10, 34)
 					.WithSeverity(DiagnosticSeverity.Warning)
-					.WithArguments("string?", "TestClass", "TestData", "f");
+					.WithArguments("string?", "TestClass.TestData", "f");
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
@@ -1793,7 +1793,7 @@ public class TestClass {{
 					.Diagnostic("xUnit1040")
 					.WithSpan(11, 28, 11, 34)
 					.WithSeverity(DiagnosticSeverity.Warning)
-					.WithArguments("string?", "TestClass", "TestData", "f");
+					.WithArguments("string?", "TestClass.TestData", "f");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 		}

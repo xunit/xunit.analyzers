@@ -29,10 +29,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter,
 			Descriptors.X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType,
 			Descriptors.X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue,
-			Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
-			Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
-			Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-			Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+			Descriptors.X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+			Descriptors.X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
+			Descriptors.X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+			Descriptors.X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
 			Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
 		)
 	{ }
@@ -452,7 +452,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1038_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
+					Descriptors.X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 					location,
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(theoryDataType)
@@ -468,11 +468,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1039_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+					Descriptors.X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
 					location,
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
-					memberType.Name,
-					memberName,
+					memberType.Name + "." + memberName,
 					parameter.Name
 				)
 			);
@@ -486,11 +485,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1040_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+					Descriptors.X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
 					location,
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
-					memberType.Name,
-					memberName,
+					memberType.Name + "." + memberName,
 					parameter.Name
 				)
 			);
@@ -502,7 +500,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1037_MemberDataTheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+					Descriptors.X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
 					location,
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(theoryDataType)
