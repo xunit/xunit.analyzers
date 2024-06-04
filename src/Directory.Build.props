@@ -19,35 +19,7 @@
     <LangVersion>12.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <Nullable>enable</Nullable>
-    <RoslynVersion>4.8.0</RoslynVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('xunit.analyzers.roslyn'))">
-    <AssemblyName>xunit.analyzers</AssemblyName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(MSBuildProjectName.StartsWith('xunit.analyzers.fixes.roslyn'))">
-    <AssemblyName>xunit.analyzers.fixes</AssemblyName>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn311'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_3_11;ROSLYN_3_11_OR_GREATER</DefineConstants>
-    <RoslynVersion>3.11.0</RoslynVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn44'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_4;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER</DefineConstants>
-    <RoslynVersion>4.4.0</RoslynVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('roslyn46'))">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_6;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER</DefineConstants>
-    <RoslynVersion>4.6.0</RoslynVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(RoslynVersion)' == '4.8.0' ">
-    <DefineConstants>$(DefineConstants);ROSLYN_4_8;ROSLYN_3_11_OR_GREATER;ROSLYN_4_4_OR_GREATER;ROSLYN_4_6_OR_GREATER;ROSLYN_4_8_OR_GREATER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="[$(RoslynVersion)]" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="[3.11]" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

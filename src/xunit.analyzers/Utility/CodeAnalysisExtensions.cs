@@ -11,16 +11,6 @@ namespace Xunit.Analyzers;
 
 static class CodeAnalysisExtensions
 {
-#if ROSLYN_4_4_OR_GREATER
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static IOperation.OperationList Children(this IOperation operation) =>
-		operation.ChildOperations;
-#else
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static IEnumerable<IOperation> Children(this IOperation operation) =>
-		operation.Children;
-#endif
-
 	public static INamedTypeSymbol? FindNamedType(
 		this IAssemblySymbol assembly,
 		Func<INamedTypeSymbol, bool> selector)

@@ -1,17 +1,12 @@
 #if NETCOREAPP
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Suppressors.ConsiderCallingConfigureAwaitSuppressor>;
-
-#if ROSLYN_3_11
-using Microsoft.CodeAnalysis;
-#else
-using System;
-#endif
 
 public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 {
@@ -48,16 +43,11 @@ public class TestClass {{
     }}
 }}";
 
-#if ROSLYN_3_11
 		// Roslyn 3.11 still surfaces the diagnostic that has been suppressed
 		var expected =
 			new DiagnosticResult("CA2007", DiagnosticSeverity.Warning)
 				.WithSpan(8, 15, 8, 28)
 				.WithIsSuppressed(true);
-#else
-		// Later versions of Roslyn just removes it from the results
-		var expected = Array.Empty<DiagnosticResult>();
-#endif
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA2007(), expected);
 	}

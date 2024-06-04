@@ -7,10 +7,6 @@ using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Suppressors.MakeTypesInternalSuppressor>;
 
-#if !ROSLYN_3_11
-using System;
-#endif
-
 public sealed class MakeTypesInternalSuppressorTests
 {
 	[Fact]
@@ -48,16 +44,11 @@ public class TestClass {{
     public void TestMethod() {{ }}
 }}";
 
-#if ROSLYN_3_11
 		// Roslyn 3.11 still surfaces the diagnostic that has been suppressed
 		var expected =
 			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning)
 				.WithSpan(6, 14, 6, 23)
 				.WithIsSuppressed(true);
-#else
-		// Later versions of Roslyn just removes it from the results
-		var expected = Array.Empty<DiagnosticResult>();
-#endif
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515(), expected);
 	}
