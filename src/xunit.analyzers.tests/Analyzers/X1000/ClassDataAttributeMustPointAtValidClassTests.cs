@@ -55,45 +55,6 @@ using Xunit;
 public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
     public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 }" },
-			// IAsyncEnumerable<DerivedTheoryDataRow> maps to int
-			{ "(int n)", @"
-using System.Collections.Generic;
-using System.Threading;
-using Xunit;
-
-public class DerivedTheoryDataRow : TheoryDataRow<int> {
-    public DerivedTheoryDataRow(int t) : base(t) { }
-}
-
-public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow> {
-    public IAsyncEnumerator<DerivedTheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}" },
-			// IAsyncEnumerable<DerivedTheoryDataRow<int>> maps to int
-			{ "(int n)", @"
-using System.Collections.Generic;
-using System.Threading;
-using Xunit;
-
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {
-    public DerivedTheoryDataRow(T t) : base(t) { }
-}
-
-public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow<int>> {
-    public IAsyncEnumerator<DerivedTheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}" },
-			// IAsyncEnumerable<DerivedTheoryDataRow<int, string>> maps to int
-			{ "(int n)", @"
-using System.Collections.Generic;
-using System.Threading;
-using Xunit;
-
-public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {
-    public DerivedTheoryDataRow(T t, U u) : base(t) { }
-}
-
-public class DataClass : IAsyncEnumerable<DerivedTheoryDataRow<int, string>> {
-    public IAsyncEnumerator<DerivedTheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}" },
 			// IAsyncEnumerable<TheoryDataRow<int>> with optional parameter
 			{ "(int n, int p = 0)", @"
 using System.Collections.Generic;
@@ -282,23 +243,17 @@ public class DataClass : IAsyncEnumerable<object[]> {
 
 	public class X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
 	{
-		[Theory]
-		[InlineData("TheoryDataRow<int>")]
-		[InlineData("DerivedTheoryDataRow<int, string>")]
-		public async Task NotEnoughTypeParameters_Triggers(string theoryDataRowType)
+		[Fact]
+		public async Task NotEnoughTypeParameters_Triggers()
 		{
-			var source = $@"
+			var source = @"
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
-public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T t, U u) : base(t) {{ }}
-}}
-
-public class DataClass : IAsyncEnumerable<{theoryDataRowType}> {{
-    public IAsyncEnumerator<{theoryDataRowType}> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}}";
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
+    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}";
 
 			var expected =
 				Verify
@@ -313,23 +268,17 @@ public class DataClass : IAsyncEnumerable<{theoryDataRowType}> {{
 
 	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
-		[Theory]
-		[InlineData("TheoryDataRow<int, double>")]
-		[InlineData("DerivedTheoryDataRow<int>")]
-		public async Task TooManyTypeParameters_Triggers(string theoryDataRowType)
+		[Fact]
+		public async Task TooManyTypeParameters_Triggers()
 		{
-			var source = $@"
+			var source = @"
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T, double> {{
-    public DerivedTheoryDataRow(T t) : base(t, 21.12) {{ }}
-}}
-
-public class DataClass : IAsyncEnumerable<{theoryDataRowType}> {{
-    public IAsyncEnumerator<{theoryDataRowType}> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
-}}";
+public class DataClass : IAsyncEnumerable<TheoryDataRow<int, double>> {
+    public IAsyncEnumerator<TheoryDataRow<int, double>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+}";
 
 			var expected =
 				Verify

@@ -12,15 +12,15 @@
     <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
     <PackageDownload Include="System.Text.Json" Version="[8.0.0]" />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
-    <PackageDownload Include="xunit.assert" Version="[2.8.1-pre.14]" />
-    <PackageDownload Include="xunit.runner.utility" Version="[2.8.1-pre.14]" />
-    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.428]" />
-    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.428]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.428]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.1.1-pre.428]" />
+    <PackageDownload Include="xunit.assert" Version="[2.8.2-pre.9]" />
+    <PackageDownload Include="xunit.runner.utility" Version="[2.8.2-pre.9]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[0.1.1-pre.445]" />
+    <PackageDownload Include="xunit.v3.common" Version="[0.1.1-pre.445]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.1.1-pre.445]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.1.1-pre.445]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
-    <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24072.1]" />
+    <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24216.2]" />
     <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[3.11.0]" />
   </ItemGroup>
 

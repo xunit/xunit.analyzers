@@ -915,41 +915,18 @@ public class TestClass {{
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidSubclassedTheoryDataRowMemberWithNotEnoughTypeParameters_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = $@"
-using System.Collections.Generic;
-using Xunit;
-
-public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T t, U u) : base(t) {{ }}
-}}
-
-public class TestClass {{
-    public static List<DerivedTheoryDataRow<int, string>> TestData{memberSyntax}null;
-
-    [MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n, string f) {{ }}
-}}";
-
-			var expected =
-				Verify
-					.Diagnostic("xUnit1037")
-					.WithSpan(12, 6, 12, 34 + memberArgs.Length)
-					.WithSeverity(DiagnosticSeverity.Error)
-					.WithArguments("Xunit.TheoryDataRow");
-
-			await Verify.VerifyAnalyzerV3(source, expected);
-		}
 	}
 
 	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
+		public static TheoryData<string, string> MemberSyntaxAndArgs() =>
+			new() {
+				{ " = ", "" },              // Field
+				{ " => ", "" },             // Property
+				{ "() => ", "" },           // Method w/o args
+				{ "(int n) => ", ", 42" },  // Method w/ args
+			};
+
 		public static MatrixTheoryData<(string syntax, string args), string> MemberSyntaxAndArgs_WithTheoryDataType(string theoryDataTypes) =>
 			new(
 				new[]
@@ -964,23 +941,6 @@ public class TestClass {{
 					$"TheoryData<{theoryDataTypes}>",
 					"DerivedTheoryData",
 					$"DerivedTheoryData<{theoryDataTypes}>"
-				}
-			);
-
-		public static MatrixTheoryData<(string syntax, string args), string> MemberSyntaxAndArgs_WithTheoryDataRowType(string theoryDataTypes) =>
-			new(
-				new[]
-				{
-					( " = ", "" ),              // Field
-					( " => ", "" ),             // Property
-					( "() => ", "" ),           // Method w/o args
-					( "(int n) => ", ", 42" ),  // Method w/ args
-				},
-				new[]
-				{
-					$"TheoryDataRow<{theoryDataTypes}>",
-					"DerivedTheoryDataRow",
-					$"DerivedTheoryDataRow<{theoryDataTypes}>"
 				}
 			);
 
@@ -1007,26 +967,19 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRow_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int> {{
-    public DerivedTheoryDataRow(int value) : base(value) {{ }}
-}}
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T value) : base(value) {{ }}
-}}
-
 public class TestClass {{
-    public static IEnumerable<{theoryDataRowType}> TestData{member.syntax}new List<{theoryDataRowType}>();
+    public static IEnumerable<TheoryDataRow<int>> TestData{memberSyntax}new List<TheoryDataRow<int>>();
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n) {{ }}
 }}";
 
@@ -1056,26 +1009,19 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRowWithOptionalParameters_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int> {{
-    public DerivedTheoryDataRow(int value) : base(value) {{ }}
-}}
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T value) : base(value) {{ }}
-}}
-
 public class TestClass {{
-    public static {theoryDataRowType}[] TestData{member.syntax}new {theoryDataRowType}[0];
+    public static TheoryDataRow<int>[] TestData{memberSyntax}new TheoryDataRow<int>[0];
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n, int a = 0) {{ }}
 }}";
 
@@ -1105,26 +1051,19 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRowWithNoValuesForParamsArray_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int> {{
-    public DerivedTheoryDataRow(int value) : base(value) {{ }}
-}}
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T value) : base(value) {{ }}
-}}
-
 public class TestClass {{
-    public static ICollection<{theoryDataRowType}> TestData{member.syntax}new List<{theoryDataRowType}>();
+    public static ICollection<TheoryDataRow<int>> TestData{memberSyntax}new List<TheoryDataRow<int>>();
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n, params int[] a) {{ }}
 }}";
 
@@ -1154,26 +1093,19 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int, int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRowWithSingleValueForParamsArray_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int, int> {{
-    public DerivedTheoryDataRow(int p1, int p2) : base(p1, p2) {{ }}
-}}
-public class DerivedTheoryDataRow<T1, T2> : TheoryDataRow<T1, T2> {{
-    public DerivedTheoryDataRow(T1 p1, T2 p2) : base(p1, p2) {{ }}
-}}
-
 public class TestClass {{
-    public static IEnumerable<{theoryDataRowType}> TestData{member.syntax}new List<{theoryDataRowType}>();
+    public static IEnumerable<TheoryDataRow<int, int>> TestData{memberSyntax}new List<TheoryDataRow<int, int>>();
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n, params int[] a) {{ }}
 }}";
 
@@ -1203,26 +1135,19 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRowWithGenericTestParameter_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int> {{
-    public DerivedTheoryDataRow(int value) : base(value) {{ }}
-}}
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T value) : base(value) {{ }}
-}}
-
 public class TestClass {{
-    public static ISet<{theoryDataRowType}> TestData{member.syntax}new HashSet<{theoryDataRowType}>();
+    public static ISet<TheoryDataRow<int>> TestData{memberSyntax}new HashSet<TheoryDataRow<int>>();
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod<T>(T n) {{ }}
 }}";
 
@@ -1254,10 +1179,10 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataRowWithNullableGenericTestParameter_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 #nullable enable
@@ -1265,17 +1190,10 @@ public class TestClass {{
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int> {{
-    public DerivedTheoryDataRow(int value) : base(value) {{ }}
-}}
-public class DerivedTheoryDataRow<T> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T value) : base(value) {{ }}
-}}
-
 public class TestClass {{
-    public static IEnumerable<{theoryDataRowType}> TestData{member.syntax}new List<{theoryDataRowType}>();
+    public static IEnumerable<TheoryDataRow<int>> TestData{memberSyntax}new List<TheoryDataRow<int>>();
 
-    [Xunit.MemberData(nameof(TestData){member.args})]
+    [Xunit.MemberData(nameof(TestData){memberArgs})]
     public void TestMethod<T>(T? n) {{ }}
 }}";
 
@@ -1283,10 +1201,7 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[InlineData(" = ", "")]              // Field
-		[InlineData(" => ", "")]             // Property
-		[InlineData("() => ", "")]           // Method w/o args
-		[InlineData("(int n) => ", ", 42")]  // Method w/ args
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidTheoryDataDoubleGenericSubclassMember_DoesNotTrigger(
 			string memberSyntax,
 			string memberArgs)
@@ -1304,33 +1219,6 @@ public class TestClass {{
 }}";
 
 			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData(" = ", "")]              // Field
-		[InlineData(" => ", "")]             // Property
-		[InlineData("() => ", "")]           // Method w/o args
-		[InlineData("(int n) => ", ", 42")]  // Method w/ args
-		public async Task ValidTheoryDataRowDoubleGenericSubclassMember_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = $@"
-using System.Collections.Generic;
-using Xunit;
-
-public class DerivedTheoryDataRow<T, U> : TheoryDataRow<T> {{
-    public DerivedTheoryDataRow(T t, U u) : base(t) {{ }}
-}}
-
-public class TestClass {{
-    public static IList<DerivedTheoryDataRow<int, string>> TestData{memberSyntax}new List<DerivedTheoryDataRow<int, string>>();
-
-    [MemberData(nameof(TestData){memberArgs})]
-    public void TestMethod(int n) {{ }}
-}}";
-
-			await Verify.VerifyAnalyzerV3(source);
 		}
 
 		[Fact]
@@ -1384,33 +1272,26 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int, string", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ValidSubclassTheoryDataRowMemberWithTooManyTypeParameters_Triggers(
-			(string syntax, string args) member,
-			string theoryDataRowType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int, string> {{
-    public DerivedTheoryDataRow(int p1, string p2) : base(p1, p2) {{ }}
-}}
-public class DerivedTheoryDataRow<T1, T2> : TheoryDataRow<T1, T2> {{
-    public DerivedTheoryDataRow(T1 p1, T2 p2) : base(p1, p2) {{ }}
-}}
-
 public class TestClass {{
-    public static IEnumerable<{theoryDataRowType}> TestData{member.syntax}new List<{theoryDataRowType}>();
+    public static IEnumerable<TheoryDataRow<int, string>> TestData{memberSyntax}new List<TheoryDataRow<int, string>>();
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void TestMethod(int n) {{ }}
 }}";
 
 			var expected =
 				Verify
 					.Diagnostic("xUnit1038")
-					.WithSpan(15, 6, 15, 34 + member.args.Length)
+					.WithSpan(8, 6, 8, 34 + memberArgs.Length)
 					.WithSeverity(DiagnosticSeverity.Error)
 					.WithArguments("Xunit.TheoryDataRow");
 
@@ -1447,33 +1328,26 @@ public class TestClass {{
 		}
 
 		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataRowType), "int, string[], string", DisableDiscoveryEnumeration = true)]
+		[MemberData(nameof(MemberSyntaxAndArgs))]
 		public async Task ExtraTheoryDataRowTypeExistsPastArrayForParamsArray_Triggers(
-			(string syntax, string args) member,
-			string theoryDataType)
+			string memberSyntax,
+			string memberArgs)
 		{
 			var source = $@"
 using System.Collections.Generic;
 using Xunit;
 
-public class DerivedTheoryDataRow : TheoryDataRow<int, string[], string> {{
-    public DerivedTheoryDataRow(int p1, string[] p2, string p3) : base(p1, p2, p3) {{ }}
-}}
-public class DerivedTheoryDataRow<T1, T2, T3> : TheoryDataRow<T1, T2, T3> {{
-    public DerivedTheoryDataRow(T1 p1, T2 p2, T3 p3) : base(p1, p2, p3) {{ }}
-}}
-
 public class TestClass {{
-    public static ICollection<{theoryDataType}> TestData{member.syntax}new {theoryDataType}[0];
+    public static ICollection<TheoryDataRow<int, string[], string>> TestData{memberSyntax}new TheoryDataRow<int, string[], string>[0];
 
-    [MemberData(nameof(TestData){member.args})]
+    [MemberData(nameof(TestData){memberArgs})]
     public void PuzzleOne(int _1, params string[] _2) {{ }}
 }}";
 
 			var expected =
 				Verify
 					.Diagnostic("xUnit1038")
-					.WithSpan(15, 6, 15, 34 + member.args.Length)
+					.WithSpan(8, 6, 8, 34 + memberArgs.Length)
 					.WithSeverity(DiagnosticSeverity.Error)
 					.WithArguments("Xunit.TheoryDataRow");
 
