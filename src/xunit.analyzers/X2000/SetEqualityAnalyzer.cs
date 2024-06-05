@@ -1,5 +1,3 @@
-#pragma warning disable RS1024 // Incorrectly triggered by Roslyn 3.11
-
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;

@@ -27,10 +27,7 @@ static class CodeAnalysisExtensions
 		this IMethodSymbol method,
 		ITypeSymbol? attributeUsageType)
 	{
-#pragma warning disable RS1024 // This is correct usage
 		var result = new Dictionary<INamedTypeSymbol, List<AttributeData>>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024
-
 		foreach (var attribute in method.GetAttributes())
 			if (attribute.AttributeClass is not null)
 				result.Add(attribute.AttributeClass, attribute);
