@@ -4,7 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>6.0.25</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>8.0.6</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -17,6 +17,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>12.0</LangVersion>
+    <MicrosoftCodeAnalysisVersion>3.11</MicrosoftCodeAnalysisVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -27,9 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="[3.11]" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[$(MicrosoftCodeAnalysisVersion)]" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.139">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -72,12 +73,12 @@
 
       <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
         <PackageReference Include="NSubstitute" Version="5.1.0" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="xunit.assert.source" Version="2.8.1-pre.14" />
-        <PackageReference Include="xunit.core" Version="2.8.1-pre.14" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1-pre.4" />
+        <PackageReference Include="xunit.assert.source" Version="2.8.2-pre.9" />
+        <PackageReference Include="xunit.core" Version="2.8.2-pre.9" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2-pre.5" />
       </ItemGroup>
 
     </When>
