@@ -11,16 +11,17 @@ using Xunit.Analyzers;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : BatchedCodeFixProvider
+public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : BatchedCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2017_UseAlternateAssert";
 
-	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck() :
+	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer() :
 		base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck.Id)
 	{ }
 
-	public override Task RegisterCodeFixesAsync(CodeFixContext context)
+	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
-		throw new NotImplementedException();
+		await Task.Yield();
+		return;
 	}
 }
