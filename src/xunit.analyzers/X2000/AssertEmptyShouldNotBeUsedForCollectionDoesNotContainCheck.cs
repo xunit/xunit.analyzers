@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Xunit.Analyzers;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Immutable;
 
 namespace Xunit.Analyzers;
 
