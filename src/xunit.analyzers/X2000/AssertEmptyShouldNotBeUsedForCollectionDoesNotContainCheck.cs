@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis;
-using Xunit.Analyzers;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Immutable;
 
 namespace Xunit.Analyzers;
 
