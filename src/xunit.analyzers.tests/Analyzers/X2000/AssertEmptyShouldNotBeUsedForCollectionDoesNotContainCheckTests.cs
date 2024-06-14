@@ -29,7 +29,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 		{
 			String.Empty,
 			"123",
-			"abc\n\t\\\""
+			@"abc\n\t\\\"""
 		};
 	}
 
@@ -75,7 +75,7 @@ class TestClass
 {{
     void TestMethod()
     {{
-        [|Xunit.Assert.Empty({sampleString}.Where(f => f > 0))|];
+        [|Xunit.Assert.Empty(""{sampleString}"".Where(f => f > 0))|];
     }}
 }}";
 		await Verify.VerifyAnalyzer(source);
