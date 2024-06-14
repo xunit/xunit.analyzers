@@ -11,7 +11,7 @@ using Xunit.Analyzers;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-internal class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : BatchedCodeFixProvider
+public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : BatchedCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2017_UseAlternateAssert";
 

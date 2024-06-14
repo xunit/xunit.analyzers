@@ -26,6 +26,6 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : Assert
 		IInvocationOperation invocationOperation, 
 		IMethodSymbol method)
 	{
-		throw new NotImplementedException();
+		return;
 	}
 }
