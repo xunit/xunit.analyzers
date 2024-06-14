@@ -6,6 +6,8 @@ using Microsoft.CodeAnalysis;
 using Xunit.Analyzers;
 using Microsoft.CodeAnalysis.Operations;
 
+namespace Xunit.Analyzers;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : AssertUsageAnalyzerBase
 {

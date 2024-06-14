@@ -8,6 +8,8 @@ using Xunit.Analyzers.Fixes;
 using System.Threading.Tasks;
 using Xunit.Analyzers;
 
+namespace Xunit.Analyzers.Fixes;
+
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 internal class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : BatchedCodeFixProvider
 {
