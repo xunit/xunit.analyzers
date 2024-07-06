@@ -49,7 +49,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		var compilation = context.Compilation;
 		var theoryDataTypes = TypeSymbolFactory.TheoryData_ByGenericArgumentCount(compilation);
-		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount(compilation);
+		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{

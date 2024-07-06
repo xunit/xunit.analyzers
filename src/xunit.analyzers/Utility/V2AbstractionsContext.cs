@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V2AbstractionsContext
+public class V2AbstractionsContext : IAbstractionsContext
 {
 	readonly Lazy<INamedTypeSymbol?> lazyIAssemblyInfoType;
 	readonly Lazy<INamedTypeSymbol?> lazyIAttributeInfoType;
@@ -54,121 +54,97 @@ public class V2AbstractionsContext
 	}
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IAssemblyInfo</c>, if available.
+	/// Gets a reference to type <c>IAssemblyInfo</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? IAssemblyInfoType =>
 		lazyIAssemblyInfoType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IAttributeInfo</c>, if available.
+	/// Gets a reference to type <c>IAttributeInfo</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? IAttributeInfoType =>
 		lazyIAttributeInfoType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IMessageSinkMessage</c>, if available.
+	/// Gets a reference to type <c>IMessageSinkMessage</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? IMessageSinkMessageType =>
 		lazyIMessageSinkMessageType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IMessageSink</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? IMessageSinkType =>
 		lazyIMessageSinkType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IMethodInfo</c>, if available.
+	/// Gets a reference to type <c>IMethodInfo</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? IMethodInfoType =>
 		lazyIMethodInfoType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IParameterInfo</c>, if available.
+	/// Gets a reference to type <c>IParameterInfo</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? IParameterInfoType =>
 		lazyIParameterInfoType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ISourceInformationProvider</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ISourceInformationProviderType =>
 		lazyISourceInformationProviderType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ISourceInformation</c>, if available.
+	/// Gets a reference to type <c>ISourceInformation</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? ISourceInformationType =>
 		lazyISourceInformationType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestAssembly</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestAssemblyType =>
 		lazyITestAssemblyType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestCase</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestCaseType =>
 		lazyITestCaseType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestClass</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestClassType =>
 		lazyITestClassType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestCollection</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestCollectionType =>
 		lazyITestCollectionType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestFrameworkDiscoverer</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestFrameworkDiscovererType =>
 		lazyITestFrameworkDiscovererType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestFrameworkExecutor</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestFrameworkExecutorType =>
 		lazyITestFrameworkExecutorType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestFramework</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestFrameworkType =>
 		lazyITestFrameworkType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestMethod</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestMethodType =>
 		lazyITestMethodType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITest</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestType =>
 		lazyITestType.Value;
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITypeInfo</c>, if available.
+	/// Gets a reference to type <c>ITypeInfo</c>, if available.
 	/// </summary>
 	public INamedTypeSymbol? ITypeInfoType =>
 		lazyITypeInfoType.Value;
 
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.IXunitSerializable</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? IXunitSerializableType =>
 		lazyIXunitSerializableType.Value;
 
 	/// <summary>
-	/// Gets the version number of the abstractions assembly.
+	/// Gets the version number of the <c>xunit.abstractions</c> assembly.
 	/// </summary>
 	public Version Version { get; }
 

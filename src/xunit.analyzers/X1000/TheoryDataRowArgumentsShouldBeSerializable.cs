@@ -23,7 +23,7 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount(context.Compilation);
+		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(context.Compilation);
 		if (theoryDataRowTypes.Count == 0)
 			return;
 

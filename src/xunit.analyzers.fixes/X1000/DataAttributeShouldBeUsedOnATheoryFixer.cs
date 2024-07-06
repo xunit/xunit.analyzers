@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -29,6 +30,13 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 		if (methodDeclaration is null)
 			return;
 
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.DataAttributeTypeName, out var dataAttributeTypeName) || dataAttributeTypeName is null)
+			return;
+
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				"Mark as [Theory]",
@@ -44,7 +52,7 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
 				Key_RemoveDataAttributes,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				Constants.Types.Xunit.Sdk.DataAttribute
+				dataAttributeTypeName
 			),
 			context.Diagnostics
 		);

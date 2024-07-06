@@ -7,14 +7,22 @@ namespace Xunit.Analyzers;
 public class V3RunnerUtilityContext : IRunnerUtilityContext
 {
 	const string assemblyPrefix = "xunit.v3.runner.utility.";
+	readonly Lazy<INamedTypeSymbol?> lazyLongLivedMarshalByRefObjectType;
 
 	V3RunnerUtilityContext(
+		Compilation compilation,
 		string platform,
 		Version version)
 	{
 		Platform = platform;
 		Version = version;
+
+		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_RunnerUtility(compilation));
 	}
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? LongLivedMarshalByRefObjectType =>
+		lazyLongLivedMarshalByRefObjectType.Value;
 
 	/// <inheritdoc/>
 	public string Platform { get; }
@@ -39,6 +47,6 @@ public class V3RunnerUtilityContext : IRunnerUtilityContext
 		var version = versionOverride ?? assembly.Version;
 		var platform = assembly.Name.Substring(assemblyPrefix.Length);
 
-		return version is null ? null : new(platform, version);
+		return version is null ? null : new(compilation, platform, version);
 	}
 }

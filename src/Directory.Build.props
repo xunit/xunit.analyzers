@@ -77,9 +77,9 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
         <PackageReference Include="NSubstitute" Version="5.1.0" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="xunit.assert.source" Version="2.8.2-pre.9" />
-        <PackageReference Include="xunit.core" Version="2.8.2-pre.9" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2-pre.5" />
+        <PackageReference Include="xunit.assert.source" Version="2.8.2-pre.19" />
+        <PackageReference Include="xunit.core" Version="2.8.2-pre.19" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2-pre.7" />
       </ItemGroup>
 
     </When>

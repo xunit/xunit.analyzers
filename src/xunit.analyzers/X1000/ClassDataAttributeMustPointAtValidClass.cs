@@ -38,7 +38,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		var iEnumerableOfTheoryDataRow = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 		var iAsyncEnumerableOfObjectArray = TypeSymbolFactory.IAsyncEnumerableOfObjectArray(compilation);
 		var iAsyncEnumerableOfTheoryDataRow = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
-		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount(compilation);
+		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{

@@ -92,6 +92,7 @@ public static class Constants
 	{
 		public const string ArgumentValue = nameof(ArgumentValue);
 		public const string AssertMethodName = nameof(AssertMethodName);
+		public const string DataAttributeTypeName = nameof(DataAttributeTypeName);
 		public const string DeclaringType = nameof(DeclaringType);
 		public const string IgnoreCase = nameof(IgnoreCase);
 		public const string IsStatic = nameof(IsStatic);
@@ -125,15 +126,59 @@ public static class Constants
 
 		public static class Xunit
 		{
+			public const string AssemblyFixtureAttribute_V3 = "Xunit.AssemblyFixtureAttribute";
+			public const string Assert = "Xunit.Assert";
+			public const string ClassDataAttribute = "Xunit.ClassDataAttribute";
+			public const string CollectionAttribute = "Xunit.CollectionAttribute";
+			public const string CollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
+			public const string DataAttribute_V2 = "Xunit.Sdk.DataAttribute";
+			public const string DataAttribute_V3 = "Xunit.v3.DataAttribute";
 			public const string FactAttribute = "Xunit.FactAttribute";
-			public const string LongLivedMarshalByRefObject = "Xunit.LongLivedMarshalByRefObject";
+			public const string IAssemblyInfo_V2 = "Xunit.Abstractions.IAssemblyInfo";
+			public const string IAsyncLifetime = "Xunit.IAsyncLifetime";
+			public const string IAttributeInfo_V2 = "Xunit.Abstractions.IAttributeInfo";
+			public const string IClassFixtureOfT = "Xunit.IClassFixture`1";
+			public const string ICollectionFixtureOfT = "Xunit.ICollectionFixture`1";
+			public const string IMessageSink_V2 = "Xunit.Abstractions.IMessageSink";
+			public const string IMessageSink_V3 = "Xunit.Sdk.IMessageSink";
+			public const string IMessageSinkMessage_V2 = "Xunit.Abstractions.IMessageSinkMessage";
+			public const string IMethodInfo_V2 = "Xunit.Abstractions.IMethodInfo";
+			public const string IParameterInfo_V2 = "Xunit.Abstractions.IParameterInfo";
+			public const string InlineDataAttribute = "Xunit.InlineDataAttribute";
+			public const string ISourceInformation_V2 = "Xunit.Abstractions.ISourceInformation";
+			public const string ISourceInformationProvider_V2 = "Xunit.Abstractions.ISourceInformationProvider";
+			public const string ISourceInformationProvider_V3 = "Xunit.Runner.Common.ISourceInformationProvider";
+			public const string ITest_V2 = "Xunit.Abstractions.ITest";
+			public const string ITest_V3 = "Xunit.Sdk.ITest";
+			public const string ITestAssembly_V2 = "Xunit.Abstractions.ITestAssembly";
+			public const string ITestAssembly_V3 = "Xunit.Sdk.ITestAssembly";
+			public const string ITestCase_V2 = "Xunit.Abstractions.ITestCase";
+			public const string ITestCase_V3 = "Xunit.Sdk.ITestCase";
+			public const string ITestClass_V2 = "Xunit.Abstractions.ITestClass";
+			public const string ITestClass_V3 = "Xunit.Sdk.ITestClass";
+			public const string ITestCollection_V2 = "Xunit.Abstractions.ITestCollection";
+			public const string ITestCollection_V3 = "Xunit.Sdk.ITestCollection";
+			public const string ITestContextAccessor_V3 = "Xunit.ITestContextAccessor";
+			public const string ITestFramework_V2 = "Xunit.Abstractions.ITestFramework";
+			public const string ITestFramework_V3 = "Xunit.v3.ITestFramework";
+			public const string ITestFrameworkDiscoverer_V2 = "Xunit.Abstractions.ITestFrameworkDiscoverer";
+			public const string ITestFrameworkDiscoverer_V3 = "Xunit.v3.ITestFrameworkDiscoverer";
+			public const string ITestFrameworkExecutor_V2 = "Xunit.Abstractions.ITestFrameworkExecutor";
+			public const string ITestFrameworkExecutor_V3 = "Xunit.v3.ITestFrameworkExecutor";
+			public const string ITestMethod_V2 = "Xunit.Abstractions.ITestMethod";
+			public const string ITestMethod_V3 = "Xunit.Sdk.ITestMethod";
+			public const string ITestOutputHelper_V2 = "Xunit.Abstractions.ITestOutputHelper";
+			public const string ITestOutputHelper_V3 = "Xunit.ITestOutputHelper";
+			public const string ITheoryDataRow_V3 = "Xunit.ITheoryDataRow";
+			public const string ITypeInfo_V2 = "Xunit.Abstractions.ITypeInfo";
+			public const string IXunitSerializable_V2 = "Xunit.Abstractions.IXunitSerializable";
+			public const string IXunitSerializable_V3 = "Xunit.Sdk.IXunitSerializable";
+			public const string LongLivedMarshalByRefObject_Execution_V2 = "Xunit.LongLivedMarshalByRefObject";
+			public const string LongLivedMarshalByRefObject_RunnerUtility = "Xunit.Sdk.LongLivedMarshalByRefObject";
+			public const string MemberDataAttribute = "Xunit.MemberDataAttribute";
 			public const string TheoryAttribute = "Xunit.TheoryAttribute";
-
-			public static class Sdk
-			{
-				public const string DataAttribute = "Xunit.Sdk.DataAttribute";
-				public const string LongLivedMarshalByRefObject = "Xunit.Sdk.LongLivedMarshalByRefObject";
-			}
+			public const string TheoryData = "Xunit.TheoryData";
+			public const string TheoryDataRow_V3 = "Xunit.TheoryDataRow";
 		}
 	}
 }

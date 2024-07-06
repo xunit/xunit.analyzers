@@ -6,59 +6,57 @@ namespace Xunit.Analyzers;
 public interface ICoreContext
 {
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.ClassDataAttribute</c>, if available.
+	/// Gets a reference to type <c>ClassDataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? ClassDataAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.CollectionAttribute</c>, if available.
+	/// Gets a reference to type <c>CollectionAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? CollectionAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.CollectionDefinitionAttribute</c>, if available.
+	/// Gets a reference to type <c>CollectionDefinitionAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Sdk.DataAttribute</c>, if available.
+	/// Gets a reference to type <c>DataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? DataAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.FactAttribute</c>, if available.
+	/// Gets a reference to type <c>FactAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? FactAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.IClassFixture&lt;T&gt;</c>, if available.
+	/// Gets a reference to type <c>IClassFixture&lt;T&gt;</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? IClassFixtureType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.ICollectionFixture&lt;T&gt;</c>, if available.
+	/// Gets a reference to type <c>ICollectionFixture&lt;T&gt;</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? ICollectionFixtureType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.InlineDataAttribute</c>, if available.
+	/// Gets a reference to type <c>InlineDataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? InlineDataAttributeType { get; }
 
-	// TODO: This will need to be updated when v3 names are finalized
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.Abstractions.ITestOutputHelper</c> (v2)
-	/// or <c>Xunit.v3._ITestOutputHelper</c>, if available.
+	/// Gets a reference to type <c>ITestOutputHelper</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? ITestOutputHelperType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.MemberDataAttribute</c>, if available.
+	/// Gets a reference to type <c>MemberDataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? MemberDataAttributeType { get; }
 
 	/// <summary>
-	/// Gets a reference to type <c>Xunit.TheoryAttribute</c>, if available.
+	/// Gets a reference to type <c>TheoryAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? TheoryAttributeType { get; }
 

@@ -1,4 +1,5 @@
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
@@ -8,6 +9,8 @@ public class EmptyRunnerUtilityContext : IRunnerUtilityContext
 	{ }
 
 	public static EmptyRunnerUtilityContext Instance { get; } = new();
+
+	public INamedTypeSymbol? LongLivedMarshalByRefObjectType => null;
 
 	public string Platform => "N/A";
 

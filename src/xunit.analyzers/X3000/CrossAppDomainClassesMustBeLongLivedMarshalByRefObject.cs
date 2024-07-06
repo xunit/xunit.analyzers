@@ -62,8 +62,8 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObject : XunitV2Dia
 
 			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder[Constants.Properties.NewBaseType] =
-				xunitContext.V2RunnerUtility is not null ? Constants.Types.Xunit.Sdk.LongLivedMarshalByRefObject :
-				xunitContext.V2Execution is not null ? Constants.Types.Xunit.LongLivedMarshalByRefObject :
+				xunitContext.V2RunnerUtility is not null ? Constants.Types.Xunit.LongLivedMarshalByRefObject_RunnerUtility :
+				xunitContext.V2Execution is not null ? Constants.Types.Xunit.LongLivedMarshalByRefObject_Execution_V2 :
 				null;
 
 			context.ReportDiagnostic(

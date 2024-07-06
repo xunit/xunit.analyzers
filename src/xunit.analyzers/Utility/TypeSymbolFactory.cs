@@ -19,10 +19,10 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.ArraySegment`1");
 
 	public static INamedTypeSymbol? AssemblyFixtureAttribute_V3(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.AssemblyFixtureAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.AssemblyFixtureAttribute_V3);
 
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Assert");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Assert);
 
 	public static INamedTypeSymbol? AttributeUsageAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.AttributeUsageAttribute");
@@ -31,13 +31,13 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Numerics.BigInteger");
 
 	public static INamedTypeSymbol? ClassDataAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ClassDataAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ClassDataAttribute);
 
 	public static INamedTypeSymbol? CollectionAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.CollectionAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttribute);
 
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.CollectionDefinitionAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionDefinitionAttribute);
 
 	public static INamedTypeSymbol? ConfigureAwaitOptions(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.ConfigureAwaitOptions");
@@ -45,8 +45,11 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ConfiguredTaskAwaitable(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable");
 
-	public static INamedTypeSymbol? DataAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Sdk.DataAttribute);
+	public static INamedTypeSymbol? DataAttribute_V2(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.DataAttribute_V2);
+
+	public static INamedTypeSymbol? DataAttribute_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.DataAttribute_V3);
 
 	public static INamedTypeSymbol? DateOnly(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.DateOnly");
@@ -66,7 +69,7 @@ public static class TypeSymbolFactory
 			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName($"System.Func`{ValidateArity(arity, min: 1, max: 17)}");
 
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAssemblyInfo");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IAssemblyInfo_V2);
 
 	public static INamedTypeSymbol? IAsyncEnumerableOfITheoryDataRow(Compilation compilation)
 	{
@@ -74,7 +77,7 @@ public static class TypeSymbolFactory
 		if (iAsyncEnumerableOfT is null)
 			return null;
 
-		var iTheoryDataRow = ITheoryDataRow(compilation);
+		var iTheoryDataRow = ITheoryDataRow_V3(compilation);
 		if (iTheoryDataRow is null)
 			return null;
 
@@ -95,19 +98,19 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IAsyncEnumerable`1");
 
 	public static INamedTypeSymbol? IAsyncLifetime(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.IAsyncLifetime");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IAsyncLifetime);
 
 	public static INamedTypeSymbol? IAttributeInfo_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IAttributeInfo");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IAttributeInfo_V2);
 
 	public static INamedTypeSymbol? IClassFixureOfT(Compilation compilation) =>
-		 Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.IClassFixture`1");
+		 Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IClassFixtureOfT);
 
 	public static INamedTypeSymbol? ICollection(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.ICollection");
 
 	public static INamedTypeSymbol? ICollectionFixtureOfT(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ICollectionFixture`1");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ICollectionFixtureOfT);
 
 	public static INamedTypeSymbol ICollectionOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_ICollection_T);
@@ -120,7 +123,7 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? IEnumerableOfITheoryDataRow(Compilation compilation)
 	{
-		var iTheoryDataRow = ITheoryDataRow(compilation);
+		var iTheoryDataRow = ITheoryDataRow_V3(compilation);
 		if (iTheoryDataRow is null)
 			return null;
 
@@ -134,19 +137,22 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
 
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IMessageSink");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMessageSink_V2);
+
+	public static INamedTypeSymbol? IMessageSink_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMessageSink_V3);
 
 	public static INamedTypeSymbol? IMessageSinkMessage_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IMessageSinkMessage");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMessageSinkMessage_V2);
 
 	public static INamedTypeSymbol? IMethodInfo_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IMethodInfo");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMethodInfo_V2);
 
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.InlineDataAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.InlineDataAttribute);
 
 	public static INamedTypeSymbol? IParameterInfo_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IParameterInfo");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IParameterInfo_V2);
 
 	public static INamedTypeSymbol? IValueTaskSource(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource");
@@ -164,71 +170,100 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.ISet`1");
 
 	public static INamedTypeSymbol? ISourceInformation_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ISourceInformation");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ISourceInformation_V2);
 
 	public static INamedTypeSymbol? ISourceInformationProvider_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ISourceInformationProvider");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ISourceInformationProvider_V2);
+
+	public static INamedTypeSymbol? ISourceInformationProvider_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ISourceInformationProvider_V3);
 
 	public static INamedTypeSymbol? ITest_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITest");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITest_V2);
+
+	public static INamedTypeSymbol? ITest_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITest_V3);
 
 	public static INamedTypeSymbol? ITestAssembly_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestAssembly");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestAssembly_V2);
+
+	public static INamedTypeSymbol? ITestAssembly_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestAssembly_V3);
 
 	public static INamedTypeSymbol? ITestCase_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestCase");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestCase_V2);
+
+	public static INamedTypeSymbol? ITestCase_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestCase_V3);
 
 	public static INamedTypeSymbol? ITestClass_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestClass");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestClass_V2);
+
+	public static INamedTypeSymbol? ITestClass_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestClass_V3);
 
 	public static INamedTypeSymbol? ITestCollection_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestCollection");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestCollection_V2);
+
+	public static INamedTypeSymbol? ITestCollection_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestCollection_V3);
 
 	public static INamedTypeSymbol? ITestContextAccessor_V3(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ITestContextAccessor");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestContextAccessor_V3);
 
 	public static INamedTypeSymbol? ITestFramework_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestFramework");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFramework_V2);
+
+	public static INamedTypeSymbol? ITestFramework_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFramework_V3);
 
 	public static INamedTypeSymbol? ITestFrameworkDiscoverer_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestFrameworkDiscoverer");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFrameworkDiscoverer_V2);
+
+	public static INamedTypeSymbol? ITestFrameworkDiscoverer_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFrameworkDiscoverer_V3);
 
 	public static INamedTypeSymbol? ITestFrameworkExecutor_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestFrameworkExecutor");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFrameworkExecutor_V2);
+
+	public static INamedTypeSymbol? ITestFrameworkExecutor_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestFrameworkExecutor_V3);
 
 	public static INamedTypeSymbol? ITestMethod_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestMethod");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestMethod_V2);
+
+	public static INamedTypeSymbol? ITestMethod_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestMethod_V3);
 
 	public static INamedTypeSymbol? ITestOutputHelper_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITestOutputHelper");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestOutputHelper_V2);
 
-	// TODO: This will need to be updated when v3 names are finalized
 	public static INamedTypeSymbol? ITestOutputHelper_V3(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.v3._ITestOutputHelper");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestOutputHelper_V3);
 
-	public static INamedTypeSymbol? ITheoryDataRow(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.ITheoryDataRow");
+	public static INamedTypeSymbol? ITheoryDataRow_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITheoryDataRow_V3);
 
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.ITypeInfo");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITypeInfo_V2);
 
 	public static INamedTypeSymbol? IXunitSerializable_V2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Abstractions.IXunitSerializable");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializable_V2);
 
 	public static INamedTypeSymbol? IXunitSerializable_V3(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.Sdk.IXunitSerializable");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializable_V3);
 
 	public static INamedTypeSymbol? ListOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.List`1");
 
 	public static INamedTypeSymbol? LongLivedMarshalByRefObject_ExecutionV2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.LongLivedMarshalByRefObject);
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.LongLivedMarshalByRefObject_Execution_V2);
 
-	public static INamedTypeSymbol? LongLivedMarshalByRefObject_RunnerUtilityV2(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Sdk.LongLivedMarshalByRefObject);
+	public static INamedTypeSymbol? LongLivedMarshalByRefObject_RunnerUtility(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.LongLivedMarshalByRefObject_RunnerUtility);
 
 	public static INamedTypeSymbol? MemberDataAttribute(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.MemberDataAttribute");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.MemberDataAttribute);
 
 	public static INamedTypeSymbol NullableOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Nullable_T);
@@ -261,7 +296,7 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
 
 	public static INamedTypeSymbol? TheoryData(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryData");
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryData);
 
 	// Centralized here so we don't repeat knowledge of how many arities exist
 	// (in case we decide to add more later).
@@ -275,7 +310,7 @@ public static class TypeSymbolFactory
 
 		for (int i = 1; i <= 10; i++)
 		{
-			type = compilation.GetTypeByMetadataName("Xunit.TheoryData`" + i.ToString(CultureInfo.InvariantCulture));
+			type = compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryData + "`" + i.ToString(CultureInfo.InvariantCulture));
 			if (type is not null)
 				result[i] = type;
 		}
@@ -283,25 +318,22 @@ public static class TypeSymbolFactory
 		return result;
 	}
 
-	// Namespace fallback for builds before TheoryDataRow was moved from Xunit.Sdk to Xunit, should
-	// eventually be able to get rid of this fallback once v3 goes 1.0.
-	public static INamedTypeSymbol? TheoryDataRow(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.TheoryDataRow")
-			?? compilation.GetTypeByMetadataName("Xunit.Sdk.TheoryDataRow");
+	public static INamedTypeSymbol? TheoryDataRow_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryDataRow_V3);
 
 	// Centralized here so we don't repeat knowledge of how many arities exist
 	// (in case we decide to add more later).
-	public static Dictionary<int, INamedTypeSymbol> TheoryDataRow_ByGenericArgumentCount(Compilation compilation)
+	public static Dictionary<int, INamedTypeSymbol> TheoryDataRow_ByGenericArgumentCount_V3(Compilation compilation)
 	{
 		var result = new Dictionary<int, INamedTypeSymbol>();
 
-		var type = TheoryDataRow(compilation);
+		var type = TheoryDataRow_V3(compilation);
 		if (type is not null)
 			result[0] = type;
 
 		for (int i = 1; i <= 10; i++)
 		{
-			type = compilation.GetTypeByMetadataName("Xunit.TheoryDataRow`" + i.ToString(CultureInfo.InvariantCulture));
+			type = compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryDataRow_V3 + "`" + i.ToString(CultureInfo.InvariantCulture));
 			if (type is not null)
 				result[i] = type;
 		}

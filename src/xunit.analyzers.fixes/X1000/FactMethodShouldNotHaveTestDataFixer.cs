@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -25,13 +26,20 @@ public class FactMethodShouldNotHaveTestDataFixer : BatchedCodeFixProvider
 		if (methodDeclaration is null)
 			return;
 
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.DataAttributeTypeName, out var dataAttributeTypeName) || dataAttributeTypeName is null)
+			return;
+
 		context.RegisterCodeFix(
 			new RemoveAttributesOfTypeCodeAction(
 				"Remove data attributes",
 				Key_RemoveDataAttributes,
 				context.Document,
 				methodDeclaration.AttributeLists,
-				Constants.Types.Xunit.Sdk.DataAttribute
+				dataAttributeTypeName
 			),
 			context.Diagnostics
 		);

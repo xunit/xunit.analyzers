@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -32,10 +34,19 @@ public class FactMethodShouldNotHaveTestData : XunitDiagnosticAnalyzer
 				!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
 				attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
 			{
+				var properties = new Dictionary<string, string?>
+				{
+					[Constants.Properties.DataAttributeTypeName] =
+						xunitContext.HasV3References
+							? Constants.Types.Xunit.DataAttribute_V3
+							: Constants.Types.Xunit.DataAttribute_V2
+				}.ToImmutableDictionary();
+
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1005_FactMethodShouldNotHaveTestData,
-						symbol.Locations.First()
+						symbol.Locations.First(),
+						properties
 					)
 				);
 			}

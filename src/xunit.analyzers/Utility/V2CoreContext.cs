@@ -30,7 +30,7 @@ public class V2CoreContext : ICoreContext
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
-		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute(compilation));
+		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute_V2(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));

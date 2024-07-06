@@ -30,7 +30,7 @@ public class V3CoreContext : ICoreContext
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
-		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute(compilation));
+		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute_V3(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
@@ -81,10 +81,7 @@ public class V3CoreContext : ICoreContext
 	public INamedTypeSymbol? ITestContextAccessorType =>
 		lazyITestContextAccessorType.Value;
 
-	// TODO: This will need to be updated when v3 names are finalized
-	/// <summary>
-	/// Gets a reference to type <c>Xunit.v3._ITestOutputHelper</c>, if available.
-	/// </summary>
+	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestOutputHelperType =>
 		lazyITestOutputHelperType.Value;
 

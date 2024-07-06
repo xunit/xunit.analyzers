@@ -49,7 +49,7 @@ using Xunit;
 using Xunit.v3;
 
 {attribute} public class TestClass {{
-    public TestClass(_ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
+    public TestClass(ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
 
     [Fact] public void TestMethod() {{ }}
 }}";

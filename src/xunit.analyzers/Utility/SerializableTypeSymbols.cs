@@ -30,15 +30,11 @@ public sealed class SerializableTypeSymbols
 		bigInteger = new(() => TypeSymbolFactory.BigInteger(compilation));
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
+		iXunitSerializable = new(() => xunitContext.Abstractions.IXunitSerializableType);
 		type = new(() => TypeSymbolFactory.Type(compilation));
 		timeOnly = new(() => TypeSymbolFactory.TimeOnly(compilation));
 		timeSpan = new(() => TypeSymbolFactory.TimeSpan(compilation));
 		traitDictionary = new(() => GetTraitDictionary(compilation));
-
-		if (xunitContext.HasV3References)
-			iXunitSerializable = new(() => TypeSymbolFactory.IXunitSerializable_V3(compilation));
-		else
-			iXunitSerializable = new(() => xunitContext.V2Abstractions?.IXunitSerializableType);
 
 		ClassDataAttribute = classDataAttribute;
 		DataAttribute = dataAttribute;

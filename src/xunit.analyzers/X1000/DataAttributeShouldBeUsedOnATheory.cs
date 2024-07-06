@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -33,12 +35,23 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 			// Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
 			// we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
 			if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
+			{
+				var properties = new Dictionary<string, string?>
+				{
+					[Constants.Properties.DataAttributeTypeName] =
+						xunitContext.HasV3References
+							? Constants.Types.Xunit.DataAttribute_V3
+							: Constants.Types.Xunit.DataAttribute_V2
+				}.ToImmutableDictionary();
+
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1008_DataAttributeShouldBeUsedOnATheory,
-						methodSymbol.Locations.First()
+						methodSymbol.Locations.First(),
+						properties
 					)
 				);
+			}
 		}, SymbolKind.Method);
 	}
 }
