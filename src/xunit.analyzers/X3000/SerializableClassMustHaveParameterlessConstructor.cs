@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class SerializableClassMustHaveParameterlessConstructor : XunitV2DiagnosticAnalyzer
+public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnosticAnalyzer
 {
 	public SerializableClassMustHaveParameterlessConstructor() :
 		base(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor)
@@ -25,7 +25,7 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitV2Diagnost
 			if (namedType.TypeKind != TypeKind.Class)
 				return;
 
-			var isXunitSerializable = xunitContext.V2Abstractions?.IXunitSerializableType?.IsAssignableFrom(namedType) ?? false;
+			var isXunitSerializable = xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) ?? false;
 			if (!isXunitSerializable)
 				return;
 
@@ -42,7 +42,4 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitV2Diagnost
 			);
 		}, SymbolKind.NamedType);
 	}
-
-	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
-		Guard.ArgumentNotNull(xunitContext).V2Abstractions is not null;
 }

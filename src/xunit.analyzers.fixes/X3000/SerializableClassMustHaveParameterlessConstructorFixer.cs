@@ -62,7 +62,7 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 			var newCtor = generator.ConstructorDeclaration();
 			newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
 			newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
-			editor.InsertMembers(declaration, 0, new[] { newCtor });
+			editor.InsertMembers(declaration, 0, [newCtor]);
 		}
 		else
 		{

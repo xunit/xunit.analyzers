@@ -8,109 +8,145 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 	[Fact]
 	public async Task WithPublicParameteredConstructor_AddsNewConstructor()
 	{
-		var before = @"
-public class [|MyTestCase|]: Xunit.Abstractions.IXunitSerializable {
-    public MyTestCase(int x) { }
+		var beforeTemplate = @"
+public class [|MyTestCase|]: {0}.IXunitSerializable {{
+    public MyTestCase(int x) {{ }}
 
-    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-}";
+    void {0}.IXunitSerializable.Deserialize({0}.IXunitSerializationInfo _) {{ }}
+    void {0}.IXunitSerializable.Serialize({0}.IXunitSerializationInfo _) {{ }}
+}}";
 
-		var after = @"
-public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
+		var afterTemplate = @"
+public class MyTestCase: {0}.IXunitSerializable {{
     [System.Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
     public MyTestCase()
-    {
-    }
+    {{
+    }}
 
-    public MyTestCase(int x) { }
+    public MyTestCase(int x) {{ }}
 
-    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-}";
+    void {0}.IXunitSerializable.Deserialize({0}.IXunitSerializationInfo _) {{ }}
+    void {0}.IXunitSerializable.Serialize({0}.IXunitSerializationInfo _) {{ }}
+}}";
 
-		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		var v2Before = string.Format(beforeTemplate, "Xunit.Abstractions");
+		var v2After = string.Format(afterTemplate, "Xunit.Abstractions");
+
+		await Verify.VerifyCodeFixV2(v2Before, v2After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+
+		var v3Before = string.Format(beforeTemplate, "Xunit.Sdk");
+		var v3After = string.Format(afterTemplate, "Xunit.Sdk");
+
+		await Verify.VerifyCodeFixV3(v3Before, v3After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
 	public async Task WithNonPublicParameterlessConstructor_ChangesVisibility_WithoutUsing()
 	{
-		var before = @"
-public class [|MyTestCase|]: Xunit.Abstractions.IXunitSerializable {
-    protected MyTestCase() { throw new System.DivideByZeroException(); }
+		var beforeTemplate = @"
+using {0};
 
-    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-}";
+public class [|MyTestCase|]: IXunitSerializable {{
+    protected MyTestCase() {{ throw new System.DivideByZeroException(); }}
 
-		var after = @"
-public class MyTestCase: Xunit.Abstractions.IXunitSerializable {
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
+
+		var afterTemplate = @"
+using {0};
+
+public class MyTestCase: IXunitSerializable {{
     [System.Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
-    public MyTestCase() { throw new System.DivideByZeroException(); }
+    public MyTestCase() {{ throw new System.DivideByZeroException(); }}
 
-    void Xunit.Abstractions.IXunitSerializable.Deserialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-    void Xunit.Abstractions.IXunitSerializable.Serialize(Xunit.Abstractions.IXunitSerializationInfo _) { }
-}";
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
 
-		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		var v2Before = string.Format(beforeTemplate, "Xunit.Abstractions");
+		var v2After = string.Format(afterTemplate, "Xunit.Abstractions");
+
+		await Verify.VerifyCodeFixV2(v2Before, v2After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+
+		var v3Before = string.Format(beforeTemplate, "Xunit.Sdk");
+		var v3After = string.Format(afterTemplate, "Xunit.Sdk");
+
+		await Verify.VerifyCodeFixV3(v3Before, v3After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
 	public async Task WithNonPublicParameterlessConstructor_ChangesVisibility_WithUsing()
 	{
-		var before = @"
+		var beforeTemplate = @"
 using System;
-using Xunit.Abstractions;
+using {0};
 
-public class [|MyTestCase|]: IXunitSerializable {
-    protected MyTestCase() { throw new DivideByZeroException(); }
+public class [|MyTestCase|]: IXunitSerializable {{
+    protected MyTestCase() {{ throw new DivideByZeroException(); }}
 
-    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
-    void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
-}";
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
 
-		var after = @"
+		var afterTemplate = @"
 using System;
-using Xunit.Abstractions;
+using {0};
 
-public class MyTestCase: IXunitSerializable {
+public class MyTestCase: IXunitSerializable {{
     [Obsolete(""Called by the de-serializer; should only be called by deriving classes for de-serialization purposes"")]
-    public MyTestCase() { throw new DivideByZeroException(); }
+    public MyTestCase() {{ throw new DivideByZeroException(); }}
 
-    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
-    void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
-}";
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
 
-		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		var v2Before = string.Format(beforeTemplate, "Xunit.Abstractions");
+		var v2After = string.Format(afterTemplate, "Xunit.Abstractions");
+
+		await Verify.VerifyCodeFixV2(v2Before, v2After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+
+		var v3Before = string.Format(beforeTemplate, "Xunit.Sdk");
+		var v3After = string.Format(afterTemplate, "Xunit.Sdk");
+
+		await Verify.VerifyCodeFixV3(v3Before, v3After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]
 	public async Task PreservesExistingObsoleteAttribute()
 	{
-		var before = @"
-using Xunit.Abstractions;
+		var beforeTemplate = @"
+using {0};
 using obo = System.ObsoleteAttribute;
 
-public class [|MyTestCase|]: IXunitSerializable {
+public class [|MyTestCase|]: IXunitSerializable {{
     [obo(""This is my custom obsolete message"")]
-    protected MyTestCase() { throw new System.DivideByZeroException(); }
+    protected MyTestCase() {{ throw new System.DivideByZeroException(); }}
 
-    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
-    void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
-}";
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
 
-		var after = @"
-using Xunit.Abstractions;
+		var afterTemplate = @"
+using {0};
 using obo = System.ObsoleteAttribute;
 
-public class MyTestCase: IXunitSerializable {
+public class MyTestCase: IXunitSerializable {{
     [obo(""This is my custom obsolete message"")]
-    public MyTestCase() { throw new System.DivideByZeroException(); }
+    public MyTestCase() {{ throw new System.DivideByZeroException(); }}
 
-    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
-    void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
-}";
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo _) {{ }}
+    void IXunitSerializable.Serialize(IXunitSerializationInfo _) {{ }}
+}}";
 
-		await Verify.VerifyCodeFixV2(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		var v2Before = string.Format(beforeTemplate, "Xunit.Abstractions");
+		var v2After = string.Format(afterTemplate, "Xunit.Abstractions");
+
+		await Verify.VerifyCodeFixV2(v2Before, v2After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+
+		var v3Before = string.Format(beforeTemplate, "Xunit.Sdk");
+		var v3After = string.Format(afterTemplate, "Xunit.Sdk");
+
+		await Verify.VerifyCodeFixV3(v3Before, v3After, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 }
