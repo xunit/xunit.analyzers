@@ -266,7 +266,7 @@ public static partial class Descriptors
 			"Do not use Empty() to check if a value does not exist in a collection",
 			Assertions,
 			Warning,
-			"Do not use Assert.Empty() to check if a valude does not exist in a collection. Use Assert.DoesNotContain() instead."
+			"Do not use Assert.Empty() to check if a value does not exist in a collection. Use Assert.DoesNotContain() instead."
 		);
 
 	// Placeholder for rule X2030
