@@ -1,7 +1,7 @@
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -20,9 +20,9 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : Assert
 	{ }
 
 	protected override void AnalyzeInvocation(
-		OperationAnalysisContext context, 
-		XunitContext xunitContext, 
-		IInvocationOperation invocationOperation, 
+		OperationAnalysisContext context,
+		XunitContext xunitContext,
+		IInvocationOperation invocationOperation,
 		IMethodSymbol method)
 	{
 		Guard.ArgumentNotNull(xunitContext);

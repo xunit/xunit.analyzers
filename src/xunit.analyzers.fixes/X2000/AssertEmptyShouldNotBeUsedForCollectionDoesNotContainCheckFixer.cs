@@ -1,10 +1,10 @@
 using System.Composition;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -13,7 +13,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : BatchedCodeFixProvider
 {
-	public const string Key_UseAlternateAssert = "xUnit2017_UseAlternateAssert";
+	public const string Key_UseAlternateAssert = "xUnit2029_UseAlternateAssert";
 
 	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer() :
 		base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck.Id)
@@ -30,9 +30,10 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 			return;
 
 		context.RegisterCodeFix(
-			XunitCodeAction.Create(c => UseCheck(context.Document, invocation, c),
-			Key_UseAlternateAssert,
-			"Use DoesNotContain"
+			XunitCodeAction.Create(
+				c => UseCheck(context.Document, invocation, c),
+				Key_UseAlternateAssert,
+				"Use DoesNotContain"
 			),
 			context.Diagnostics
 		);
@@ -47,31 +48,14 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 
 		var arguments = invocation.ArgumentList.Arguments;
 		if (arguments.Count == 1 && arguments[0].Expression is InvocationExpressionSyntax innerInvocationSyntax)
-		{
 			if (invocation.Expression is MemberAccessExpressionSyntax outerMemberAccess && innerInvocationSyntax.Expression is MemberAccessExpressionSyntax memberAccess)
-			{
 				if (innerInvocationSyntax.ArgumentList.Arguments[0].Expression is ExpressionSyntax innerArgument)
-				{
-					editor.ReplaceNode(invocation,
+					editor.ReplaceNode(
+						invocation,
 						invocation
-						.WithArgumentList(
-							ArgumentList(
-								SeparatedList(new[] {
-											Argument(memberAccess.Expression),
-											Argument(innerArgument) }
-								)
-							)
-						)
-						.WithExpression(
-							outerMemberAccess.WithName(
-								IdentifierName(Constants.Asserts.DoesNotContain)
-							)
-						)
+							.WithArgumentList(ArgumentList(SeparatedList([Argument(memberAccess.Expression), Argument(innerArgument)])))
+							.WithExpression(outerMemberAccess.WithName(IdentifierName(Constants.Asserts.DoesNotContain)))
 					);
-
-				}
-			}
-		}
 
 		return editor.GetChangedDocument();
 	}
