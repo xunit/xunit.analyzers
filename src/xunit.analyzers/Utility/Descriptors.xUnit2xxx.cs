@@ -260,7 +260,14 @@ public static partial class Descriptors
 			"Using Assert.{0} with an instance of {1} is problematic, because {2}. Check the length with .Count instead."
 		);
 
-	// Placeholder for rule X2029
+	public static DiagnosticDescriptor X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck { get; } =
+		Diagnostic(
+			"xUnit2029",
+			"Do not use Empty() to check if a value does not exist in a collection",
+			Assertions,
+			Warning,
+			"Do not use Assert.Empty() to check if a value does not exist in a collection. Use Assert.DoesNotContain() instead."
+		);
 
 	// Placeholder for rule X2030
 
