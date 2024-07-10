@@ -28,6 +28,34 @@ public class TestClass {
 		}
 
 		[Fact]
+		public async Task MethodUsingNullParamsArgument_NonNullable()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(null)]
+    public void TestMethod(params string[] args) { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async Task MethodUsingNullParamsArgument_Nullable()
+		{
+			var source = @"
+#nullable enable
+
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(null)]
+    public void TestMethod(params string[]? args) { }
+}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
+		}
+
+		[Fact]
 		public async Task MethodUsingNormalAndParamsArgument()
 		{
 			var source = @"
@@ -38,6 +66,34 @@ public class TestClass {
 }";
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async Task MethodUsingNormalAndNullParamsArgument_NonNullable()
+		{
+			var source = @"
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(""abc"", null)]
+    public void TestMethod(string first, params string[] args) { }
+}";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
+		public async Task MethodUsingNormalAndNullParamsArgument_Nullable()
+		{
+			var source = @"
+#nullable enable
+
+public class TestClass {
+    [Xunit.Theory]
+    [Xunit.InlineData(""abc"", null)]
+    public void TestMethod(string first, params string[]? args) { }
+}";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
 		}
 
 		[Fact]

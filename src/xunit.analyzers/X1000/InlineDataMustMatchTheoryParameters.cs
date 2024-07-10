@@ -123,6 +123,17 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 
 					if (value.IsNull)
 					{
+						// Special case: if this is the only value of the params array, and it's null,
+						// and the params array itself is nullable, then this is allowable, since we'll
+						// end up passing null for the array itself.
+						if (paramsElementType is not null &&
+							valueIdx == values.Length - 1 &&
+							parameter.Type.NullableAnnotation == NullableAnnotation.Annotated)
+						{
+							valueIdx = values.Length;
+							break;
+						}
+
 						var isValueTypeParam =
 							paramsElementType is not null
 								? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
