@@ -465,7 +465,14 @@ public static partial class Descriptors
 			"The class referenced by the ClassData attribute returns untyped data rows, such as object[] or ITheoryDataRow. Consider using generic TheoryDataRow<> as the row type to provide better type safety."
 		);
 
-	// Placeholder for rule X1051
+	public static DiagnosticDescriptor X1051_UseCancellationToken { get; } =
+		Diagnostic(
+			"xUnit1051",
+			"Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken",
+			Usage,
+			Warning,
+			"Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken to allow test cancellation to be more responsive."
+		);
 
 	// Placeholder for rule X1052
 
