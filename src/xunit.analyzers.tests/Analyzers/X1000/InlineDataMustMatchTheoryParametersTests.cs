@@ -546,11 +546,7 @@ public class InlineDataMustMatchTheoryParametersTests
 					    public void TestMethod(bool a) {{ }}
 					}}
 					""", value);
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithLocation(0)
-						.WithArguments("a", "bool");
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "bool");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1438,14 +1434,8 @@ public class InlineDataMustMatchTheoryParametersTests
 				""", param, type);
 			var expected = new[]
 			{
-				Verify
-					.Diagnostic("xUnit1012")
-					.WithLocation(0)
-					.WithArguments("b", type),
-				Verify
-					.Diagnostic("xUnit1012")
-					.WithLocation(1)
-					.WithArguments("b", type),
+				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type),
+				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("b", type),
 			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
