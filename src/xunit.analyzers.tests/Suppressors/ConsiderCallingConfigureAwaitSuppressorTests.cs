@@ -1,7 +1,6 @@
 #if NETCOREAPP
 
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
@@ -13,14 +12,15 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 	[Fact]
 	public async Task NonTestMethod_DoesNotSuppress()
 	{
-		var code = @"
-using System.Threading.Tasks;
+		var code = /* lang=c#-test */ """
+			using System.Threading.Tasks;
 
-public class NonTestClass {
-    public async Task NonTestMethod() {
-        await {|CA2007:Task.Delay(1)|};
-    }
-}";
+			public class NonTestClass {
+			    public async Task NonTestMethod() {
+			        await {|CA2007:Task.Delay(1)|};
+			    }
+			}
+			""";
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA2007());
 	}
@@ -32,22 +32,18 @@ public class NonTestClass {
 	[InlineData("TheoryAttribute")]
 	public async Task StandardTestMethod_Suppresses(string attribute)
 	{
-		var code = @$"
-using System.Threading.Tasks;
-using Xunit;
+		var code = string.Format(/* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
 
-public class TestClass {{
-    [{attribute}]
-    public async Task TestMethod() {{
-        await Task.Delay(1);
-    }}
-}}";
-
-		// Roslyn 3.11 still surfaces the diagnostic that has been suppressed
-		var expected =
-			new DiagnosticResult("CA2007", DiagnosticSeverity.Warning)
-				.WithSpan(8, 15, 8, 28)
-				.WithIsSuppressed(true);
+			public class TestClass {{
+			    [{0}]
+			    public async Task TestMethod() {{
+			        await {{|#0:Task.Delay(1)|}};
+			    }}
+			}}
+			""", attribute);
+		var expected = DiagnosticResult.CompilerWarning("CA2007").WithLocation(0).WithIsSuppressed(true);
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA2007(), expected);
 	}
@@ -55,18 +51,19 @@ public class TestClass {{
 	[Fact]
 	public async Task CustomFactTestMethod_DoesNotSuppress()
 	{
-		var code = @"
-using System.Threading.Tasks;
-using Xunit;
+		var code = /* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
 
-internal class CustomFactAttribute : FactAttribute { }
+			internal class CustomFactAttribute : FactAttribute { }
 
-public class TestClass {
-    [CustomFact]
-    public async Task TestMethod() {
-        await {|CA2007:Task.Delay(1)|};
-    }
-}";
+			public class TestClass {
+			    [CustomFact]
+			    public async Task TestMethod() {
+			        await {|CA2007:Task.Delay(1)|};
+			    }
+			}
+			""";
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA2007());
 	}
@@ -74,19 +71,20 @@ public class TestClass {
 	[Fact]
 	public async Task CodeInsideFunctions_DoesNotSuppress()
 	{
-		var code = @"
-using System;
-using System.Threading.Tasks;
-using Xunit;
+		var code = /* lang=c#-test */ """
+			using System;
+			using System.Threading.Tasks;
+			using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        async Task InnerMethod1() { await {|CA2007:Task.Delay(1)|}; }
-        async Task InnerMethod2() => await {|CA2007:Task.Delay(1)|};
-        Func<Task> Lambda = async () => await {|CA2007:Task.Delay(1)|};
-    }
-}";
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        async Task InnerMethod1() { await {|CA2007:Task.Delay(1)|}; }
+			        async Task InnerMethod2() => await {|CA2007:Task.Delay(1)|};
+			        Func<Task> Lambda = async () => await {|CA2007:Task.Delay(1)|};
+			    }
+			}
+			""";
 
 		await Verify.VerifySuppressor(LanguageVersion.CSharp7, code, CodeAnalysisNetAnalyzers.CA2007());
 	}

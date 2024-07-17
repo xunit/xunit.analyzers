@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 
@@ -8,13 +7,14 @@ public class TestMethodShouldNotBeSkippedTests
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async Task DoesNotFindErrorForNotSkippedTest(string attribute)
+	public async Task NotSkippedTest_DoesNotTrigger(string attribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.{attribute}]
-    public void TestMethod() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -22,19 +22,15 @@ public class TestClass {{
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async Task FindsErrorForSkippedTests(string attribute)
+	public async Task SkippedTest_Triggers(string attribute)
 	{
-		var source = $@"
-class TestClass {{
-    [Xunit.{attribute}(Skip=""Lazy"")]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(3, 13 + attribute.Length, 3, 24 + attribute.Length)
-				.WithSeverity(DiagnosticSeverity.Info);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    [Xunit.{0}([|Skip="Lazy"|])]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute);
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

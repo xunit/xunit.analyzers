@@ -5,14 +5,15 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFir
 public class AssertEqualLiteralValueShouldBeFirstTests
 {
 	[Fact]
-	public async Task DoesNotFindWarningWhenConstantOrLiteralUsedForBothArguments()
+	public async Task WhenConstantOrLiteralUsedForBothArguments_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.Equal(""TestMethod"", nameof(TestMethod));
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.Equal("TestMethod", nameof(TestMethod));
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -32,52 +33,51 @@ class TestClass {
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async Task DoesNotFindWarningForExpectedConstantOrLiteralValueAsFirstArgument(
+	public async Task ExpectedConstantOrLiteralValueAsFirstArgument_DoesNotTrigger(
 		string type,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var v = default({type});
-        Xunit.Assert.Equal({value}, v);
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var v = default({0});
+			        Xunit.Assert.Equal({1}, v);
+			    }}
+			}}
+			""", type, value);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindWarningForConstantsUsedInStringConstructorAsFirstArgument()
+	public async Task ConstantsUsedInStringConstructorAsFirstArgument_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.Equal(new string(' ', 4), ""    "");
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.Equal(new string(' ', 4), "    ");
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async Task FindsWarningForExpectedConstantOrLiteralValueAsSecondArgument(
+	public async Task ExpectedConstantOrLiteralValueAsSecondArgument_Triggers(
 		string type,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var v = default({type});
-        Xunit.Assert.Equal(v, {value});
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithLocation(5, 9)
-				.WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var v = default({0});
+			        {{|#0:Xunit.Assert.Equal(v, {1})|}};
+			    }}
+			}}
+			""", type, value);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -85,38 +85,35 @@ class TestClass {{
 	[Theory]
 	[InlineData(true)]
 	[InlineData(false)]
-	public async Task DoesNotFindWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(bool useAlternateForm)
+	public async Task ExpectedConstantOrLiteralValueAsNamedExpectedArgument_DoesNotTrigger(bool useAlternateForm)
 	{
-		var prefix = useAlternateForm ? "@" : "";
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var v = default(int);
-        Xunit.Assert.Equal({prefix}actual: v, {prefix}expected: 0);
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var v = default(int);
+			        Xunit.Assert.Equal({0}actual: v, {0}expected: 0);
+			    }}
+			}}
+			""", useAlternateForm ? "@" : "");
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(TypesAndValues))]
-	public async Task FindsWarningForExpectedConstantOrLiteralValueAsNamedExpectedArgument(
+	public async Task ExpectedConstantOrLiteralValueAsNamedExpectedArgument_Triggers(
 		string type,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var v = default({type});
-        Xunit.Assert.Equal(actual: {value}, expected: v);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithLocation(5, 9)
-				.WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var v = default({0});
+			        {{|#0:Xunit.Assert.Equal(actual: {1}, expected: v)|}};
+			    }}
+			}}
+			""", type, value);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -131,13 +128,14 @@ class TestClass {{
 		string firstArgumentName,
 		string secondArgumentName)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var v = default(int);
-        Xunit.Assert.{methodName}({firstArgumentName}: 1, {secondArgumentName}: v);
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var v = default(int);
+			        Xunit.Assert.{0}({1}: 1, {2}: v);
+			    }}
+			}}
+			""", methodName, firstArgumentName, secondArgumentName);
 
 		await Verify.VerifyAnalyzer(source);
 	}

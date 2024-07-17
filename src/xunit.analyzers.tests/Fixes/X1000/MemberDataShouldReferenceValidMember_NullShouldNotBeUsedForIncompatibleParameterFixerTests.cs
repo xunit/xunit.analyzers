@@ -9,27 +9,28 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 	[Fact]
 	public async Task MakesParameterNullable()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n, int k) => new TheoryData<int>();
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n, int k) => new TheoryData<int>();
 
-    [Theory]
-    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
+			    public void TestMethod(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n, int? k) => new TheoryData<int>();
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n, int? k) => new TheoryData<int>();
-
-    [Theory]
-    [MemberData(nameof(TestData), 42, null)]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, null)]
+			    public void TestMethod(int a) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
@@ -37,31 +38,32 @@ public class TestClass {
 	[Fact]
 	public async Task MakesReferenceParameterNullable()
 	{
-		var before = @"
-#nullable enable
+		var before = /* lang=c#-test */ """
+			#nullable enable
 
-using Xunit;
+			using Xunit;
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n, string k) => new TheoryData<int> { n };
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n, string k) => new TheoryData<int> { n };
 
-    [Theory]
-    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
+			    public void TestMethod(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			#nullable enable
 
-		var after = @"
-#nullable enable
+			using Xunit;
 
-using Xunit;
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n, string? k) => new TheoryData<int> { n };
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n, string? k) => new TheoryData<int> { n };
-
-    [Theory]
-    [MemberData(nameof(TestData), 42, null)]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, null)]
+			    public void TestMethod(int a) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}

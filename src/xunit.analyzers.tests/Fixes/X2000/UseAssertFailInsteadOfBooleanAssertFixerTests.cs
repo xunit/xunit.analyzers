@@ -5,19 +5,21 @@ using Verify = CSharpVerifier<Xunit.Analyzers.UseAssertFailInsteadOfBooleanAsser
 
 public class UseAssertFailInsteadOfBooleanAssertFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        {0};
-    }}
-}}";
+		using Xunit;
+
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData(@"[|Assert.True(false, ""message"")|]")]
-	[InlineData(@"[|Assert.False(true, ""message"")|]")]
+	[InlineData(/* lang=c#-test */ @"[|Assert.True(false, ""message"")|]")]
+	[InlineData(/* lang=c#-test */ @"[|Assert.False(true, ""message"")|]")]
 	public async Task ReplacesBooleanAssert(string badAssert)
 	{
 		var before = string.Format(template, badAssert);

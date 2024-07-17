@@ -1,74 +1,72 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassShouldHaveTFixtureArgument>;
 
 public class TestClassShouldHaveTFixtureArgumentTests
 {
-	public static IEnumerable<object[]> CreateFactsInNonPublicClassCases =
-		from attribute in new[] { "Xunit.Fact", "Xunit.Theory" }
-		from @interface in new[] { "Xunit.IClassFixture", "Xunit.ICollectionFixture" }
-		select new[] { attribute, @interface };
+	public static MatrixTheoryData<string, string> CreateFactsInNonPublicClassCases =
+		new(
+			/* lang=c#-test */ ["Xunit.Fact", "Xunit.Theory"],
+			/* lang=c#-test */ ["Xunit.IClassFixture", "Xunit.ICollectionFixture"]
+		);
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async Task ForClassWithIClassFixtureWithoutConstructorArg_FindsInfo(
+	public async Task ForClassWithIClassFixtureWithoutConstructorArg_Triggers(
 		string attribute,
 		string @interface)
 	{
-		var source = $@"
-public class FixtureData {{ }}
+		var source = string.Format(/* lang=c#-test */ """
+			public class FixtureData {{ }}
 
-public class TestClass: {@interface}<FixtureData> {{
-    [{attribute}]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 14, 4, 23)
-				.WithArguments("TestClass", "FixtureData");
+			public class {{|#0:TestClass|}}: {1}<FixtureData> {{
+			    [{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute, @interface);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestClass", "FixtureData");
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async Task ForClassWithIClassFixtureWithConstructorArg_DonnotFindInfo(
+	public async Task ForClassWithIClassFixtureWithConstructorArg_DoesNotTrigger(
 		string attribute,
 		string @interface)
 	{
-		var source = $@"
-public class FixtureData {{ }}
+		var source = string.Format(/* lang=c#-test */ """
+			public class FixtureData {{ }}
 
-public class TestClass: {@interface}<FixtureData> {{
-    public TestClass(FixtureData fixtureData) {{ }}
+			public class TestClass: {1}<FixtureData> {{
+			    public TestClass(FixtureData fixtureData) {{ }}
 
-    [{attribute}]
-    public void TestMethod() {{ }}
-}}";
+			    [{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute, @interface);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async Task ForClassWithIClassFixtureWithConstructorMultipleArg_DonnotFindInfo(
+	public async Task ForClassWithIClassFixtureWithConstructorMultipleArg_DoesNotTrigger(
 		string attribute,
 		string @interface)
 	{
-		var source = $@"
-public class FixtureData {{ }}
+		var source = /* lang=c#-test */ """
+			public class FixtureData {{ }}
 
-public class TestClass: {@interface}<FixtureData> {{
-    public TestClass(FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper output) {{ }}
+			public class TestClass: {1}<FixtureData> {{
+			    public TestClass(FixtureData fixtureData, {2}.ITestOutputHelper output) {{ }}
 
-    [{attribute}]
-    public void TestMethod() {{ }}
-}}";
+			    [{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""";
 
-		// This is a v2-only test because of the use of Xunit.Abstractions.ITestOutputHelper
-		await Verify.VerifyAnalyzerV2(source);
+		await Verify.VerifyAnalyzerV2(string.Format(source, attribute, @interface, "Xunit.Abstractions"));
+		await Verify.VerifyAnalyzerV3(string.Format(source, attribute, @interface, "Xunit"));
 	}
 }

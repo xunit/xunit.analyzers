@@ -12,17 +12,13 @@ public sealed class MakeTypesInternalSuppressorTests
 	[Fact]
 	public async Task NonTestClass_DoesNotSuppress()
 	{
-		var code = @"
-public class NonTestClass {
-    public void NonTestMethod() { }
-}";
+		var code = /* lang=c#-test */ """
+			public class {|CA1515:NonTestClass|} {
+			    public void NonTestMethod() { }
+			}
+			""";
 
-		var expected =
-			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning)
-				.WithSpan(2, 14, 2, 26)
-				.WithIsSuppressed(false);
-
-		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515(), expected);
+		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515());
 	}
 
 	[Theory]
@@ -34,21 +30,17 @@ public class NonTestClass {
 	[InlineData("CustomFactAttribute")]
 	public async Task TestClass_Suppresses(string attribute)
 	{
-		var code = @$"
-using Xunit;
+		var code = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-internal class CustomFactAttribute : FactAttribute {{ }}
+			internal class CustomFactAttribute : FactAttribute {{ }}
 
-public class TestClass {{
-    [{attribute}]
-    public void TestMethod() {{ }}
-}}";
-
-		// Roslyn 3.11 still surfaces the diagnostic that has been suppressed
-		var expected =
-			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning)
-				.WithSpan(6, 14, 6, 23)
-				.WithIsSuppressed(true);
+			public class {{|#0:TestClass|}} {{
+			    [{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute);
+		var expected = new DiagnosticResult("CA1515", DiagnosticSeverity.Warning).WithLocation(0).WithIsSuppressed(true);
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515(), expected);
 	}

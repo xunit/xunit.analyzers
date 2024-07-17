@@ -6,24 +6,38 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualLiteralValueShouldBeFir
 
 public class AssertEqualLiteralValueShouldBeFirstFixerTests
 {
-	static readonly string Template = @"
-using System.Collections.Generic;
+	const string Template = /* lang=c#-test */ """
+		using System.Collections.Generic;
 
-public class TestClass {{
-    [Xunit.Fact]
-    public void TestMethod() {{
-        var i = 0;
-        [|Xunit.{0}|];
-    }}
-}}";
+		public class TestClass {{
+		    [Xunit.Fact]
+		    public void TestMethod() {{
+		        var i = 0;
+		        [|Xunit.{0}|];
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData("Assert.Equal(i, 0)", "Assert.Equal(0, i)")]
-	[InlineData("Assert.Equal(actual: 0, expected: i)", "Assert.Equal(actual: i, expected: 0)")]
-	[InlineData("Assert.Equal(expected: i, actual: 0)", "Assert.Equal(expected: 0, actual: i)")]
-	[InlineData("Assert.Equal(comparer: default(IEqualityComparer<int>), actual: 0, expected: i)", "Assert.Equal(comparer: default(IEqualityComparer<int>), actual: i, expected: 0)")]
-	[InlineData("Assert.Equal(comparer: (x, y) => true, actual: 0, expected: i)", "Assert.Equal(comparer: (x, y) => true, actual: i, expected: 0)")]
-	[InlineData("Assert.Equal(expected: i, 0)", "Assert.Equal(expected: 0, i)", LanguageVersion.CSharp7_2)]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(i, 0)",
+		/* lang=c#-test */ "Assert.Equal(0, i)")]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(actual: 0, expected: i)",
+		/* lang=c#-test */ "Assert.Equal(actual: i, expected: 0)")]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(expected: i, actual: 0)",
+		/* lang=c#-test */ "Assert.Equal(expected: 0, actual: i)")]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(comparer: default(IEqualityComparer<int>), actual: 0, expected: i)",
+		/* lang=c#-test */ "Assert.Equal(comparer: default(IEqualityComparer<int>), actual: i, expected: 0)")]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(comparer: (x, y) => true, actual: 0, expected: i)",
+		/* lang=c#-test */ "Assert.Equal(comparer: (x, y) => true, actual: i, expected: 0)")]
+	[InlineData(
+		/* lang=c#-test */ "Assert.Equal(expected: i, 0)",
+		/* lang=c#-test */ "Assert.Equal(expected: 0, i)",
+		LanguageVersion.CSharp7_2)]
 	public async Task SwapArguments(
 		string beforeAssert,
 		string afterAssert,

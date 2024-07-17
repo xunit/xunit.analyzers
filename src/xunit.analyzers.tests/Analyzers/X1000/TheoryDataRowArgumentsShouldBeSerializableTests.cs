@@ -8,18 +8,19 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[Fact]
 	public async Task ParamArrayArguments_NotUsingTheoryDataRow_DoesNotTrigger()
 	{
-		var source = @"
-#nullable enable
+		var source = /* lang=c#-test */ """
+			#nullable enable
 
-public class Foo {
-    public Foo(params object[] args) { }
-}
+			public class Foo {
+			    public Foo(params object[] args) { }
+			}
 
-public class TestClass {
-    public void TestMethod() {
-        var foo = new Foo(new object());
-    }
-}";
+			public class TestClass {
+			    public void TestMethod() {
+			        var foo = new Foo(new object());
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 	}
@@ -54,25 +55,26 @@ public class TestClass {
 		string value,
 		string type)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Xunit;
+			using System;
+			using System.Collections.Generic;
+			using System.Numerics;
+			using Xunit;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var value = {value};
-        var defaultValue = default({type});
-        var nullValue = default({type}?);
-        var arrayValue = new {type}[0];
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var value = {0};
+			        var defaultValue = default({1});
+			        var nullValue = default({1}?);
+			        var arrayValue = new {1}[0];
 
-        yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow<{type}, {type}?, {type}?, {type}[]>({value}, default({type}), default({type}?), new {type}[0]);
-    }}
-}}";
+			        yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
+			        yield return new TheoryDataRow<{1}, {1}?, {1}?, {1}[]>({0}, default({1}), default({1}?), new {1}[0]);
+			    }}
+			}}
+			""", value, type);
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 	}
@@ -82,36 +84,37 @@ public class MyClass {{
 	[InlineData("SerializableStruct")]
 	public async Task IXunitSerializableValue_DoesNotTrigger(string type)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System.Collections.Generic;
-using Xunit;
-using Xunit.Sdk;
+			using System.Collections.Generic;
+			using Xunit;
+			using Xunit.Sdk;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var value = new {type}();
-        var defaultValue = default({type});
-        var nullValue = default({type}?);
-        var arrayValue = new {type}[0];
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var value = new {0}();
+			        var defaultValue = default({0});
+			        var nullValue = default({0}?);
+			        var arrayValue = new {0}[0];
 
-        yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow<{type}, {type}?, {type}?, {type}[]>(new {type}(), default({type}), default({type}?), new {type}[0]);
-    }}
-}}
+			        yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
+			        yield return new TheoryDataRow<{0}, {0}?, {0}?, {0}[]>(new {0}(), default({0}), default({0}?), new {0}[0]);
+			    }}
+			}}
 
-public interface ISerializableInterface : IXunitSerializable {{ }}
+			public interface ISerializableInterface : IXunitSerializable {{ }}
 
-public class SerializableClass : ISerializableInterface {{
-    public void Deserialize(IXunitSerializationInfo info) {{ }}
-    public void Serialize(IXunitSerializationInfo info) {{ }}
-}}
+			public class SerializableClass : ISerializableInterface {{
+			    public void Deserialize(IXunitSerializationInfo info) {{ }}
+			    public void Serialize(IXunitSerializationInfo info) {{ }}
+			}}
 
-public struct SerializableStruct : ISerializableInterface {{
-    public void Deserialize(IXunitSerializationInfo info) {{ }}
-    public void Serialize(IXunitSerializationInfo info) {{ }}
-}}";
+			public struct SerializableStruct : ISerializableInterface {{
+			    public void Deserialize(IXunitSerializationInfo info) {{ }}
+			    public void Serialize(IXunitSerializationInfo info) {{ }}
+			}}
+			""", type);
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 	}
@@ -126,55 +129,36 @@ public struct SerializableStruct : ISerializableInterface {{
 		string defaultValueType,
 		string nullValueType)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System;
-using System.Collections.Generic;
-using Xunit;
+			using System;
+			using System.Collections.Generic;
+			using Xunit;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var defaultValue = default({type});
-        var nullValue = default({type}?);
-        var arrayValue = new {type}[0];
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var defaultValue = default({0});
+			        var nullValue = default({0}?);
+			        var arrayValue = new {0}[0];
 
-        yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow<{defaultValueType}, {nullValueType}, {type}[]>(default({type}), default({type}?), new {type}[0]);
-    }}
-}}
+			        yield return new TheoryDataRow({{|#0:defaultValue|}}, {{|#1:nullValue|}}, {{|#2:arrayValue|}});
+			        yield return new TheoryDataRow<{1}, {2}, {0}[]>({{|#3:default({0})|}}, {{|#4:default({0}?)|}}, {{|#5:new {0}[0]|}});
+			    }}
+			}}
 
-public sealed class NonSerializableSealedClass {{ }}
+			public sealed class NonSerializableSealedClass {{ }}
 
-public struct NonSerializableStruct {{ }}";
-
-		var leftGeneric = 48 + defaultValueType.Length + nullValueType.Length + type.Length;
+			public struct NonSerializableStruct {{ }}
+			""", type, defaultValueType, nullValueType);
 		var expected = new[] {
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(14, 40, 14, 52)
-					.WithArguments("defaultValue", defaultValueType),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(14, 54, 14, 63)
-					.WithArguments("nullValue", nullValueType),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(14, 65, 14, 75)
-					.WithArguments("arrayValue", $"{type}[]"),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(15, leftGeneric, 15, leftGeneric + 9 + type.Length)  // +9 for "default()"
-					.WithArguments($"default({type})", defaultValueType),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(15, leftGeneric + 11 + type.Length, 15, leftGeneric + 21 + type.Length * 2)  // +10 for "default(?)"
-					.WithArguments($"default({type}?)", nullValueType),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(15, leftGeneric + 23 + type.Length * 2, 15, leftGeneric + 30 + type.Length * 3)  // +7 for "new [0]"
-					.WithArguments($"new {type}[0]", $"{type}[]"),
-			};
+			Verify.Diagnostic("xUnit1046").WithLocation(0).WithArguments("defaultValue", defaultValueType),
+			Verify.Diagnostic("xUnit1046").WithLocation(1).WithArguments("nullValue", nullValueType),
+			Verify.Diagnostic("xUnit1046").WithLocation(2).WithArguments("arrayValue", $"{type}[]"),
+			Verify.Diagnostic("xUnit1046").WithLocation(3).WithArguments($"default({type})", defaultValueType),
+			Verify.Diagnostic("xUnit1046").WithLocation(4).WithArguments($"default({type}?)", nullValueType),
+			Verify.Diagnostic("xUnit1046").WithLocation(5).WithArguments($"new {type}[0]", $"{type}[]"),
+		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 	}
@@ -184,45 +168,33 @@ public struct NonSerializableStruct {{ }}";
 	[InlineData("NonSerializableStruct")]
 	public async Task KnownNonSerializableValue_Constructable_Triggers1046(string type)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System.Collections.Generic;
-using Xunit;
+			using System.Collections.Generic;
+			using Xunit;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var value = new {type}();
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var value = new {0}();
 
-        yield return new TheoryDataRow(value);
-        yield return new TheoryDataRow(new {type}());
-        yield return new TheoryDataRow<{type}>(value);
-        yield return new TheoryDataRow<{type}>(new {type}());
-    }}
-}}
+			        yield return new TheoryDataRow({{|#0:value|}});
+			        yield return new TheoryDataRow({{|#1:new {0}()|}});
+			        yield return new TheoryDataRow<{0}>({{|#2:value|}});
+			        yield return new TheoryDataRow<{0}>({{|#3:new {0}()|}});
+			    }}
+			}}
 
-public sealed class NonSerializableSealedClass {{ }}
+			public sealed class NonSerializableSealedClass {{ }}
 
-public struct NonSerializableStruct {{ }}";
-
+			public struct NonSerializableStruct {{ }}
+			""", type);
 		var expected = new[] {
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(11, 40, 11, 45)
-					.WithArguments("value", type),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(12, 40, 12, 46 + type.Length)
-					.WithArguments($"new {type}()", type),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(13, 42 + type.Length, 13, 47 + type.Length)
-					.WithArguments("value", type),
-				Verify
-					.Diagnostic("xUnit1046")
-					.WithSpan(14, 42 + type.Length, 14, 48 + type.Length * 2)
-					.WithArguments($"new {type}()", type),
-			};
+			Verify.Diagnostic("xUnit1046").WithLocation(0).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1046").WithLocation(1).WithArguments($"new {type}()", type),
+			Verify.Diagnostic("xUnit1046").WithLocation(2).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1046").WithLocation(3).WithArguments($"new {type}()", type),
+		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 	}
@@ -238,55 +210,36 @@ public struct NonSerializableStruct {{ }}";
 	[InlineData("PossiblySerializableUnsealedClass")]
 	public async Task MaybeNonSerializableValue_Triggers1047(string type)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Xunit;
+			using System;
+			using System.Collections;
+			using System.Collections.Generic;
+			using Xunit;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var defaultValue = default({type});
-        var nullValue = default({type}?);
-        var arrayValue = new {type}[0];
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var defaultValue = default({0});
+			        var nullValue = default({0}?);
+			        var arrayValue = new {0}[0];
 
-        yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
-        yield return new TheoryDataRow<{type}, {type}, {type}[]>(default({type}), default({type}?), new {type}[0]);
-    }}
-}}
+			        yield return new TheoryDataRow({{|#0:defaultValue|}}, {{|#1:nullValue|}}, {{|#2:arrayValue|}});
+			        yield return new TheoryDataRow<{0}, {0}, {0}[]>({{|#3:default({0})|}}, {{|#4:default({0}?)|}}, {{|#5:new {0}[0]|}});
+			    }}
+			}}
 
-public interface IPossiblySerializableInterface {{ }}
+			public interface IPossiblySerializableInterface {{ }}
 
-public class PossiblySerializableUnsealedClass {{ }}";
-
-		var leftGeneric = 48 + type.Length * 3;
+			public class PossiblySerializableUnsealedClass {{ }}
+			""", type);
 		var expected = new[] {
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(15, 40, 15, 52)
-				.WithArguments("defaultValue", $"{type}?"),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(15, 54, 15, 63)
-				.WithArguments("nullValue", $"{type}?"),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(15, 65, 15, 75)
-				.WithArguments("arrayValue", $"{type}[]"),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(16, leftGeneric, 16, leftGeneric + 9 + type.Length)  // +9 for "default()"
-				.WithArguments($"default({type})", $"{type}?"),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(16, leftGeneric + 11 + type.Length, 16, leftGeneric + 21 + type.Length * 2)  // +10 for "default(?)"
-				.WithArguments($"default({type}?)", $"{type}?"),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(16, leftGeneric + 23 + type.Length * 2, 16, leftGeneric + 30 + type.Length * 3)  // +7 for "new [0]"
-				.WithArguments($"new {type}[0]", $"{type}[]"),
+			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("defaultValue", $"{type}?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments("nullValue", $"{type}?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("arrayValue", $"{type}[]"),
+			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments($"default({type})", $"{type}?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(4).WithArguments($"default({type}?)", $"{type}?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(5).WithArguments($"new {type}[0]", $"{type}[]"),
 		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
@@ -298,42 +251,30 @@ public class PossiblySerializableUnsealedClass {{ }}";
 	[InlineData("PossiblySerializableUnsealedClass")]
 	public async Task MaybeNonSerializableValue_Constructable_Triggers1047(string type)
 	{
-		var source = $@"
-#nullable enable
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
 
-using System.Collections.Generic;
-using Xunit;
+			using System.Collections.Generic;
+			using Xunit;
 
-public class MyClass {{
-    public IEnumerable<TheoryDataRow> MyMethod() {{
-        var value = new {type}();
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var value = new {0}();
 
-        yield return new TheoryDataRow(value);
-        yield return new TheoryDataRow(new {type}());
-        yield return new TheoryDataRow<{type}>(value);
-        yield return new TheoryDataRow<{type}>(new {type}());
-    }}
-}}
+			        yield return new TheoryDataRow({{|#0:value|}});
+			        yield return new TheoryDataRow({{|#1:new {0}()|}});
+			        yield return new TheoryDataRow<{0}>({{|#2:value|}});
+			        yield return new TheoryDataRow<{0}>({{|#3:new {0}()|}});
+			    }}
+			}}
 
-public class PossiblySerializableUnsealedClass {{ }}";
-
+			public class PossiblySerializableUnsealedClass {{ }}
+			""", type);
 		var expected = new[] {
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(11, 40, 11, 45)
-				.WithArguments("value", type),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(12, 40, 12, 46 + type.Length)
-				.WithArguments($"new {type}()", type),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(13, 42 + type.Length, 13, 47 + type.Length)
-				.WithArguments("value", type),
-			Verify
-				.Diagnostic("xUnit1047")
-				.WithSpan(14, 42 + type.Length, 14, 48 + type.Length * 2)
-				.WithArguments($"new {type}()", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments($"new {type}()", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments($"new {type}()", type),
 		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);

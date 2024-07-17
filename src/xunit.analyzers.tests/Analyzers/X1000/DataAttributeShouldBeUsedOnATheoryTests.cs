@@ -5,13 +5,14 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory
 public class DataAttributeShouldBeUsedOnATheoryTests
 {
 	[Fact]
-	public async Task DoesNotFindErrorForFactMethodWithNoDataAttributes()
+	public async Task FactMethodWithNoDataAttributes_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() { }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -20,14 +21,15 @@ public class TestClass {
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async Task DoesNotFindErrorForFactMethodWithDataAttributes(string dataAttribute)
+	public async Task FactMethodWithDataAttributes_DoesNotTrigger(string dataAttribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.Fact]
-    [Xunit.{dataAttribute}]
-    public void TestMethod() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.Fact]
+			    [Xunit.{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", dataAttribute);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -36,14 +38,15 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async Task DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	public async Task TheoryMethodWithDataAttributes_DoesNotTrigger(string dataAttribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.{dataAttribute}]
-    public void TestMethod() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.Theory]
+			    [Xunit.{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", dataAttribute);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -52,18 +55,15 @@ public class TestClass {{
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async Task FindsErrorForMethodsWithDataAttributesButNotFactOrTheory(string dataAttribute)
+	public async Task MethodsWithDataAttributesButNotFactOrTheory_Triggers(string dataAttribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.{dataAttribute}]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 17, 4, 27);
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.{0}]
+			    public void [|TestMethod|]() {{ }}
+			}}
+			""", dataAttribute);
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

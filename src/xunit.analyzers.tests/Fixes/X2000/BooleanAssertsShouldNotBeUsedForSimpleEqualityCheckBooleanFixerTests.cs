@@ -5,39 +5,40 @@ using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSi
 
 public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        bool condition = true;
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        bool condition = true;
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	public static TheoryData<string, string, string> AssertExpressionReplacement = new()
 	{
-		{ "True", "condition == true", "True" },
-		{ "True", "condition != true", "False" },
-		{ "True", "true == condition", "True" },
-		{ "True", "true != condition", "False" },
+		/* lang=c#-test */ { "True", "condition == true", "True" },
+		/* lang=c#-test */ { "True", "condition != true", "False" },
+		/* lang=c#-test */ { "True", "true == condition", "True" },
+		/* lang=c#-test */ { "True", "true != condition", "False" },
 
-		{ "True", "condition == false", "False" },
-		{ "True", "condition != false", "True" },
-		{ "True", "false == condition", "False" },
-		{ "True", "false != condition", "True" },
+		/* lang=c#-test */ { "True", "condition == false", "False" },
+		/* lang=c#-test */ { "True", "condition != false", "True" },
+		/* lang=c#-test */ { "True", "false == condition", "False" },
+		/* lang=c#-test */ { "True", "false != condition", "True" },
 
-		{ "False", "condition == true", "False" },
-		{ "False", "condition != true", "True" },
-		{ "False", "true == condition", "False" },
-		{ "False", "true != condition", "True" },
+		/* lang=c#-test */ { "False", "condition == true", "False" },
+		/* lang=c#-test */ { "False", "condition != true", "True" },
+		/* lang=c#-test */ { "False", "true == condition", "False" },
+		/* lang=c#-test */ { "False", "true != condition", "True" },
 
-		{ "False", "condition == false", "True" },
-		{ "False", "condition != false", "False" },
-		{ "False", "false == condition", "True" },
-		{ "False", "false != condition", "False" },
+		/* lang=c#-test */ { "False", "condition == false", "True" },
+		/* lang=c#-test */ { "False", "condition != false", "False" },
+		/* lang=c#-test */ { "False", "false == condition", "True" },
+		/* lang=c#-test */ { "False", "false != condition", "False" },
 	};
 
 	[Theory]

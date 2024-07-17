@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValueTypes>;
@@ -14,69 +13,57 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarningForTwoValueParameters(
+	public async Task TwoValueParameters_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        int a = 0;
-        Xunit.Assert.{method}(0, a);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 9, 5, 28 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        int a = 0;
+			        {{|#0:Xunit.Assert.{0}(0, a)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarningForFirstValueParameters(
+	public async Task FirstValueParameters_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        object a = 0;
-        Xunit.Assert.{method}(0, a);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 9, 5, 28 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        object a = 0;
+			        {{|#0:Xunit.Assert.{0}(0, a)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarningForSecondValueParameters(
+	public async Task SecondValueParameters_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        object a = 0;
-        Xunit.Assert.{method}(a, 0);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 9, 5, 28 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        object a = 0;
+			        {{|#0:Xunit.Assert.{0}(a, 0)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -84,86 +71,71 @@ class TestClass {{
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
 	// https://github.com/xunit/xunit/issues/2395
-	public async Task DoesNotFindWarningForUserDefinedImplicitConversion(
+	public async Task UserDefinedImplicitConversion_DoesNotTrigger(
 		string method,
-		string replacement)
+		string _)
 	{
-		_ = replacement; // Verifies that diagnostic is not issued, so the replacement method is not needed
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    public void TestMethod() {{
+			        var o = new object();
 
-		var source = $@"
-public class TestClass
-{{
-    public void TestMethod()
-    {{
-        var o = new object();
+			        Xunit.Assert.{0}((MyBuggyInt)42, o);
+			        Xunit.Assert.{0}((MyBuggyInt)(int?)42, o);
+			        Xunit.Assert.{0}((MyBuggyIntBase)42, o);
+			        Xunit.Assert.{0}((MyBuggyIntBase)(int?)42, o);
 
-        Xunit.Assert.{method}((MyBuggyInt)42, o);
-        Xunit.Assert.{method}((MyBuggyInt)(int?)42, o);
-        Xunit.Assert.{method}((MyBuggyIntBase)42, o);
-        Xunit.Assert.{method}((MyBuggyIntBase)(int?)42, o);
+			        Xunit.Assert.{0}(o, (MyBuggyInt)42);
+			        Xunit.Assert.{0}(o, (MyBuggyInt)(int?)42);
+			        Xunit.Assert.{0}(o, (MyBuggyIntBase)42);
+			        Xunit.Assert.{0}(o, (MyBuggyIntBase)(int?)42);
+			    }}
+			}}
 
-        Xunit.Assert.{method}(o, (MyBuggyInt)42);
-        Xunit.Assert.{method}(o, (MyBuggyInt)(int?)42);
-        Xunit.Assert.{method}(o, (MyBuggyIntBase)42);
-        Xunit.Assert.{method}(o, (MyBuggyIntBase)(int?)42);
-    }}
-}}
+			public abstract class MyBuggyIntBase {{
+			    public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
+			}}
 
-public abstract class MyBuggyIntBase
-{{
-    public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
-}}
-
-public class MyBuggyInt : MyBuggyIntBase
-{{
-    public MyBuggyInt()
-    {{
-    }}
-}}";
+			public class MyBuggyInt : MyBuggyIntBase {{
+			    public MyBuggyInt() {{ }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarningForFirstValueParametersIfSecondIsNull(
+	public async Task FirstValueParametersIfSecondIsNull_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(0, null);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 31 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(0, null)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarningForSecondValueParametersIfFirstIsNull(
+	public async Task SecondValueParametersIfFirstIsNull_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(null, 0);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 31 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", "int", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(null, 0)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

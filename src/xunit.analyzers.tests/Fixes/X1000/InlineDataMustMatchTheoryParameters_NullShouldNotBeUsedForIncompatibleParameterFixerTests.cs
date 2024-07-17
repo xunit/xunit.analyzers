@@ -9,23 +9,24 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 	[Fact]
 	public async Task MakesParameterNullable()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(42, {|xUnit1012:null|})]
-    public void TestMethod(int a, int b) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, {|xUnit1012:null|})]
+			    public void TestMethod(int a, int b) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData(42, null)]
-    public void TestMethod(int a, int? b) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, null)]
+			    public void TestMethod(int a, int? b) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
@@ -33,27 +34,28 @@ public class TestClass {
 	[Fact]
 	public async Task MakesReferenceParameterNullable()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			#nullable enable
 
-#nullable enable
-public class TestClass {
-    [Theory]
-    [InlineData(42, {|xUnit1012:null|})]
-    public void TestMethod(int a, object b) { }
-#nullable restore
-}";
+			using Xunit;
 
-		var after = @"
-using Xunit;
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, {|xUnit1012:null|})]
+			    public void TestMethod(int a, object b) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			#nullable enable
 
-#nullable enable
-public class TestClass {
-    [Theory]
-    [InlineData(42, null)]
-    public void TestMethod(int a, object? b) { }
-#nullable restore
-}";
+			using Xunit;
+
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, null)]
+			    public void TestMethod(int a, object? b) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}

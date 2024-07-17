@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameters>;
@@ -17,12 +16,13 @@ public class InlineDataMustMatchTheoryParametersTests
 		[Fact]
 		public async Task MethodUsingParamsArgument()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"", ""xyz"")]
-    public void TestMethod(params string[] args) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc", "xyz")]
+				    public void TestMethod(params string[] args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -30,12 +30,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNullParamsArgument_NonNullable()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(null)]
-    public void TestMethod(params string[] args) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(null)]
+				    public void TestMethod(params string[] args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -43,14 +44,15 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNullParamsArgument_Nullable()
 		{
-			var source = @"
-#nullable enable
+			var source = /* lang=c#-test */ """
+				#nullable enable
 
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(null)]
-    public void TestMethod(params string[]? args) { }
-}";
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(null)]
+				    public void TestMethod(params string[]? args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
 		}
@@ -58,12 +60,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNormalAndParamsArgument()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"", ""xyz"")]
-    public void TestMethod(string first, params string[] args) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc", "xyz")]
+				    public void TestMethod(string first, params string[] args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -71,12 +74,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNormalAndNullParamsArgument_NonNullable()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"", null)]
-    public void TestMethod(string first, params string[] args) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc", null)]
+				    public void TestMethod(string first, params string[] args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -84,14 +88,15 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNormalAndNullParamsArgument_Nullable()
 		{
-			var source = @"
-#nullable enable
+			var source = /* lang=c#-test */ """
+				#nullable enable
 
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"", null)]
-    public void TestMethod(string first, params string[]? args) { }
-}";
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc", null)]
+				    public void TestMethod(string first, params string[]? args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
 		}
@@ -99,12 +104,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNormalAndUnusedParamsArgument()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"")]
-    public void TestMethod(string first, params string[] args) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc")]
+				    public void TestMethod(string first, params string[] args) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -112,12 +118,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingEmptyArrayForParams()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new int[] { })]
-    public void VariableArgumentsTest(params int[] sq) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(new int[] { })]
+				    public void VariableArgumentsTest(params int[] sq) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -125,12 +132,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingMixedArgumentsAndEmptyArrayForParams()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(21.12, new int[] { })]
-    public void VariableArgumentsTest(double d, params int[] sq) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(21.12, new int[] { })]
+				    public void VariableArgumentsTest(double d, params int[] sq) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -138,12 +146,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingNonEmptyArrayForParams()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new int[] { 1, 2, 3 })]
-    public void VariableArgumentsTest(params int[] sq) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(new int[] { 1, 2, 3 })]
+				    public void VariableArgumentsTest(params int[] sq) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -151,25 +160,13 @@ public class TestClass {
 		[Fact]
 		public async Task MethodUsingMixedArgumentsAndNonEmptyArrayForParams()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
-    public void VariableArgumentsTest(double d, params int[] sq) { }
-}";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingIncompatibleExplicitArrayForParams()
-		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
-    public void VariableArgumentsTest(double d, params int[] sq) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
+				    public void VariableArgumentsTest(double d, params int[] sq) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -177,12 +174,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingParameters()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"", 1, null)]
-    public void TestMethod(string a, int b, object c) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc", 1, null)]
+				    public void TestMethod(string a, int b, object c) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -190,12 +188,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingParametersWithDefaultValues()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"")]
-    public void TestMethod(string a, string b = ""default"", string c = null) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc")]
+				    public void TestMethod(string a, string b = "default", string c = null) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -203,12 +202,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingParametersWithDefaultValuesAndParamsArgument()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"")]
-    public void TestMethod(string a, string b = ""default"", string c = null, params string[] d) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc")]
+				    public void TestMethod(string a, string b = "default", string c = null, params string[] d) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -216,12 +216,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingParameterWithOptionalAttribute()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(""abc"")]
-    public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData("abc")]
+				    public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -229,15 +230,16 @@ public class TestClass {
 		[Fact]
 		public async Task UsingMultipleParametersWithOptionalAttributes()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData]
-    [Xunit.InlineData(""abc"")]
-    [Xunit.InlineData(""abc"", ""def"")]
-    public void TestMethod([System.Runtime.InteropServices.Optional] string a,
-                           [System.Runtime.InteropServices.Optional] string b) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData]
+				    [Xunit.InlineData("abc")]
+				    [Xunit.InlineData("abc", "def")]
+				    public void TestMethod([System.Runtime.InteropServices.Optional] string a,
+				                           [System.Runtime.InteropServices.Optional] string b) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -245,12 +247,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingExplicitArray()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new object[] { ""abc"", 1, null })]
-    public void TestMethod(string a, int b, object c) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(new object[] { "abc", 1, null })]
+				    public void TestMethod(string a, int b, object c) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -258,12 +261,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingExplicitNamedArray()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(data: new object[] { ""abc"", 1, null })]
-    public void TestMethod(string a, int b, object c) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(data: new object[] { "abc", 1, null })]
+				    public void TestMethod(string a, int b, object c) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -271,12 +275,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingImplicitArray()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new[] { (object)""abc"", 1, null })]
-    public void TestMethod(string a, int b, object c) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(new[] { (object)"abc", 1, null })]
+				    public void TestMethod(string a, int b, object c) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -284,12 +289,13 @@ public class TestClass {
 		[Fact]
 		public async Task UsingImplicitNamedArray()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(data: new[] { (object)""abc"", 1, null })]
-    public void TestMethod(string a, int b, object c) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(data: new[] { (object)"abc", 1, null })]
+				    public void TestMethod(string a, int b, object c) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -297,12 +303,13 @@ public class TestClass {
 		[Fact]
 		public async Task EmptyArray()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new byte[0])]
-    public void TestMethod(byte[] input) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(new byte[0])]
+				    public void TestMethod(byte[] input) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -313,12 +320,13 @@ public class TestClass {
 		[Fact]
 		public async Task IgnoresFact()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    [Xunit.InlineData]
-    public void TestMethod(string a) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Fact]
+				    [Xunit.InlineData]
+				    public void TestMethod(string a) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -328,64 +336,66 @@ public class TestClass {
 		[InlineData("Xunit.InlineData")]
 		public async Task NoArguments(string attribute)
 		{
-			var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [{attribute}]
-    public void TestMethod(int a) {{ }}
-}}";
-			var expected =
-				Verify
-					.Diagnostic("xUnit1009")
-					.WithSpan(4, 6, 4, 6 + attribute.Length)
-					.WithSeverity(DiagnosticSeverity.Error);
+			var source = string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [{{|xUnit1009:{0}|}}]
+				    public void TestMethod(int a) {{ }}
+				}}
+				""", attribute);
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 
 		[Fact]
 		public async Task TooFewArguments()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(1)]
-    public void TestMethod(int a, int b, string c) { }
-}";
-			var expected =
-				Verify
-					.Diagnostic("xUnit1009")
-					.WithSpan(4, 6, 4, 25)
-					.WithSeverity(DiagnosticSeverity.Error);
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [{|xUnit1009:Xunit.InlineData(1)|}]
+				    public void TestMethod(int a, int b, string c) { }
+				}
+				""";
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 
 		[Fact]
 		public async Task TooFewArguments_WithParams()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(1)]
-    public void TestMethod(int a, int b, params string[] value) { }
-}";
-			var expected =
-				Verify
-					.Diagnostic("xUnit1009")
-					.WithSpan(4, 6, 4, 25)
-					.WithSeverity(DiagnosticSeverity.Error);
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [{|xUnit1009:Xunit.InlineData(1)|}]
+				    public void TestMethod(int a, int b, params string[] value) { }
+				}
+				""";
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
 	public class X1010_IncompatibleValueType
 	{
+		[Fact]
+		public async Task MethodUsingIncompatibleExplicitArrayForParams()
+		{
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
+				    public void VariableArgumentsTest(double d, params int[] sq) { }
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
 		public class NumericParameter : X1010_IncompatibleValueType
 		{
-			public static readonly TheoryData<string> NumericTypes = new()
-			{
+			public static readonly TheoryData<string> NumericTypes =
+			[
 				"int",
 				"uint",
 				"long",
@@ -397,17 +407,13 @@ public class TestClass {
 				"float",
 				"double",
 				"decimal",
-			};
+			];
 
-			public static IEnumerable<object[]> NumericValuesAndNumericTypes =>
-				from value in NumericValues()
-				from type in NumericTypes
-				select new[] { value[0], type[0] };
+			public static MatrixTheoryData<string, string> NumericValuesAndNumericTypes =
+				new(NumericValues, NumericTypes);
 
-			public static IEnumerable<object[]> BoolValuesAndNumericTypes =>
-				from value in BoolValues
-				from type in NumericTypes
-				select new[] { value[0], type[0] };
+			public static MatrixTheoryData<string, string> BoolValuesAndNumericTypes =
+				new(BoolValues, NumericTypes);
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
@@ -415,12 +421,13 @@ public class TestClass {
 				string value,
 				string type)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod({type} a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod({1} a) {{ }}
+					}}
+					""", value, type);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -431,12 +438,13 @@ public class TestClass {{
 				string value,
 				string type)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod({type}? a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod({1}? a) {{ }}
+					}}
+					""", value, type);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -447,17 +455,14 @@ public class TestClass {{
 				string value,
 				string type)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod({type} a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", type);
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod({1} a) {{ }}
+					}}
+					""", value, type);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", type);
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -466,12 +471,13 @@ public class TestClass {{
 			[MemberData(nameof(NumericTypes))]
 			public async Task CharValue_NumericType(string type)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData('a')]
-    public void TestMethod({type} a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData('a')]
+					    public void TestMethod({0} a) {{ }}
+					}}
+					""", type);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -480,17 +486,14 @@ public class TestClass {{
 			[MemberData(nameof(NumericTypes))]
 			public async Task EnumValue_NumericType(string type)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(System.StringComparison.InvariantCulture)]
-    public void TestMethod({type} a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 63)
-						.WithArguments("a", type);
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:System.StringComparison.InvariantCulture|}})]
+					    public void TestMethod({0} a) {{ }}
+					}}
+					""", type);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", type);
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -502,12 +505,13 @@ public class TestClass {{
 			[MemberData(nameof(BoolValues))]
 			public async Task FromBooleanValue_ToNonNullable(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(bool a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(bool a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -516,12 +520,13 @@ public class TestClass {{
 			[MemberData(nameof(BoolValues))]
 			public async Task FromBooleanValue_ToNullable(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(bool? a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(bool? a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -534,16 +539,17 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(bool a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(bool a) {{ }}
+					}}
+					""", value);
 				var expected =
 					Verify
 						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
+						.WithLocation(0)
 						.WithArguments("a", "bool");
 
 				await Verify.VerifyAnalyzer(source, expected);
@@ -557,12 +563,13 @@ public class TestClass {{
 			[MemberData(nameof(IntegerValues))]
 			public async Task FromCharOrIntegerValue_ToNonNullable(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(char a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(char a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -572,12 +579,13 @@ public class TestClass {{
 			[MemberData(nameof(IntegerValues))]
 			public async Task FromCharOrIntegerValue_ToNullable(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(char? a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(char? a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -590,17 +598,14 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(char a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "char");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(char a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "char");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -611,12 +616,13 @@ public class TestClass {{
 			[Fact]
 			public async Task FromEnumValue_ToNonNullable()
 			{
-				var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(System.StringComparison.Ordinal)]
-    public void TestMethod(System.StringComparison a) { }
-}";
+				var source = /* lang=c#-test */ """
+					public class TestClass {
+					    [Xunit.Theory]
+					    [Xunit.InlineData(System.StringComparison.Ordinal)]
+					    public void TestMethod(System.StringComparison a) { }
+					}
+					""";
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -624,12 +630,13 @@ public class TestClass {
 			[Fact]
 			public async Task FromEnumValue_ToNullable()
 			{
-				var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(System.StringComparison.Ordinal)]
-    public void TestMethod(System.StringComparison? a) { }
-}";
+				var source = /* lang=c#-test */ """
+					public class TestClass {
+					    [Xunit.Theory]
+					    [Xunit.InlineData(System.StringComparison.Ordinal)]
+					    public void TestMethod(System.StringComparison? a) { }
+					}
+					""";
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -642,17 +649,14 @@ public class TestClass {
 			[InlineData("typeof(string)")]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(System.StringComparison a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "System.StringComparison");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(System.StringComparison a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.StringComparison");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -665,12 +669,13 @@ public class TestClass {{
 			[InlineData("null")]
 			public async Task FromTypeValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(System.Type a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(System.Type a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -680,12 +685,13 @@ public class TestClass {{
 			[InlineData("null")]
 			public async Task FromTypeValue_ToParams(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(params System.Type[] a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(params System.Type[] a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -698,18 +704,14 @@ public class TestClass {{
 			[InlineData("System.StringComparison.Ordinal")]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(System.Type a) {{ }}
-}}";
-
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "System.Type");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(System.Type a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.Type");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -722,17 +724,14 @@ public class TestClass {{
 			[InlineData("System.StringComparison.Ordinal")]
 			public async Task FromIncompatibleValue_ToParams(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(params System.Type[] a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "System.Type");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(params System.Type[] a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.Type");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -745,12 +744,13 @@ public class TestClass {{
 			[InlineData("null")]
 			public async Task FromStringValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(string a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(string a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -763,17 +763,14 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(string a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "string");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(string a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "string");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -787,12 +784,13 @@ public class TestClass {{
 			[InlineData("null")]
 			public async Task FromTypeImplementingInterface(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(System.IFormattable a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(System.IFormattable a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -806,17 +804,14 @@ public class TestClass {{
 			[MemberData(nameof(BoolValues))]
 			public async Task FromIncompatibleValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(System.IFormattable a) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "System.IFormattable");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(System.IFormattable a) {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.IFormattable");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -834,12 +829,13 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromAnyValue(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(object a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(object a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -854,12 +850,13 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromAnyValue_ToParams(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod(params object[] a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod(params object[] a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -877,12 +874,13 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromAnyValue_NoConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod<T>(T a) {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -894,12 +892,13 @@ public class TestClass {{
 			[InlineData("'a'")]
 			public async Task FromValueTypeValue_WithStructConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: struct {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod<T>(T a) where T: struct {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -909,17 +908,14 @@ public class TestClass {{
 			[InlineData("typeof(string)")]
 			public async Task FromReferenceTypeValue_WithStructConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: struct {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "T");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod<T>(T a) where T: struct {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -930,12 +926,13 @@ public class TestClass {{
 			[InlineData("null")]
 			public async Task FromReferenceTypeValue_WithClassConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: class {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod<T>(T a) where T: class {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -947,17 +944,14 @@ public class TestClass {{
 			[InlineData("'a'")]
 			public async Task FromValueTypeValue_WithClassConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: class {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "T");
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod<T>(T a) where T: class {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -968,12 +962,13 @@ public class TestClass {{
 			[MemberData(nameof(NumericValues))]
 			public async Task FromCompatibleValue_WithTypeConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
-}}";
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({0})]
+					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
+					}}
+					""", value);
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -987,17 +982,15 @@ public class TestClass {{
 			[MemberData(nameof(BoolValues))]
 			public async Task FromIncompatibleValue_WithTypeConstraint(string value)
 			{
-				var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData({value})]
-    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 23, 4, 23 + value.Length)
-						.WithArguments("a", "T");
+				var source = string.Format(/* lang=c#-test */ """
+
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
+					}}
+					""", value);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1005,17 +998,14 @@ public class TestClass {{
 			[Fact]
 			public async Task FromIncompatibleArray()
 			{
-				var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new int[] { 1, 2, 3 })]
-    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { }
-}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(4, 35, 4, 36)
-						.WithArguments("a", "T");
+				var source =/* lang=c#-test */ """
+					public class TestClass {
+					    [Xunit.Theory]
+					    [Xunit.InlineData(new int[] { {|#0:1|}, 2, 3 })]
+					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { }
+					}
+					""";
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1023,12 +1013,13 @@ public class TestClass {
 			[Fact]
 			public async Task FromCompatibleArray()
 			{
-				var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(new int[] { 1, 2, 3 })]
-    public void TestMethod<T>(T[] a) { }
-}";
+				var source = /* lang=c#-test */ """
+					public class TestClass {
+					    [Xunit.Theory]
+					    [Xunit.InlineData(new int[] { 1, 2, 3 })]
+					    public void TestMethod<T>(T[] a) { }
+					}
+					""";
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -1036,20 +1027,17 @@ public class TestClass {
 
 		public class DateTimeLikeParameter : X1010_IncompatibleValueType
 		{
-			public static readonly TheoryData<string> ValidDateTimeStrings = new()
-			{
+			public static readonly TheoryData<string> ValidDateTimeStrings =
+			[
 				"\"\"",
 				"\"2018-01-02\"",
 				"\"2018-01-02 12:34\"",
 				"\"obviously-rubbish-datetime-value\"",
 				"MyConstString"
-			};
+			];
 
-			public static IEnumerable<object[]> ValueTypedArgumentsCombinedWithDateTimeLikeTypes =>
-				ValueTypedValues().SelectMany(v =>
-					new string[] { "System.DateTime", "System.DateTimeOffset" }
-						.Select(dateTimeLikeType => new[] { v[0], dateTimeLikeType })
-				);
+			public static MatrixTheoryData<string, string> ValueTypedArgumentsCombinedWithDateTimeLikeTypes =
+				new(ValueTypedValues, ["System.DateTime", "System.DateTimeOffset"]);
 
 			[Theory]
 			[MemberData(nameof(ValueTypedArgumentsCombinedWithDateTimeLikeTypes))]
@@ -1059,20 +1047,16 @@ public class TestClass {
 				string data,
 				string parameterType)
 			{
-				var source = $@"
-public class TestClass
-{{
-    const int MyConstInt = 1;
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    const int MyConstInt = 1;
 
-    [Xunit.Theory]
-    [Xunit.InlineData({data})]
-    public void TestMethod({parameterType} parameter) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(7, 23, 7, 23 + data.Length)
-						.WithArguments("parameter", parameterType);
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod({1} parameter) {{ }}
+					}}
+					""", data, parameterType);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", parameterType);
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1099,59 +1083,51 @@ public class TestClass
 			[MemberData(nameof(ValidDateTimeStrings))]
 			public async Task StringValue_ToDateTimeOffset_Pre240(string data)
 			{
-				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
-				var expected =
-					Verify_v2_Pre240
-						.Diagnostic("xUnit1010")
-						.WithSpan(7, 23, 7, 23 + data.Length)
-						.WithArguments("parameter", "System.DateTimeOffset");
+				var source = CreateSourceWithStringConst("{|#0:" + data + "|}", "System.DateTimeOffset");
+				var expected = Verify_v2_Pre240.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.DateTimeOffset");
 
 				await Verify_v2_Pre240.VerifyAnalyzer(source, expected);
 			}
 
 			static string CreateSourceWithStringConst(
 				string data,
-				string parameterType) => $@"
-public class TestClass
-{{
-    const string MyConstString = ""some string"";
+				string parameterType) => string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    const string MyConstString = "some string";
 
-    [Xunit.Theory]
-    [Xunit.InlineData({data})]
-    public void TestMethod({parameterType} parameter) {{ }}
-}}";
+				    [Xunit.Theory]
+				    [Xunit.InlineData({0})]
+				    public void TestMethod({1} parameter) {{ }}
+				}}
+				""", data, parameterType);
 		}
 
 		public class GuidParameter : X1010_IncompatibleValueType
 		{
-			public static TheoryData<string> ValidGuidStrings = new()
-			{
+			public static TheoryData<string> ValidGuidStrings =
+			[
 				"\"\"",
 				"\"{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}\"",
 				"\"4EBCD32C-A2B8-4600-9E72-3873347E285C\"",
 				"\"39A3B4C85FEF43A988EB4BB4AC4D4103\"",
 				"\"obviously-rubbish-guid-value\""
-			};
+			];
 
 			[Theory]
 			[MemberData(nameof(ValueTypedValues))]
 			[InlineData("MyConstInt")]
 			public async Task NonStringValue(string data)
 			{
-				var source = $@"
-public class TestClass
-{{
-    private const int MyConstInt = 1;
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    private const int MyConstInt = 1;
 
-    [Xunit.Theory]
-    [Xunit.InlineData({data})]
-    public void TestMethod(System.Guid parameter) {{ }}
-}}";
-				var expected =
-					Verify
-						.Diagnostic("xUnit1010")
-						.WithSpan(7, 23, 7, 23 + data.Length)
-						.WithArguments("parameter", "System.Guid");
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:{0}|}})]
+					    public void TestMethod(System.Guid parameter) {{ }}
+					}}
+					""", data);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.Guid");
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1169,23 +1145,19 @@ public class TestClass
 			[MemberData(nameof(ValidGuidStrings))]
 			public async Task StringValue_Pre240(string data)
 			{
-				var source = CreateSource(data);
-				var expected =
-					Verify_v2_Pre240
-						.Diagnostic("xUnit1010")
-						.WithSpan(5, 23, 5, 23 + data.Length)
-						.WithArguments("parameter", "System.Guid");
+				var source = CreateSource("{|#0:" + data + "|}");
+				var expected = Verify_v2_Pre240.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.Guid");
 
 				await Verify_v2_Pre240.VerifyAnalyzer(source, expected);
 			}
 
-			static string CreateSource(string data) => $@"
-public class TestClass
-{{
-    [Xunit.Theory]
-    [Xunit.InlineData({data})]
-    public void TestMethod(System.Guid parameter) {{ }}
-}}";
+			static string CreateSource(string data) => string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData({0})]
+				    public void TestMethod(System.Guid parameter) {{ }}
+				}}
+				""", data);
 		}
 
 		public class UserDefinedConversionOperators : X1010_IncompatibleValueType
@@ -1193,20 +1165,21 @@ public class TestClass
 			[Fact]
 			public async Task SupportsImplicitConversion()
 			{
-				var source = @"
-using Xunit;
+				var source = /* lang=c#-test */ """
+					using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(""abc"")]
-    public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal(""abc"", i.Value);
+					public class TestClass {
+					    [Theory]
+					    [InlineData("abc")]
+					    public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal("abc", i.Value);
 
-    public class Implicit {
-        public string Value { get; set; }
-        public static implicit operator Implicit(string value) => new Implicit() { Value = value };
-        public static implicit operator string(Implicit i) => i.Value;
-    }
-}";
+					    public class Implicit {
+					        public string Value { get; set; }
+					        public static implicit operator Implicit(string value) => new Implicit() { Value = value };
+					        public static implicit operator string(Implicit i) => i.Value;
+					    }
+					}
+					""";
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -1214,20 +1187,21 @@ public class TestClass {
 			[Fact]
 			public async Task SupportsExplicitConversion()
 			{
-				var source = @"
-using Xunit;
+				var source = /* lang=c#-test */ """
+					using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(""abc"")]
-    public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal(""abc"", i.Value);
+					public class TestClass {
+					    [Theory]
+					    [InlineData("abc")]
+					    public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal("abc", i.Value);
 
-    public class Explicit {
-        public string Value { get; set; }
-        public static explicit operator Explicit(string value) => new Explicit() { Value = value };
-        public static explicit operator string(Explicit i) => i.Value;
-    }
-}";
+					    public class Explicit {
+					        public string Value { get; set; }
+					        public static explicit operator Explicit(string value) => new Explicit() { Value = value };
+					        public static explicit operator string(Explicit i) => i.Value;
+					    }
+					}
+					""";
 
 				await Verify.VerifyAnalyzer(source);
 			}
@@ -1235,20 +1209,20 @@ public class TestClass {
 
 		// Note: decimal literal 42M is not valid as an attribute argument
 
-		public static TheoryData<string> BoolValues = new()
-		{
+		public static TheoryData<string> BoolValues =
+		[
 			"true",
 			"false"
-		};
+		];
 
-		public static TheoryData<string> FloatingPointValues = new()
-		{
+		public static TheoryData<string> FloatingPointValues =
+		[
 			"42f",
 			"42d"
-		};
+		];
 
-		public static TheoryData<string> IntegerValues = new()
-		{
+		public static TheoryData<string> IntegerValues =
+		[
 			"42",
 			"42L",
 			"42u",
@@ -1257,25 +1231,13 @@ public class TestClass {
 			"(byte)42",
 			"(ushort)42",
 			"(sbyte)42"
-		};
+		];
 
-		public static IEnumerable<object[]> NumericValues()
-		{
-			foreach (var integerValue in IntegerValues)
-				yield return integerValue;
-			foreach (var floatingPointValue in FloatingPointValues)
-				yield return floatingPointValue;
-		}
+		public static TheoryData<string> NumericValues =
+			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues));
 
-		public static IEnumerable<object[]> ValueTypedValues()
-		{
-			foreach (var numericValue in NumericValues())
-				yield return numericValue;
-			foreach (var boolValue in BoolValues)
-				yield return boolValue;
-
-			yield return new[] { "typeof(int)" };
-		}
+		public static TheoryData<string> ValueTypedValues =
+			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues).Concat(BoolValues).Append("typeof(int)"));
 	}
 
 	public class X1011_ExtraValue
@@ -1283,12 +1245,13 @@ public class TestClass {
 		[Fact]
 		public async Task IgnoresFact()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    [Xunit.InlineData(1, 2, ""abc"")]
-    public void TestMethod(int a) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Fact]
+				    [Xunit.InlineData(1, 2, "abc")]
+				    public void TestMethod(int a) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -1296,25 +1259,18 @@ public class TestClass {
 		[Fact]
 		public async Task ExtraArguments()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    [Xunit.InlineData(1, 2, ""abc"")]
-    public void TestMethod(int a) { }
-}";
-			DiagnosticResult[] expected =
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, {|#0:2|}, {|#1:"abc"|})]
+				    public void TestMethod(int a) { }
+				}
+				""";
+			var expected = new[]
 			{
-					Verify
-						.Diagnostic("xUnit1011")
-						.WithSpan(4, 26, 4, 27)
-						.WithSeverity(DiagnosticSeverity.Error)
-						.WithArguments("2"),
-					Verify
-						.Diagnostic("xUnit1011")
-						.WithSpan(4, 29, 4, 34)
-						.WithSeverity(DiagnosticSeverity.Error)
-						.WithArguments("\"abc\""),
-				};
+				Verify.Diagnostic("xUnit1011").WithLocation(0).WithArguments("2"),
+				Verify.Diagnostic("xUnit1011").WithLocation(1).WithArguments("\"abc\""),
+			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -1325,12 +1281,13 @@ public class TestClass {
 		[Fact]
 		public async Task IgnoresFact()
 		{
-			var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    [Xunit.InlineData(null)]
-    public void TestMethod(int a) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class TestClass {
+				    [Xunit.Fact]
+				    [Xunit.InlineData(null)]
+				    public void TestMethod(int a) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -1340,18 +1297,14 @@ public class TestClass {
 		[InlineData("params int[]")]
 		public async Task SingleNullValue(string type)
 		{
-			var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(null)]
-    public void TestMethod({type} a) {{ }}
-}}";
-			var expected =
-				Verify
-					.Diagnostic("xUnit1012")
-					.WithSpan(4, 23, 4, 27)
-					.WithSeverity(DiagnosticSeverity.Warning)
-					.WithArguments("a", "int");
+			var source = string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData({{|#0:null|}})]
+				    public void TestMethod({0} a) {{ }}
+				}}
+				""", type);
+			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("a", "int");
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -1360,25 +1313,18 @@ public class TestClass {{
 		[MemberData(nameof(ValueTypes))]
 		public async Task NonNullableValueTypes(string type)
 		{
-			var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, null, null)]
-    public void TestMethod(int a, {type} b, params {type}[] c) {{ }}
-}}";
-			DiagnosticResult[] expected =
+			var source = string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, {{|#0:null|}}, {{|#1:null|}})]
+				    public void TestMethod(int a, {0} b, params {0}[] c) {{ }}
+				}}
+				""", type);
+			var expected = new[]
 			{
-					Verify
-						.Diagnostic("xUnit1012")
-						.WithSpan(4, 26, 4, 30)
-						.WithSeverity(DiagnosticSeverity.Warning)
-						.WithArguments("b", type),
-					Verify
-						.Diagnostic("xUnit1012")
-						.WithSpan(4, 32, 4, 36)
-						.WithSeverity(DiagnosticSeverity.Warning)
-						.WithArguments("c", type),
-				};
+				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type),
+				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("c", type),
+			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -1387,12 +1333,13 @@ public class TestClass {{
 		[MemberData(nameof(ValueTypes))]
 		public async Task NullableValueTypes(string type)
 		{
-			var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, null)]
-    public void TestMethod(int a, {type}? b) {{ }}
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, null)]
+				    public void TestMethod(int a, {0}? b) {{ }}
+				}}
+				""", type);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -1403,12 +1350,13 @@ public class TestClass {{
 		[InlineData("System.Exception")]
 		public async Task ReferenceTypes(string type)
 		{
-			var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, null)]
-    public void TestMethod(int a, {type} b) {{ }}
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, null)]
+				    public void TestMethod(int a, {0} b) {{ }}
+				}}
+				""", type);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -1419,23 +1367,16 @@ public class TestClass {{
 		[InlineData("System.Exception")]
 		public async Task NonNullableReferenceTypes(string type)
 		{
-			var source = $@"
-#nullable enable
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, null)]
-    public void TestMethod(int a, {type} b) {{ }}
-#nullable restore
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				#nullable enable
 
-			DiagnosticResult[] expected =
-			{
-				Verify
-					.Diagnostic("xUnit1012")
-					.WithSpan(5, 26, 5, 30)
-					.WithSeverity(DiagnosticSeverity.Warning)
-					.WithArguments("b", type)
-			};
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, {{|#0:null|}})]
+				    public void TestMethod(int a, {0} b) {{ }}
+				}}
+				""", type);
+			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type);
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
@@ -1446,14 +1387,15 @@ public class TestClass {{
 		[InlineData("System.Exception")]
 		public async Task NullableReferenceTypes(string type)
 		{
-			var source = $@"
-#nullable enable
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, null)]
-    public void TestMethod(int a, {type}? b) {{ }}
-#nullable restore
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				#nullable enable
+
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, null)]
+				    public void TestMethod(int a, {0}? b) {{ }}
+				}}
+				""", type);
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 		}
@@ -1461,16 +1403,19 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1", "object")]
 		[InlineData("\"bob\"", "string")]
-		public async Task NullableParamsReferenceTypes(string param, string type)
+		public async Task NullableParamsReferenceTypes(
+			string param,
+			string type)
 		{
-			var source = $@"
-#nullable enable
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, {param}, null, null)]
-    public void TestMethod(int a, params {type}?[] b) {{ }}
-#nullable restore
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				#nullable enable
+
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, {0}, null, null)]
+				    public void TestMethod(int a, params {1}?[] b) {{ }}
+				}}
+				""", param, type);
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 		}
@@ -1478,36 +1423,36 @@ public class TestClass {{
 		[Theory]
 		[InlineData("1", "object")]
 		[InlineData("\"bob\"", "string")]
-		public async Task NonNullableParamsReferenceTypes(string param, string type)
+		public async Task NonNullableParamsReferenceTypes(
+			string param,
+			string type)
 		{
-			var source = $@"
-#nullable enable
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.InlineData(1, {param}, null, null)]
-    public void TestMethod(int a, params {type}[] b) {{ }}
-#nullable restore
-}}";
+			var source = string.Format(/* lang=c#-test */ """
+				#nullable enable
 
-			DiagnosticResult[] expected =
+				public class TestClass {{
+				    [Xunit.Theory]
+				    [Xunit.InlineData(1, {0}, {{|#0:null|}}, {{|#1:null|}})]
+				    public void TestMethod(int a, params {1}[] b) {{ }}
+				}}
+				""", param, type);
+			var expected = new[]
 			{
 				Verify
 					.Diagnostic("xUnit1012")
-					.WithSpan(5, 28 + param.Length, 5, 32 + param.Length)
-					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithLocation(0)
 					.WithArguments("b", type),
 				Verify
 					.Diagnostic("xUnit1012")
-					.WithSpan(5, 34 + param.Length, 5, 38 + param.Length)
-					.WithSeverity(DiagnosticSeverity.Warning)
+					.WithLocation(1)
 					.WithArguments("b", type),
 			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
-		public static TheoryData<string> ValueTypes = new()
-		{
+		public static TheoryData<string> ValueTypes =
+		[
 			"bool",
 			"int",
 			"byte",
@@ -1523,7 +1468,7 @@ public class TestClass {{
 			"sbyte",
 			"System.StringComparison",
 			"System.Guid",
-		};
+		];
 	}
 
 	internal class Analyzer_v2_Pre240 : InlineDataMustMatchTheoryParameters

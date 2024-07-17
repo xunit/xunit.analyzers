@@ -8,23 +8,24 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 	[Fact]
 	public async Task RemovesUnusedData()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(42, {|xUnit1011:21.12|})]
-    public void TestMethod(int a) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, {|xUnit1011:21.12|})]
+			    public void TestMethod(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData(42)]
-    public void TestMethod(int a) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42)]
+			    public void TestMethod(int a) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
 	}
@@ -36,23 +37,24 @@ public class TestClass {
 		string value,
 		string valueType)
 	{
-		var before = $@"
-using Xunit;
+		var before = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    [Theory]
-    [InlineData(42, {{|xUnit1011:{value}|}})]
-    public void TestMethod(int a) {{ }}
-}}";
+			public class TestClass {{
+			    [Theory]
+			    [InlineData(42, {{|xUnit1011:{0}|}})]
+			    public void TestMethod(int a) {{ }}
+			}}
+			""", value);
+		var after = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-		var after = $@"
-using Xunit;
-
-public class TestClass {{
-    [Theory]
-    [InlineData(42, {value})]
-    public void TestMethod(int a, {valueType} p) {{ }}
-}}";
+			public class TestClass {{
+			    [Theory]
+			    [InlineData(42, {0})]
+			    public void TestMethod(int a, {1} p) {{ }}
+			}}
+			""", value, valueType);
 
 		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
 	}
@@ -60,23 +62,24 @@ public class TestClass {{
 	[Fact]
 	public async Task AddsParameterWithNonConflictingName()
 	{
-		var before = $@"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    [Theory]
-    [InlineData(42, {{|xUnit1011:21.12|}})]
-    public void TestMethod(int p) {{ }}
-}}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, {|xUnit1011:21.12|})]
+			    public void TestMethod(int p) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = $@"
-using Xunit;
-
-public class TestClass {{
-    [Theory]
-    [InlineData(42, 21.12)]
-    public void TestMethod(int p, double p_2) {{ }}
-}}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(42, 21.12)]
+			    public void TestMethod(int p, double p_2) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
 	}

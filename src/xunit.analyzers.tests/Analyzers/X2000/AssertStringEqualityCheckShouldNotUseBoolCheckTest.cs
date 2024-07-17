@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertStringEqualityCheckShouldNotUseBoolCheck>;
@@ -12,164 +11,152 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 		{ Constants.Asserts.True, Constants.Asserts.Equal },
 		{ Constants.Asserts.False, Constants.Asserts.NotEqual },
 	};
-	public static TheoryData<StringComparison> SupportedStringComparisons = new()
-	{
+	public static TheoryData<StringComparison> SupportedStringComparisons =
+	[
 		StringComparison.Ordinal,
 		StringComparison.OrdinalIgnoreCase,
-	};
-	public static TheoryData<StringComparison> UnsupportedStringComparisons = new()
-	{
+	];
+	public static TheoryData<StringComparison> UnsupportedStringComparisons =
+	[
 		StringComparison.CurrentCulture,
 		StringComparison.CurrentCultureIgnoreCase,
 		StringComparison.InvariantCulture,
 		StringComparison.InvariantCultureIgnoreCase,
-	};
-	public static TheoryData<StringComparison> AllStringComparisons = new()
-	{
+	];
+	public static TheoryData<StringComparison> AllStringComparisons =
+	[
 		StringComparison.Ordinal,
 		StringComparison.OrdinalIgnoreCase,
 		StringComparison.CurrentCulture,
 		StringComparison.CurrentCultureIgnoreCase,
 		StringComparison.InvariantCulture,
 		StringComparison.InvariantCultureIgnoreCase,
-	};
+	];
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarning_ForInstanceEqualsCheck(
+	public async Task ForInstanceEqualsCheck_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".Equals(""a""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 41 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}("abc".Equals("a"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(SupportedStringComparisons))]
-	public async Task FindsWarning_ForTrueInstanceEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
+	public async Task ForTrueInstanceEqualsCheck_WithSupportedStringComparison_Triggers(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.True(""abc"".Equals(""a"", System.StringComparison.{comparison}));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 71 + comparison.ToString().Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.Equal);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}))|}};
+			    }}
+			}}
+			""", comparison);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Equal);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(UnsupportedStringComparisons))]
-	public async Task DoesNotFindWarning_ForTrueInstanceEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
+	public async Task ForTrueInstanceEqualsCheck_WithUnsupportedStringComparison_DoesNotTrigger(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.True(""abc"".Equals(""a"", System.StringComparison.{comparison}));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}));
+			    }}
+			}}
+			""", comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(AllStringComparisons))]
-	public async Task DoesNotFindWarning_ForFalseInstanceEqualsCheck_WithStringComparison(StringComparison comparison)
+	public async Task ForFalseInstanceEqualsCheck_WithStringComparison_DoesNotTrigger(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.False(""abc"".Equals(""a"", System.StringComparison.{comparison}));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.False("abc".Equals("a", System.StringComparison.{0}));
+			    }}
+			}}
+			""", comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarning_ForStaticEqualsCheck(
+	public async Task ForStaticEqualsCheck_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(System.String.Equals(""abc"", ""a""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 56 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(System.String.Equals("abc", "a"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(SupportedStringComparisons))]
-	public async Task FindsWarning_ForTrueStaticEqualsCheck_WithSupportedStringComparison(StringComparison comparison)
+	public async Task ForTrueStaticEqualsCheck_WithSupportedStringComparison_Triggers(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.True(System.String.Equals(""abc"", ""a"", System.StringComparison.{comparison}));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 86 + comparison.ToString().Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.Equal);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}))|}};
+			    }}
+			}}
+			""", comparison);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Equal);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(UnsupportedStringComparisons))]
-	public async Task DoesNotFindWarning_ForTrueStaticEqualsCheck_WithUnsupportedStringComparison(StringComparison comparison)
+	public async Task ForTrueStaticEqualsCheck_WithUnsupportedStringComparison_DoesNotTrigger(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.True(System.String.Equals(""abc"", ""a"", System.StringComparison.{comparison}));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}));
+			    }}
+			}}
+			""", comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(AllStringComparisons))]
-	public async Task DoesNotFindWarning_ForFalseStaticEqualsCheck_WithStringComparison(StringComparison comparison)
+	public async Task ForFalseStaticEqualsCheck_WithStringComparison_DoesNotTrigger(StringComparison comparison)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.False(System.String.Equals(""abc"", ""a"", System.StringComparison.{comparison}));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.False(System.String.Equals("abc", "a", System.StringComparison.{0}));
+			    }}
+			}}
+			""", comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}

@@ -7,25 +7,26 @@ using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSi
 
 public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public enum MyEnum {{ None, Bacon, Veggie }}
+		public enum MyEnum {{ None, Bacon, Veggie }}
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        {0} value = {1};
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        {0} value = {1};
 
-        {2};
-    }}
-}}";
+		        {2};
+		    }}
+		}}
+		""";
 
 	public static MatrixTheoryData<string, string, string> MethodOperatorValue =
 		new(
-			new[] { Constants.Asserts.True, Constants.Asserts.False },
-			new[] { "==", "!=" },
-			new[] { "\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon" }
+			[Constants.Asserts.True, Constants.Asserts.False],
+			["==", "!="],
+			["\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon"]
 		);
 
 	[Theory]
@@ -59,9 +60,9 @@ public class TestClass {{
 
 	public static MatrixTheoryData<string, string, string> MethodOperatorType =
 		new(
-			new[] { Constants.Asserts.True, Constants.Asserts.False },
-			new[] { "==", "!=" },
-			new[] { "string", "int", "object", "MyEnum" }
+			[Constants.Asserts.True, Constants.Asserts.False],
+			["==", "!="],
+			["string", "int", "object", "MyEnum"]
 		);
 
 	[Theory]

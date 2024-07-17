@@ -23,14 +23,14 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 		string collection,
 		string _)
 	{
-		var source = $@"
-class TestClass
-{{
-    void TestMethod()
-    {{
-        Xunit.Assert.Empty({collection});
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.Empty({0});
+			    }}
+			}}
+			""", collection);
+
 		await Verify.VerifyAnalyzer(source);
 	}
 
@@ -41,15 +41,15 @@ class TestClass
 		string collection,
 		string comparison)
 	{
-		var source = $@"
-using System.Linq;
-class TestClass
-{{
-    void TestMethod()
-    {{
-        [|Xunit.Assert.Empty({collection}.Where(f => {comparison}))|];
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.Empty({0}.Where(f => {1}))|];
+			    }}
+			}}
+			""", collection, comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -61,15 +61,16 @@ class TestClass
 		string collection,
 		string comparison)
 	{
-		var source = $@"
-using System.Linq;
-class TestClass
-{{
-    void TestMethod()
-    {{
-        Xunit.Assert.Empty({collection}.Where((f, i) => {comparison} && i > 0));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.Empty({0}.Where((f, i) => {1} && i > 0));
+			    }}
+			}}
+			""", collection, comparison);
+
 		await Verify.VerifyAnalyzer(source);
 	}
 
@@ -80,34 +81,34 @@ class TestClass
 		string collection,
 		string comparison)
 	{
-		var source = $@"
-using System.Linq;
-class TestClass
-{{
-    void TestMethod()
-    {{
-        Xunit.Assert.Empty({collection}.Where(f => {comparison}).Select(f => f));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.Empty({0}.Where(f => {1}).Select(f => f));
+			    }}
+			}}
+			""", collection, comparison);
 		await Verify.VerifyAnalyzer(source);
 	}
 
-	public static TheoryData<string> GetSampleStrings() =>
-		new(string.Empty, "123", @"abc\n\t\\\""");
-
 	[Theory]
-	[MemberData(nameof(GetSampleStrings))]
+	[InlineData("")]
+	[InlineData("123")]
+	[InlineData(@"abc\n\t\\\""")]
 	public async Task Strings_WithWhereClause_DoesNotTrigger(string sampleString)
 	{
-		var source = $@"
-using System.Linq;
-class TestClass
-{{
-    void TestMethod()
-    {{
-        [|Xunit.Assert.Empty(""{sampleString}"".Where(f => f > 0))|];
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.Empty("{0}".Where(f => f > 0))|];
+			    }}
+			}}
+			""", sampleString);
+
 		await Verify.VerifyAnalyzer(source);
 	}
 }

@@ -5,26 +5,39 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBo
 
 public class AssertSubstringCheckShouldNotUseBoolCheckFixerTests
 {
-	const string template = @"
-using System;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var data = ""foo bar baz"";
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var data = "foo bar baz";
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData(@"[|Assert.True(data.Contains(""foo""))|]", @"Assert.Contains(""foo"", data)")]
-	[InlineData(@"[|Assert.True(data.StartsWith(""foo""))|]", @"Assert.StartsWith(""foo"", data)")]
-	[InlineData(@"[|Assert.True(data.StartsWith(""foo"", StringComparison.Ordinal))|]", @"Assert.StartsWith(""foo"", data, StringComparison.Ordinal)")]
-	[InlineData(@"[|Assert.True(data.EndsWith(""foo""))|]", @"Assert.EndsWith(""foo"", data)")]
-	[InlineData(@"[|Assert.True(data.EndsWith(""foo"", StringComparison.OrdinalIgnoreCase))|]", @"Assert.EndsWith(""foo"", data, StringComparison.OrdinalIgnoreCase)")]
-	[InlineData(@"[|Assert.False(data.Contains(""foo""))|]", @"Assert.DoesNotContain(""foo"", data)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(data.Contains(""foo""))|]",
+		/* lang=c#-test */ @"Assert.Contains(""foo"", data)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(data.StartsWith(""foo""))|]",
+		/* lang=c#-test */ @"Assert.StartsWith(""foo"", data)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(data.StartsWith(""foo"", StringComparison.Ordinal))|]",
+		/* lang=c#-test */ @"Assert.StartsWith(""foo"", data, StringComparison.Ordinal)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(data.EndsWith(""foo""))|]",
+		/* lang=c#-test */ @"Assert.EndsWith(""foo"", data)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(data.EndsWith(""foo"", StringComparison.OrdinalIgnoreCase))|]",
+		/* lang=c#-test */ @"Assert.EndsWith(""foo"", data, StringComparison.OrdinalIgnoreCase)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.False(data.Contains(""foo""))|]",
+		/* lang=c#-test */ @"Assert.DoesNotContain(""foo"", data)")]
 	public async Task ConvertsBooleanAssertToStringSpecificAssert(
 		string beforeAssert,
 		string afterAssert)

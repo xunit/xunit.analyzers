@@ -5,26 +5,27 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotB
 
 public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFixerTests
 {
-	const string template = @"
-using System.Linq;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System.Linq;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var collection = new[] {{ 1, 2, 3 }};
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var collection = new[] {{ 1, 2, 3 }};
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData(
-		"[|Assert.True(collection.Any(x => x == 2))|]",
-		"Assert.Contains(collection, x => x == 2)")]
+		/* lang=c#-test */ "[|Assert.True(collection.Any(x => x == 2))|]",
+		/* lang=c#-test */ "Assert.Contains(collection, x => x == 2)")]
 	[InlineData(
-		"[|Assert.False(collection.Any(x => x == 2))|]",
-		"Assert.DoesNotContain(collection, x => x == 2)")]
+		/* lang=c#-test */ "[|Assert.False(collection.Any(x => x == 2))|]",
+		/* lang=c#-test */ "Assert.DoesNotContain(collection, x => x == 2)")]
 	public async Task ReplacesAssert(
 		string beforeAssert,
 		string afterAssert)

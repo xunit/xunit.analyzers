@@ -7,49 +7,46 @@ public class TestMethodMustNotHaveMultipleFactAttributesTests
 	[Theory]
 	[InlineData("Fact")]
 	[InlineData("Theory")]
-	public async Task DoesNotFindErrorForMethodWithSingleAttribute(string attribute)
+	public async Task MethodWithSingleAttribute_DoesNotTrigger(string attribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.{attribute}]
-    public void TestMethod() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsErrorForMethodWithTheoryAndFact()
+	public async Task MethodWithFactAndTheory_Triggers()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    [Xunit.Theory]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 17, 5, 27);
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    [Xunit.Theory]
+			    public void [|TestMethod|]() { }
+			}
+			""";
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsErrorForMethodWithCustomFactAttribute()
+	public async Task MethodWithFactAndCustomFactAttribute_Triggers()
 	{
-		var source1 = @"
-public class TestClass {
-    [Xunit.Fact]
-    [CustomFact]
-    public void TestMethod() { }
-}";
-		var source2 = "public class CustomFactAttribute : Xunit.FactAttribute { }";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 17, 5, 27);
+		var source1 = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    [CustomFact]
+			    public void [|TestMethod|]() { }
+			}
+			""";
+		var source2 = /* lang=c#-test */ """
+			public class CustomFactAttribute : Xunit.FactAttribute { }
+			""";
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer([source1, source2]);
 	}
 }

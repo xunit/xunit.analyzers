@@ -7,20 +7,21 @@ public class TestClassMustBePublicFixerTests
 {
 	[Theory]
 	[InlineData("")]
-	[InlineData("internal")]
+	[InlineData("internal ")]
 	public async Task MakesClassPublic(string nonPublicAccessModifier)
 	{
-		var before = $@"
-{nonPublicAccessModifier} class [|TestClass|] {{
-    [Xunit.Fact]
-    public void TestMethod() {{ }}
-}}";
-
-		var after = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() { }
-}";
+		var before = string.Format(/* lang=c#-test */ """
+			{0}class [|TestClass|] {{
+			    [Xunit.Fact]
+			    public void TestMethod() {{ }}
+			}}
+			""", nonPublicAccessModifier);
+		var after = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
@@ -28,27 +29,28 @@ public class TestClass {
 	[Fact]
 	public async Task ForPartialClassDeclarations_MakesSingleDeclarationPublic()
 	{
-		var before = @"
-partial class [|TestClass|] {
-    [Xunit.Fact]
-    public void TestMethod1() {}
-}
+		var before = /* lang=c#-test */ """
+			partial class [|TestClass|] {
+			    [Xunit.Fact]
+			    public void TestMethod1() {}
+			}
 
-partial class TestClass {
-    [Xunit.Fact]
-    public void TestMethod2() {}
-}";
+			partial class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod2() {}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			public partial class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod1() {}
+			}
 
-		var after = @"
-public partial class TestClass {
-    [Xunit.Fact]
-    public void TestMethod1() {}
-}
-
-partial class TestClass {
-    [Xunit.Fact]
-    public void TestMethod2() {}
-}";
+			partial class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod2() {}
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}

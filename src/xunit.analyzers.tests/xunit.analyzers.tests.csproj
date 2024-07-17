@@ -12,8 +12,8 @@
     <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
     <PackageDownload Include="System.Text.Json" Version="[8.0.0]" />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
-    <PackageDownload Include="xunit.assert" Version="[2.8.2-pre.19]" />
-    <PackageDownload Include="xunit.runner.utility" Version="[2.8.2-pre.19]" />
+    <PackageDownload Include="xunit.assert" Version="[2.9.1-pre.5]" />
+    <PackageDownload Include="xunit.runner.utility" Version="[2.9.1-pre.5]" />
     <PackageDownload Include="xunit.v3.assert" Version="[0.2.0-pre.4]" />
     <PackageDownload Include="xunit.v3.common" Version="[0.2.0-pre.4]" />
     <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.2.0-pre.4]" />

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Xunit;
@@ -12,45 +10,43 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 {
 	public class WithAbstractions
 	{
-		readonly static string Template = @"
-using Xunit.Abstractions;
+		readonly static string Template = /* lang=c#-test */ """
+			using Xunit.Abstractions;
 
-public class MyClass: {0} {{ }}";
+			public class {{|#0:MyClass|}}: {0} {{ }}
+			""";
 
-		public static IEnumerable<object[]> Interfaces
-		{
-			get
-			{
-				// Discovery and execution messages
-				yield return new object[] { MemberCount("IMessageSink", 1) };
-				yield return new object[] { MemberCount("IMessageSinkMessage", 0) };
+		public static TheoryData<string> Interfaces =
+		[
+			// Discovery and execution messages
+			MemberCount("IMessageSink", 1),
+			MemberCount("IMessageSinkMessage", 0),
 
-				// Reflection
-				yield return new object[] { MemberCount("IAssemblyInfo", 5) };
-				yield return new object[] { MemberCount("IAttributeInfo", 3) };
-				yield return new object[] { MemberCount("IMethodInfo", 11) };
-				yield return new object[] { MemberCount("IParameterInfo", 2) };
-				yield return new object[] { MemberCount("ITypeInfo", 13) };
+			// Reflection
+			MemberCount("IAssemblyInfo", 5),
+			MemberCount("IAttributeInfo", 3),
+			MemberCount("IMethodInfo", 11),
+			MemberCount("IParameterInfo", 2),
+			MemberCount("ITypeInfo", 13),
 
-				// Test cases
-				yield return new object[] { MemberCount("ITest", 2) };
-				yield return new object[] { MemberCount("ITestAssembly", 4) };
-				yield return new object[] { MemberCount("ITestCase", 9) };
-				yield return new object[] { MemberCount("ITestClass", 4) };
-				yield return new object[] { MemberCount("ITestCollection", 6) };
-				yield return new object[] { MemberCount("ITestMethod", 4) };
+			// Test cases
+			MemberCount("ITest", 2),
+			MemberCount("ITestAssembly", 4),
+			MemberCount("ITestCase", 9),
+			MemberCount("ITestClass", 4),
+			MemberCount("ITestCollection", 6),
+			MemberCount("ITestMethod", 4),
 
-				// Test frameworks
-				yield return new object[] { MemberCount("ISourceInformation", 4) };
-				yield return new object[] { MemberCount("ISourceInformationProvider", 2) };
-				yield return new object[] { MemberCount("ITestFramework", 4) };
-				yield return new object[] { MemberCount("ITestFrameworkDiscoverer", 6) };
-				yield return new object[] { MemberCount("ITestFrameworkExecutor", 4) };
-			}
-		}
+			// Test frameworks
+			MemberCount("ISourceInformation", 4),
+			MemberCount("ISourceInformationProvider", 2),
+			MemberCount("ITestFramework", 4),
+			MemberCount("ITestFrameworkDiscoverer", 6),
+			MemberCount("ITestFrameworkExecutor", 4),
+		];
 
 		[Fact]
-		public async Task SuccessCase_NoInterfaces()
+		public async Task NoInterfaces_DoesNotTrigger()
 		{
 			var source = "public class Foo { }";
 
@@ -59,14 +55,10 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task InterfaceWithoutBaseClass_Triggers(string @interface)
 		{
 			var source = string.Format(Template, @interface);
-			var expected =
-				Verify_WithAbstractions
-					.Diagnostic()
-					.WithSpan(4, 14, 4, 21)
-					.WithArguments("MyClass");
+			var expected = Verify_WithAbstractions.Diagnostic().WithLocation(0).WithArguments("MyClass");
 
 			await Verify_WithAbstractions.VerifyAnalyzerV2(source, expected);
 		}
@@ -80,23 +72,15 @@ public class MyClass: {0} {{ }}";
 
 	public class WithExecution
 	{
-		readonly static string Template = @"
-using Xunit.Abstractions;
+		readonly static string Template = /* lang=c#-test */ """
+			using Xunit.Abstractions;
 
-public class Foo {{ }}
-public class MyLLMBRO: Xunit.LongLivedMarshalByRefObject {{ }}
-public class MyClass: {0} {{ }}";
+			public class Foo {{ }}
+			public class MyLLMBRO: Xunit.LongLivedMarshalByRefObject {{ }}
+			public class {{|#0:MyClass|}}: {0} {{ }}
+			""";
 
-		public static IEnumerable<object[]> Interfaces
-		{
-			get
-			{
-				foreach (var @interface in WithAbstractions.Interfaces)
-					yield return @interface;
-
-				yield return new object[] { MemberCount("Xunit.Sdk.IXunitTestCase", 13) };
-			}
-		}
+		public static TheoryData<string> Interfaces = new(WithAbstractions.Interfaces) { MemberCount("Xunit.Sdk.IXunitTestCase", 13) };
 
 		public static TheoryData<string, string> InterfacesWithBaseClasses
 		{
@@ -104,7 +88,7 @@ public class MyClass: {0} {{ }}";
 			{
 				var result = new TheoryData<string, string>();
 
-				foreach (var @interface in Interfaces.Select(x => (string)x[0]))
+				foreach (var @interface in Interfaces)
 				{
 					result.Add(@interface, "MyLLMBRO");
 					result.Add(@interface, "Xunit.LongLivedMarshalByRefObject");
@@ -115,15 +99,15 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async Task SuccessCase_NoInterfaces()
+		public async Task NoInterfaces_DoesNotTrigger()
 		{
-			var source = "public class Foo { }";
+			var source = /* lang=c#-test */ "public class Foo { }";
 
 			await Verify_WithExecution.VerifyAnalyzerV2(source);
 		}
 
 		[Fact]
-		public async Task SuccessCase_WithXunitTestCase()
+		public async Task WithXunitTestCase_DoesNotTrigger()
 		{
 			var source = string.Format(Template, "Xunit.Sdk.XunitTestCase");
 
@@ -132,7 +116,7 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(InterfacesWithBaseClasses))]
-		public async Task SuccessCase_CompatibleBaseClass(
+		public async Task CompatibleBaseClass_DoesNotTrigger(
 			string @interface,
 			string baseClass)
 		{
@@ -143,28 +127,20 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task InterfaceWithoutBaseClass_Triggers(string @interface)
 		{
 			var source = string.Format(Template, @interface);
-			var expected =
-				Verify_WithExecution
-					.Diagnostic()
-					.WithSpan(6, 14, 6, 21)
-					.WithArguments("MyClass");
+			var expected = Verify_WithExecution.Diagnostic().WithLocation(0).WithArguments("MyClass");
 
 			await Verify_WithExecution.VerifyAnalyzerV2(source, expected);
 		}
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async Task FailureCase_IncompatibleBaseClass(string @interface)
+		public async Task IncompatibleBaseClass_Triggers(string @interface)
 		{
 			var source = string.Format(Template, $"Foo, {@interface}");
-			var expected =
-				Verify_WithExecution
-					.Diagnostic()
-					.WithSpan(6, 14, 6, 21)
-					.WithArguments("MyClass");
+			var expected = Verify_WithExecution.Diagnostic().WithLocation(0).WithArguments("MyClass");
 
 			await Verify_WithExecution.VerifyAnalyzerV2(source, expected);
 		}
@@ -178,14 +154,15 @@ public class MyClass: {0} {{ }}";
 
 	public class WithRunnerUtility
 	{
-		readonly static string Template = @"
-using Xunit.Abstractions;
+		readonly static string Template = /* lang=c#-test */ """
+			using Xunit.Abstractions;
 
-public class Foo {{ }}
-public class MyLLMBRO: Xunit.Sdk.LongLivedMarshalByRefObject {{ }}
-public class MyClass: {0} {{ }}";
+			public class Foo {{ }}
+			public class MyLLMBRO: Xunit.Sdk.LongLivedMarshalByRefObject {{ }}
+			public class {{|#0:MyClass|}}: {0} {{ }}
+			""";
 
-		public static IEnumerable<object[]> Interfaces =>
+		public static TheoryData<string> Interfaces =
 			WithAbstractions.Interfaces;
 
 		public static TheoryData<string, string> InterfacesWithBaseClasses
@@ -194,7 +171,7 @@ public class MyClass: {0} {{ }}";
 			{
 				var result = new TheoryData<string, string>();
 
-				foreach (var @interface in Interfaces.Select(x => (string)x[0]))
+				foreach (var @interface in Interfaces)
 				{
 					result.Add(@interface, "MyLLMBRO");
 					result.Add(@interface, "Xunit.Sdk.LongLivedMarshalByRefObject");
@@ -205,16 +182,16 @@ public class MyClass: {0} {{ }}";
 		}
 
 		[Fact]
-		public async Task SuccessCase_NoInterfaces()
+		public async Task NoInterfaces_DoesNotTrigger()
 		{
-			var source = "public class Foo { }";
+			var source = /* lang=c#-test */ "public class Foo { }";
 
 			await Verify_WithRunnerUtility.VerifyAnalyzerV2RunnerUtility(source);
 		}
 
 		[Theory]
 		[MemberData(nameof(InterfacesWithBaseClasses))]
-		public async Task SuccessCase_CompatibleBaseClass(
+		public async Task CompatibleBaseClass_DoesNotTrigger(
 			string @interface,
 			string baseClass)
 		{
@@ -225,28 +202,20 @@ public class MyClass: {0} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async Task FailureCase_InterfaceWithoutBaseClass(string @interface)
+		public async Task InterfaceWithoutBaseClass_Triggers(string @interface)
 		{
 			var source = string.Format(Template, @interface);
-			var expected =
-				Verify_WithRunnerUtility
-					.Diagnostic()
-					.WithSpan(6, 14, 6, 21)
-					.WithArguments("MyClass");
+			var expected = Verify_WithRunnerUtility.Diagnostic().WithLocation(0).WithArguments("MyClass");
 
 			await Verify_WithRunnerUtility.VerifyAnalyzerV2RunnerUtility(source, expected);
 		}
 
 		[Theory]
 		[MemberData(nameof(Interfaces))]
-		public async Task FailureCase_IncompatibleBaseClass(string @interface)
+		public async Task IncompatibleBaseClass_Triggers(string @interface)
 		{
 			var source = string.Format(Template, $"Foo, {@interface}");
-			var expected =
-				Verify_WithRunnerUtility
-					.Diagnostic()
-					.WithSpan(6, 14, 6, 21)
-					.WithArguments("MyClass");
+			var expected = Verify_WithRunnerUtility.Diagnostic().WithLocation(0).WithArguments("MyClass");
 
 			await Verify_WithRunnerUtility.VerifyAnalyzerV2RunnerUtility(source, expected);
 		}

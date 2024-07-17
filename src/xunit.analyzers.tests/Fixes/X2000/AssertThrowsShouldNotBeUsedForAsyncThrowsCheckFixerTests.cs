@@ -8,48 +8,59 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixerTests
 {
 	public static readonly TheoryData<string, string> Assertions = GenerateAssertions();
 
-	static readonly string template = @"
-using System;
-using System.Threading.Tasks;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System;
+		using System.Threading.Tasks;
+		using Xunit;
 
-public class TestClass {{
-    Task ThrowingMethod() {{
-        throw new NotImplementedException();
-    }}
+		public class TestClass {{
+		    Task ThrowingMethod() {{
+		        throw new NotImplementedException();
+		    }}
 
-    [Fact]{0}
-}}";
+		    [Fact]{0}
+		}}
+		""";
 
 	static TheoryData<string, string> GenerateAssertions()
 	{
 		var templates = new (string, string)[]
 		{
-			("Assert.Throws(typeof(Exception), {0})", "Assert.ThrowsAsync(typeof(Exception), {0})"),
-			("Assert.Throws<Exception>({0})", "Assert.ThrowsAsync<Exception>({0})"),
-			("Assert.Throws<ArgumentException>(\"parameter\", {0})", "Assert.ThrowsAsync<ArgumentException>(\"parameter\", {0})"),
-			("Assert.ThrowsAny<Exception>({0})", "Assert.ThrowsAnyAsync<Exception>({0})"),
+			(
+				/* lang=c#-test */ "Assert.Throws(typeof(Exception), {0})",
+				/* lang=c#-test */ "Assert.ThrowsAsync(typeof(Exception), {0})"
+			),
+			(
+				/* lang=c#-test */ "Assert.Throws<Exception>({0})",
+				/* lang=c#-test */ "Assert.ThrowsAsync<Exception>({0})"
+			),
+			(
+				/* lang=c#-test */ "Assert.Throws<ArgumentException>(\"parameter\", {0})",
+				/* lang=c#-test */ "Assert.ThrowsAsync<ArgumentException>(\"parameter\", {0})"
+			),
+			(
+				/* lang=c#-test */ "Assert.ThrowsAny<Exception>({0})",
+				/* lang=c#-test */ "Assert.ThrowsAnyAsync<Exception>({0})"
+			),
 		};
 
 		var lambdas = new[]
 		{
-			"(Func<Task>)ThrowingMethod",
-			"() => Task.Delay(0)",
-			"(Func<Task>)(async () => await Task.Delay(0))",
-			"(Func<Task>)(async () => await Task.Delay(0).ConfigureAwait(false))",
+			/* lang=c#-test */ "(Func<Task>)ThrowingMethod",
+			/* lang=c#-test */ "() => Task.Delay(0)",
+			/* lang=c#-test */ "(Func<Task>)(async () => await Task.Delay(0))",
+			/* lang=c#-test */ "(Func<Task>)(async () => await Task.Delay(0).ConfigureAwait(false))",
 		};
 
 		var assertions = new TheoryData<string, string>();
 
 		foreach ((var assertionTemplate, var replacementTemplate) in templates)
-		{
 			foreach (var lambda in lambdas)
 			{
 				var assertion = string.Format(assertionTemplate, lambda);
 				var replacement = string.Format(replacementTemplate, lambda);
 				assertions.Add(assertion, replacement);
 			}
-		}
 
 		return assertions;
 	}
@@ -60,15 +71,16 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        {{|CS0619:[|{assertion}|]|}};
-    }}";
-
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        await {replacement};
-    }}";
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        {{|CS0619:[|{0}|]|}};
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        await {0};
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -79,27 +91,28 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Func<int> function = () => {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Func<int> function = () => {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }};
 
-        int number = function();
-        function();
-    }}";
+			        int number = function();
+			        function();
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        Func<Task<int>> function = async () => {{
+			            await {0};
+			            return 0;
+			        }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        Func<Task<int>> function = async () => {{
-            await {replacement};
-            return 0;
-        }};
-
-        int number = {{|CS0029:function()|}};
-        function();
-    }}";
+			        int number = {{|CS0029:function()|}};
+			        function();
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -110,34 +123,35 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Func<int> function = () => 0;
-        function = () => {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Func<int> function = () => 0;
+			        function = () => {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }};
 
-        int number = function();
-        function();
-    }}";
+			        int number = function();
+			        function();
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        Func<Task<int>> function = () => {{|CS0029:{{|CS1662:0|}}|}};
+			        function = async () => {{
+			            await {0};
+			            return 0;
+			        }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        Func<Task<int>> function = () => {{|CS0029:{{|CS1662:0|}}|}};
-        function = async () => {{
-            await {replacement};
-            return 0;
-        }};
-
-        int number = {{|CS0029:function()|}};
-        function();
-    }}";
+			        int number = {{|CS0029:function()|}};
+			        function();
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
 
-#if ROSLYN_4_4_OR_GREATER
+#if ROSLYN_4_4_OR_GREATER  // No C# 10 in Roslyn 3.11, so no anonymous lambda types
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
@@ -145,27 +159,28 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        var function = () => {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        var function = () => {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }};
 
-        int number = function();
-        function();
-    }}";
+			        int number = function();
+			        function();
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        var function = async () => {{
+			            await {0};
+			            return 0;
+			        }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        var function = async () => {{
-            await {replacement};
-            return 0;
-        }};
-
-        int number = {{|CS0029:function()|}};
-        function();
-    }}";
+			        int number = {{|CS0029:function()|}};
+			        function();
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp10, beforeMethod, afterMethod);
 	}
@@ -178,21 +193,22 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Func<int> function = () => {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }};
-    }}";
-
-		var afterMethod = $@"
-    public void TestMethod() {{
-        Func<Task<int>> function = async () => {{
-            await {replacement};
-            return 0;
-        }};
-    }}";
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Func<int> function = () => {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }};
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Func<Task<int>> function = async () => {{
+			            await {0};
+			            return 0;
+			        }};
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -203,35 +219,36 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Action<int> outerFunction = (number) => {{
-            Func<string> innerFunction = delegate () {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Action<int> outerFunction = (number) => {{
+			            Func<string> innerFunction = delegate () {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }};
 
-            var message = innerFunction().ToLower();
-            innerFunction();
-        }};
+			            var message = innerFunction().ToLower();
+			            innerFunction();
+			        }};
 
-        outerFunction(0);
-    }}";
+			        outerFunction(0);
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        Func<int, Task> outerFunction = async (number) => {{
+			            Func<Task<string>> innerFunction = async delegate () {{
+			                await {0};
+			                return string.Empty;
+			            }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        Func<int, Task> outerFunction = async (number) => {{
-            Func<Task<string>> innerFunction = async delegate () {{
-                await {replacement};
-                return string.Empty;
-            }};
+			            var message = innerFunction().{{|CS7036:ToLower|}}();
+			            innerFunction();
+			        }};
 
-            var message = innerFunction().{{|CS7036:ToLower|}}();
-            innerFunction();
-        }};
-
-        outerFunction(0);
-    }}";
+			        outerFunction(0);
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -242,33 +259,34 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Action<int> outerFunction = (number) => {{
-            Func<string> innerFunction = delegate () {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Action<int> outerFunction = (number) => {{
+			            Func<string> innerFunction = delegate () {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }};
 
-            var message = innerFunction.Invoke().ToLower();
-        }};
+			            var message = innerFunction.Invoke().ToLower();
+			        }};
 
-        outerFunction.Invoke(0);
-    }}";
+			        outerFunction.Invoke(0);
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        Func<int, Task> outerFunction = async (number) => {{
+			            Func<Task<string>> innerFunction = async delegate () {{
+			                await {0};
+			                return string.Empty;
+			            }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        Func<int, Task> outerFunction = async (number) => {{
-            Func<Task<string>> innerFunction = async delegate () {{
-                await {replacement};
-                return string.Empty;
-            }};
+			            var message = innerFunction.Invoke().{{|CS7036:ToLower|}}();
+			        }};
 
-            var message = innerFunction.Invoke().{{|CS7036:ToLower|}}();
-        }};
-
-        outerFunction.Invoke(0);
-    }}";
+			        outerFunction.Invoke(0);
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -279,33 +297,34 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Action<int> outerFunction = (number) => {{
-            Func<string> innerFunction = delegate () {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Action<int> outerFunction = (number) => {{
+			            Func<string> innerFunction = delegate () {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }};
 
-            var message = innerFunction?.Invoke().ToLower();
-        }};
+			            var message = innerFunction?.Invoke().ToLower();
+			        }};
 
-        outerFunction?.Invoke(0);
-    }}";
+			        outerFunction?.Invoke(0);
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        Func<int, Task> outerFunction = async (number) => {{
+			            Func<Task<string>> innerFunction = async delegate () {{
+			                await {0};
+			                return string.Empty;
+			            }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        Func<int, Task> outerFunction = async (number) => {{
-            Func<Task<string>> innerFunction = async delegate () {{
-                await {replacement};
-                return string.Empty;
-            }};
+			            var message = innerFunction?.Invoke().{{|CS7036:ToLower|}}();
+			        }};
 
-            var message = innerFunction?.Invoke().{{|CS7036:ToLower|}}();
-        }};
-
-        outerFunction?.Invoke(0);
-    }}";
+			        outerFunction?.Invoke(0);
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -316,25 +335,26 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        Action<int> outerFunction = (number) => {{
-            Func<string> innerFunction = () => {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }};
-        }};
-    }}";
-
-		var afterMethod = $@"
-    public void TestMethod() {{
-        Action<int> outerFunction = (number) => {{
-            Func<Task<string>> innerFunction = async () => {{
-                await {replacement};
-                return string.Empty;
-            }};
-        }};
-    }}";
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Action<int> outerFunction = (number) => {{
+			            Func<string> innerFunction = () => {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }};
+			        }};
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        Action<int> outerFunction = (number) => {{
+			            Func<Task<string>> innerFunction = async () => {{
+			                await {0};
+			                return string.Empty;
+			            }};
+			        }};
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
@@ -345,27 +365,28 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        int number = Function();
-        Function();
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int number = Function();
+			        Function();
 
-        int Function() {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }}
-    }}";
+			        int Function() {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }}
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        int number = {{|CS0029:Function()|}};
+			        Function();
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        int number = {{|CS0029:Function()|}};
-        Function();
-
-        async Task<int> Function() {{
-            await {replacement};
-            return 0;
-        }}
-    }}";
+			        async Task<int> Function() {{
+			            await {0};
+			            return 0;
+			        }}
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp7, beforeMethod, afterMethod);
 	}
@@ -376,21 +397,22 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        int Function() {{
-            {{|CS0619:[|{assertion}|]|}};
-            return 0;
-        }}
-    }}";
-
-		var afterMethod = $@"
-    public void TestMethod() {{
-        async Task<int> Function() {{
-            await {replacement};
-            return 0;
-        }}
-    }}";
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int Function() {{
+			            {{|CS0619:[|{0}|]|}};
+			            return 0;
+			        }}
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        async Task<int> Function() {{
+			            await {0};
+			            return 0;
+			        }}
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp7, beforeMethod, afterMethod);
 	}
@@ -401,39 +423,40 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        int number = OuterFunction();
-        OuterFunction();
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int number = OuterFunction();
+			        OuterFunction();
 
-        int OuterFunction() {{
-            var message = InnerFunction().ToLower();
-            InnerFunction();
-            return 0;
+			        int OuterFunction() {{
+			            var message = InnerFunction().ToLower();
+			            InnerFunction();
+			            return 0;
 
-            string InnerFunction() {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }}
-        }}
-    }}";
+			            string InnerFunction() {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }}
+			        }}
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        int number = {{|CS0029:OuterFunction()|}};
+			        OuterFunction();
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        int number = {{|CS0029:OuterFunction()|}};
-        OuterFunction();
+			        async Task<int> OuterFunction() {{
+			            var message = InnerFunction().{{|CS7036:ToLower|}}();
+			            InnerFunction();
+			            return 0;
 
-        async Task<int> OuterFunction() {{
-            var message = InnerFunction().{{|CS7036:ToLower|}}();
-            InnerFunction();
-            return 0;
-
-            async Task<string> InnerFunction() {{
-                await {replacement};
-                return string.Empty;
-            }}
-        }}
-    }}";
+			            async Task<string> InnerFunction() {{
+			                await {0};
+			                return string.Empty;
+			            }}
+			        }}
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp7, beforeMethod, afterMethod);
 	}
@@ -444,29 +467,30 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        int OuterFunction() {{
-            return 0;
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int OuterFunction() {{
+			            return 0;
 
-            string InnerFunction() {{
-                {{|CS0619:[|{assertion}|]|}};
-                return string.Empty;
-            }}
-        }}
-    }}";
+			            string InnerFunction() {{
+			                {{|CS0619:[|{0}|]|}};
+			                return string.Empty;
+			            }}
+			        }}
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int OuterFunction() {{
+			            return 0;
 
-		var afterMethod = $@"
-    public void TestMethod() {{
-        int OuterFunction() {{
-            return 0;
-
-            async Task<string> InnerFunction() {{
-                await {replacement};
-                return string.Empty;
-            }}
-        }}
-    }}";
+			            async Task<string> InnerFunction() {{
+			                await {0};
+			                return string.Empty;
+			            }}
+			        }}
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp7, beforeMethod, afterMethod);
 	}
@@ -477,59 +501,60 @@ public class TestClass {{
 		string assertion,
 		string replacement)
 	{
-		var beforeMethod = $@"
-    public void TestMethod() {{
-        int OuterLocalFunction() {{
-            Func<bool> outerAnonymousFunction = () => {{
-                string InnerLocalFunction() {{
-                    Action innerAnonymousFunction = () => {{
-                        {{|CS0619:[|{assertion}|]|}};
-                    }};
+		var beforeMethod = string.Format(/* lang=c#-test */ """
+			    public void TestMethod() {{
+			        int OuterLocalFunction() {{
+			            Func<bool> outerAnonymousFunction = () => {{
+			                string InnerLocalFunction() {{
+			                    Action innerAnonymousFunction = () => {{
+			                        {{|CS0619:[|{0}|]|}};
+			                    }};
 
-                    innerAnonymousFunction();
-                    return string.Empty;
-                }}
+			                    innerAnonymousFunction();
+			                    return string.Empty;
+			                }}
 
-                string message = InnerLocalFunction();
-                InnerLocalFunction();
-                return false;
-            }};
+			                string message = InnerLocalFunction();
+			                InnerLocalFunction();
+			                return false;
+			            }};
 
-            bool condition = outerAnonymousFunction();
-            outerAnonymousFunction();
-            return 0;
-        }}
+			            bool condition = outerAnonymousFunction();
+			            outerAnonymousFunction();
+			            return 0;
+			        }}
 
-        int number = OuterLocalFunction();
-        OuterLocalFunction();
-    }}";
+			        int number = OuterLocalFunction();
+			        OuterLocalFunction();
+			    }}
+			""", assertion);
+		var afterMethod = string.Format(/* lang=c#-test */ """
+			    public async Task TestMethod() {{
+			        async Task<int> OuterLocalFunction() {{
+			            Func<Task<bool>> outerAnonymousFunction = async () => {{
+			                async Task<string> InnerLocalFunction() {{
+			                    Func<Task> innerAnonymousFunction = async () => {{
+			                        await {0};
+			                    }};
 
-		var afterMethod = $@"
-    public async Task TestMethod() {{
-        async Task<int> OuterLocalFunction() {{
-            Func<Task<bool>> outerAnonymousFunction = async () => {{
-                async Task<string> InnerLocalFunction() {{
-                    Func<Task> innerAnonymousFunction = async () => {{
-                        await {replacement};
-                    }};
+			                    innerAnonymousFunction();
+			                    return string.Empty;
+			                }}
 
-                    innerAnonymousFunction();
-                    return string.Empty;
-                }}
+			                string message = {{|CS0029:InnerLocalFunction()|}};
+			                InnerLocalFunction();
+			                return false;
+			            }};
 
-                string message = {{|CS0029:InnerLocalFunction()|}};
-                InnerLocalFunction();
-                return false;
-            }};
+			            bool condition = {{|CS0029:outerAnonymousFunction()|}};
+			            outerAnonymousFunction();
+			            return 0;
+			        }}
 
-            bool condition = {{|CS0029:outerAnonymousFunction()|}};
-            outerAnonymousFunction();
-            return 0;
-        }}
-
-        int number = {{|CS0029:OuterLocalFunction()|}};
-        OuterLocalFunction();
-    }}";
+			        int number = {{|CS0029:OuterLocalFunction()|}};
+			        OuterLocalFunction();
+			    }}
+			""", replacement);
 
 		await VerifyCodeFix(LanguageVersion.CSharp7, beforeMethod, afterMethod);
 	}

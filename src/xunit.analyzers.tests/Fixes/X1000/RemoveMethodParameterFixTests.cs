@@ -12,23 +12,24 @@ public class RemoveMethodParameterFixTests
 	[Fact]
 	public async Task X1022_RemoveParamsArray()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(1, 2, 3)]
-    public void TestMethod([|params int[] values|]) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1, 2, 3)]
+			    public void TestMethod([|params int[] values|]) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData(1, 2, 3)]
-    public void TestMethod() { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1, 2, 3)]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify_X1022.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
 	}
@@ -36,23 +37,24 @@ public class TestClass {
 	[Fact]
 	public async Task X1026_RemovesUnusedParameter()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod(int [|arg|]) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1)]
+			    public void TestMethod(int [|arg|]) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod() { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1)]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify_X1026.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
 	}
@@ -60,48 +62,32 @@ public class TestClass {
 	[Fact]
 	public async Task X1026_DoesNotCrashWhenParameterDeclarationIsMissing()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-	[Theory]
-	[InlineData(1, 1)]
-	public void Test1(int x, )
-	{
-		var x1 = x;
-	}
-}";
+			public class TestClass {
+				[Theory]
+				[InlineData(1, 1)]
+				public void Test1(int x, {|CS1001:{|CS1031:{|xUnit1026:|})|}|}
+				{
+					var x1 = x;
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
+			public class TestClass {
+				[Theory]
+				[InlineData(1, 1)]
+				public void Test1(int x, {|CS1001:{|CS1031:{|xUnit1026:|})|}|}
+				{
+					var x1 = x;
+				}
+			}
+			""";
 
-public class TestClass {
-	[Theory]
-	[InlineData(1, 1)]
-	public void Test1(int x, )
-	{
-		var x1 = x;
-	}
-}";
-
-		var expected = new[]
-		{
-			Verify_X1026
-				.Diagnostic()
-				.WithSpan(7, 27, 7, 27)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Test1", "TestClass", ""),
-			Verify_X1026
-				.CompilerError("CS1001")
-				.WithSpan(7, 27, 7, 28)
-				.WithMessage("Identifier expected"),
-			Verify_X1026
-				.CompilerError("CS1031")
-				.WithSpan(7, 27, 7, 28)
-				.WithMessage("Type expected"),
-		};
-
-		await Verify_X1026.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter, expected);
+		await Verify_X1026.VerifyCodeFix(before, after, RemoveMethodParameterFix.Key_RemoveParameter);
 	}
 
 	internal class Analyzer_X1022 : TheoryMethodCannotHaveParamsArray

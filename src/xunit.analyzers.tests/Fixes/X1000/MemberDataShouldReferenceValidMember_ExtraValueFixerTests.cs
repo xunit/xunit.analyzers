@@ -8,27 +8,28 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 	[Fact]
 	public async Task RemovesUnusedData()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-    [Theory]
-    [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
+			    public void TestMethod(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
+			public class TestClass {
+			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-public class TestClass {
-    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
-
-    [Theory]
-    [MemberData(nameof(TestData), 42)]
-    public void TestMethod(int a) { }
-}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42)]
+			    public void TestMethod(int a) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_RemoveExtraDataValue);
 	}
@@ -40,27 +41,28 @@ public class TestClass {
 		string value,
 		string valueType)
 	{
-		var before = $@"
-using Xunit;
+		var before = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
+			public class TestClass {{
+			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-    [Theory]
-    [MemberData(nameof(TestData), 42, {{|xUnit1036:{value}|}})]
-    public void TestMethod(int a) {{ }}
-}}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {{|xUnit1036:{0}|}})]
+			    public void TestMethod(int a) {{ }}
+			}}
+			""", value);
+		var after = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-		var after = $@"
-using Xunit;
+			public class TestClass {{
+			    public static TheoryData<int> TestData(int n, {1} p) => new TheoryData<int>();
 
-public class TestClass {{
-    public static TheoryData<int> TestData(int n, {valueType} p) => new TheoryData<int>();
-
-    [Theory]
-    [MemberData(nameof(TestData), 42, {value})]
-    public void TestMethod(int a) {{ }}
-}}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {0})]
+			    public void TestMethod(int a) {{ }}
+			}}
+			""", value, valueType);
 
 		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
 	}
@@ -68,27 +70,28 @@ public class TestClass {{
 	[Fact]
 	public async Task AddsParameterWithNonConflictingName()
 	{
-		var before = $@"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    public static TheoryData<int> TestData(int p) => new TheoryData<int>();
+			public class TestClass {
+			    public static TheoryData<int> TestData(int p) => new TheoryData<int>();
 
-    [Theory]
-    [MemberData(nameof(TestData), 42, {{|xUnit1036:21.12|}})]
-    public void TestMethod(int n) {{ }}
-}}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
+			    public void TestMethod(int n) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = $@"
-using Xunit;
+			public class TestClass {
+			    public static TheoryData<int> TestData(int p, double p_2) => new TheoryData<int>();
 
-public class TestClass {{
-    public static TheoryData<int> TestData(int p, double p_2) => new TheoryData<int>();
-
-    [Theory]
-    [MemberData(nameof(TestData), 42, 21.12)]
-    public void TestMethod(int n) {{ }}
-}}";
+			    [Theory]
+			    [MemberData(nameof(TestData), 42, 21.12)]
+			    public void TestMethod(int n) { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
 	}

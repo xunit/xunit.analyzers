@@ -9,21 +9,22 @@ public class ConvertToFactFixTests
 	[Fact]
 	public async Task From_X1003()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    public void [|TestMethod|](int a) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    public void [|TestMethod|](int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Fact]
-    public void TestMethod(int a) { }
-}";
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod(int a) { }
+			}
+			""";
 
 		await Verify_X1003.VerifyCodeFix(before, after, ConvertToFactFix.Key_ConvertToFact);
 	}
@@ -31,21 +32,22 @@ public class TestClass {
 	[Fact]
 	public async Task From_X1006()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    public void [|TestMethod|]() { }
-}";
+			public class TestClass {
+			    [Theory]
+			    public void [|TestMethod|]() { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Fact]
-    public void TestMethod() { }
-}";
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify_X1006.VerifyCodeFix(before, after, ConvertToFactFix.Key_ConvertToFact);
 	}

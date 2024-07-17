@@ -5,13 +5,14 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodMustHaveTestData>;
 public class TheoryMethodMustHaveTestDataTests
 {
 	[Fact]
-	public async Task DoesNotFindErrorForFactMethod()
+	public async Task FactMethod_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() { }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -20,31 +21,29 @@ public class TestClass {
 	[InlineData("InlineData")]
 	[InlineData("MemberData(\"\")")]
 	[InlineData("ClassData(typeof(string))")]
-	public async Task DoesNotFindErrorForTheoryMethodWithDataAttributes(string dataAttribute)
+	public async Task TheoryMethodWithDataAttributes_DoesNotTrigger(string dataAttribute)
 	{
-		var source = $@"
-public class TestClass {{
-    [Xunit.Theory]
-    [Xunit.{dataAttribute}]
-    public void TestMethod() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public class TestClass {{
+			    [Xunit.Theory]
+			    [Xunit.{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", dataAttribute);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsErrorForTheoryMethodMissingData()
+	public async Task TheoryMethodMissingData_Triggers()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 17, 4, 27);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void [|TestMethod|]() { }
+			}
+			""";
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

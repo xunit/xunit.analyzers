@@ -5,42 +5,41 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TheoryMethodShouldHaveParameters>;
 public class TheoryMethodShouldHaveParametersTests
 {
 	[Fact]
-	public async Task DoesNotFindErrorForFactMethod()
+	public async Task FactMethod_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() { }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindErrorForTheoryMethodWithParameters()
+	public async Task TheoryMethodWithParameters_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(string s) { }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(string s) { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsErrorForTheoryMethodWithoutParameters()
+	public async Task TheoryMethodWithoutParameters_Triggers()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod() { }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 17, 4, 27);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void [|TestMethod|]() { }
+			}
+			""";
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(source);
 	}
 }

@@ -5,22 +5,27 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLi
 
 public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixerTests
 {
-	const string template = @"
-using System.Text.RegularExpressions;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System.Text.RegularExpressions;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var result = ""foo bar baz"";
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var result = "foo bar baz";
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData(@"[|Assert.True(Regex.IsMatch(result, ""foo (.*?) baz""))|]", @"Assert.Matches(""foo (.*?) baz"", result)")]
-	[InlineData(@"[|Assert.False(Regex.IsMatch(result, ""foo (.*?) baz""))|]", @"Assert.DoesNotMatch(""foo (.*?) baz"", result)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(Regex.IsMatch(result, ""foo (.*?) baz""))|]",
+		/* lang=c#-test */ @"Assert.Matches(""foo (.*?) baz"", result)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.False(Regex.IsMatch(result, ""foo (.*?) baz""))|]",
+		/* lang=c#-test */ @"Assert.DoesNotMatch(""foo (.*?) baz"", result)")]
 	public async Task ConvertsBooleanAssertToRegexAssert(
 		string beforeAssert,
 		string afterAssert)

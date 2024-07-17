@@ -6,17 +6,18 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedF
 
 public class AssertEqualGenericShouldNotBeUsedForStringValueFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        string result = ""foo"";
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        string result = "foo";
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData(Constants.Asserts.Equal)]

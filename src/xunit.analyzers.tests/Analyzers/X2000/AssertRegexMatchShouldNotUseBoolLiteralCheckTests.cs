@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLiteralCheck>;
@@ -14,67 +13,55 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarning_ForStaticRegexIsMatch(
+	public async Task ForStaticRegexIsMatch_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(System.Text.RegularExpressions.Regex.IsMatch(""abc"", ""\\w*""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 83 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(System.Text.RegularExpressions.Regex.IsMatch("abc", "\\w*"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarning_ForInstanceRegexIsMatchWithInlineConstructedRegex(
+	public async Task ForInstanceRegexIsMatchWithInlineConstructedRegex_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(new System.Text.RegularExpressions.Regex(""abc"").IsMatch(""\\w*""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 87 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(new System.Text.RegularExpressions.Regex("abc").IsMatch("\\w*"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods_WithReplacement))]
-	public async Task FindsWarning_ForInstanceRegexIsMatchWithConstructedRegexVariable(
+	public async Task ForInstanceRegexIsMatchWithConstructedRegexVariable_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        var regex = new System.Text.RegularExpressions.Regex(""abc"");
-        Xunit.Assert.{method}(regex.IsMatch(""\\w*""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 9, 5, 45 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        var regex = new System.Text.RegularExpressions.Regex("abc");
+			        {{|#0:Xunit.Assert.{0}(regex.IsMatch("\\w*"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

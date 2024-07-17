@@ -11,23 +11,24 @@ public class TheoryMethodCannotHaveDefaultParameterFixerTests
 	[Fact]
 	public async Task RemovesDefaultParameterValue()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod(int _ [|= 0|]) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1)]
+			    public void TestMethod(int _ [|= 0|]) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData(1)]
-    public void TestMethod(int _) { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData(1)]
+			    public void TestMethod(int _) { }
+			}
+			""";
 
 		await Verify_v2_Pre220.VerifyCodeFix(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
 	}

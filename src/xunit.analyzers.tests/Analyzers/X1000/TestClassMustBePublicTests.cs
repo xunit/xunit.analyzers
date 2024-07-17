@@ -1,108 +1,105 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
 public class TestClassMustBePublicTests
 {
-	public static IEnumerable<object[]> CreateFactsInNonPublicClassCases =
-		from attribute in new[] { "Xunit.Fact", "Xunit.Theory" }
-		from modifier in new[] { "", "internal" }
-		select new[] { attribute, modifier };
+	public static MatrixTheoryData<string, string> CreateFactsInNonPublicClassCases =
+		new(
+			/* lang=c#-test */ ["Xunit.Fact", "Xunit.Theory"],
+			/* lang=c#-test */ ["", "internal"]
+		);
 
 	[Fact]
-	public async Task ForPublicClass_DoesNotFindError()
+	public async Task ForPublicClass_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() { }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(CreateFactsInNonPublicClassCases))]
-	public async Task ForFriendOrInternalClass_FindsError(
+	public async Task ForFriendOrInternalClass_Triggers(
 		string attribute,
 		string modifier)
 	{
-		var source = $@"
-{modifier} class TestClass {{
-    [{attribute}]
-    public void TestMethod() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(2, 8 + modifier.Length, 2, 17 + modifier.Length);
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[InlineData("")]
-	[InlineData("public")]
-	public async Task ForPartialClassInSameFile_WhenClassIsPublic_DoesNotFindError(string modifier)
-	{
-		var source = $@"
-public partial class TestClass {{
-    [Xunit.Fact]
-    public void Test1() {{ }}
-}}
-
-{modifier} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test2() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			{1} class [|TestClass|] {{
+			    [{0}]
+			    public void TestMethod() {{ }}
+			}}
+			""", attribute, modifier);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
-	[InlineData("")]
-	[InlineData("public")]
-	public async Task ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotFindError(string modifier)
+	[InlineData(/* lang=c#-test */ "")]
+	[InlineData(/* lang=c#-test */ "public")]
+	public async Task ForPartialClassInSameFile_WhenClassIsPublic_DoesNotTrigger(string modifier)
 	{
-		var source1 = @"
-public partial class TestClass {
-    [Xunit.Fact]
-    public void Test1() { }
-}";
-		var source2 = $@"
-{modifier} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test2() {{ }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			public partial class TestClass {{
+			    [Xunit.Fact]
+			    public void Test1() {{ }}
+			}}
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 });
+			{0} partial class TestClass {{
+			    [Xunit.Fact]
+			    public void Test2() {{ }}
+			}}
+			""", modifier);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[InlineData(/* lang=c#-test */ "")]
+	[InlineData(/* lang=c#-test */ "public")]
+	public async Task ForPartialClassInOtherFiles_WhenClassIsPublic_DoesNotTrigger(string modifier)
+	{
+		var source1 = /* lang=c#-test */ """
+			public partial class TestClass {
+			    [Xunit.Fact]
+			    public void Test1() { }
+			}
+			""";
+		var source2 = string.Format(/* lang=c#-test */ """
+			{0} partial class TestClass {{
+			    [Xunit.Fact]
+			    public void Test2() {{ }}
+			}}
+			""", modifier);
+
+		await Verify.VerifyAnalyzer([source1, source2]);
 	}
 
 	[Theory]
 	[InlineData("", "")]
 	[InlineData("", "internal")]
 	[InlineData("internal", "internal")]
-	public async Task ForPartialClassInSameFile_WhenClassIsNonPublic_FindsError(
+	public async Task ForPartialClassInSameFile_WhenClassIsNonPublic_Triggers(
 		string modifier1,
 		string modifier2)
 	{
-		var source = $@"
-{modifier1} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test1() {{ }}
-}}
+		var source = string.Format(/* lang=c#-test */ """
+			{0} partial class {{|#0:TestClass|}} {{
+			    [Xunit.Fact]
+			    public void Test1() {{ }}
+			}}
 
-{modifier2} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test2() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
-				.WithSpan(7, 16 + modifier2.Length, 7, 25 + modifier2.Length);
+			{1} partial class {{|#1:TestClass|}} {{
+			    [Xunit.Fact]
+			    public void Test2() {{ }}
+			}}
+			""", modifier1, modifier2);
+		var expected = Verify.Diagnostic().WithLocation(0).WithLocation(1);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -111,26 +108,24 @@ public partial class TestClass {
 	[InlineData("", "")]
 	[InlineData("", "internal")]
 	[InlineData("internal", "internal")]
-	public async Task ForPartialClassInOtherFiles_WhenClassIsNonPublic_FindsError(
+	public async Task ForPartialClassInOtherFiles_WhenClassIsNonPublic_Triggers(
 		string modifier1,
 		string modifier2)
 	{
-		var source1 = $@"
-{modifier1} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test1() {{ }}
-}}";
-		var source2 = $@"
-{modifier2} partial class TestClass {{
-    [Xunit.Fact]
-    public void Test2() {{ }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(2, 16 + modifier1.Length, 2, 25 + modifier1.Length)
-				.WithSpan("/0/Test1.cs", 2, 16 + modifier2.Length, 2, 25 + modifier2.Length);
+		var source1 = string.Format(/* lang=c#-test */ """
+			{0} partial class {{|#0:TestClass|}} {{
+			    [Xunit.Fact]
+			    public void Test1() {{ }}
+			}}
+			""", modifier1);
+		var source2 = string.Format(/* lang=c#-test */ """
+			{0} partial class {{|#1:TestClass|}} {{
+			    [Xunit.Fact]
+			    public void Test2() {{ }}
+			}}
+			""", modifier2);
+		var expected = Verify.Diagnostic().WithLocation(0).WithLocation(1);
 
-		await Verify.VerifyAnalyzer(new[] { source1, source2 }, expected);
+		await Verify.VerifyAnalyzer([source1, source2], expected);
 	}
 }

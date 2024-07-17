@@ -5,21 +5,26 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValue
 
 public class AssertSameShouldNotBeCalledOnValueTypesFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var data = 1;
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var data = 1;
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData("[|Assert.Same(1, data)|]", "Assert.Equal(1, data)")]
-	[InlineData("[|Assert.NotSame(1, data)|]", "Assert.NotEqual(1, data)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Same(1, data)|]",
+		/* lang=c#-test */ "Assert.Equal(1, data)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotSame(1, data)|]",
+		/* lang=c#-test */ "Assert.NotEqual(1, data)")]
 	public async Task ConvertsSameToEqual(
 		string beforeAssert,
 		string afterAssert)

@@ -1,268 +1,233 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldNotBeUsedForAsyncThrowsCheck>;
 
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 {
-	public static TheoryData<string> NonAsyncLambdas = new()
-	{
+	public static TheoryData<string> NonAsyncLambdas =
+	[
 		"ThrowingMethod",
 		"() => 1",
-	};
+	];
 
-	public static TheoryData<string> AsyncLambdas = new()
-	{
+	public static TheoryData<string> AsyncLambdas =
+	[
 		"(System.Func<System.Threading.Tasks.Task>)ThrowingMethod",
 		"() => System.Threading.Tasks.Task.Delay(0)",
 		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0))",
 		"(System.Func<System.Threading.Tasks.Task>)(async () => await System.Threading.Tasks.Task.Delay(0).ConfigureAwait(false))",
-	};
+	];
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async Task Throws_NonGeneric_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_NonGeneric_WithNonAsyncLambda_DoesNotTrigger(string lambda)
 	{
-		var source = $@"
-class TestClass {{
-    System.Action ThrowingMethod = () => {{
-        throw new System.NotImplementedException();
-    }};
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Action ThrowingMethod = () => {{
+			        throw new System.NotImplementedException();
+			    }};
 
-    void TestMethod() {{
-        Xunit.Assert.Throws(typeof(System.NotImplementedException), {lambda});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(NonAsyncLambdas))]
-	public async Task Throws_Generic_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Action ThrowingMethod = () => {{
-        throw new System.NotImplementedException();
-    }};
-
-    void TestMethod() {{
-        Xunit.Assert.Throws<System.NotImplementedException>({lambda});
-    }}
-}}";
+			    void TestMethod() {{
+			        Xunit.Assert.Throws(typeof(System.NotImplementedException), {0});
+			    }}
+			}}
+			""", lambda);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async Task Throws_Generic_WithNamedArgumentException_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_Generic_WithNonAsyncLambda_DoesNotTrigger(string lambda)
 	{
-		var source = $@"
-class TestClass {{
-    System.Action ThrowingMethod = () => {{
-        throw new System.NotImplementedException();
-    }};
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Action ThrowingMethod = () => {{
+			        throw new System.NotImplementedException();
+			    }};
 
-    void TestMethod() {{
-        Xunit.Assert.Throws<System.ArgumentException>(""param1"", {lambda});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(AsyncLambdas))]
-	public async Task Throws_NonGeneric_WithAsyncLambda_FindsDiagnostic(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-		throw new System.NotImplementedException();
-    }}
-
-    void TestMethod() {{
-        Xunit.Assert.Throws(typeof(System.NotImplementedException), {lambda});
-    }}
-}}";
-		var expected = new[]
-		{
-			DiagnosticResult
-				.CompilerError("CS0619")
-				.WithSpan(8, 9, 8, 70 + lambda.Length)
-				.WithArguments("Xunit.Assert.Throws(System.Type, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync (and await the result) when testing async code."),
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 70 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(AsyncLambdas))]
-	public async Task Throws_Generic_WithAsyncLambda_FindsDiagnostic(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
-
-    void TestMethod() {{
-        Xunit.Assert.Throws<System.NotImplementedException>({lambda});
-    }}
-}}";
-		var expected = new[]
-		{
-			Verify
-				.CompilerError("CS0619")
-				.WithSpan(8, 9, 8, 62 + lambda.Length)
-				.WithMessage("'Assert.Throws<T>(Func<Task>)' is obsolete: 'You must call Assert.ThrowsAsync<T> (and await the result) when testing async code.'"),
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 62 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(AsyncLambdas))]
-	public async Task Throws_Generic_WithNamedArgumentException_WithAsyncLambda_FindsDiagnostic(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
-
-    void TestMethod() {{
-        Xunit.Assert.Throws<System.ArgumentException>(""param1"", {lambda});
-    }}
-}}";
-		var expected = new[]
-		{
-			Verify
-				.CompilerError("CS0619")
-				.WithSpan(8, 9, 8, 66 + lambda.Length)
-				.WithArguments("Xunit.Assert.Throws<T>(string?, System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAsync<T> (and await the result) when testing async code."),
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 66 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync),
-		};
-
-		await Verify.VerifyAnalyzer(source, expected);
-	}
-
-	[Theory]
-	[MemberData(nameof(AsyncLambdas))]
-	public async Task ThrowsAsync_NonGeneric_WithAsyncLambda_FindsNoDiagnostics(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
-
-    async System.Threading.Tasks.Task TestMethod() {{
-        await Xunit.Assert.ThrowsAsync(typeof(System.NotImplementedException), {lambda});
-    }}
-}}";
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(AsyncLambdas))]
-	public async Task ThrowsAsync_Generic_WithAsyncLambda_FindsNoDiagnostics(string lambda)
-	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
-
-    async void TestMethod() {{
-        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>({lambda});
-    }}
-}}";
+			    void TestMethod() {{
+			        Xunit.Assert.Throws<System.NotImplementedException>({0});
+			    }}
+			}}
+			""", lambda);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(NonAsyncLambdas))]
-	public async Task ThrowsAny_WithNonAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_Generic_WithNamedArgumentException_WithNonAsyncLambda_DoesNotTrigger(string lambda)
 	{
-		var source = $@"
-class TestClass {{
-    System.Action ThrowingMethod = () => {{
-        throw new System.NotImplementedException();
-    }};
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Action ThrowingMethod = () => {{
+			        throw new System.NotImplementedException();
+			    }};
 
-    void TestMethod() {{
-        Xunit.Assert.ThrowsAny<System.NotImplementedException>({lambda});
-    }}
-}}";
+			    void TestMethod() {{
+			        Xunit.Assert.Throws<System.ArgumentException>("param1", {0});
+			    }}
+			}}
+			""", lambda);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async Task ThrowsAny_WithAsyncLambda_FindsDiagnostic(string lambda)
+	public async Task Throws_NonGeneric_WithAsyncLambda_Triggers(string lambda)
 	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+			    }}
 
-    void TestMethod() {{
-        Xunit.Assert.ThrowsAny<System.NotImplementedException>({lambda});
-    }}
-}}";
-		var expected = new[]
-		{
-			DiagnosticResult
-				.CompilerError("CS0619")
-				.WithSpan(8, 9, 8, 65 + lambda.Length)
-				.WithArguments("Xunit.Assert.ThrowsAny<T>(System.Func<System.Threading.Tasks.Task>)", "You must call Assert.ThrowsAnyAsync<T> (and await the result) when testing async code."),
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 65 + lambda.Length)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync),
-		};
+			    void TestMethod() {{
+			        {{|#0:{{|CS0619:Xunit.Assert.Throws(typeof(System.NotImplementedException), {0})|}}|}};
+			    }}
+			}}
+			""", lambda);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(AsyncLambdas))]
-	public async Task ThrowsAnyAsync_WithAsyncLambda_FindsNoDiagnostics(string lambda)
+	public async Task Throws_Generic_WithAsyncLambda_Triggers(string lambda)
 	{
-		var source = $@"
-class TestClass {{
-    System.Threading.Tasks.Task ThrowingMethod() {{
-        throw new System.NotImplementedException();
-    }}
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
 
-    async void TestMethod() {{
-        await Xunit.Assert.ThrowsAnyAsync<System.NotImplementedException>({lambda});
-    }}
-}}";
+			    void TestMethod() {{
+			        {{|#0:{{|CS0619:Xunit.Assert.Throws<System.NotImplementedException>({0})|}}|}};
+			    }}
+			}}
+			""", lambda);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(AsyncLambdas))]
+	public async Task Throws_Generic_WithNamedArgumentException_WithAsyncLambda_Triggers(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
+
+			    void TestMethod() {{
+			        {{|#0:{{|CS0619:Xunit.Assert.Throws<System.ArgumentException>("param1", {0})|}}|}};
+			    }}
+			}}
+			""", lambda);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(AsyncLambdas))]
+	public async Task ThrowsAsync_NonGeneric_WithAsyncLambda_DoesNotTrigger(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
+
+			    async System.Threading.Tasks.Task TestMethod() {{
+			        await Xunit.Assert.ThrowsAsync(typeof(System.NotImplementedException), {0});
+			    }}
+			}}
+			""", lambda);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[MemberData(nameof(AsyncLambdas))]
+	public async Task ThrowsAsync_Generic_WithAsyncLambda_DoesNotTrigger(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
+
+			    async void TestMethod() {{
+			        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>({0});
+			    }}
+			}}
+			""", lambda);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[MemberData(nameof(NonAsyncLambdas))]
+	public async Task ThrowsAny_WithNonAsyncLambda_DoesNotTrigger(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Action ThrowingMethod = () => {{
+			        throw new System.NotImplementedException();
+			    }};
+
+			    void TestMethod() {{
+			        Xunit.Assert.ThrowsAny<System.NotImplementedException>({0});
+			    }}
+			}}
+			""", lambda);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[MemberData(nameof(AsyncLambdas))]
+	public async Task ThrowsAny_WithAsyncLambda_Triggers(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
+
+			    void TestMethod() {{
+			        {{|#0:{{|CS0619:Xunit.Assert.ThrowsAny<System.NotImplementedException>({0})|}}|}};
+			    }}
+			}}
+			""", lambda);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(AsyncLambdas))]
+	public async Task ThrowsAnyAsync_WithAsyncLambda_DoesNotTrigger(string lambda)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    System.Threading.Tasks.Task ThrowingMethod() {{
+			        throw new System.NotImplementedException();
+			    }}
+
+			    async void TestMethod() {{
+			        await Xunit.Assert.ThrowsAnyAsync<System.NotImplementedException>({0});
+			    }}
+			}}
+			""", lambda);
 
 		await Verify.VerifyAnalyzer(source);
 	}

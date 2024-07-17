@@ -9,31 +9,28 @@ using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterTe
 public class TheoryMethodCannotHaveDefaultParameterTests
 {
 	[Fact]
-	public async Task FindsErrorForTheoryWithDefaultParameter_WhenDefaultValueNotSupported()
+	public async Task TheoryWithDefaultParameter_WhenDefaultValueNotSupported_Triggers()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, string c = """") { }
-}";
-		var expected =
-			Verify_v2_Pre220
-				.Diagnostic()
-				.WithSpan(4, 54, 4, 58)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("TestMethod", "TestClass", "c");
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, string c {|#0:= ""|}) { }
+			}
+			""";
+		var expected = Verify_v2_Pre220.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "c");
 
 		await Verify_v2_Pre220.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task DoesNotFindErrorForTheoryWithDefaultParameter_WhenDefaultValueSupported()
+	public async Task TheoryWithDefaultParameter_WhenDefaultValueSupported_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, string c = """") { }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, string c = "") { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}

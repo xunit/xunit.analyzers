@@ -9,29 +9,30 @@ public class UseGenericOverloadFixTests
 	[Fact]
 	public async Task X2007_SwitchesToGenericIsType()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        var result = 123;
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        var result = 123;
 
-        [|Assert.IsType(typeof(int), result)|];
-    }
-}";
+			        [|Assert.IsType(typeof(int), result)|];
+			    }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        var result = 123;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        var result = 123;
-
-        Assert.IsType<int>(result);
-    }
-}";
+			        Assert.IsType<int>(result);
+			    }
+			}
+			""";
 
 		await Verify_X2007.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
@@ -39,31 +40,32 @@ public class TestClass {
 	[Fact]
 	public async Task X2015_SwitchesToGenericThrows()
 	{
-		var before = @"
-using System;
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using System;
+			using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        Action func = () => { };
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        Action func = () => { };
 
-        [|Assert.Throws(typeof(DivideByZeroException), func)|];
-    }
-}";
+			        [|Assert.Throws(typeof(DivideByZeroException), func)|];
+			    }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System;
+			using Xunit;
 
-		var after = @"
-using System;
-using Xunit;
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        Action func = () => { };
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        Action func = () => { };
-
-        Assert.Throws<DivideByZeroException>(func);
-    }
-}";
+			        Assert.Throws<DivideByZeroException>(func);
+			    }
+			}
+			""";
 
 		await Verify_X2015.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}

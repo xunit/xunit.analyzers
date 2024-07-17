@@ -17,64 +17,68 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async Task DoesNotFindWarningForStringEqualityCheckWithoutGenericType(
+	public async Task StringEqualityCheckWithoutGenericType_DoesNotTrigger(
 		string expected,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.Equal({expected}, {value});
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.Equal({0}, {1});
+			    }}
+			}}
+			""", expected, value);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async Task FindsWarningForStringEqualityCheckWithGenericType(
+	public async Task StringEqualityCheckWithGenericType_Triggers(
 		string expected,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        [|Xunit.Assert.Equal<string>({expected}, {value})|];
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.Equal<string>({0}, {1})|];
+			    }}
+			}}
+			""", expected, value);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async Task FindsWarningForStrictStringEqualityCheck(
+	public async Task StrictStringEqualityCheck_Triggers(
 		string expected,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        [|Xunit.Assert.StrictEqual({expected}, {value})|];
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.StrictEqual({0}, {1})|];
+			    }}
+			}}
+			""", expected, value);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public async Task FindsWarningForStrictStringEqualityCheckWithGenericType(
+	public async Task StrictStringEqualityCheckWithGenericType_Triggers(
 		string expected,
 		string value)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        [|Xunit.Assert.StrictEqual<string>({expected}, {value})|];
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.StrictEqual<string>({0}, {1})|];
+			    }}
+			}}
+			""", expected, value);
 
 		await Verify.VerifyAnalyzer(source);
 	}

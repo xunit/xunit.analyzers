@@ -6,31 +6,32 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AsyncAssertsShouldBeAwaited>;
 
 public class AsyncAssertsShouldBeAwaitedFixerTests
 {
-	string codeTemplate = @"
-using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using Xunit;
+	const string codeTemplate = /* lang=c#-test */ """
+		using System;
+		using System.ComponentModel;
+		using System.Threading.Tasks;
+		using Xunit;
 
-public class TestClass : INotifyPropertyChanged {{
-    public int Property {{ get; set; }}
+		public class TestClass : INotifyPropertyChanged {{
+		    public int Property {{ get; set; }}
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-    public event EventHandler? SimpleEvent;
-    public event EventHandler<int>? SimpleIntEvent;
+		    public event PropertyChangedEventHandler? PropertyChanged;
+		    public event EventHandler? SimpleEvent;
+		    public event EventHandler<int>? SimpleIntEvent;
 
-    [Fact]
-    public void TestMethod() {{
-        {0}
-    }}
-}}
+		    [Fact]
+		    public void TestMethod() {{
+		        {0}
+		    }}
+		}}
 
-public static class MyTaskExtensions {{
-    public static void ConsumeTask(this Task t) {{ }}
-}}";
+		public static class MyTaskExtensions {{
+		    public static void ConsumeTask(this Task t) {{ }}
+		}}
+		""";
 
-	public static TheoryData<string> AsyncAssertions = new()
-	{
+	public static TheoryData<string> AsyncAssertions =
+	[
 		"Assert.PropertyChangedAsync(this, nameof(Property), async () => throw new DivideByZeroException())",
 		"Assert.RaisesAnyAsync(eh => SimpleEvent += eh, eh => SimpleEvent -= eh, async () => throw new DivideByZeroException())",
 		"Assert.RaisesAnyAsync<int>(eh => SimpleIntEvent += eh, eh => SimpleIntEvent -= eh, async () => throw new DivideByZeroException())",
@@ -39,7 +40,7 @@ public static class MyTaskExtensions {{
 		"Assert.ThrowsAsync(typeof(DivideByZeroException), async () => throw new DivideByZeroException())",
 		"Assert.ThrowsAsync<DivideByZeroException>(async () => throw new DivideByZeroException())",
 		"Assert.ThrowsAsync<ArgumentException>(\"argName\", async () => throw new DivideByZeroException())",
-	};
+	];
 
 	[Theory]
 	[MemberData(nameof(AsyncAssertions))]

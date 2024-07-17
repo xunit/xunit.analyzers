@@ -5,23 +5,30 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForColle
 
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheckFixerTests
 {
-	const string template = @"
-using System.Linq;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System.Linq;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var data = new[] {{ 1, 2, 3 }};
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var data = new[] {{ 1, 2, 3 }};
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData("[|Assert.Equal(1, data.Count())|]", "Assert.Single(data)")]
-	[InlineData("[|Assert.Equal(0, data.Count())|]", "Assert.Empty(data)")]
-	[InlineData("[|Assert.NotEqual(0, data.Count())|]", "Assert.NotEmpty(data)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Equal(1, data.Count())|]",
+		/* lang=c#-test */ "Assert.Single(data)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Equal(0, data.Count())|]",
+		/* lang=c#-test */ "Assert.Empty(data)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotEqual(0, data.Count())|]",
+		/* lang=c#-test */ "Assert.NotEmpty(data)")]
 	public async Task ReplacesCollectionCountWithAppropriateAssert(
 		string beforeAssert,
 		string afterAssert)

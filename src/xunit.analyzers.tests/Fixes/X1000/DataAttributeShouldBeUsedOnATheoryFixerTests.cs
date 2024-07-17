@@ -8,22 +8,23 @@ public class DataAttributeShouldBeUsedOnATheoryFixerTests
 	[Fact]
 	public async Task AddsMissingTheoryAttribute()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [InlineData]
-    public void [|TestMethod|]() { }
-}";
+			public class TestClass {
+			    [InlineData]
+			    public void [|TestMethod|]() { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    [Theory]
-    [InlineData]
-    public void TestMethod() { }
-}";
+			public class TestClass {
+			    [Theory]
+			    [InlineData]
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
 	}
@@ -31,20 +32,21 @@ public class TestClass {
 	[Fact]
 	public async Task RemovesDataAttributes()
 	{
-		var before = @"
-using Xunit;
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [InlineData]
-    public void [|TestMethod|]() { }
-}";
+			public class TestClass {
+			    [InlineData]
+			    public void [|TestMethod|]() { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-		var after = @"
-using Xunit;
-
-public class TestClass {
-    public void TestMethod() { }
-}";
+			public class TestClass {
+			    public void TestMethod() { }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
 	}

@@ -9,10 +9,11 @@ public class EnsureFixturesHaveASourceTests
 		[Fact]
 		public async Task DoesNotTrigger()
 		{
-			var source = @"
-public class NonTestClass {
-    public NonTestClass(object _) { }
-}";
+			var source = /* lang=c#-test */ """
+				public class NonTestClass {
+				    public NonTestClass(object _) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -23,17 +24,18 @@ public class NonTestClass {
 		[Theory]
 		[InlineData("")]
 		[InlineData("[Collection(\"TestCollection\")]")]
-		public async Task V2SupportedTypes(string attribute)
+		public async Task SupportedTypes_V2_DoesNotTrigger(string attribute)
 		{
-			var source = $@"
-using Xunit;
-using Xunit.Abstractions;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
+				using Xunit.Abstractions;
 
-{attribute} public class TestClass {{
-    public TestClass(ITestOutputHelper _) {{ }}
+				{0} public class TestClass {{
+				    public TestClass(ITestOutputHelper _) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", attribute);
 
 			await Verify.VerifyAnalyzerV2(source);
 		}
@@ -41,18 +43,18 @@ using Xunit.Abstractions;
 		[Theory]
 		[InlineData("")]
 		[InlineData("[Collection(\"TestCollection\")]")]
-		public async Task V3SupportedTypes(string attribute)
+		public async Task SupportedTypes_V3_DoesNotTrigger(string attribute)
 		{
-			// TODO: This will need to be updated when v3 names are finalized
-			var source = $@"
-using Xunit;
-using Xunit.v3;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
+				using Xunit.v3;
 
-{attribute} public class TestClass {{
-    public TestClass(ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
+				{0} public class TestClass {{
+				    public TestClass(ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", attribute);
 
 			await Verify.VerifyAnalyzerV3(source);
 		}
@@ -60,14 +62,15 @@ using Xunit.v3;
 		[Fact]
 		public async Task OptionalParameter_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class TestClass {
-    public TestClass(bool value = true) { }
+				public class TestClass {
+				    public TestClass(bool value = true) { }
 
-    [Fact] public void TestMethod() { }
-}";
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -92,25 +95,25 @@ public class TestClass {
 		[InlineData(
 			"[Collection(\"TestCollection\")]", "",
 			"", ", IClassFixture<object>")]
-		public async Task SupportsDerivation(
+		public async Task BaseClassParameter_DerivedClassFixture_DoesNotTrigger(
 			string baseAttribute,
 			string baseInterface,
 			string derivedAttribute,
 			string derivedInterface)
 		{
-			var source = @$"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-{baseAttribute}
-public abstract class BaseClass {baseInterface} {{
-}}
+				{0}
+				public abstract class BaseClass {1} {{ }}
 
-{derivedAttribute}
-public class TestClass : BaseClass {derivedInterface} {{
-    public TestClass(object _) {{ }}
+				{2}
+				public class TestClass : BaseClass {3} {{
+				    public TestClass(object _) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", baseAttribute, baseInterface, derivedAttribute, derivedInterface);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -118,18 +121,19 @@ public class TestClass : BaseClass {derivedInterface} {{
 		[Fact]
 		public async Task ClassFixtureOnCollectionDefinition_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection : IClassFixture<object> { }
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection : IClassFixture<object> { }
 
-[Collection(nameof(TestCollection))]
-public class TestClass {
-    public TestClass(object _) { }
+				[Collection(nameof(TestCollection))]
+				public class TestClass {
+				    public TestClass(object _) { }
 
-    [Fact] public void TestMethod() { }
-}";
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -137,21 +141,17 @@ public class TestClass {
 		[Fact]
 		public async Task MissingClassFixtureDefinition_Triggers()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class TestClass {
-    public TestClass(object _) { }
+				public class TestClass {
+				    public TestClass(object [|_|]) { }
 
-    [Fact] public void TestMethod() { }
-}";
-			var expected =
-				Verify
-					.Diagnostic()
-					.WithSpan(5, 29, 5, 30)
-					.WithArguments("_");
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
@@ -162,16 +162,17 @@ public class TestClass {
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
 		public async Task NoFixture_DoesNotTrigger(string definitionAttribute)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-{definitionAttribute}
-public class TestCollection {{ }}
+				{0}
+				public class TestCollection {{ }}
 
-[Collection(nameof(TestCollection))]
-public class TestClass {{
-    [Fact] public void TestMethod() {{ }}
-}}";
+				[Collection(nameof(TestCollection))]
+				public class TestClass {{
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", definitionAttribute);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -179,25 +180,26 @@ public class TestClass {{
 		[Fact]
 		public async Task WithInheritedFixture_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class Fixture { }
+				public class Fixture { }
 
-[CollectionDefinition(""test"")]
-public class TestCollection : ICollectionFixture<Fixture> { }
+				[CollectionDefinition("test")]
+				public class TestCollection : ICollectionFixture<Fixture> { }
 
-public abstract class TestContext {
-    protected TestContext(Fixture fixture) { }
-}
+				public abstract class TestContext {
+				    protected TestContext(Fixture fixture) { }
+				}
 
-[Collection(""test"")]
-public class TestClass : TestContext {
-    public TestClass(Fixture fixture) : base(fixture) { }
+				[Collection("test")]
+				public class TestClass : TestContext {
+				    public TestClass(Fixture fixture) : base(fixture) { }
 
-    [Fact]
-    public void TestMethod() { }
-}";
+				    [Fact]
+				    public void TestMethod() { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -205,27 +207,23 @@ public class TestClass : TestContext {
 		[Fact]
 		public async Task WithGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class Fixture<T> { }
+				public class Fixture<T> { }
 
-[CollectionDefinition(""test"")]
-public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+				[CollectionDefinition("test")]
+				public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
 
-[Collection(""test"")]
-public class TestClass {
-    public TestClass(Fixture<int> fixture) { }
+				[Collection("test")]
+				public class TestClass {
+				    public TestClass(Fixture<int> {|#0:fixture|}) { }
 
-    [Fact]
-    public void TestMethod() { }
-}";
-
-			var expectedV2 =
-				Verify
-					.Diagnostic()
-					.WithSpan(11, 35, 11, 42)
-					.WithArguments("fixture");
+				    [Fact]
+				    public void TestMethod() { }
+				}
+				""";
+			var expectedV2 = Verify.Diagnostic().WithLocation(0).WithArguments("fixture");
 
 			await Verify.VerifyAnalyzerV2(source, expectedV2);
 			await Verify.VerifyAnalyzerV3(source);
@@ -234,31 +232,27 @@ public class TestClass {
 		[Fact]
 		public async Task WithInheritedGenericFixture_TriggersWithV2_DoesNotTriggerWithV3()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class Fixture<T> { }
+				public class Fixture<T> { }
 
-[CollectionDefinition(""test"")]
-public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
+				[CollectionDefinition("test")]
+				public class TestCollection<TCollectionFixture> : ICollectionFixture<Fixture<TCollectionFixture>> { }
 
-[Collection(""test"")]
-public abstract class TestContext<TContextFixture> {
-    protected TestContext(Fixture<TContextFixture> fixture) { }
-}
+				[Collection("test")]
+				public abstract class TestContext<TContextFixture> {
+				    protected TestContext(Fixture<TContextFixture> fixture) { }
+				}
 
-public class TestClass : TestContext<int> {
-    public TestClass(Fixture<int> fixture) : base(fixture) { }
+				public class TestClass : TestContext<int> {
+				    public TestClass(Fixture<int> {|#0:fixture|}) : base(fixture) { }
 
-    [Fact]
-    public void TestMethod() { }
-}";
-
-			var expectedV2 =
-				Verify
-					.Diagnostic()
-					.WithSpan(15, 35, 15, 42)
-					.WithArguments("fixture");
+				    [Fact]
+				    public void TestMethod() { }
+				}
+				""";
+			var expectedV2 = Verify.Diagnostic().WithLocation(0).WithArguments("fixture");
 
 			await Verify.VerifyAnalyzerV2(source, expectedV2);
 			await Verify.VerifyAnalyzerV3(source);
@@ -271,20 +265,20 @@ public class TestClass : TestContext<int> {
 			string baseAttribute,
 			string derivedAttribute)
 		{
-			var source = @$"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection : ICollectionFixture<object> {{ }}
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection : ICollectionFixture<object> {{ }}
 
-{baseAttribute}
-public abstract class BaseClass {{
-}}
+				{0}
+				public abstract class BaseClass {{ }}
 
-{derivedAttribute}
-public class TestClass : BaseClass {{
-    public TestClass(object _) {{ }}
-}}";
+				{1}
+				public class TestClass : BaseClass {{
+				    public TestClass(object _) {{ }}
+				}}
+				""", baseAttribute, derivedAttribute);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -292,18 +286,19 @@ public class TestClass : BaseClass {{
 		[Fact]
 		public async Task WithFixture_WithDefinition_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection : ICollectionFixture<object> { }
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection : ICollectionFixture<object> { }
 
-[Collection(nameof(TestCollection))]
-public class TestClass {
-    public TestClass(object _) { }
+				[Collection(nameof(TestCollection))]
+				public class TestClass {
+				    public TestClass(object _) { }
 
-    [Fact] public void TestMethod() { }
-}";
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -313,25 +308,21 @@ public class TestClass {
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
 		public async Task WithFixture_WithoutCollectionFixtureInterface_Triggers(string definitionAttribute)
 		{
-			var source = @$"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-{definitionAttribute}
-public class TestCollection {{ }}
+				{0}
+				public class TestCollection {{ }}
 
-[Collection(nameof(TestCollection))]
-public class TestClass {{
-    public TestClass(object _) {{ }}
+				[Collection(nameof(TestCollection))]
+				public class TestClass {{
+				    public TestClass(object [|_|]) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
-			var expected =
-				Verify
-					.Diagnostic()
-					.WithSpan(9, 29, 9, 30)
-					.WithArguments("_");
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", definitionAttribute);
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
@@ -340,16 +331,17 @@ public class TestClass {{
 		[Fact]
 		public async Task WithAssemblyFixture_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-[assembly: AssemblyFixture(typeof(object))]
+				[assembly: AssemblyFixture(typeof(object))]
 
-public class TestClass {
-    public TestClass(object _) { }
+				public class TestClass {
+				    public TestClass(object _) { }
 
-    [Fact] public void TestMethod() { }
-}";
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzerV3(source);
 		}
@@ -362,18 +354,19 @@ public class TestClass {
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]")]
 		public async Task WithClassFixture_WithCollection_DoesNotTrigger(string definitionAttribute)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-{definitionAttribute}
-public class TestCollection {{ }}
+				{0}
+				public class TestCollection {{ }}
 
-[Collection(nameof(TestCollection))]
-public class TestClass : IClassFixture<object> {{
-    public TestClass(object _) {{ }}
+				[Collection(nameof(TestCollection))]
+				public class TestClass : IClassFixture<object> {{
+				    public TestClass(object _) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""", definitionAttribute);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -381,78 +374,71 @@ public class TestClass : IClassFixture<object> {{
 		[Fact]
 		public async Task WithMixedClassAndCollectionFixture_AndSupportedNonFixture_DoesNotTrigger()
 		{
-			var source = @"
-using Xunit;
+			var sourceTemplate = /* lang=c#-test */ """
+				using Xunit;
 
-public class ClassFixture {{ }}
-public class CollectionFixture {{ }}
+				public class ClassFixture {{ }}
+				public class CollectionFixture {{ }}
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection : ICollectionFixture<CollectionFixture> {{ }}
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection : ICollectionFixture<CollectionFixture> {{ }}
 
-[Collection(nameof(TestCollection))]
-public class TestClass : IClassFixture<ClassFixture> {{
-    public TestClass(ClassFixture _1, CollectionFixture _2, {0} _3) {{ }}
+				[Collection(nameof(TestCollection))]
+				public class TestClass : IClassFixture<ClassFixture> {{
+				    public TestClass(ClassFixture _1, CollectionFixture _2, {0} _3) {{ }}
 
-    [Fact] public void TestMethod() {{ }}
-}}";
+				    [Fact] public void TestMethod() {{ }}
+				}}
+				""";
 
-			await Verify.VerifyAnalyzerV2(string.Format(source, "Xunit.Abstractions.ITestOutputHelper"));
-			await Verify.VerifyAnalyzerV3(string.Format(source, "Xunit.ITestContextAccessor"));
+			await Verify.VerifyAnalyzerV2(string.Format(sourceTemplate, "Xunit.Abstractions.ITestOutputHelper"));
+			await Verify.VerifyAnalyzerV3(string.Format(sourceTemplate, "Xunit.ITestContextAccessor"));
 		}
 
 		[Fact]
 		public async Task MissingClassFixture_Triggers()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class ClassFixture { }
-public class CollectionFixture { }
+				public class ClassFixture { }
+				public class CollectionFixture { }
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection : ICollectionFixture<CollectionFixture> { }
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection : ICollectionFixture<CollectionFixture> { }
 
-[Collection(nameof(TestCollection))]
-public class TestClass {
-    public TestClass(ClassFixture _1, CollectionFixture _2) { }
+				[Collection(nameof(TestCollection))]
+				public class TestClass {
+				    public TestClass(ClassFixture [|_1|], CollectionFixture _2) { }
 
-    [Fact] public void TestMethod() { }
-}";
-			var expected =
-				Verify
-					.Diagnostic()
-					.WithSpan(12, 35, 12, 37)
-					.WithArguments("_1");
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 
 		[Fact]
 		public async Task MissingCollectionFixture_Triggers()
 		{
-			var source = @"
-using Xunit;
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-public class ClassFixture { }
-public class CollectionFixture { }
+				public class ClassFixture { }
+				public class CollectionFixture { }
 
-[CollectionDefinition(nameof(TestCollection))]
-public class TestCollection { }
+				[CollectionDefinition(nameof(TestCollection))]
+				public class TestCollection { }
 
-[Collection(nameof(TestCollection))]
-public class TestClass : IClassFixture<ClassFixture> {
-    public TestClass(ClassFixture _1, CollectionFixture _2) { }
+				[Collection(nameof(TestCollection))]
+				public class TestClass : IClassFixture<ClassFixture> {
+				    public TestClass(ClassFixture _1, CollectionFixture [|_2|]) { }
 
-    [Fact] public void TestMethod() { }
-}";
-			var expected =
-				Verify
-					.Diagnostic()
-					.WithSpan(12, 57, 12, 59)
-					.WithArguments("_2");
+				    [Fact] public void TestMethod() { }
+				}
+				""";
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 }

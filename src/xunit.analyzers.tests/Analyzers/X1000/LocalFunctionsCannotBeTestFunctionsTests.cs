@@ -6,17 +6,15 @@ using Verify = CSharpVerifier<Xunit.Analyzers.LocalFunctionsCannotBeTestFunction
 public class LocalFunctionsCannotBeTestFunctionsTests
 {
 	[Fact]
-	public async Task DoesNotTriggerOnLocalFunctionWithoutAttributes()
+	public async Task NoTestAttribute_DoesNotTrigger()
 	{
-		var source = @"
-using Xunit;
-
-public class TestClass {
-    public void Method() {
-        void LocalFunction() {
-        }
-    }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    public void Method() {
+			        void LocalFunction() { }
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
 	}
@@ -27,27 +25,22 @@ public class TestClass {
 	[InlineData("InlineData(42)")]
 	[InlineData("MemberData(nameof(MyData))")]
 	[InlineData("ClassData(typeof(TestClass))")]
-	public async Task LocalFunctionsCannotHaveTestAttributes(string attribute)
+	public async Task TestAttribute_Triggers(string attribute)
 	{
-		var source = $@"
-using System.Collections.Generic;
-using Xunit;
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
 
-public class TestClass {{
-    public void Method() {{
-        [{attribute}]
-        void LocalFunction() {{
-        }}
-    }}
+			public class TestClass {{
+			    public void Method() {{
+			        [{{|#0:{0}|}}]
+			        void LocalFunction() {{ }}
+			    }}
 
-    public static IEnumerable<object[]> MyData;
-}}";
-
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(7, 10, 7, 10 + attribute.Length)
-				.WithArguments($"[{attribute}]");
+			    public static IEnumerable<object[]> MyData;
+			}}
+			""", attribute);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"[{attribute}]");
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source, expected);
 	}

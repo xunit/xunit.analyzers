@@ -1,16 +1,16 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualPrecisionShouldBeInRange>;
 
 public class AssertEqualPrecisionShouldBeInRangeTest
 {
-	static readonly string Template = @"
-class TestClass {{
-    void TestMethod() {{
-        {0}
-    }}
-}}";
+	static readonly string Template = /* lang=c#-test */ """
+		class TestClass {{
+		    void TestMethod() {{
+		        {0}
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData(0)]
@@ -39,14 +39,9 @@ class TestClass {{
 	{
 		var source = string.Format(
 			Template,
-			$"double num = 0.133d; Xunit.Assert.Equal(0.13d, num, {precision});"
+			$"double num = 0.133d; Xunit.Assert.Equal(0.13d, num, {{|#0:{precision}|}});"
 		);
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithLocation(4, 61)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("[0..15]", "double");
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("[0..15]", "double");
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -78,14 +73,9 @@ class TestClass {{
 	{
 		var source = string.Format(
 			Template,
-			$"decimal num = 0.133m; Xunit.Assert.Equal(0.13m, num, {precision});"
+			$"decimal num = 0.133m; Xunit.Assert.Equal(0.13m, num, {{|#0:{precision}|}});"
 		);
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithLocation(4, 62)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("[0..28]", "decimal");
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("[0..28]", "decimal");
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}

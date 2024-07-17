@@ -11,25 +11,27 @@ public class LocalFunctionsCannotBeTestFunctionsFixerTests
 	[InlineData("Theory")]
 	public async Task LocalFunctionsCannotHaveTestAttributes(string attribute)
 	{
-		var before = $@"
-using Xunit;
+		var before = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    public void Method() {{
-        [[|{attribute}|]]
-        void LocalFunction() {{
-        }}
-    }}
-}}";
-		var after = @"
-using Xunit;
+			public class TestClass {{
+			    public void Method() {{
+			        [[|{0}|]]
+			        void LocalFunction() {{
+			        }}
+			    }}
+			}}
+			""", attribute);
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    public void Method() {
-        void LocalFunction() {
-        }
-    }
-}";
+			public class TestClass {
+			    public void Method() {
+			        void LocalFunction() {
+			        }
+			    }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
 	}

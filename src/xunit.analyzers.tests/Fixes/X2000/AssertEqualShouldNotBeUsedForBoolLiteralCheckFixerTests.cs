@@ -5,27 +5,44 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForBoolL
 
 public class AssertEqualShouldNotBeUsedForBoolLiteralCheckFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var actual = true;
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var actual = true;
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
-	[InlineData("[|Assert.Equal(false, actual)|]", "Assert.False(actual)")]
-	[InlineData("[|Assert.Equal(true, actual)|]", "Assert.True(actual)")]
-	[InlineData("[|Assert.StrictEqual(false, actual)|]", "Assert.False(actual)")]
-	[InlineData("[|Assert.StrictEqual(true, actual)|]", "Assert.True(actual)")]
-	[InlineData("[|Assert.NotEqual(false, actual)|]", "Assert.True(actual)")]
-	[InlineData("[|Assert.NotEqual(true, actual)|]", "Assert.False(actual)")]
-	[InlineData("[|Assert.NotStrictEqual(false, actual)|]", "Assert.True(actual)")]
-	[InlineData("[|Assert.NotStrictEqual(true, actual)|]", "Assert.False(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Equal(false, actual)|]",
+		/* lang=c#-test */ "Assert.False(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Equal(true, actual)|]",
+		/* lang=c#-test */ "Assert.True(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.StrictEqual(false, actual)|]",
+		/* lang=c#-test */ "Assert.False(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.StrictEqual(true, actual)|]",
+		/* lang=c#-test */ "Assert.True(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotEqual(false, actual)|]",
+		/* lang=c#-test */ "Assert.True(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotEqual(true, actual)|]",
+		/* lang=c#-test */ "Assert.False(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotStrictEqual(false, actual)|]",
+		/* lang=c#-test */ "Assert.True(actual)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.NotStrictEqual(true, actual)|]",
+		/* lang=c#-test */ "Assert.False(actual)")]
 	public async Task ConvertsToBooleanAssert(
 		string beforeAssert,
 		string afterAssert)

@@ -84,7 +84,7 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 					var shouldIgnore = false;
 					while (!shouldIgnore || method.IsOverride)
 					{
-						if (methodsToIgnore.Any(m => SymbolEqualityComparer.Default.Equals(method, m)))
+						if (methodsToIgnore.Any(m => SymbolEqualityComparer.Default.Equals(method, m)) || !method.ReceiverType.IsTestClass(xunitContext, strict: true))
 							shouldIgnore = true;
 
 						if (!method.IsOverride)

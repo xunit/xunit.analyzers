@@ -5,24 +5,25 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEnumerableAnyCheckShouldNotB
 
 public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTests
 {
-	public static TheoryData<string> Methods = new()
-	{
+	public static TheoryData<string> Methods =
+	[
 		Constants.Asserts.True,
 		Constants.Asserts.False,
-	};
+	];
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task FindsWarning_ForLinqAnyCheck(string method)
+	public async Task ForLinqAnyCheck_Triggers(string method)
 	{
-		var source = $@"
-using System.Linq;
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
 
-class TestClass {{
-    void TestMethod() {{
-        [|Xunit.Assert.{method}(new [] {{ 1 }}.Any(i => true))|];
-    }}
-}}";
+			class TestClass {{
+			    void TestMethod() {{
+			        [|Xunit.Assert.{0}(new [] {{ 1 }}.Any(i => true))|];
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}

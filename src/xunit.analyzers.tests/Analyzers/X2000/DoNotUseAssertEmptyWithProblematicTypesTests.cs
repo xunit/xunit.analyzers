@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseAssertEmptyWithProblematicTypes>;
 
@@ -7,27 +6,28 @@ public class DoNotUseAssertEmptyWithProblematicTypesTests
 {
 	public static TheoryData<string, string, string> ProblematicTypes = new()
 	{
-		{ "StringValues.Empty", "StringValues", "it is implicitly cast to a string, not a collection" },
-		{ "new ArraySegment<int>()", "ArraySegment<int>", "its implementation of GetEnumerator() can throw" },
+		/* lang=c#-test */ { "StringValues.Empty", "Microsoft.Extensions.Primitives.StringValues", "it is implicitly cast to a string, not a collection" },
+		/* lang=c#-test */ { "new ArraySegment<int>()", "System.ArraySegment<int>", "its implementation of GetEnumerator() can throw" },
 	};
 
 	[Theory]
-	[InlineData("new int[0]")]
-	[InlineData("new List<int>()")]
-	[InlineData("new Dictionary<string, int>()")]
+	[InlineData(/* lang=c#-test */ "new int[0]")]
+	[InlineData(/* lang=c#-test */ "new List<int>()")]
+	[InlineData(/* lang=c#-test */ "new Dictionary<string, int>()")]
 	public async Task NonProblematicCollection_DoesNotTrigger(string invocation)
 	{
-		var source = @$"
-using System;
-using System.Collections.Generic;
-using Xunit;
+		var source = string.Format(/* lang=c#-test */ """
+			using System;
+			using System.Collections.Generic;
+			using Xunit;
 
-public class TestClass {{
-    public void TestMethod() {{
-        Assert.Empty({invocation});
-        Assert.NotEmpty({invocation});
-    }}
-}}";
+			public class TestClass {{
+			    public void TestMethod() {{
+			        Assert.Empty({0});
+			        Assert.NotEmpty({0});
+			    }}
+			}}
+			""", invocation);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -39,18 +39,19 @@ public class TestClass {{
 		string _1,
 		string _2)
 	{
-		var source = @$"
-using System;
-using System.Linq;
-using Microsoft.Extensions.Primitives;
-using Xunit;
+		var source = string.Format(/* lang=c#-test */ """
+			using System;
+			using System.Linq;
+			using Microsoft.Extensions.Primitives;
+			using Xunit;
 
-public class TestClass {{
-    public void TestMethod() {{
-        Assert.Empty({invocation}.ToArray());
-        Assert.NotEmpty({invocation}.ToArray());
-    }}
-}}";
+			public class TestClass {{
+			    public void TestMethod() {{
+			        Assert.Empty({0}.ToArray());
+			        Assert.NotEmpty({0}.ToArray());
+			    }}
+			}}
+			""", invocation);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -62,30 +63,22 @@ public class TestClass {{
 		string typeName,
 		string problem)
 	{
-		var source = @$"
-using System;
-using Microsoft.Extensions.Primitives;
-using Xunit;
+		var source = string.Format(/* lang=c#-test */ """
+			using System;
+			using Microsoft.Extensions.Primitives;
+			using Xunit;
 
-public class TestClass {{
-    public void TestMethod() {{
-        Assert.Empty({invocation});
-        Assert.NotEmpty({invocation});
-    }}
-}}";
-
+			public class TestClass {{
+			    public void TestMethod() {{
+			        {{|#0:Assert.Empty({0})|}};
+			        {{|#1:Assert.NotEmpty({0})|}};
+			    }}
+			}}
+			""", invocation);
 		var expected = new[]
 		{
-			Verify
-				.Diagnostic()
-				.WithSpan(8, 9, 8, 23 + invocation.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Empty", typeName, problem),
-			Verify
-				.Diagnostic()
-				.WithSpan(9, 9, 9, 26 + invocation.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("NotEmpty", typeName, problem),
+			Verify.Diagnostic().WithLocation(0).WithArguments("Empty", typeName, problem),
+			Verify.Diagnostic().WithLocation(1).WithArguments("NotEmpty", typeName, problem),
 		};
 
 		await Verify.VerifyAnalyzer(source, expected);

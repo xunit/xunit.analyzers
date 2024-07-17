@@ -1,290 +1,282 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSubstringCheckShouldNotUseBoolCheck>;
 
 public class AssertSubstringCheckShouldNotUseBoolCheckTests
 {
-	public static TheoryData<string> Methods = new()
-	{
+	public static TheoryData<string> Methods =
+	[
 		Constants.Asserts.True,
 		Constants.Asserts.False,
-	};
+	];
 
 	[Theory]
 	[InlineData(Constants.Asserts.True, Constants.Asserts.Contains)]
 	[InlineData(Constants.Asserts.False, Constants.Asserts.DoesNotContain)]
-	public async Task FindsWarning_ForBooleanContainsCheck(
+	public async Task ForBooleanContainsCheck_Triggers(
 		string method,
 		string replacement)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".Contains(""a""));
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 43 + method.Length)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments($"Assert.{method}()", replacement);
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}("abc".Contains("a"))|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanContainsCheck_WithUserMessage(string method)
+	public async Task ForBooleanContainsCheck_WithUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".Contains(""a""), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".Contains("a"), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsWarning_ForBooleanTrueStartsWithCheck()
+	public async Task ForBooleanTrueStartsWithCheck_Triggers()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.True(""abc"".StartsWith(""a""));
-    }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 49)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.StartsWith);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        {|#0:Xunit.Assert.True("abc".StartsWith("a"))|};
+			    }
+			}
+			""";
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.StartsWith);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task FindsWarning_ForBooleanTrueStartsWithCheck_WithStringComparison()
+	public async Task ForBooleanTrueStartsWithCheck_WithStringComparison_Triggers()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.True(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture));
-    }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 89)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.StartsWith);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        {|#0:Xunit.Assert.True("abc".StartsWith("a", System.StringComparison.CurrentCulture))|};
+			    }
+			}
+			""";
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.StartsWith);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task DoesNotFindWarning_ForBooleanFalseStartsWithCheck()
+	public async Task ForBooleanFalseStartsWithCheck_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.False(""abc"".StartsWith(""a""));
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.False("abc".StartsWith("a"));
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindWarning_ForBooleanFalseStartsWithCheck_WithStringComparison()
+	public async Task ForBooleanFalseStartsWithCheck_WithStringComparison_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.False(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture));
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.False("abc".StartsWith("a", System.StringComparison.CurrentCulture));
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithUserMessage(string method)
+	public async Task ForBooleanStartsWithCheck_WithUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".StartsWith(""a""), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".StartsWith("a"), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithStringComparison_AndUserMessage(string method)
+	public async Task ForBooleanStartsWithCheck_WithStringComparison_AndUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".StartsWith(""a"", System.StringComparison.CurrentCulture), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".StartsWith("a", System.StringComparison.CurrentCulture), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture(string method)
+	public async Task ForBooleanStartsWithCheck_WithBoolAndCulture_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".StartsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanStartsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
+	public async Task ForBooleanStartsWithCheck_WithBoolAndCulture_AndUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".StartsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task FindsWarning_ForBooleanTrueEndsWithCheck()
+	public async Task ForBooleanTrueEndsWithCheck_Triggers()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.True(""abc"".EndsWith(""a""));
-    }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 47)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.EndsWith);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        {|#0:Xunit.Assert.True("abc".EndsWith("a"))|};
+			    }
+			}
+			""";
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.EndsWith);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task FindsWarning_ForBooleanTrueEndsWithCheck_WithStringComparison()
+	public async Task ForBooleanTrueEndsWithCheck_WithStringComparison_Triggers()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.True(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture));
-    }
-}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(4, 9, 4, 87)
-				.WithSeverity(DiagnosticSeverity.Warning)
-				.WithArguments("Assert.True()", Constants.Asserts.EndsWith);
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        {|#0:Xunit.Assert.True("abc".EndsWith("a", System.StringComparison.CurrentCulture))|};
+			    }
+			}
+			""";
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.EndsWith);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task DoesNotFindWarning_ForBooleanFalseEndsWithCheck()
+	public async Task ForBooleanFalseEndsWithCheck_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.False(""abc"".EndsWith(""a""));
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.False("abc".EndsWith("a"));
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindWarning_ForBooleanFalseEndsWithCheck_WithStringComparison()
+	public async Task ForBooleanFalseEndsWithCheck_WithStringComparison_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    void TestMethod() {
-        Xunit.Assert.False(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture));
-    }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    void TestMethod() {
+			        Xunit.Assert.False("abc".EndsWith("a", System.StringComparison.CurrentCulture));
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithUserMessage(string method)
+	public async Task ForBooleanEndsWithCheck_WithUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".EndsWith(""a""), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".EndsWith("a"), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithStringComparison_AndUserMessage(string method)
+	public async Task ForBooleanEndsWithCheck_WithStringComparison_AndUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".EndsWith(""a"", System.StringComparison.CurrentCulture), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".EndsWith("a", System.StringComparison.CurrentCulture), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture(string method)
+	public async Task ForBooleanEndsWithCheck_WithBoolAndCulture_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".EndsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture));
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Theory]
 	[MemberData(nameof(Methods))]
-	public async Task DoesNotFindWarning_ForBooleanEndsWithCheck_WithBoolAndCulture_AndUserMessage(string method)
+	public async Task ForBooleanEndsWithCheck_WithBoolAndCulture_AndUserMessage_DoesNotTrigger(string method)
 	{
-		var source = $@"
-class TestClass {{
-    void TestMethod() {{
-        Xunit.Assert.{method}(""abc"".EndsWith(""a"", true, System.Globalization.CultureInfo.CurrentCulture), ""message"");
-    }}
-}}";
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
+			    }}
+			}}
+			""", method);
 
 		await Verify.VerifyAnalyzer(source);
 	}

@@ -9,55 +9,54 @@ using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveParamsArrayTests.A
 public class TheoryMethodCannotHaveParamsArrayTests
 {
 	[Fact]
-	public async Task FindsErrorForTheoryWithParamsArrayAsync_WhenParamsArrayNotSupported()
+	public async Task TheoryWithParamsArrayAsync_WhenParamsArrayNotSupported_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, params string[] c) { }
-}";
-		var expected =
-			Verify_v2_Pre220
-				.Diagnostic()
-				.WithSpan(4, 45, 4, 62)
-				.WithSeverity(DiagnosticSeverity.Error)
-				.WithArguments("TestMethod", "TestClass", "c");
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, {|#0:params string[] c|}) { }
+			}
+			""";
+		var expected = Verify_v2_Pre220.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "c");
 
 		await Verify_v2_Pre220.VerifyAnalyzer(source, expected);
 	}
 
 	[Fact]
-	public async Task DoesNotFindErrorForTheoryWithParamsArrayAsync_WhenParamsArraySupported()
+	public async Task TheoryWithParamsArrayAsync_WhenParamsArraySupported_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, params string[] c) { }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, params string[] c) { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync_WhenParamsArrayNotSupported()
+	public async Task TheoryWithNonParamsArrayAsync_WhenParamsArrayNotSupported_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, string[] c) { }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, string[] c) { }
+			}
+			""";
 
 		await Verify_v2_Pre220.VerifyAnalyzer(source);
 	}
 
 	[Fact]
-	public async Task DoesNotFindErrorForTheoryWithNonParamsArrayAsync_WhenParamsArraySupported()
+	public async Task TheoryWithNonParamsArrayAsync_WhenParamsArraySupported_DoesNotTrigger()
 	{
-		var source = @"
-class TestClass {
-    [Xunit.Theory]
-    public void TestMethod(int a, string b, string[] c) { }
-}";
+		var source = /* lang=c#-test */ """
+			class TestClass {
+			    [Xunit.Theory]
+			    public void TestMethod(int a, string b, string[] c) { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}

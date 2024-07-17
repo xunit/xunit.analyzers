@@ -5,25 +5,32 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyShouldNotBeUsedForColle
 
 public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixerTests
 {
-	const string template = @"
-using System.Linq;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System.Linq;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var list = new[] {{ -1, 0, 1, 2 }};
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var list = new[] {{ -1, 0, 1, 2 }};
 
-        {0};
-    }}
+		        {0};
+		    }}
 
-	public bool IsEven(int num) => num % 2 == 0;
-}}";
+			public bool IsEven(int num) => num % 2 == 0;
+		}}
+		""";
 
 	[Theory]
-	[InlineData("[|Assert.Empty(list.Where(f => f > 0))|]", "Assert.DoesNotContain(list, f => f > 0)")]
-	[InlineData("[|Assert.Empty(list.Where(n => n == 1))|]", "Assert.DoesNotContain(list, n => n == 1)")]
-	[InlineData("[|Assert.Empty(list.Where(IsEven))|]", "Assert.DoesNotContain(list, IsEven)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Empty(list.Where(f => f > 0))|]",
+		/* lang=c#-test */ "Assert.DoesNotContain(list, f => f > 0)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Empty(list.Where(n => n == 1))|]",
+		/* lang=c#-test */ "Assert.DoesNotContain(list, n => n == 1)")]
+	[InlineData(
+		/* lang=c#-test */ "[|Assert.Empty(list.Where(IsEven))|]",
+		/* lang=c#-test */ "Assert.DoesNotContain(list, IsEven)")]
 	public async Task FixerReplacesAssertEmptyWithAssertDoesNotContain(
 		string beforeAssert,
 		string afterAssert)

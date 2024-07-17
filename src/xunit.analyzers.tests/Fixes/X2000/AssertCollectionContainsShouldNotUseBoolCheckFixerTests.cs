@@ -5,33 +5,34 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertCollectionContainsShouldNotU
 
 public class AssertCollectionContainsShouldNotUseBoolCheckFixerTests
 {
-	const string template = @"
-using System;
-using System.Linq;
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using System;
+		using System.Linq;
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var items = new[] {{ ""a"", ""b"", ""c"" }};
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        var items = new[] {{ "a", "b", "c" }};
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData(
-		@"[|Assert.True(items.Contains(""b""))|]",
-		@"Assert.Contains(""b"", items)")]
+		/* lang=c#-test */ @"[|Assert.True(items.Contains(""b""))|]",
+		/* lang=c#-test */ @"Assert.Contains(""b"", items)")]
 	[InlineData(
-		@"[|Assert.True(items.Contains(""b"", StringComparer.Ordinal))|]",
-		@"Assert.Contains(""b"", items, StringComparer.Ordinal)")]
+		/* lang=c#-test */ @"[|Assert.True(items.Contains(""b"", StringComparer.Ordinal))|]",
+		/* lang=c#-test */ @"Assert.Contains(""b"", items, StringComparer.Ordinal)")]
 	[InlineData(
-		@"[|Assert.False(items.Contains(""b""))|]",
-		@"Assert.DoesNotContain(""b"", items)")]
+		/* lang=c#-test */ @"[|Assert.False(items.Contains(""b""))|]",
+		/* lang=c#-test */ @"Assert.DoesNotContain(""b"", items)")]
 	[InlineData(
-		@"[|Assert.False(items.Contains(""b"", StringComparer.Ordinal))|]",
-		@"Assert.DoesNotContain(""b"", items, StringComparer.Ordinal)")]
+		/* lang=c#-test */ @"[|Assert.False(items.Contains(""b"", StringComparer.Ordinal))|]",
+		/* lang=c#-test */ @"Assert.DoesNotContain(""b"", items, StringComparer.Ordinal)")]
 	public async Task ReplacesBooleanAssert(
 		string beforeAssert,
 		string afterAssert)

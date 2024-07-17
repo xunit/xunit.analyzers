@@ -1,4 +1,4 @@
-#if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // Static abstract methods are only supported on .NET with C# 11
+#if NETCOREAPP
 
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,33 +9,36 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 {
 	public class StaticAbstractInterfaceMethods
 	{
-		const string methodCode = "static abstract void Method();";
-		const string codeTemplate = @"
-using Xunit;
+#if ROSLYN_4_4_OR_GREATER  // Static abstract methods are only supported on .NET with C# 11
 
-public interface IParentClass  {{
-	{0}
-}}
+		const string methodCode = /* lang=c#-test */ "static abstract void Method();";
+		const string codeTemplate = /* lang=c#-test */ """
+			using Xunit;
 
-public interface IClass : IParentClass {{
-    {1}
-}}
+			public interface IParentClass  {{
+				{0}
+			}}
 
-public class Class : IClass {{
-    public static void Method() {{ }}
-}}
+			public interface IClass : IParentClass {{
+			    {1}
+			}}
 
-public abstract class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var data = new Class();
+			public class Class : IClass {{
+			    public static void Method() {{ }}
+			}}
 
-        Assert.IsAssignableFrom(typeof(IClass), data);
-    }}
-}}";
+			public abstract class TestClass {{
+			    [Fact]
+			    public void TestMethod() {{
+			        var data = new Class();
+
+			        Assert.IsAssignableFrom(typeof(IClass), data);
+			    }}
+			}}
+			""";
 
 		[Fact]
-		public async Task DoesNotFindWarning_ForStaticAbstractInterfaceMembers()
+		public async Task ForStaticAbstractInterfaceMembers_DoesNotTrigger()
 		{
 			string source = string.Format(codeTemplate, string.Empty, methodCode);
 
@@ -43,43 +46,44 @@ public abstract class TestClass {{
 		}
 
 		[Fact]
-		public async Task DoesNotFindWarning_ForNestedStaticAbstractInterfaceMembers()
+		public async Task ForNestedStaticAbstractInterfaceMembers_DoesNotTrigger()
 		{
 			string source = string.Format(codeTemplate, methodCode, string.Empty);
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 		}
 
+#endif
+
 		[Theory]
 		[InlineData("static", "", "{ }")]
 		[InlineData("", "abstract", ";")]
-		public async Task FindsWarning_ForNotStaticAbstractInterfaceMembers(string staticModifier, string abstractModifier, string methodBody)
+		public async Task ForNotStaticAbstractInterfaceMembers_Triggers(
+			string staticModifier,
+			string abstractModifier,
+			string methodBody)
 		{
-			string source = $@"
-using Xunit;
+			string source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public interface IClass {{
-    {staticModifier} {abstractModifier} void Method() {methodBody}
-}}
+				public interface IClass {{
+				    {0} {1} void Method() {2}
+				}}
 
-public class Class : IClass {{
-    public {staticModifier} void Method() {{ }}
-}}
+				public class Class : IClass {{
+				    public {0} void Method() {{ }}
+				}}
 
-public abstract class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        var data = new Class();
+				public abstract class TestClass {{
+				    [Fact]
+				    public void TestMethod() {{
+				        var data = new Class();
 
-        Assert.IsAssignableFrom(typeof(IClass), data);
-    }}
-}}";
-
-			var expected =
-				Verify
-					.Diagnostic()
-					.WithSpan(17, 9, 17, 54)
-					.WithArguments("IClass");
+				        {{|#0:Assert.IsAssignableFrom(typeof(IClass), data)|}};
+				    }}
+				}}
+				""", staticModifier, abstractModifier, methodBody);
+			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("IClass");
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}

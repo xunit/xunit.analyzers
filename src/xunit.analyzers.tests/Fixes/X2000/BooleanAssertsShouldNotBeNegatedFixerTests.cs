@@ -5,17 +5,18 @@ using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeNegated>;
 
 public class BooleanAssertsShouldNotBeNegatedFixerTests
 {
-	const string template = @"
-using Xunit;
+	const string template = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        bool condition = true;
+		public class TestClass {{
+		    [Fact]
+		    public void TestMethod() {{
+		        bool condition = true;
 
-        {0};
-    }}
-}}";
+		        {0};
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData("False", "True")]

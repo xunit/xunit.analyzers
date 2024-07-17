@@ -8,27 +8,36 @@ using Verify_Unsupported = CSharpVerifier<UseAssertFailInsteadOfBooleanAssertTes
 
 public class UseAssertFailInsteadOfBooleanAssertTests
 {
-	const string codeTemplate = @"
-public class TestClass {{
-    [Xunit.Fact]
-    public void TestMethod() {{
-        Xunit.Assert.{0}({1}, ""failure message"");
-    }}
-}}";
+	const string codeTemplate = /* lang=c#-test */ """
+		public class TestClass {{
+		    [Xunit.Fact]
+		    public void TestMethod() {{
+		        {{|#0:Xunit.Assert.{0}({1}, "failure message")|}};
+		    }}
+		}}
+		""";
 
 	[Theory]
 	[InlineData(Constants.Asserts.True, "false")]
 	[InlineData(Constants.Asserts.False, "true")]
-	public async Task SignalsFor25(
+	public async Task OppositeTestWithMessage_Prev25_DoesNotTrigger(
 		string assertion,
 		string targetValue)
 	{
 		var source = string.Format(codeTemplate, assertion, targetValue);
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(5, 9, 5, 52)
-				.WithArguments(assertion, targetValue);
+
+		await Verify_Unsupported.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[InlineData(Constants.Asserts.True, "false")]
+	[InlineData(Constants.Asserts.False, "true")]
+	public async Task OppositeTestWithMessage_v25_Triggers(
+		string assertion,
+		string targetValue)
+	{
+		var source = string.Format(codeTemplate, assertion, targetValue);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(assertion, targetValue);
 
 		await Verify.VerifyAnalyzer(source, expected);
 	}
@@ -36,7 +45,7 @@ public class TestClass {{
 	[Theory]
 	[InlineData(Constants.Asserts.True, "true")]
 	[InlineData(Constants.Asserts.False, "false")]
-	public async Task DoesNotSignalForNonFailure(
+	public async Task SameTestWithMessage_DoesNotTrigger(
 		string assertion,
 		string targetValue)
 	{
@@ -46,30 +55,19 @@ public class TestClass {{
 	}
 
 	[Fact]
-	public async Task DoesNotSignalForNonConstantInvocation()
+	public async Task NonConstantInvocation_DoesNotTrigger()
 	{
-		var source = @"
-public class TestClass {
-    [Xunit.Fact]
-    public void TestMethod() {
-        var value = (1 != 2);
-        Xunit.Assert.False(value, ""failure message"");
-    }
-}";
+		var source = /* lang=c#-test */ """
+			public class TestClass {
+			    [Xunit.Fact]
+			    public void TestMethod() {
+			        var value = (1 != 2);
+			        Xunit.Assert.False(value, "failure message");
+			    }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[InlineData(Constants.Asserts.True, "false")]
-	[InlineData(Constants.Asserts.False, "true")]
-	public async Task DoNotSignalForPre25(
-		string assertion,
-		string targetValue)
-	{
-		var source = string.Format(codeTemplate, assertion, targetValue);
-
-		await Verify_Unsupported.VerifyAnalyzer(source);
 	}
 
 	internal class Analyzer_Pre25 : UseAssertFailInsteadOfBooleanAssert

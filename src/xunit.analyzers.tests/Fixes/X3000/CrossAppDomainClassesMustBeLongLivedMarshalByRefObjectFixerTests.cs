@@ -11,13 +11,13 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixerTests
 {
 	public class WithAbstractions : CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixerTests
 	{
-		readonly static string Template = "using Xunit.Abstractions; public class {0}: {1} {{ }}";
+		const string Template = /* lang=c#-test */ "using Xunit.Abstractions; public class {0}: {1} {{ }}";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithAbstractions.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithAbstractions))]
 		public async Task DoesNotAttemptToFix(string @interface)
 		{
-			var source = string.Format(Template, "[|MyClass|]", @interface);
+			var source = string.Format(Template, /* lang=c#-test */ "[|MyClass|]", @interface);
 
 			await Verify_WithAbstractions.VerifyCodeFixV2(
 				source,
@@ -35,23 +35,25 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixerTests
 
 	public class WithExecution
 	{
-		static string Template_WithoutUsing = @"
-using Xunit.Abstractions;
+		const string Template_WithoutUsing = /* lang=c#-test */ """
+			using Xunit.Abstractions;
 
-public class Foo {{ }}
-public class {0}: {1} {{ }}";
-		static string Template_WithUsing = @"
-using Xunit;
-using Xunit.Abstractions;
+			public class Foo {{ }}
+			public class {0}: {1} {{ }}
+			""";
+		const string Template_WithUsing = /* lang=c#-test */ """
+			using Xunit;
+			using Xunit.Abstractions;
 
-public class Foo {{ }}
-public class {0}: {1} {{ }}";
+			public class Foo {{ }}
+			public class {0}: {1} {{ }}
+			""";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
 		public async Task WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", @interface);
+			var before = string.Format(Template_WithoutUsing, /* lang=c#-test */ "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithExecution.VerifyCodeFixV2(
@@ -65,7 +67,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
 		public async Task WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithUsing, "[|MyClass|]", @interface);
+			var before = string.Format(Template_WithUsing, /* lang=c#-test */ "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithExecution.VerifyCodeFixV2(
@@ -79,7 +81,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
 		public async Task WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", $"Foo, {@interface}");
+			var before = string.Format(Template_WithoutUsing, /* lang=c#-test */ "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithExecution.VerifyCodeFixV2(
@@ -93,7 +95,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
 		public async Task WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithUsing, "[|MyClass|]", $"Foo, {@interface}");
+			var before = string.Format(Template_WithUsing, /* lang=c#-test */ "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithExecution.VerifyCodeFixV2(
@@ -112,23 +114,25 @@ public class {0}: {1} {{ }}";
 
 	public class WithRunnerUtility
 	{
-		static string Template_WithoutUsing = @"
-using Xunit.Abstractions;
+		const string Template_WithoutUsing = /* lang=c#-test */ """
+			using Xunit.Abstractions;
 
-public class Foo {{ }}
-public class {0}: {1} {{ }}";
-		static string Template_WithUsing = @"
-using Xunit.Abstractions;
-using Xunit.Sdk;
+			public class Foo {{ }}
+			public class {0}: {1} {{ }}
+			""";
+		const string Template_WithUsing = /* lang=c#-test */ """
+			using Xunit.Abstractions;
+			using Xunit.Sdk;
 
-public class Foo {{ }}
-public class {0}: {1} {{ }}";
+			public class Foo {{ }}
+			public class {0}: {1} {{ }}
+			""";
 
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
 		public async Task WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", @interface);
+			var before = string.Format(Template_WithoutUsing, /* lang=c#-test */ "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.Sdk.LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithRunnerUtility.VerifyCodeFixV2RunnerUtility(
@@ -142,7 +146,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
 		public async Task WithNoBaseClass_WithUsing_AddsBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithUsing, "[|MyClass|]", @interface);
+			var before = string.Format(Template_WithUsing, /* lang=c#-test */ "[|MyClass|]", @interface);
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithRunnerUtility.VerifyCodeFixV2RunnerUtility(
@@ -156,7 +160,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
 		public async Task WithBadBaseClass_WithoutUsing_ReplacesBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithoutUsing, "[|MyClass|]", $"Foo, {@interface}");
+			var before = string.Format(Template_WithoutUsing, /* lang=c#-test */ "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithoutUsing, "MyClass", $"Xunit.Sdk.LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithRunnerUtility.VerifyCodeFixV2RunnerUtility(
@@ -170,7 +174,7 @@ public class {0}: {1} {{ }}";
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithRunnerUtility))]
 		public async Task WithBadBaseClass_WithUsing_ReplacesBaseClass(string @interface)
 		{
-			var before = string.Format(Template_WithUsing, "[|MyClass|]", $"Foo, {@interface}");
+			var before = string.Format(Template_WithUsing, /* lang=c#-test */ "[|MyClass|]", $"Foo, {@interface}");
 			var after = string.Format(Template_WithUsing, "MyClass", $"LongLivedMarshalByRefObject, {@interface}");
 
 			await Verify_WithRunnerUtility.VerifyCodeFixV2RunnerUtility(

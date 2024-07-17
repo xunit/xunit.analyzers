@@ -5,32 +5,34 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNo
 
 public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 {
-	readonly string before = @"
-using Xunit;
+	const string before = /* lang=c#-test */ """
+		using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        var collection = new[] { 1, 2, 3 };
+		public class TestClass {
+		    [Fact]
+		    public void TestMethod() {
+		        var collection = new[] { 1, 2, 3 };
 
-        [|Assert.Collection(collection)|];
-    }
-}";
+		        [|Assert.Collection(collection)|];
+		    }
+		}
+		""";
 
 	[Fact]
 	public async Task UseEmptyCheck()
 	{
-		var after = @"
-using Xunit;
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        var collection = new[] { 1, 2, 3 };
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        var collection = new[] { 1, 2, 3 };
 
-        Assert.Empty(collection);
-    }
-}";
+			        Assert.Empty(collection);
+			    }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
 	}
@@ -38,17 +40,18 @@ public class TestClass {
 	[Fact]
 	public async Task AddElementInspector()
 	{
-		var after = @"
-using Xunit;
+		var after = /* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {
-    [Fact]
-    public void TestMethod() {
-        var collection = new[] { 1, 2, 3 };
+			public class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        var collection = new[] { 1, 2, 3 };
 
-        Assert.Collection(collection, x => { });
-    }
-}";
+			        Assert.Collection(collection, x => { });
+			    }
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
 	}

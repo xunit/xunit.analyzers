@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck>;
@@ -12,8 +10,8 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 	{
 		public static MatrixTheoryData<string, string> MethodOperator =
 			new(
-				new[] { Constants.Asserts.True, Constants.Asserts.False },
-				new[] { "==", "!=" }
+				[Constants.Asserts.True, Constants.Asserts.False],
+				["==", "!="]
 			);
 
 		[Theory]
@@ -22,28 +20,29 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 			string method,
 			string @operator)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public class TestClass {{
-    public void TestMethod() {{
-        var value1 = 42;
-        var value2 = 2112;
-        var value3 = new {{ innerValue = 2600 }};
+				public class TestClass {{
+				    public void TestMethod() {{
+				        var value1 = 42;
+				        var value2 = 2112;
+				        var value3 = new {{ innerValue = 2600 }};
 
-        Assert.{method}(value1 {@operator} value2);
-        Assert.{method}(value1 {@operator} value3.innerValue);
-    }}
-}}";
+				        Assert.{0}(value1 {1} value2);
+				        Assert.{0}(value1 {1} value3.innerValue);
+				    }}
+				}}
+				""", method, @operator);
 
 			await Verify.VerifyAnalyzer(source);
 		}
 
 		public static MatrixTheoryData<string, string, string> MethodOperatorValue =
 			new(
-				new[] { Constants.Asserts.True, Constants.Asserts.False },
-				new[] { "==", "!=" },
-				new[] { "\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon" }
+				[Constants.Asserts.True, Constants.Asserts.False],
+				["==", "!="],
+				["\"bacon\"", "'5'", "5", "5l", "5.0d", "5.0f", "5.0m", "MyEnum.Bacon"]
 			);
 
 		[Theory]
@@ -53,19 +52,20 @@ public class TestClass {{
 			string @operator,
 			string value)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public enum MyEnum {{ None, Bacon, Veggie }}
+				public enum MyEnum {{ None, Bacon, Veggie }}
 
-public class TestClass {{
-    public void TestMethod() {{
-        var value = {value};
+				public class TestClass {{
+				    public void TestMethod() {{
+				        var value = {2};
 
-        Assert.{method}(value {@operator} {value}, ""message"");
-        Assert.{method}({value} {@operator} value, ""message"");
-    }}
-}}";
+				        Assert.{0}(value {1} {2}, "message");
+				        Assert.{0}({2} {1} value, "message");
+				    }}
+				}}
+				""", method, @operator, value);
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -77,37 +77,30 @@ public class TestClass {{
 			string @operator,
 			string value)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public enum MyEnum {{ None, Bacon, Veggie }}
+				public enum MyEnum {{ None, Bacon, Veggie }}
 
-public class TestClass {{
-    public void TestMethod() {{
-        var value = {value};
+				public class TestClass {{
+				    public void TestMethod() {{
+				        var value = {2};
 
-        Assert.{method}(value {@operator} {value});
-        Assert.{method}({value} {@operator} value);
-    }}
-}}";
+				        {{|#0:Assert.{0}(value {1} {2})|}};
+				        {{|#1:Assert.{0}({2} {1} value)|}};
+				    }}
+				}}
+				""", method, @operator, value);
 			var suggestedAssert =
 				(method, @operator) switch
 				{
 					(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Equal,
 					(_, _) => Constants.Asserts.NotEqual,
 				};
-			DiagnosticResult[] expected =
+			var expected = new[]
 			{
-				Verify
-					.Diagnostic("xUnit2024")
-					.WithSpan(10, 9, 10, 27 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method, suggestedAssert),
-				Verify
-					.Diagnostic("xUnit2024")
-					.WithSpan(11, 9, 11, 27 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method, suggestedAssert),
+				Verify.Diagnostic("xUnit2024").WithLocation(0).WithArguments(method, suggestedAssert),
+				Verify.Diagnostic("xUnit2024").WithLocation(1).WithArguments(method, suggestedAssert),
 			};
 
 			await Verify.VerifyAnalyzer(source, expected);
@@ -115,9 +108,9 @@ public class TestClass {{
 
 		public static MatrixTheoryData<string, string, string> MethodOperatorType =
 			new(
-				new[] { Constants.Asserts.True, Constants.Asserts.False },
-				new[] { "==", "!=" },
-				new[] { "string", "int", "object", "MyEnum" }
+				[Constants.Asserts.True, Constants.Asserts.False],
+				["==", "!="],
+				["string", "int", "object", "MyEnum"]
 			);
 
 		[Theory]
@@ -127,19 +120,20 @@ public class TestClass {{
 			string @operator,
 			string type)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public enum MyEnum {{ None, Bacon, Veggie }}
+				public enum MyEnum {{ None, Bacon, Veggie }}
 
-public class TestClass {{
-    {type}? field = default;
+				public class TestClass {{
+				    {2}? field = default;
 
-    public void TestMethod() {{
-        Assert.{method}(field {@operator} null, ""Message"");
-        Assert.{method}(null {@operator} field, ""Message"");
-    }}
-}}";
+				    public void TestMethod() {{
+				        Assert.{0}(field {1} null, "Message");
+				        Assert.{0}(null {1} field, "Message");
+				    }}
+				}}
+				""", method, @operator, type);
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
 		}
@@ -151,37 +145,30 @@ public class TestClass {{
 			string @operator,
 			string type)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public enum MyEnum {{ None, Bacon, Veggie }}
+				public enum MyEnum {{ None, Bacon, Veggie }}
 
-public class TestClass {{
-    {type}? field = default;
+				public class TestClass {{
+				    {2}? field = default;
 
-    public void TestMethod() {{
-        Assert.{method}(field {@operator} null);
-        Assert.{method}(null {@operator} field);
-    }}
-}}";
+				    public void TestMethod() {{
+				        {{|#0:Assert.{0}(field {1} null)|}};
+				        {{|#1:Assert.{0}(null {1} field)|}};
+				    }}
+				}}
+				""", method, @operator, type);
 			var suggestedAssert =
 				(method, @operator) switch
 				{
 					(Constants.Asserts.True, "==") or (Constants.Asserts.False, "!=") => Constants.Asserts.Null,
 					(_, _) => Constants.Asserts.NotNull,
 				};
-			DiagnosticResult[] expected = new[]
+			var expected = new[]
 			{
-				Verify
-					.Diagnostic("xUnit2024")
-					.WithSpan(10, 9, 10, 31 + method.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method, suggestedAssert),
-				Verify
-					.Diagnostic("xUnit2024")
-					.WithSpan(11, 9, 11, 31 + method.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method, suggestedAssert),
+				Verify.Diagnostic("xUnit2024").WithLocation(0).WithArguments(method, suggestedAssert),
+				Verify.Diagnostic("xUnit2024").WithLocation(1).WithArguments(method, suggestedAssert),
 			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
@@ -192,9 +179,9 @@ public class TestClass {{
 	{
 		public static MatrixTheoryData<string, string, string> MethodOperatorValue =
 			new(
-				new[] { Constants.Asserts.True, Constants.Asserts.False },
-				new[] { "==", "!=" },
-				new[] { "true", "false" }
+				[Constants.Asserts.True, Constants.Asserts.False],
+				["==", "!="],
+				["true", "false"]
 			);
 
 		[Theory]
@@ -204,41 +191,26 @@ public class TestClass {{
 			string @operator,
 			string value)
 		{
-			var source = $@"
-using Xunit;
+			var source = string.Format(/* lang=c#-test */ """
+				using Xunit;
 
-public class TestClass {{
-    bool field = {value};
+				public class TestClass {{
+				    bool field = {2};
 
-    void TestMethod() {{
-        Assert.{method}(field {@operator} {value});
-        Assert.{method}(field {@operator} {value}, ""Message"");
-        Assert.{method}({value} {@operator} field);
-        Assert.{method}({value} {@operator} field, ""Message"");
-    }}
-}}";
-			DiagnosticResult[] expected = new[]
+				    void TestMethod() {{
+				        {{|#0:Assert.{0}(field {1} {2})|}};
+				        {{|#1:Assert.{0}(field {1} {2}, "Message")|}};
+				        {{|#2:Assert.{0}({2} {1} field)|}};
+				        {{|#3:Assert.{0}({2} {1} field, "Message")|}};
+				    }}
+				}}
+				""", method, @operator, value);
+			var expected = new[]
 			{
-				Verify
-					.Diagnostic("xUnit2025")
-					.WithSpan(8, 9, 8, 27 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method),
-				Verify
-					.Diagnostic("xUnit2025")
-					.WithSpan(9, 9, 9, 38 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method),
-				Verify
-					.Diagnostic("xUnit2025")
-					.WithSpan(10, 9, 10, 27 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method),
-				Verify
-					.Diagnostic("xUnit2025")
-					.WithSpan(11, 9, 11, 38 + method.Length + value.Length)
-					.WithSeverity(DiagnosticSeverity.Info)
-					.WithArguments(method),
+				Verify.Diagnostic("xUnit2025").WithLocation(0).WithArguments(method),
+				Verify.Diagnostic("xUnit2025").WithLocation(1).WithArguments(method),
+				Verify.Diagnostic("xUnit2025").WithLocation(2).WithArguments(method),
+				Verify.Diagnostic("xUnit2025").WithLocation(3).WithArguments(method),
 			};
 
 			await Verify.VerifyAnalyzer(source, expected);

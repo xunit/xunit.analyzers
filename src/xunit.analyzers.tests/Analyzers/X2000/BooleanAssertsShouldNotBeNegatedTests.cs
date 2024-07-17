@@ -7,26 +7,23 @@ public class BooleanAssertsShouldNotBeNegatedTests
 	[Theory]
 	[InlineData("False", "True")]
 	[InlineData("True", "False")]
-	public async Task NegatedBooleanAssertionTriggers(
+	public async Task NegatedBooleanAssertion_Triggers(
 		string assertion,
 		string replacement)
 	{
-		var code = $@"
-using Xunit;
+		var code = string.Format(/* lang=c#-test */ """
+			using Xunit;
 
-public class TestClass {{
-    [Fact]
-    public void TestMethod() {{
-        bool condition = true;
+			public class TestClass {{
+			    [Fact]
+			    public void TestMethod() {{
+			        bool condition = true;
 
-        Assert.{assertion}(!condition);
-    }}
-}}";
-		var expected =
-			Verify
-				.Diagnostic()
-				.WithSpan(9, 9, 9, 28 + assertion.Length)
-				.WithArguments(assertion, replacement);
+			        {{|#0:Assert.{0}(!condition)|}};
+			    }}
+			}}
+			""", assertion);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(assertion, replacement);
 
 		await Verify.VerifyAnalyzer(code, expected);
 	}
