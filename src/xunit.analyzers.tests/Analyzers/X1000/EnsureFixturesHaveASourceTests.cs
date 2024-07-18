@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.EnsureFixturesHaveASource>;
 
@@ -177,31 +178,42 @@ public class EnsureFixturesHaveASourceTests
 			await Verify.VerifyAnalyzer(source);
 		}
 
-		[Fact]
-		public async Task WithInheritedFixture_DoesNotTrigger()
+		[Theory]
+		[InlineData("[CollectionDefinition(nameof(TestCollection))]", "[Collection(nameof(TestCollection))]", true)]
+		[InlineData("", "[Collection(typeof(TestCollection))]", false)]
+#if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // C# 11 is required for generic attributes
+		[InlineData("", "[Collection<TestCollection>]", false, LanguageVersion.CSharp11)]
+#endif
+		public async Task WithInheritedFixture_DoesNotTrigger(
+			string collectionDefinition,
+			string collectionReference,
+			bool supportedByV2,
+			LanguageVersion? languageVersion = null)
 		{
-			var source = /* lang=c#-test */ """
+			var source = string.Format(/* lang=c#-test */ """
 				using Xunit;
 
-				public class Fixture { }
+				public class Fixture {{ }}
 
-				[CollectionDefinition("test")]
-				public class TestCollection : ICollectionFixture<Fixture> { }
+				{0}
+				public class TestCollection : ICollectionFixture<Fixture> {{ }}
 
-				public abstract class TestContext {
-				    protected TestContext(Fixture fixture) { }
-				}
+				public abstract class TestContext {{
+				    protected TestContext(Fixture fixture) {{ }}
+				}}
 
-				[Collection("test")]
-				public class TestClass : TestContext {
-				    public TestClass(Fixture fixture) : base(fixture) { }
+				{1}
+				public class TestClass : TestContext {{
+				    public TestClass(Fixture fixture) : base(fixture) {{ }}
 
 				    [Fact]
-				    public void TestMethod() { }
-				}
-				""";
+				    public void TestMethod() {{ }}
+				}}
+				""", collectionDefinition, collectionReference);
 
-			await Verify.VerifyAnalyzer(source);
+			if (supportedByV2)
+				await Verify.VerifyAnalyzerV2(languageVersion ?? LanguageVersion.CSharp6, source);
+			await Verify.VerifyAnalyzerV3(languageVersion ?? LanguageVersion.CSharp6, source);
 		}
 
 		[Fact]

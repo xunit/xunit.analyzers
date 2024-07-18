@@ -40,14 +40,24 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 
 			// Get the collection name from [Collection], if present
 			var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
-			string? collectionDefinitionName = null;
+			object? collectionDefinition = null;
 
-			for (var type = namedType; type is not null && collectionDefinitionName is null; type = type.BaseType)
-				collectionDefinitionName =
+			for (var type = namedType; type is not null && collectionDefinition is null; type = type.BaseType)
+			{
+				var attribute =
 					type
 						.GetAttributes()
-						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
-						?.ConstructorArguments.FirstOrDefault().Value?.ToString();
+						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType));
+				if (attribute is null)
+					continue;
+
+				if (attribute.AttributeClass?.IsGenericType == true)
+					// Using [Collection<T>]
+					collectionDefinition = attribute.AttributeClass.TypeArguments.FirstOrDefault();
+				else
+					// Using [Collection("name"))] or [Collection(typeof(T))]
+					collectionDefinition = attribute.ConstructorArguments.FirstOrDefault().Value;
+			}
 
 			// Need to construct a full set of types we know can be resolved. Start with things
 			// like ITestOutputHelper and ITestContextAccessor (since they're injected by the framework)
@@ -67,8 +77,8 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 			);
 
 			// Add types from IClassFixture<> and ICollectionFixture<> on the collection definition
-			var collectionFixtureTypes = ImmutableHashSet<INamedTypeSymbol>.Empty;
-			if (collectionDefinitionName is not null)
+			var matchingType = collectionDefinition as INamedTypeSymbol;
+			if (matchingType is null && collectionDefinition is string collectionDefinitionName)
 			{
 				var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
 
@@ -79,24 +89,25 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 						a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName
 					);
 
-				var matchingType = namedType.ContainingAssembly.FindNamedType(MatchCollectionDefinition);
-				if (matchingType is not null)
-				{
-					var collectionFixtureType = xunitContext.Core.ICollectionFixtureType?.ConstructUnboundGenericType();
-					foreach (var @interface in matchingType.AllInterfaces.Where(i => i.IsGenericType))
-					{
-						var unboundGeneric = @interface.ConstructUnboundGenericType();
-						if (SymbolEqualityComparer.Default.Equals(classFixtureType, unboundGeneric)
-							|| SymbolEqualityComparer.Default.Equals(collectionFixtureType, unboundGeneric))
-						{
-							var fixtureTypeSymbol = @interface.TypeArguments.First();
-							if (fixtureTypeSymbol is INamedTypeSymbol namedFixtureType)
-							{
-								if (xunitContext.HasV3References && namedFixtureType.IsGenericType && namedFixtureType.TypeArguments.Any(t => t is ITypeParameterSymbol))
-									namedFixtureType = namedFixtureType.ConstructedFrom;
+				matchingType = namedType.ContainingAssembly.FindNamedType(MatchCollectionDefinition);
+			}
 
-								validConstructorArgumentTypes.Add(namedFixtureType);
-							}
+			if (matchingType is not null)
+			{
+				var collectionFixtureType = xunitContext.Core.ICollectionFixtureType?.ConstructUnboundGenericType();
+				foreach (var @interface in matchingType.AllInterfaces.Where(i => i.IsGenericType))
+				{
+					var unboundGeneric = @interface.ConstructUnboundGenericType();
+					if (SymbolEqualityComparer.Default.Equals(classFixtureType, unboundGeneric)
+						|| SymbolEqualityComparer.Default.Equals(collectionFixtureType, unboundGeneric))
+					{
+						var fixtureTypeSymbol = @interface.TypeArguments.First();
+						if (fixtureTypeSymbol is INamedTypeSymbol namedFixtureType)
+						{
+							if (xunitContext.HasV3References && namedFixtureType.IsGenericType && namedFixtureType.TypeArguments.Any(t => t is ITypeParameterSymbol))
+								namedFixtureType = namedFixtureType.ConstructedFrom;
+
+							validConstructorArgumentTypes.Add(namedFixtureType);
 						}
 					}
 				}
