@@ -21,7 +21,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(xunitContext);
 
 		var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
-		var collectionAttributeOfTType = xunitContext.V3Core?.CollectionAttributeOfTType;
+		var collectionAttributeOfTType = xunitContext.V3Core?.CollectionAttributeOfTType?.ConstructUnboundGenericType();
 		var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
 
 		context.RegisterSymbolAction(context =>
@@ -51,7 +51,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				collectionDefinition =
 					type
 						.GetAttributes()
-						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
+						.FirstOrDefault(a => collectionAttributeType.IsAssignableFrom(a.AttributeClass))
 						?.ConstructorArguments
 						.FirstOrDefault()
 						.Value;
@@ -61,7 +61,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					collectionDefinition =
 						type
 							.GetAttributes()
-							.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeOfTType))
+							.FirstOrDefault(a => collectionAttributeOfTType.IsAssignableFrom(a.AttributeClass))
 							?.AttributeClass
 							?.TypeArguments
 							.FirstOrDefault();
