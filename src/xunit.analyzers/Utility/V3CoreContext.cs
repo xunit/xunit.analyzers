@@ -9,6 +9,7 @@ public class V3CoreContext : ICoreContext
 	readonly Lazy<INamedTypeSymbol?> lazyAssemblyFixtureAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeOfTType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyFactAttributeType;
@@ -29,6 +30,7 @@ public class V3CoreContext : ICoreContext
 		lazyAssemblyFixtureAttributeType = new(() => TypeSymbolFactory.AssemblyFixtureAttribute_V3(compilation));
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
+		lazyCollectionAttributeOfTType = new(() => TypeSymbolFactory.CollectionAttributeOfT(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
 		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute_V3(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
@@ -52,6 +54,10 @@ public class V3CoreContext : ICoreContext
 	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionAttributeType =>
 		lazyCollectionAttributeType.Value;
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? CollectionAttributeOfTType =>
+		lazyCollectionAttributeOfTType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>

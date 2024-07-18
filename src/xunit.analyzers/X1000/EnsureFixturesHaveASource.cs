@@ -20,6 +20,10 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
+		var collectionAttributeOfTType = xunitContext.V3Core?.CollectionAttributeOfTType;
+		var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
+
 		context.RegisterSymbolAction(context =>
 		{
 			if (context.Symbol is not INamedTypeSymbol namedType)
@@ -39,24 +43,28 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				return;
 
 			// Get the collection name from [Collection], if present
-			var collectionAttributeType = xunitContext.Core.CollectionAttributeType;
 			object? collectionDefinition = null;
 
 			for (var type = namedType; type is not null && collectionDefinition is null; type = type.BaseType)
 			{
-				var attribute =
+				// Check [Collection("name"))] or [Collection(typeof(T))]
+				collectionDefinition =
 					type
 						.GetAttributes()
-						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType));
-				if (attribute is null)
-					continue;
+						.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeType))
+						?.ConstructorArguments
+						.FirstOrDefault()
+						.Value;
 
-				if (attribute.AttributeClass?.IsGenericType == true)
-					// Using [Collection<T>]
-					collectionDefinition = attribute.AttributeClass.TypeArguments.FirstOrDefault();
-				else
-					// Using [Collection("name"))] or [Collection(typeof(T))]
-					collectionDefinition = attribute.ConstructorArguments.FirstOrDefault().Value;
+				// Check [Collection<T>]
+				if (collectionDefinition is null && collectionAttributeOfTType is not null)
+					collectionDefinition =
+						type
+							.GetAttributes()
+							.FirstOrDefault(a => a.AttributeClass.IsAssignableFrom(collectionAttributeOfTType))
+							?.AttributeClass
+							?.TypeArguments
+							.FirstOrDefault();
 			}
 
 			// Need to construct a full set of types we know can be resolved. Start with things
@@ -76,26 +84,23 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					.Select(i => i.TypeArguments.First())
 			);
 
+			// Determine how we've referenced the collection, and whether there's an associated type
+			var collectionDefinitionType = collectionDefinition as ITypeSymbol;
+			if (collectionDefinitionType is null && collectionDefinition is string collectionDefinitionName)
+				collectionDefinitionType = namedType.ContainingAssembly.FindNamedType(
+					symbol =>
+						symbol.GetAttributes().Any(a =>
+							a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
+							!a.ConstructorArguments.IsDefaultOrEmpty &&
+							a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName
+						)
+				);
+
 			// Add types from IClassFixture<> and ICollectionFixture<> on the collection definition
-			var matchingType = collectionDefinition as INamedTypeSymbol;
-			if (matchingType is null && collectionDefinition is string collectionDefinitionName)
-			{
-				var collectionDefinitionAttributeType = xunitContext.Core.CollectionDefinitionAttributeType;
-
-				bool MatchCollectionDefinition(INamedTypeSymbol symbol) =>
-					symbol.GetAttributes().Any(a =>
-						a.AttributeClass.IsAssignableFrom(collectionDefinitionAttributeType) &&
-						!a.ConstructorArguments.IsDefaultOrEmpty &&
-						a.ConstructorArguments[0].Value?.ToString() == collectionDefinitionName
-					);
-
-				matchingType = namedType.ContainingAssembly.FindNamedType(MatchCollectionDefinition);
-			}
-
-			if (matchingType is not null)
+			if (collectionDefinitionType is not null)
 			{
 				var collectionFixtureType = xunitContext.Core.ICollectionFixtureType?.ConstructUnboundGenericType();
-				foreach (var @interface in matchingType.AllInterfaces.Where(i => i.IsGenericType))
+				foreach (var @interface in collectionDefinitionType.AllInterfaces.Where(i => i.IsGenericType))
 				{
 					var unboundGeneric = @interface.ConstructUnboundGenericType();
 					if (SymbolEqualityComparer.Default.Equals(classFixtureType, unboundGeneric)

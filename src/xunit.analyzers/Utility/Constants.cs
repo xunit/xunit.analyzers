@@ -130,6 +130,7 @@ public static class Constants
 			public const string Assert = "Xunit.Assert";
 			public const string ClassDataAttribute = "Xunit.ClassDataAttribute";
 			public const string CollectionAttribute = "Xunit.CollectionAttribute";
+			public const string CollectionAttributeOfT = "Xunit.CollectionAttribute`1";
 			public const string CollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
 			public const string DataAttribute_V2 = "Xunit.Sdk.DataAttribute";
 			public const string DataAttribute_V3 = "Xunit.v3.DataAttribute";
