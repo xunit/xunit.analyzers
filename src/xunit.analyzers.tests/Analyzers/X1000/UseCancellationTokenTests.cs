@@ -23,6 +23,24 @@ public class UseCancellationTokenTests
 		await Verify.VerifyAnalyzerV3(source);
 	}
 
+	[Fact]
+	public async Task NonTestMethod_DoesNotTrigger()
+	{
+		var source = /* lang=c#-test */ """
+			using System.Threading;
+			using System.Threading.Tasks;
+			using Xunit;
+
+			class TestClass {
+			    public async Task NonTestMethod() {
+			        await Task.Delay(1);
+			    }
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3(source);
+	}
+
 	[Theory]
 	[InlineData("TestContext.Current.CancellationToken")]
 	[InlineData("new CancellationTokenSource().Token")]
@@ -116,5 +134,28 @@ public class UseCancellationTokenTests
 			""", invocation);
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source);
+	}
+
+	[Fact]
+	public async Task InsideLambda_Triggers()
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using System.Threading;
+			using System.Threading.Tasks;
+			using Xunit;
+
+			class TestClass {
+			    [Fact]
+			    public void TestMethod() {
+			        async Task InnerMethod() {
+			            await [|Task.Delay(1)|];
+			        }
+			        Func<Task> _ = async () => await [|Task.Delay(1)|];
+			    }
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
 	}
 }

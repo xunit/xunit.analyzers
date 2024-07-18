@@ -30,6 +30,9 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			if (context.Operation is not IInvocationOperation invocationOperation)
 				return;
 
+			if (!invocationOperation.IsInTestMethod(xunitContext))
+				return;
+
 			var invokedMethod = invocationOperation.TargetMethod;
 			var parameters = invokedMethod.Parameters;
 
