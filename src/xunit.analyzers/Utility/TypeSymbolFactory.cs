@@ -40,7 +40,7 @@ public static class TypeSymbolFactory
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttribute);
 
 	public static INamedTypeSymbol? CollectionAttributeOfT(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttribute);
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttributeOfT);
 
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionDefinitionAttribute);
