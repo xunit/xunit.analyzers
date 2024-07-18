@@ -169,7 +169,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
 		[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
-#if NET6_0_OR_GREATER && ROSLYN_4_4_OR_GREATER
+#if NET6_0_OR_GREATER
 		[MemberData(nameof(TheoryDataMembers), "DateOnly")]
 		[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
 		[MemberData(nameof(TheoryDataMembers), "DateOnly?")]

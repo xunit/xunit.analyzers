@@ -47,7 +47,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("typeof(TheoryDataRow)", "Type")]
 	[InlineData("ConsoleColor.Red", "ConsoleColor")]
 	[InlineData("new Dictionary<string, List<string>>()", "Dictionary<string, List<string>>")]
-#if NET6_0_OR_GREATER && ROSLYN_4_4_OR_GREATER
+#if NET6_0_OR_GREATER
 	[InlineData("DateOnly.MinValue", "DateOnly")]
 	[InlineData("TimeOnly.MinValue", "TimeOnly")]
 #endif

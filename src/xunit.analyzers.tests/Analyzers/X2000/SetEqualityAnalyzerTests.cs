@@ -137,7 +137,7 @@ public class SetEqualityAnalyzerTests
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, [code, customSetAndComparer], expected);
 		}
 
-#if ROSLYN_4_4_OR_GREATER  // No C# 10 in Roslyn 3.11, so no local functions
+#if ROSLYN_4_4_OR_GREATER  // C# 10 is required for local functions
 
 		public static MatrixTheoryData<string, string, string, string> ComparerFunctionData() =>
 			new(

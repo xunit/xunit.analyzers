@@ -151,7 +151,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixerTests
 		await VerifyCodeFix(beforeMethod, afterMethod);
 	}
 
-#if ROSLYN_4_4_OR_GREATER  // No C# 10 in Roslyn 3.11, so no anonymous lambda types
+#if ROSLYN_4_4_OR_GREATER  // C# 10 is required for anonymous lambda types
 
 	[Theory]
 	[MemberData(nameof(Assertions))]
