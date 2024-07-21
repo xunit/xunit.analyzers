@@ -269,7 +269,14 @@ public static partial class Descriptors
 			"Do not use Assert.Empty() to check if a value does not exist in a collection. Use Assert.DoesNotContain() instead."
 		);
 
-	// Placeholder for rule X2030
+	public static DiagnosticDescriptor X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck { get; } =
+		Diagnostic(
+			"xUnit2030",
+			"Do not use NotEmpty() to check if a value exists in a collection",
+			Assertions,
+			Warning,
+			"Do not use Assert.NotEmpty() to check if a value exists in a collection. Use Assert.Contains() instead."
+		);
 
 	// Placeholder for rule X2031
 
