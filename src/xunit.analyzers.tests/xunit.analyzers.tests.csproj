@@ -22,6 +22,10 @@
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24216.2]" />
     <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[3.11.0]" />
+    
+    <!-- Download packages referenced by VsThreadingAnalyzers -->
+    <PackageDownload Include="Microsoft.VisualStudio.Threading.Analyzers" Version="[17.10.48]" />
+    <PackageDownload Include="System.Collections.Immutable" Version="[6.0.0]" Condition=" '$(TargetFramework)' == 'net8.0' " />
   </ItemGroup>
 
   <ItemGroup>
