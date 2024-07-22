@@ -259,6 +259,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IXunitSerializable_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializable_V3);
 
+	public static INamedTypeSymbol? JsonTypeIDAttribute_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.JsonTypeIDAttribute_V3);
+
 	public static INamedTypeSymbol? ListOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.List`1");
 

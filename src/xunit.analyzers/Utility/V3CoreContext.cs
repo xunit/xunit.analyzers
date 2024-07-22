@@ -18,6 +18,7 @@ public class V3CoreContext : ICoreContext
 	readonly Lazy<INamedTypeSymbol?> lazyInlineDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestContextAccessorType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType;
+	readonly Lazy<INamedTypeSymbol?> lazyJsonTypeIDAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyMemberDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyTheoryAttributeType;
 
@@ -39,11 +40,14 @@ public class V3CoreContext : ICoreContext
 		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
 		lazyITestContextAccessorType = new(() => TypeSymbolFactory.ITestContextAccessor_V3(compilation));
 		lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V3(compilation));
+		lazyJsonTypeIDAttributeType = new(() => TypeSymbolFactory.JsonTypeIDAttribute_V3(compilation));
 		lazyMemberDataAttributeType = new(() => TypeSymbolFactory.MemberDataAttribute(compilation));
 		lazyTheoryAttributeType = new(() => TypeSymbolFactory.TheoryAttribute(compilation));
 	}
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Gets a reference to type <c>AssemblyFixtureAttribute</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? AssemblyFixtureAttributeType =>
 		lazyAssemblyFixtureAttributeType.Value;
 
@@ -55,7 +59,9 @@ public class V3CoreContext : ICoreContext
 	public INamedTypeSymbol? CollectionAttributeType =>
 		lazyCollectionAttributeType.Value;
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Gets a reference to type <c>CollectionAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? CollectionAttributeOfTType =>
 		lazyCollectionAttributeOfTType.Value;
 
@@ -83,13 +89,21 @@ public class V3CoreContext : ICoreContext
 	public INamedTypeSymbol? InlineDataAttributeType =>
 		lazyInlineDataAttributeType.Value;
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Gets a reference to type <c>ITestContextAccessor</c>, if available.
+	/// </summary>
 	public INamedTypeSymbol? ITestContextAccessorType =>
 		lazyITestContextAccessorType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? ITestOutputHelperType =>
 		lazyITestOutputHelperType.Value;
+
+	/// <summary>
+	/// Gets a reference to type <c>JsonTypeIDAttribute</c>, if available.
+	/// </summary>
+	public INamedTypeSymbol? JsonTypeIDAttributeType =>
+		lazyJsonTypeIDAttributeType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? MemberDataAttributeType =>

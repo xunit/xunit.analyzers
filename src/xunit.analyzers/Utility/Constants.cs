@@ -174,6 +174,7 @@ public static class Constants
 			public const string ITypeInfo_V2 = "Xunit.Abstractions.ITypeInfo";
 			public const string IXunitSerializable_V2 = "Xunit.Abstractions.IXunitSerializable";
 			public const string IXunitSerializable_V3 = "Xunit.Sdk.IXunitSerializable";
+			public const string JsonTypeIDAttribute_V3 = "Xunit.Sdk.JsonTypeIDAttribute";
 			public const string LongLivedMarshalByRefObject_Execution_V2 = "Xunit.LongLivedMarshalByRefObject";
 			public const string LongLivedMarshalByRefObject_RunnerUtility = "Xunit.Sdk.LongLivedMarshalByRefObject";
 			public const string MemberDataAttribute = "Xunit.MemberDataAttribute";
