@@ -1,5 +1,3 @@
-#if NETCOREAPP
-
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
@@ -45,5 +43,3 @@ public sealed class MakeTypesInternalSuppressorTests
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515(), expected);
 	}
 }
-
-#endif

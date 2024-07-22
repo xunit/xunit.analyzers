@@ -1,5 +1,3 @@
-#if NETCOREAPP
-
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Testing;
@@ -89,5 +87,3 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 		await Verify.VerifySuppressor(LanguageVersion.CSharp7, code, CodeAnalysisNetAnalyzers.CA2007());
 	}
 }
-
-#endif
