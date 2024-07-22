@@ -18,10 +18,10 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =
 		Diagnostic(
 			"xUnit3001",
-			"Classes that implement Xunit.Abstractions.IXunitSerializable must have a public parameterless constructor",
+			"Classes that are marked as serializable must have a public parameterless constructor",
 			Extensibility,
 			Error,
-			"Class {0} must have a public parameterless constructor to support Xunit.Abstractions.IXunitSerializable."
+			"Class {0} must have a public parameterless constructor to support {1}."
 		);
 
 	public static DiagnosticDescriptor X3002_DoNotTestForConcreteTypeOfJsonSerializableTypes { get; } =
