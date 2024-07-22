@@ -29,9 +29,13 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			        Assert.NotNull(message as string);
 			        Assert.NotNull((string)message);
 			        Assert.Empty(collection.OfType<string>());
+			        Assert.IsType(typeof(string), message);
 			        Assert.IsType<string>(message);
+			        Assert.IsNotType(typeof(string), message);
 			        Assert.IsNotType<string>(message);
+			        Assert.IsAssignableFrom(typeof(string), message);
 			        Assert.IsAssignableFrom<string>(message);
+			        Assert.IsNotAssignableFrom(typeof(string), message);
 			        Assert.IsNotAssignableFrom<string>(message);
 
 			        // Testing against a serializable type
@@ -40,9 +44,13 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			        Assert.NotNull([|message as MyMessage|]);
 			        Assert.NotNull([|(MyMessage)message|]);
 			        Assert.Empty([|collection.OfType<MyMessage>()|]);
+			        [|Assert.IsType(typeof(MyMessage), message)|];
 			        [|Assert.IsType<MyMessage>(message)|];
+			        [|Assert.IsNotType(typeof(MyMessage), message)|];
 			        [|Assert.IsNotType<MyMessage>(message)|];
+			        [|Assert.IsAssignableFrom(typeof(MyMessage), message)|];
 			        [|Assert.IsAssignableFrom<MyMessage>(message)|];
+			        [|Assert.IsNotAssignableFrom(typeof(MyMessage), message)|];
 			        [|Assert.IsNotAssignableFrom<MyMessage>(message)|];
 			    }
 			}

@@ -102,10 +102,21 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 					&& method.Parameters.Length == (method.IsExtensionMethod ? 1 : 0))
 				reportIfMessageType(context, semanticModel, method.TypeArguments[0], invocationOperation.Syntax);
 
+			// We also look for type-related calls to Assert
 			if (assertType is not null
 					&& matchingAssertions.Contains(method.Name)
 					&& SymbolEqualityComparer.Default.Equals(assertType, method.ContainingType))
-				reportIfMessageType(context, semanticModel, method.TypeArguments[0], invocationOperation.Syntax);
+			{
+				var testType = default(ITypeSymbol);
+				if (method.IsGenericMethod && method.TypeArguments.Length == 1)
+					testType = method.TypeArguments[0];
+				else if (invocationOperation.Arguments.FirstOrDefault() is IArgumentOperation typeArgumentOperation
+						&& typeArgumentOperation.Value is ITypeOfOperation typeOfArgumentOperation)
+					testType = typeOfArgumentOperation.TypeOperand;
+
+				if (testType is not null)
+					reportIfMessageType(context, semanticModel, testType, invocationOperation.Syntax);
+			}
 		}, OperationKind.Invocation);
 
 		void reportIfMessageType(
