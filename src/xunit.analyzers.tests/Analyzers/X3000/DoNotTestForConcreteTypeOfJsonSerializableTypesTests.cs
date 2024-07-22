@@ -11,12 +11,15 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 	{
 		var code = /* lang=c#-test */ """
 			using Xunit;
-			using Xunit.Sdk;
 			using System.Collections.Generic;
 			using System.Linq;
 			
-			[JsonTypeID("MyMessage")]
-			public class MyMessage { };
+			public static class MessageFactory {
+			    public static MyMessage Create(int propertyValue = 42) =>
+			        new() {
+			            PropertyValue = propertyValue,
+			        };
+			}
 
 			public class TheClass {
 			    public void TheMethod() {
@@ -38,6 +41,10 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			        Assert.IsNotAssignableFrom(typeof(string), message);
 			        Assert.IsNotAssignableFrom<string>(message);
 
+			        // Construction should not be prohibited
+			        _ = new MyMessage { PropertyValue = 2112 };
+			        _ = MessageFactory.Create(2600);
+
 			        // Testing against a serializable type
 			        Assert.True([|message is MyMessage|]);
 			        Assert.True([|message is not MyMessage|]);
@@ -55,7 +62,18 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			    }
 			}
 			""";
+		var messagePartial1 = /* lang=c#-test */ """
+			using Xunit.Sdk;
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, code);
+			[JsonTypeID("MyMessage")]
+			sealed partial class MyMessage { }
+			""";
+		var messagePartial2 = /* lang=c#-test */ """
+			public partial class MyMessage {
+			    public int PropertyValue { get; set; }
+			};
+			""";
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [messagePartial1, messagePartial2, code]);
 	}
 }
