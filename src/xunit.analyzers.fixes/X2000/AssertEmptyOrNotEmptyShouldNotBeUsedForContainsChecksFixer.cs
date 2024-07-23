@@ -11,11 +11,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : BatchedCodeFixProvider
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : BatchedCodeFixProvider
 {
-	public const string Key_UseAlternateAssert = "xUnit2029_UseAlternateAssert";
+	public const string Key_UseDoesNotContain = "xUnit2029_UseDoesNotContain";
+	public const string Key_UseContains = "xUnit2030_UseContains";
 
-	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer() :
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer() :
 		base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck.Id)
 	{ }
 
@@ -32,7 +33,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
 				c => UseCheck(context.Document, invocation, c),
-				Key_UseAlternateAssert,
+				Key_UseDoesNotContain,
 				"Use DoesNotContain"
 			),
 			context.Diagnostics
