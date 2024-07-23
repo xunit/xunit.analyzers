@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Xunit;
-using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck>;
+using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks>;
 
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 {
 	public static TheoryData<string, string> GetEnumerables(
 		string typeName,
@@ -27,29 +27,10 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 			class TestClass {{
 			    void TestMethod() {{
 			        Xunit.Assert.Empty({0});
+					Xunit.Assert.NotEmpty({0});
 			    }}
 			}}
 			""", collection);
-
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Theory]
-	[MemberData(nameof(GetEnumerables), "int", "f > 0")]
-	[MemberData(nameof(GetEnumerables), "string", "f.Length > 0")]
-	public async Task Containers_WithWhereClause_Triggers(
-		string collection,
-		string comparison)
-	{
-		var source = string.Format(/* lang=c#-test */ """
-			using System.Linq;
-
-			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.Empty({0}.Where(f => {1}))|];
-			    }}
-			}}
-			""", collection, comparison);
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -67,6 +48,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 			class TestClass {{
 			    void TestMethod() {{
 			        Xunit.Assert.Empty({0}.Where((f, i) => {1} && i > 0));
+					Xunit.Assert.NotEmpty({0}.Where((f, i) => {1} && i > 0));
 			    }}
 			}}
 			""", collection, comparison);
@@ -87,9 +69,31 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 			class TestClass {{
 			    void TestMethod() {{
 			        Xunit.Assert.Empty({0}.Where(f => {1}).Select(f => f));
+					Xunit.Assert.NotEmpty({0}.Where(f => {1}).Select(f => f));
 			    }}
 			}}
 			""", collection, comparison);
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[MemberData(nameof(GetEnumerables), "int", "f > 0")]
+	[MemberData(nameof(GetEnumerables), "string", "f.Length > 0")]
+	public async Task Containers_WithWhereClause_Triggers(
+		string collection,
+		string comparison)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			using System.Linq;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|xUnit2029:Xunit.Assert.Empty({0}.Where(f => {1}))|}};
+					{{|xUnit2030:Xunit.Assert.NotEmpty({0}.Where(f => {1}))|}};
+			    }}
+			}}
+			""", collection, comparison);
+
 		await Verify.VerifyAnalyzer(source);
 	}
 
@@ -104,7 +108,8 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 
 			class TestClass {{
 			    void TestMethod() {{
-			        [|Xunit.Assert.Empty("{0}".Where(f => f > 0))|];
+			        {{|xUnit2029:Xunit.Assert.Empty("{0}".Where(f => f > 0))|}};
+					{{|xUnit2030:Xunit.Assert.NotEmpty("{0}".Where(f => f > 0))|}};
 			    }}
 			}}
 			""", sampleString);

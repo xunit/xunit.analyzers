@@ -6,17 +6,24 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : AssertUsageAnalyzerBase
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsageAnalyzerBase
 {
 	const string linqWhereMethod = "System.Linq.Enumerable.Where<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 
 	static readonly string[] targetMethods =
 	{
 		Constants.Asserts.Empty,
+		Constants.Asserts.NotEmpty,
 	};
 
-	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck()
-		: base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck, targetMethods)
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks()
+		: base(
+			[
+				Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
+				Descriptors.X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck,
+			],
+			targetMethods
+			)
 	{ }
 
 	protected override void AnalyzeInvocation(
