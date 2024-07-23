@@ -10,20 +10,23 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsage
 {
 	const string linqWhereMethod = "System.Linq.Enumerable.Where<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 
+	static readonly DiagnosticDescriptor[] targetDescriptors =
+	[
+		Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
+		Descriptors.X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck,
+	];
+
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Empty,
 		Constants.Asserts.NotEmpty,
-	};
+	];
 
-	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks()
-		: base(
-			[
-				Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
-				Descriptors.X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck,
-			],
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks() : 
+		base(
+			targetDescriptors,
 			targetMethods
-			)
+		)
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -52,9 +55,12 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsage
 		if (originalMethod != linqWhereMethod)
 			return;
 
+		var descriptor = method.Name == Constants.Asserts.Empty
+			? targetDescriptors[0] : targetDescriptors[1];
+
 		context.ReportDiagnostic(
 			Diagnostic.Create(
-				Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
+				descriptor,
 				invocationOperation.Syntax.GetLocation(),
 				SymbolDisplay.ToDisplayString(
 					method,
