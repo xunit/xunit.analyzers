@@ -56,7 +56,8 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsage
 			return;
 
 		var descriptor = method.Name == Constants.Asserts.Empty
-			? targetDescriptors[0] : targetDescriptors[1];
+			? targetDescriptors[0]
+			: targetDescriptors[1];
 
 		context.ReportDiagnostic(
 			Diagnostic.Create(
