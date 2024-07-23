@@ -77,7 +77,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 	[Theory]
 	[MemberData(nameof(GetEnumerables), "int", "f > 0")]
 	[MemberData(nameof(GetEnumerables), "string", "f.Length > 0")]
-	public async Task DoesNotFindWarningForEnumurableEmptyCheckWithChainedLinq(
+	public async Task EnumurableEmptyCheck_WithChainedLinq_DoesNotTrigger(
 		string collection,
 		string comparison)
 	{
@@ -97,7 +97,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckTests
 	[InlineData("")]
 	[InlineData("123")]
 	[InlineData(@"abc\n\t\\\""")]
-	public async Task Strings_WithWhereClause_DoesNotTrigger(string sampleString)
+	public async Task Strings_WithWhereClause_Triggers(string sampleString)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			using System.Linq;

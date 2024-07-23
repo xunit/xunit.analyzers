@@ -83,15 +83,14 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 	}
 
 	static bool AttributeIsTheoryOrDataAttribute(AttributeData attribute, SerializableTypeSymbols typeSymbols) =>
-		attribute.IsInstanceOf(typeSymbols.TheoryAttribute) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
+		attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
 
 	static bool DiscoveryEnumerationIsDisabled(IMethodSymbol method, SerializableTypeSymbols typeSymbols) =>
 		method
 			.GetAttributes()
 			.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
 			.SelectMany(attribute => attribute.NamedArguments)
-			.Where(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true)
-			.Any();
+			.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
 
 	sealed class TheoryDataTypeArgumentFinder
 	{
@@ -272,12 +271,22 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			if (type.TypeKind != TypeKind.Class || type.SpecialType != SpecialType.None)
 				return [];
 
-			if (typeSymbols.TheoryData(arity: 0) is not INamedTypeSymbol baseTheoryDataType)
+			if (typeSymbols.TheoryDataBaseType is not INamedTypeSymbol theoryDataBaseType)
 				return [];
+
+			// For v2 and early versions of v3, the base type is "TheoryData" (non-generic).
+			// For later versions of v3, it's "TheoryDataBase<TTheoryDataRow, TRawDataRow>".
+			// We need to compare unbound to unbound when the type is generic.
+			if (theoryDataBaseType.IsGenericType)
+				theoryDataBaseType = theoryDataBaseType.ConstructUnboundGenericType();
 
 			for (var currentType = type; currentType is not null; currentType = currentType.BaseType)
 			{
-				if (baseTheoryDataType.Equals(currentType.BaseType, SymbolEqualityComparer.Default))
+				var baseType = currentType.BaseType;
+				if (baseType?.IsGenericType == true)
+					baseType = baseType.ConstructUnboundGenericType();
+
+				if (theoryDataBaseType.Equals(baseType, SymbolEqualityComparer.Default))
 				{
 					var theoryDataType = typeSymbols.TheoryData(currentType.Arity);
 					if (currentType.ConstructedFrom.Equals(theoryDataType, SymbolEqualityComparer.Default))

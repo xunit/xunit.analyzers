@@ -8,10 +8,20 @@ public class V2AssertContext : IAssertContext
 {
 	internal static readonly Version Version_2_5_0 = new("2.5.0");
 
-	V2AssertContext(Version version)
+	readonly Lazy<INamedTypeSymbol?> lazyAssertType;
+
+	V2AssertContext(
+		Compilation compilation,
+		Version version)
 	{
 		Version = version;
+
+		lazyAssertType = new(() => TypeSymbolFactory.Assert(compilation));
 	}
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? AssertType =>
+		lazyAssertType.Value;
 
 	/// <inheritdoc/>
 	public bool SupportsAssertFail =>
@@ -33,6 +43,6 @@ public class V2AssertContext : IAssertContext
 				.FirstOrDefault(a => a.Name.Equals("xunit.assert", StringComparison.OrdinalIgnoreCase) || a.Name.Equals("xunit.assert.source", StringComparison.OrdinalIgnoreCase))
 				?.Version;
 
-		return version is null ? null : new(version);
+		return version is null ? null : new(compilation, version);
 	}
 }

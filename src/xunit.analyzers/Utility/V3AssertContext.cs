@@ -6,10 +6,20 @@ namespace Xunit.Analyzers;
 
 public class V3AssertContext : IAssertContext
 {
-	V3AssertContext(Version version)
+	readonly Lazy<INamedTypeSymbol?> lazyAssertType;
+
+	V3AssertContext(
+		Compilation compilation,
+		Version version)
 	{
 		Version = version;
+
+		lazyAssertType = new(() => TypeSymbolFactory.Assert(compilation));
 	}
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? AssertType =>
+		lazyAssertType.Value;
 
 	/// <inheritdoc/>
 	public bool SupportsAssertFail => true;
@@ -30,6 +40,6 @@ public class V3AssertContext : IAssertContext
 				.FirstOrDefault(a => a.Name.Equals("xunit.v3.assert", StringComparison.OrdinalIgnoreCase) || a.Name.Equals("xunit.v3.assert.source", StringComparison.OrdinalIgnoreCase))
 				?.Version;
 
-		return version is null ? null : new(version);
+		return version is null ? null : new(compilation, version);
 	}
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
@@ -167,13 +166,15 @@ static class CodeAnalysisExtensions
 	}
 
 	public static bool IsTestMethod(
-		this IMethodSymbol method,
+		this IMethodSymbol? method,
 		XunitContext xunitContext,
 		ITypeSymbol attributeUsageType,
 		bool strict)
 	{
-		Guard.ArgumentNotNull(method);
 		Guard.ArgumentNotNull(xunitContext);
+
+		if (method is null)
+			return false;
 
 		var factAttributeType = xunitContext.Core.FactAttributeType;
 		var theoryAttributeType = xunitContext.Core.TheoryAttributeType;

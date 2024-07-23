@@ -25,8 +25,8 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 			if (namedType.TypeKind != TypeKind.Class)
 				return;
 
-			var isXunitSerializable = xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) ?? false;
-			if (!isXunitSerializable)
+			var serializableTargetDisplay = GetSerializableTargetDisplay(context, xunitContext, namedType);
+			if (serializableTargetDisplay is null)
 				return;
 
 			var parameterlessCtor = namedType.InstanceConstructors.FirstOrDefault(c => c.Parameters.IsEmpty);
@@ -37,9 +37,27 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 				Diagnostic.Create(
 					Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor,
 					namedType.Locations.First(),
-					namedType.Name
+					namedType.Name,
+					serializableTargetDisplay
 				)
 			);
 		}, SymbolKind.NamedType);
+	}
+
+	static string? GetSerializableTargetDisplay(
+		SymbolAnalysisContext context,
+		XunitContext xunitContext,
+		INamedTypeSymbol namedType)
+	{
+		// Types that implement IXunitSerializable
+		if (xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) == true)
+			return xunitContext.Abstractions.IXunitSerializableType.ToDisplayString();
+
+		// Types that decorate with [JsonTypeID]
+		if (xunitContext.V3Core?.JsonTypeIDAttributeType is INamedTypeSymbol jsonTypeIDAttributeType)
+			if (namedType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, jsonTypeIDAttributeType)))
+				return jsonTypeIDAttributeType.ToDisplayString();
+
+		return null;
 	}
 }
