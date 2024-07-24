@@ -6,17 +6,24 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : AssertUsageAnalyzerBase
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsageAnalyzerBase
 {
 	const string linqWhereMethod = "System.Linq.Enumerable.Where<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 
-	static readonly string[] targetMethods =
-	{
-		Constants.Asserts.Empty,
-	};
+	static readonly DiagnosticDescriptor[] targetDescriptors =
+	[
+		Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
+		Descriptors.X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck,
+	];
 
-	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck()
-		: base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck, targetMethods)
+	static readonly string[] targetMethods =
+	[
+		Constants.Asserts.Empty,
+		Constants.Asserts.NotEmpty,
+	];
+
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks() :
+		base(targetDescriptors, targetMethods)
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -45,9 +52,13 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck : Assert
 		if (originalMethod != linqWhereMethod)
 			return;
 
+		var descriptor = method.Name == Constants.Asserts.Empty
+			? targetDescriptors[0]
+			: targetDescriptors[1];
+
 		context.ReportDiagnostic(
 			Diagnostic.Create(
-				Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck,
+				descriptor,
 				invocationOperation.Syntax.GetLocation(),
 				SymbolDisplay.ToDisplayString(
 					method,

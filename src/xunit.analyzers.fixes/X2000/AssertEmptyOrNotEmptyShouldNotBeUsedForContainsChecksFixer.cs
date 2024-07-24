@@ -1,4 +1,5 @@
 using System.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -11,12 +12,19 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : BatchedCodeFixProvider
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : BatchedCodeFixProvider
 {
-	public const string Key_UseAlternateAssert = "xUnit2029_UseAlternateAssert";
+	public const string Key_UseDoesNotContain = "xUnit2029_UseDoesNotContain";
+	public const string Key_UseContains = "xUnit2030_UseContains";
 
-	public AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer() :
-		base(Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck.Id)
+	static readonly string[] targetDiagnostics =
+	[
+		Descriptors.X2029_AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheck.Id,
+		Descriptors.X2030_AssertNotEmptyShouldNotBeUsedForCollectionContainsCheck.Id,
+	];
+
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer() :
+		base(targetDiagnostics)
 	{ }
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -29,11 +37,32 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 		if (invocation is null)
 			return;
 
+		if (context.Diagnostics.Length != 1)
+			return;
+
+		var diagnostic = context.Diagnostics.Single();
+		string replaceAssert;
+		string equivalenceKey;
+		string title;
+
+		if (diagnostic.Id == targetDiagnostics[0])
+		{
+			replaceAssert = Constants.Asserts.DoesNotContain;
+			equivalenceKey = Key_UseDoesNotContain;
+			title = "Use DoesNotContain";
+		}
+		else
+		{
+			replaceAssert = Constants.Asserts.Contains;
+			equivalenceKey = Key_UseContains;
+			title = "Use Contains";
+		}
+
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
-				c => UseCheck(context.Document, invocation, c),
-				Key_UseAlternateAssert,
-				"Use DoesNotContain"
+				c => UseCheck(context.Document, invocation, replaceAssert, c),
+				equivalenceKey,
+				title
 			),
 			context.Diagnostics
 		);
@@ -42,6 +71,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 	static async Task<Document> UseCheck(
 		Document document,
 		InvocationExpressionSyntax invocation,
+		string replaceAssert,
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
@@ -54,7 +84,7 @@ public class AssertEmptyShouldNotBeUsedForCollectionDoesNotContainCheckFixer : B
 						invocation,
 						invocation
 							.WithArgumentList(ArgumentList(SeparatedList([Argument(memberAccess.Expression), Argument(innerArgument)])))
-							.WithExpression(outerMemberAccess.WithName(IdentifierName(Constants.Asserts.DoesNotContain)))
+							.WithExpression(outerMemberAccess.WithName(IdentifierName(replaceAssert)))
 					);
 
 		return editor.GetChangedDocument();
