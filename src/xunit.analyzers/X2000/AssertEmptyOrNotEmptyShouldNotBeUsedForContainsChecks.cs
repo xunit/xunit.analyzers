@@ -22,11 +22,8 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks : AssertUsage
 		Constants.Asserts.NotEmpty,
 	];
 
-	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks() : 
-		base(
-			targetDescriptors,
-			targetMethods
-		)
+	public AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecks() :
+		base(targetDescriptors, targetMethods)
 	{ }
 
 	protected override void AnalyzeInvocation(

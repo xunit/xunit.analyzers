@@ -60,6 +60,5 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixerTests
 		var after = string.Format(template, afterAssert);
 
 		await Verify.VerifyCodeFix(before, after, AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer.Key_UseContains);
-
 	}
 }

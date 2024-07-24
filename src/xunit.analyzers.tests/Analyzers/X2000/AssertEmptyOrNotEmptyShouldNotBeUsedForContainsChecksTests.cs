@@ -73,6 +73,7 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 			    }}
 			}}
 			""", collection, comparison);
+
 		await Verify.VerifyAnalyzer(source);
 	}
 

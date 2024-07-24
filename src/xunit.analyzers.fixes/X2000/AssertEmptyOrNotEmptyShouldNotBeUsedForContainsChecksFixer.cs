@@ -45,7 +45,6 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : Batche
 		string equivalenceKey;
 		string title;
 
-
 		if (diagnostic.Id == targetDiagnostics[0])
 		{
 			replaceAssert = Constants.Asserts.DoesNotContain;
