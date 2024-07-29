@@ -7,14 +7,7 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 	public static TheoryData<string, string> GetEnumerables(
 		string typeName,
 		string comparison) =>
-			new()
-			{
-				{ $"new System.Collections.Generic.List<{typeName}>()", comparison },
-				{ $"new System.Collections.Generic.HashSet<{typeName}>()", comparison },
-				{ $"new System.Collections.ObjectModel.Collection<{typeName}>()", comparison },
-				{ $"new {typeName}[0]", comparison },
-				{ $"System.Linq.Enumerable.Empty<{typeName}>()", comparison },
-			};
+			AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests.GetEnumerables(typeName, comparison);
 
 	[Theory]
 	[MemberData(nameof(GetEnumerables), "int", "")]
