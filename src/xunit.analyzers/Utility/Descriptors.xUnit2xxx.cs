@@ -278,7 +278,14 @@ public static partial class Descriptors
 			"Do not use Assert.NotEmpty to check if a value exists in a collection. Use Assert.Contains instead."
 		);
 
-	// Placeholder for rule X2031
+	public static DiagnosticDescriptor X2031_AssertSingleShouldUseTwoArgumentCall { get; } =
+		Diagnostic(
+			"xUnit2031",
+			"Do not use single-argument Assert.Single in a filtered collection",
+			Assertions,
+			Warning,
+			"Do not use single-argument call to Assert.Single to check for a single item in a filtered collection. Use two-argument call instead."
+		);
 
 	// Placeholder for rule X2032
 
