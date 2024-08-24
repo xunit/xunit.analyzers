@@ -1037,6 +1037,40 @@ public class InlineDataMustMatchTheoryParametersTests
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Theory]
+			[MemberData(nameof(SignedIntAndUnsignedInt))]
+			public async Task FromNegativeInteger_ToUnsignedInteger(
+				string signedType,
+				string unsignedType)
+			{
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:({0})-1|}})]
+					    public void TestMethod({1} value) {{ }}
+					}}
+					""", signedType, unsignedType);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
+
+				await Verify.VerifyAnalyzer(source, expected);
+			}
+
+			[Theory]
+			[MemberData(nameof(UnsignedIntegralTypes))]
+			public async Task FromLongMinValue_ToUnsignedInteger(string unsignedType)
+			{
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:long.MinValue|}})]
+					    public void TestMethod({0} value) {{ }}
+					}}
+					""", unsignedType);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
+
+				await Verify.VerifyAnalyzer(source, expected);
+			}
 		}
 
 		public class DateTimeLikeParameter : X1010_IncompatibleValueType
@@ -1252,6 +1286,18 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public static IEnumerable<TheoryDataRow<string>> ValueTypedValues =
 			IntegerValues.Concat(FloatingPointValues).Concat(BoolValues).Append(new("typeof(int)"));
+
+		public static IEnumerable<TheoryDataRow<string>> SignedIntegralTypes =
+			["int", "long", "short", "sbyte"];
+
+		public static IEnumerable<TheoryDataRow<string>> UnsignedIntegralTypes =
+			["uint", "ulong", "ushort", "byte"];
+
+		public static readonly MatrixTheoryData<string, string> SignedIntAndUnsignedInt =
+			new(
+				SignedIntegralTypes.Select(r => r.Data),
+				UnsignedIntegralTypes.Select(r => r.Data)
+			);
 	}
 
 	public class X1011_ExtraValue

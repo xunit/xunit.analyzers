@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -7,11 +9,26 @@ namespace Xunit.Analyzers;
 
 static class ConversionChecker
 {
+	static readonly HashSet<SpecialType> SignedIntegralTypes = [
+		SpecialType.System_SByte,
+		SpecialType.System_Int16,
+		SpecialType.System_Int32,
+		SpecialType.System_Int64,
+	];
+
+	static readonly HashSet<SpecialType> UnsignedIntegralTypes = [
+		SpecialType.System_Byte,
+		SpecialType.System_UInt16,
+		SpecialType.System_UInt32,
+		SpecialType.System_UInt64,
+	];
+
 	public static bool IsConvertible(
 		Compilation compilation,
 		ITypeSymbol source,
 		ITypeSymbol destination,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		object? valueSource = null)
 	{
 		Guard.ArgumentNotNull(compilation);
 		Guard.ArgumentNotNull(source);
@@ -32,7 +49,7 @@ static class ConversionChecker
 		var conversion = compilation.ClassifyConversion(source, destination);
 
 		if (conversion.IsNumeric)
-			return IsConvertibleNumeric(source, destination);
+			return IsConvertibleNumeric(source, destination, valueSource);
 
 		if (destination.SpecialType == SpecialType.System_DateTime
 			|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
@@ -62,8 +79,13 @@ static class ConversionChecker
 
 	static bool IsConvertibleNumeric(
 		ITypeSymbol source,
-		ITypeSymbol destination)
+		ITypeSymbol destination,
+		object? valueSource = null)
 	{
+		var isIntegral = long.TryParse(valueSource?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var integralValue);
+		if (isIntegral && integralValue < 0 && IsSigned(source) && IsUnsigned(destination))
+			return false;
+
 		if (destination.SpecialType == SpecialType.System_Char
 			&& (source.SpecialType == SpecialType.System_Double || source.SpecialType == SpecialType.System_Single))
 		{
@@ -81,4 +103,10 @@ static class ConversionChecker
 
 		return destination.MetadataName == nameof(DateTimeOffset) || destination.MetadataName == nameof(Guid);
 	}
+
+	static bool IsSigned(ITypeSymbol typeSymbol) =>
+		SignedIntegralTypes.Contains(typeSymbol.SpecialType);
+
+	static bool IsUnsigned(ITypeSymbol typeSymbol) =>
+		UnsignedIntegralTypes.Contains(typeSymbol.SpecialType);
 }
