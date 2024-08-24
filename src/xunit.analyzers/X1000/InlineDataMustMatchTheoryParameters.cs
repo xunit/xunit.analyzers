@@ -166,9 +166,9 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 						if (value.Type is null)
 							continue;
 
-						var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext);
+						var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value as int? : null);
 						if (!isCompatible && paramsElementType is not null)
-							isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext);
+							isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value as int? : null);
 
 						if (!isCompatible)
 						{
