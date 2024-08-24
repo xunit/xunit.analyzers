@@ -1021,7 +1021,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Fact]
-			public async Task FromInt_ToUint()
+			public async Task FromNegativeInt_ToUint()
 			{
 				var source =/* lang=c#-test */ """
 					public class TestClass {
