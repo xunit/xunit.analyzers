@@ -36,16 +36,17 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			var invokedMethod = invocationOperation.TargetMethod;
 			var parameters = invokedMethod.Parameters;
 
-			var parameterIdx = 0;
-			for (; parameterIdx < parameters.Length; ++parameterIdx)
-				if (SymbolEqualityComparer.Default.Equals(parameters[parameterIdx].Type, cancellationTokenType))
+			IArgumentOperation? argument = null;
+			foreach (var parameter in parameters)
+				if (SymbolEqualityComparer.Default.Equals(parameter.Type, cancellationTokenType))
+				{
+					argument = invocationOperation.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, parameter));
 					break;
+				}
 
 			// The invoked method has the parameter we're looking for
-			if (parameterIdx != parameters.Length)
+			if (argument is not null)
 			{
-				var argument = invocationOperation.Arguments[parameterIdx];
-
 				// Default parameter value
 				if (argument.ArgumentKind == ArgumentKind.DefaultValue)
 					Report(context, invocationOperation.Syntax.GetLocation());
@@ -61,7 +62,7 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			// Look for an overload with the exact same parameter types + a CancellationToken
 			else
 			{
-				var targetParameterTypes = invokedMethod.Parameters.Select(p => p.Type).Concat([cancellationTokenType]).ToArray();
+				var targetParameterTypes = parameters.Select(p => p.Type).Concat([cancellationTokenType]).ToArray();
 				foreach (var member in invokedMethod.ContainingType.GetMembers(invokedMethod.Name))
 					if (member is IMethodSymbol method)
 					{
