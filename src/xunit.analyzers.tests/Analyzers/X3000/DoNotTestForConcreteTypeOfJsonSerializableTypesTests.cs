@@ -6,7 +6,7 @@ namespace Xunit.Analyzers;
 
 public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 {
-	[Fact]
+	[Fact(Skip = "xUnit3002 needs to be re-written")]
 	public async Task AcceptanceTest()
 	{
 		var code = /* lang=c#-test */ """

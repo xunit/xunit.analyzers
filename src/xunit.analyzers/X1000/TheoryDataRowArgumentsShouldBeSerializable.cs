@@ -87,7 +87,11 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 
 			for (var idx = 0; idx < objectCreation.Arguments.Length; ++idx)
 			{
+#if ROSLYN_LATEST
+				var elementValue = objectCreation.Arguments[idx].ChildOperations.FirstOrDefault();
+#else
 				var elementValue = objectCreation.Arguments[idx].Children.FirstOrDefault();
+#endif
 				while (elementValue is IConversionOperation conversion)
 					elementValue = conversion.Operand;
 
@@ -103,13 +107,21 @@ public class TheoryDataRowArgumentsShouldBeSerializable : XunitDiagnosticAnalyze
 		if (objectCreation.Arguments.FirstOrDefault() is not IArgumentOperation argumentOperation)
 			return null;
 
+#if ROSLYN_LATEST
+		var firstArgument = argumentOperation.ChildOperations.FirstOrDefault();
+#else
 		var firstArgument = argumentOperation.Children.FirstOrDefault();
+#endif
 		if (firstArgument is null)
 			return null;
 
 		// Common pattern: implicit array creation for the params array
 		if (firstArgument is IArrayCreationOperation arrayCreation &&
+#if ROSLYN_LATEST
+			arrayCreation.ChildOperations.Skip(1).FirstOrDefault() is IArrayInitializerOperation arrayInitializer)
+#else
 			arrayCreation.Children.Skip(1).FirstOrDefault() is IArrayInitializerOperation arrayInitializer)
+#endif
 		{
 			var result = new List<IOperation>();
 

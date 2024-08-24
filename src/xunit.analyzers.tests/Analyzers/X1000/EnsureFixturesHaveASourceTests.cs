@@ -181,7 +181,7 @@ public class EnsureFixturesHaveASourceTests
 		[Theory]
 		[InlineData("[CollectionDefinition(nameof(TestCollection))]", "[Collection(nameof(TestCollection))]", true)]
 		[InlineData("", "[Collection(typeof(TestCollection))]", false)]
-#if NETCOREAPP && ROSLYN_4_4_OR_GREATER  // C# 11 is required for generic attributes
+#if NETCOREAPP && ROSLYN_LATEST  // C# 11 is required for generic attributes
 		[InlineData("", "[Collection<TestCollection>]", false, LanguageVersion.CSharp11)]
 #endif
 		public async Task WithInheritedFixture_DoesNotTrigger(
