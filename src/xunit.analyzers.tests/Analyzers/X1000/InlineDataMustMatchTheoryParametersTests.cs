@@ -1019,6 +1019,21 @@ public class InlineDataMustMatchTheoryParametersTests
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Fact]
+			public async Task FromInt_ToUint()
+			{
+				var source =/* lang=c#-test */ """
+					public class TestClass {
+					    [Xunit.Theory]
+					    [Xunit.InlineData({|#0:-1|})]
+					    public void TestMethod(uint value) { }
+					}
+					""";
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", "uint");
+
+				await Verify.VerifyAnalyzer(source, expected);
+			}
 		}
 
 		public class DateTimeLikeParameter : X1010_IncompatibleValueType
