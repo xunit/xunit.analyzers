@@ -1392,6 +1392,27 @@ public class MemberDataShouldReferenceValidMemberTests
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 		}
 
+		// https://github.com/xunit/xunit/issues/3007
+		[Theory]
+		[InlineData("T[]")]
+		[InlineData("IEnumerable<T>")]
+		public async Task WhenPassingArrayToGenericTheory_TheoryData_DoesNotTrigger(string enumerable)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System.Collections.Generic;
+				using Xunit;
+
+				public class TestClass {{
+					public static TheoryData<object[]> TestData = new TheoryData<object[]>();
+		
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne<T>({0} _1) {{ }}
+				}}
+				""", enumerable);
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
 		[Fact]
 		public async Task WithExtraValueNotCompatibleWithParamsArray_TheoryData_Triggers()
 		{

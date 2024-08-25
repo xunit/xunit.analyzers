@@ -804,6 +804,14 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			if (typeArgument is null)
 				continue;
 
+			// We want to map T[] and IEnumerable<T> in generic methods so long as the parameter type is itself an array.
+			// This is a simplistic view, since at runtime multiple things competing for the same T may end up being
+			// incompatible, but we'll leave that as an edge case that can be found at runtime, so we're not forced
+			// to run the whole "generic resolver" in the context of an analyzer.
+			var enumerable = parameterType.UnwrapEnumerable(semanticModel.Compilation, unwrapArray: true);
+			if (enumerable is not null && enumerable.Kind == SymbolKind.TypeParameter && typeArgument is IArrayTypeSymbol)
+				continue;
+
 			if (parameterType.Kind != SymbolKind.TypeParameter && !parameterType.IsAssignableFrom(typeArgument))
 			{
 				bool report = true;
