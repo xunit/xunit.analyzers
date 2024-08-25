@@ -53,9 +53,13 @@ public class UseCancellationTokenTests
 
 			class TestClass {{
 			    [Fact]
-			    public async Task TestMethod() {{
-			        await Task.Delay(1, {0});
+			    public void TestMethod() {{
+			        FunctionWithDefaults(42, {0});
+			        FunctionWithDefaults(42, cancellationToken: {0});
+			        FunctionWithDefaults(cancellationToken: {0});
 			    }}
+
+			    void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) {{ }}
 			}}
 			""", token);
 
