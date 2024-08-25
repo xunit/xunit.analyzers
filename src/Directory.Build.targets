@@ -20,18 +20,22 @@
   <!-- Supplement Nerdbank.GitVersioning version calculations -->
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <!-- AssemblyVersion and AssemblyFileVersion should be x.y.z -->
-      <AssemblyVersion>$(BuildVersion3Components)</AssemblyVersion>
-      <AssemblyFileVersion>$(BuildVersion3Components)</AssemblyFileVersion>
+      <!-- Local builds should have a '-dev' suffix on the build number -->
+      <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
+      <!-- AssemblyVersion and AssemblyFileVersion should be x.y.z.0 -->
+      <AssemblyVersion>$(BuildVersionSimple)</AssemblyVersion>
+      <AssemblyFileVersion>$(BuildVersionSimple)</AssemblyFileVersion>
       <!-- Always put the Git hash in the informational version, even for non-pre-release versions -->
-      <AssemblyInformationalVersion>$(BuildVersionSimple)$(PrereleaseVersion)+$(GitCommitIdShort)</AssemblyInformationalVersion>
+      <AssemblyInformationalVersion>$(BuildVersionSimple)$(PrereleaseVersion)$(PrereleaseSuffix)+$(GitCommitIdShort)</AssemblyInformationalVersion>
     </PropertyGroup>
   </Target>
 
   <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
+      <!-- Local builds should have a '-dev' suffix on the build number -->
+      <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
       <!-- Never put the Git hash in the package version -->
-      <PackageVersion>$(BuildVersion3Components)$(PrereleaseVersion)</PackageVersion>
+      <PackageVersion>$(BuildVersionSimple)$(PrereleaseVersion)$(PrereleaseSuffix)</PackageVersion>
       <!-- Pass through values we don't know ahead of time for any hand-crafted .nuspec files -->
       <NuspecProperties>
         Configuration=$(Configuration);
