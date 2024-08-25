@@ -301,6 +301,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TaskOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Task`1");
 
+	public static INamedTypeSymbol? TestContext_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestContext_V3);
+
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
 
