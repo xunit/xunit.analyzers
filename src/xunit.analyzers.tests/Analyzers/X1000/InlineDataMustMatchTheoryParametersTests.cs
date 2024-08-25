@@ -313,6 +313,24 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			await Verify.VerifyAnalyzer(source);
 		}
+
+		// https://github.com/xunit/xunit/issues/3000
+		[Fact]
+		public async Task DecimalValue()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public sealed class ReproClass {
+					[Theory]
+					[InlineData({|CS0182:0.1m|})]
+					public void ReproMethod(decimal m)
+					{ }
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(source);
+		}
 	}
 
 	public class X1009_TooFewValues

@@ -97,6 +97,11 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					var parameter = method.Parameters[paramIdx];
 					var value = values[valueIdx];
 
+					// If the value isn't legal (malformed or illegal type), then just skip validation and let
+					// the compiler report the problem.
+					if (value.Kind == TypedConstantKind.Error)
+						continue;
+
 					// If the parameter type is object, everything is compatible, though we still need to check for nullability
 					if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
 						&& (!value.IsNull || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
