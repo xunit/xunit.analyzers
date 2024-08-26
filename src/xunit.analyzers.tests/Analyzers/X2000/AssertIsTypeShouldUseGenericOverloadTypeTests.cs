@@ -9,7 +9,7 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 {
 	public class StaticAbstractInterfaceMethods
 	{
-#if ROSLYN_4_4_OR_GREATER  // C# 11 is required for static abstract methods
+#if ROSLYN_LATEST  // C# 11 is required for static abstract methods
 
 		const string methodCode = /* lang=c#-test */ "static abstract void Method();";
 		const string codeTemplate = /* lang=c#-test */ """

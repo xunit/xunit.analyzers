@@ -1,6 +1,8 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -9,13 +11,6 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3DiagnosticAnalyzer
 {
-	readonly static HashSet<string> matchingAssertions = [
-		Constants.Asserts.IsAssignableFrom,
-		Constants.Asserts.IsNotAssignableFrom,
-		Constants.Asserts.IsNotType,
-		Constants.Asserts.IsType,
-	];
-
 	public DoNotTestForConcreteTypeOfJsonSerializableTypes() :
 		base(Descriptors.X3002_DoNotTestForConcreteTypeOfJsonSerializableTypes)
 	{ }
@@ -43,7 +38,7 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 			if (semanticModel is null)
 				return;
 
-			reportIfMessageType(context, semanticModel, isTypeOperation.TypeOperand, isTypeOperation.Syntax);
+			reportIfMessageType(context.ReportDiagnostic, semanticModel, isTypeOperation.TypeOperand, isTypeOperation.Syntax);
 		}, OperationKind.IsType);
 
 		// "value is not Type"
@@ -59,10 +54,14 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 			if (isPatternOperation.Pattern is not INegatedPatternOperation negatedPatternOperation)
 				return;
 
+#if ROSLYN_LATEST
+			if (negatedPatternOperation.ChildOperations.FirstOrDefault() is not ITypePatternOperation typePatternOperation)
+#else
 			if (negatedPatternOperation.Children.FirstOrDefault() is not ITypePatternOperation typePatternOperation)
+#endif
 				return;
 
-			reportIfMessageType(context, semanticModel, typePatternOperation.MatchedType, isPatternOperation.Syntax);
+			reportIfMessageType(context.ReportDiagnostic, semanticModel, typePatternOperation.MatchedType, isPatternOperation.Syntax);
 		}, OperationKind.IsPattern);
 
 		// "value as Type"
@@ -72,55 +71,43 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 			if (context.Operation is not IConversionOperation conversionOperation)
 				return;
 
+			// We don't want to prohibit conversion that comes from "new(...)"
+			if (conversionOperation.Syntax is ImplicitObjectCreationExpressionSyntax)
+				return;
+
 			var semanticModel = conversionOperation.SemanticModel;
 			if (semanticModel is null)
 				return;
 
-			reportIfMessageType(context, semanticModel, conversionOperation.Operand.Type, conversionOperation.Syntax);
+			reportIfMessageType(context.ReportDiagnostic, semanticModel, conversionOperation.Type, conversionOperation.Syntax);
 		}, OperationKind.Conversion);
 
-		// "collection.OfType<Type>()"
-		// "Assert.IsType<Type>(value)"
-		// "Assert.IsNotType<Type>(value)"
-		// "Assert.IsAssignableFrom<Type>(value)"
-		// "Assert.IsNotAssignableFrom<Type>(value)"
+		// "typeof(Type)"
 		context.RegisterOperationAction(context =>
 		{
-			if (context.Operation is not IInvocationOperation invocationOperation)
+			if (context.Operation is not ITypeOfOperation typeOfOperation)
 				return;
 
-			var semanticModel = invocationOperation.SemanticModel;
+			var semanticModel = typeOfOperation.SemanticModel;
 			if (semanticModel is null)
 				return;
 
-			// We will match "OfType<>()" by convention; that is, no args, single type. This may be overly
-			// broad, but it seems like the best way to ensure every extension method gets convered.
-			var method = invocationOperation.TargetMethod;
-			if (method.Name == "OfType"
-					&& method.IsGenericMethod
-					&& method.TypeArguments.Length == 1
-					&& method.Parameters.Length == (method.IsExtensionMethod ? 1 : 0))
-				reportIfMessageType(context, semanticModel, method.TypeArguments[0], invocationOperation.Syntax);
+			reportIfMessageType(context.ReportDiagnostic, semanticModel, typeOfOperation.TypeOperand, typeOfOperation.Syntax);
+		}, OperationKind.TypeOf);
 
-			// We also look for type-related calls to Assert
-			if (assertType is not null
-					&& matchingAssertions.Contains(method.Name)
-					&& SymbolEqualityComparer.Default.Equals(assertType, method.ContainingType))
-			{
-				var testType = default(ITypeSymbol);
-				if (method.IsGenericMethod && method.TypeArguments.Length == 1)
-					testType = method.TypeArguments[0];
-				else if (invocationOperation.Arguments.FirstOrDefault() is IArgumentOperation typeArgumentOperation
-						&& typeArgumentOperation.Value is ITypeOfOperation typeOfArgumentOperation)
-					testType = typeOfArgumentOperation.TypeOperand;
+		// "SomeMethod<Type>()"
+		// "GenericType<Type>"
+		context.RegisterSyntaxNodeAction(context =>
+		{
+			if (context.Node.ChildNodes().FirstOrDefault() is not TypeArgumentListSyntax typeArgumentListSyntax)
+				return;
 
-				if (testType is not null)
-					reportIfMessageType(context, semanticModel, testType, invocationOperation.Syntax);
-			}
-		}, OperationKind.Invocation);
+			foreach (var identifierNameSyntax in typeArgumentListSyntax.ChildNodes().OfType<IdentifierNameSyntax>())
+				reportIfMessageType(context.ReportDiagnostic, context.SemanticModel, context.SemanticModel.GetTypeInfo(identifierNameSyntax).ConvertedType, context.Node);
+		}, SyntaxKind.GenericName);
 
 		void reportIfMessageType(
-			OperationAnalysisContext context,
+			Action<Diagnostic> reportDiagnostic,
 			SemanticModel semanticModel,
 			ITypeSymbol? typeSymbol,
 			SyntaxNode syntax)
@@ -130,7 +117,7 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 
 			foreach (var attribute in typeSymbol.GetAttributes())
 				if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, jsonTypeIDAttributeType))
-					context.ReportDiagnostic(
+					reportDiagnostic(
 						Diagnostic.Create(
 							Descriptors.X3002_DoNotTestForConcreteTypeOfJsonSerializableTypes,
 							syntax.GetLocation(),

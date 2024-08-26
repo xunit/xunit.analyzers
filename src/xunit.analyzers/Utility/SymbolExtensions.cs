@@ -154,19 +154,20 @@ public static class SymbolExtensions
 
 	public static ITypeSymbol? UnwrapEnumerable(
 		this ITypeSymbol? type,
-		Compilation compilation)
+		Compilation compilation,
+		bool unwrapArray = false)
 	{
 		if (type is null)
 			return null;
 
 		var iEnumerableOfT = TypeSymbolFactory.IEnumerableOfT(compilation);
-		var result = UnwrapEnumerable(type, iEnumerableOfT);
+		var result = UnwrapEnumerable(type, iEnumerableOfT, unwrapArray);
 
 		if (result is null)
 		{
 			var iAsyncEnumerableOfT = TypeSymbolFactory.IAsyncEnumerableOfT(compilation);
 			if (iAsyncEnumerableOfT is not null)
-				result = UnwrapEnumerable(type, iAsyncEnumerableOfT);
+				result = UnwrapEnumerable(type, iAsyncEnumerableOfT, unwrapArray);
 		}
 
 		return result;
@@ -174,10 +175,14 @@ public static class SymbolExtensions
 
 	public static ITypeSymbol? UnwrapEnumerable(
 		this ITypeSymbol? type,
-		ITypeSymbol enumerableType)
+		ITypeSymbol enumerableType,
+		bool unwrapArray = false)
 	{
 		if (type is null)
 			return null;
+
+		if (unwrapArray && type is IArrayTypeSymbol arrayType)
+			return arrayType.ElementType;
 
 		IEnumerable<INamedTypeSymbol> interfaces = type.AllInterfaces;
 		if (type is INamedTypeSymbol namedType)

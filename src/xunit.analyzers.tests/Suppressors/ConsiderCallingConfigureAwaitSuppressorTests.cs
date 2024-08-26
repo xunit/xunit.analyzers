@@ -5,6 +5,10 @@ using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Suppressors.ConsiderCallingConfigureAwaitSuppressor>;
 
+#if ROSLYN_LATEST
+using System;
+#endif
+
 public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 {
 	[Fact]
@@ -41,7 +45,11 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 			    }}
 			}}
 			""", attribute);
+#if ROSLYN_LATEST
+		var expected = Array.Empty<DiagnosticResult>();
+#else
 		var expected = DiagnosticResult.CompilerWarning("CA2007").WithLocation(0).WithIsSuppressed(true);
+#endif
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA2007(), expected);
 	}

@@ -17,7 +17,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <LangVersion>12.0</LangVersion>
-    <MicrosoftCodeAnalysisVersion>3.11</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion Condition=" '$(MicrosoftCodeAnalysisVersion)' == '' ">3.11</MicrosoftCodeAnalysisVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

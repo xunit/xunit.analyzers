@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);ROSLYN_LATEST</DefineConstants>
+    <MicrosoftCodeAnalysisVersion>4.11.0</MicrosoftCodeAnalysisVersion>
+  </PropertyGroup>
+
+  <Import Project="..\Directory.Build.props"/>
+
+</Project>

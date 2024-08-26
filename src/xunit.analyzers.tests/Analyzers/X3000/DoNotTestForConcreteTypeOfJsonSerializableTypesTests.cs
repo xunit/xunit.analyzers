@@ -14,59 +14,52 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			using System.Collections.Generic;
 			using System.Linq;
 			
-			public static class MessageFactory {
-			    public static MyMessage Create(int propertyValue = 42) =>
-			        new() {
-			            PropertyValue = propertyValue,
-			        };
-			}
+			public class GenericClass<T1,T2> { }
 
 			public class TheClass {
-			    public void TheMethod() {
-			        var message = new object();
-			        var collection = new List<object>();
+				/// <summary>
+				/// Testing XMLDOC references <see cref="MyMessage"/>.
+				/// </summary>
+				public void TheMethod() {
+					var message = new object();
+					var collection = new List<object>();
 
-			        // Not testing against a serializable type
-			        Assert.True(message is string);
-			        Assert.True(message is not string);
-			        Assert.NotNull(message as string);
-			        Assert.NotNull((string)message);
-			        Assert.Empty(collection.OfType<string>());
-			        Assert.IsType(typeof(string), message);
-			        Assert.IsType<string>(message);
-			        Assert.IsNotType(typeof(string), message);
-			        Assert.IsNotType<string>(message);
-			        Assert.IsAssignableFrom(typeof(string), message);
-			        Assert.IsAssignableFrom<string>(message);
-			        Assert.IsNotAssignableFrom(typeof(string), message);
-			        Assert.IsNotAssignableFrom<string>(message);
+					// Direct construction
+					_ = new MyMessage { PropertyValue = 2112 };
+					static MyMessage Create(int propertyValue) =>
+						new() { PropertyValue = propertyValue };
 
-			        // Construction should not be prohibited
-			        _ = new MyMessage { PropertyValue = 2112 };
-			        _ = MessageFactory.Create(2600);
+					// Non-serialized type
+					_ = message is IMyMessage;
+					_ = message is not IMyMessage;
+					_ = message as IMyMessage;
+					_ = (IMyMessage)message;
+					_ = typeof(IMyMessage);
+					_ = collection.OfType<IMyMessage>();
+					_ = default(IEnumerable<IMyMessage>);
+					_ = new GenericClass<IMyMessage, int>();
+					_ = new GenericClass<int, IMyMessage>();
 
-			        // Testing against a serializable type
-			        Assert.True([|message is MyMessage|]);
-			        Assert.True([|message is not MyMessage|]);
-			        Assert.NotNull([|message as MyMessage|]);
-			        Assert.NotNull([|(MyMessage)message|]);
-			        Assert.Empty([|collection.OfType<MyMessage>()|]);
-			        [|Assert.IsType(typeof(MyMessage), message)|];
-			        [|Assert.IsType<MyMessage>(message)|];
-			        [|Assert.IsNotType(typeof(MyMessage), message)|];
-			        [|Assert.IsNotType<MyMessage>(message)|];
-			        [|Assert.IsAssignableFrom(typeof(MyMessage), message)|];
-			        [|Assert.IsAssignableFrom<MyMessage>(message)|];
-			        [|Assert.IsNotAssignableFrom(typeof(MyMessage), message)|];
-			        [|Assert.IsNotAssignableFrom<MyMessage>(message)|];
-			    }
+					// Serialized type
+					_ = [|message is MyMessage|];
+					_ = [|message is not MyMessage|];
+					_ = [|message as MyMessage|];
+					_ = [|(MyMessage)message|];
+					_ = [|typeof(MyMessage)|];
+					_ = collection.[|OfType<MyMessage>|]();
+					_ = default([|IEnumerable<MyMessage>|]);
+					_ = new [|GenericClass<MyMessage, int>|]();
+					_ = new [|GenericClass<int, MyMessage>|]();
+				}
 			}
 			""";
 		var messagePartial1 = /* lang=c#-test */ """
 			using Xunit.Sdk;
 
+			public interface IMyMessage { }
+
 			[JsonTypeID("MyMessage")]
-			sealed partial class MyMessage { }
+			sealed partial class MyMessage : IMyMessage { }
 			""";
 		var messagePartial2 = /* lang=c#-test */ """
 			public partial class MyMessage {

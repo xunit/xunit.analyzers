@@ -29,7 +29,7 @@ public static partial class Descriptors
 			"xUnit3002",
 			"Classes which are JSON serializable should not be tested for their concrete type",
 			Extensibility,
-			Hidden,
+			Warning,
 			"Class {0} is JSON serializable and should not be tested for its concrete type. Test for its primary interface instead."
 		);
 

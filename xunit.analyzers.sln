@@ -1,3 +1,4 @@
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
@@ -14,6 +15,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.fixes", "src\xunit.analyzers.fixes\xunit.analyzers.fixes.csproj", "{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.tests", "src\xunit.analyzers.tests\xunit.analyzers.tests.csproj", "{58C228AC-60BB-4928-AE3A-282CDD2EA912}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "compat", "compat", "{C4169EC8-5C1D-416C-82B2-B9084C8F9D77}"
+	ProjectSection(SolutionItems) = preProject
+		src\compat\Directory.Build.props = src\compat\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.latest", "src\compat\xunit.analyzers.latest\xunit.analyzers.latest.csproj", "{ABFA42B0-3347-43C8-8D6B-13511DECED5F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.latest.fixes", "src\compat\xunit.analyzers.latest.fixes\xunit.analyzers.latest.fixes.csproj", "{B3D3E63A-6E6E-4673-8C6A-25030BF24378}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.analyzers.latest.tests", "src\compat\xunit.analyzers.latest.tests\xunit.analyzers.latest.tests.csproj", "{86C1AC30-64A1-47AD-83F1-D86E30D4DE20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +45,18 @@ Global
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABFA42B0-3347-43C8-8D6B-13511DECED5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABFA42B0-3347-43C8-8D6B-13511DECED5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABFA42B0-3347-43C8-8D6B-13511DECED5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABFA42B0-3347-43C8-8D6B-13511DECED5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3D3E63A-6E6E-4673-8C6A-25030BF24378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3D3E63A-6E6E-4673-8C6A-25030BF24378}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3D3E63A-6E6E-4673-8C6A-25030BF24378}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3D3E63A-6E6E-4673-8C6A-25030BF24378}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86C1AC30-64A1-47AD-83F1-D86E30D4DE20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86C1AC30-64A1-47AD-83F1-D86E30D4DE20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86C1AC30-64A1-47AD-83F1-D86E30D4DE20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86C1AC30-64A1-47AD-83F1-D86E30D4DE20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +65,10 @@ Global
 		{897D042D-2C87-412F-805E-2905A1A38C83} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{B8612BA7-3EC9-4D08-82D6-ABDBF73E6BF6} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
 		{58C228AC-60BB-4928-AE3A-282CDD2EA912} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
+		{C4169EC8-5C1D-416C-82B2-B9084C8F9D77} = {3CAA9D63-0806-4CB1-8C32-AA8045E1F441}
+		{ABFA42B0-3347-43C8-8D6B-13511DECED5F} = {C4169EC8-5C1D-416C-82B2-B9084C8F9D77}
+		{B3D3E63A-6E6E-4673-8C6A-25030BF24378} = {C4169EC8-5C1D-416C-82B2-B9084C8F9D77}
+		{86C1AC30-64A1-47AD-83F1-D86E30D4DE20} = {C4169EC8-5C1D-416C-82B2-B9084C8F9D77}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {601643AE-7617-4470-841B-56F1E8356D87}
