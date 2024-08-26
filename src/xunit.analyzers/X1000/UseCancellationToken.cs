@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -49,14 +51,14 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			{
 				// Default parameter value
 				if (argument.ArgumentKind == ArgumentKind.DefaultValue)
-					Report(context, invocationOperation.Syntax.GetLocation());
+					Report(context, invocationOperation.Syntax.GetLocation(), argument.Parameter!);
 
 				// Explicit parameter value
 				else if (argument.Syntax is ArgumentSyntax argumentSyntax)
 				{
 					var kind = argumentSyntax.Expression.Kind();
 					if (kind == SyntaxKind.DefaultExpression || kind == SyntaxKind.DefaultLiteralExpression)
-						Report(context, invocationOperation.Syntax.GetLocation());
+						Report(context, invocationOperation.Syntax.GetLocation(), argument.Parameter!);
 				}
 			}
 			// Look for an overload with the exact same parameter types + a CancellationToken
@@ -80,7 +82,7 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 
 						if (match)
 						{
-							Report(context, invocationOperation.Syntax.GetLocation());
+							Report(context, invocationOperation.Syntax.GetLocation(), method.Parameters.Last());
 							return;
 						}
 					}
@@ -89,13 +91,21 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 
 		static void Report(
 			OperationAnalysisContext context,
-			Location location) =>
-				context.ReportDiagnostic(
+			Location location,
+			IParameterSymbol parameter)
+		{
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+			builder[Constants.Properties.ParameterName] = parameter.Name;
+			builder[Constants.Properties.ParameterIndex] = parameter.Ordinal.ToString(CultureInfo.InvariantCulture);
+
+			context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1051_UseCancellationToken,
-						location
+						location,
+						builder.ToImmutable()
 					)
 				);
+		}
 	}
 
 	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
