@@ -51,7 +51,7 @@ public class UseCancellationTokenFixer : BatchedCodeFixProvider
 		if (root.FindNode(diagnostic.Location.SourceSpan) is not InvocationExpressionSyntax invocation)
 			return;
 
-		var arguments = new List<ArgumentSyntax>(invocation.ArgumentList.Arguments);
+		var arguments = invocation.ArgumentList.Arguments;
 
 		for (var argumentIndex = 0; argumentIndex < arguments.Count; argumentIndex++)
 		{
@@ -76,24 +76,26 @@ public class UseCancellationTokenFixer : BatchedCodeFixProvider
 						"CancellationToken"
 					);
 
-					if (parameterIndex < arguments.Count)
+					var args = new List<ArgumentSyntax>(arguments);
+
+					if (parameterIndex < args.Count)
 					{
-						arguments[parameterIndex] = arguments[parameterIndex].WithExpression(testContextCancellationTokenExpression);
+						args[parameterIndex] = args[parameterIndex].WithExpression(testContextCancellationTokenExpression);
 					}
 					else
 					{
 						var argument = Argument(testContextCancellationTokenExpression);
-						if (parameterIndex > arguments.Count || arguments.Any(arg => arg.NameColon is not null))
+						if (parameterIndex > args.Count || args.Any(arg => arg.NameColon is not null))
 						{
 							argument = argument.WithNameColon(NameColon(parameterName));
 						}
-						arguments.Add(argument);
+						args.Add(argument);
 					}
 
 					editor.ReplaceNode(
 						invocation,
 						invocation
-							.WithArgumentList(ArgumentList(SeparatedList(arguments)))
+							.WithArgumentList(ArgumentList(SeparatedList(args)))
 					);
 
 					return editor.GetChangedDocument();
