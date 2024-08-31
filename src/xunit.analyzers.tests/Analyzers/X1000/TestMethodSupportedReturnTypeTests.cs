@@ -66,7 +66,7 @@ public class TestMethodSupportedReturnTypeTests
 	[Theory]
 	[InlineData("MyTest")]
 	[InlineData("MyTestAttribute")]
-	public async Task CustomTestAttribute_DoesNotTrigger(string attribute)
+	public async Task CustomTestAttribute_Triggers(string attribute)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			using Xunit;
@@ -80,7 +80,10 @@ public class TestMethodSupportedReturnTypeTests
 				}}
 			}}
 			""", attribute);
+		var expectedV2 = Verify.Diagnostic().WithSpan(7, 16, 7, 26).WithArguments("void, Task");
+		var expectedV3 = Verify.Diagnostic().WithSpan(7, 16, 7, 26).WithArguments("void, Task, ValueTask");
 
-		await Verify.VerifyAnalyzer(source);
+		await Verify.VerifyAnalyzerV2(source, expectedV2);
+		await Verify.VerifyAnalyzerV3(source, expectedV3);
 	}
 }

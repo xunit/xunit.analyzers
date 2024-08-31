@@ -96,8 +96,8 @@ static class CodeAnalysisExtensions
 					return false;
 
 				return
-					SymbolEqualityComparer.Default.Equals(typeInfo.Type, xunitContext.Core.FactAttributeType) ||
-					SymbolEqualityComparer.Default.Equals(typeInfo.Type, xunitContext.Core.TheoryAttributeType);
+					xunitContext.Core.FactAttributeType.IsAssignableFrom(typeInfo.Type) ||
+					xunitContext.Core.TheoryAttributeType.IsAssignableFrom(typeInfo.Type);
 			});
 		}
 

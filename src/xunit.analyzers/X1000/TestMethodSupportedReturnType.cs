@@ -27,7 +27,7 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 		{
 			if (context.Symbol is not IMethodSymbol method)
 				return;
-			if (!method.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(xunitContext.Core.FactAttributeType, a.AttributeClass) || SymbolEqualityComparer.Default.Equals(xunitContext.Core.TheoryAttributeType, a.AttributeClass)))
+			if (!method.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass) || xunitContext.Core.TheoryAttributeType.IsAssignableFrom(a.AttributeClass)))
 				return;
 
 			var validReturnTypes = GetValidReturnTypes(context.Compilation, xunitContext);
