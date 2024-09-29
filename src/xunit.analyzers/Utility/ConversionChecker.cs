@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,7 +13,8 @@ static class ConversionChecker
 		Compilation compilation,
 		ITypeSymbol source,
 		ITypeSymbol destination,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		int? valueSource = null)
 	{
 		Guard.ArgumentNotNull(compilation);
 		Guard.ArgumentNotNull(source);
@@ -32,7 +35,7 @@ static class ConversionChecker
 		var conversion = compilation.ClassifyConversion(source, destination);
 
 		if (conversion.IsNumeric)
-			return IsConvertibleNumeric(source, destination);
+			return IsConvertibleNumeric(source, destination, valueSource);
 
 		if (destination.SpecialType == SpecialType.System_DateTime
 			|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
@@ -62,8 +65,12 @@ static class ConversionChecker
 
 	static bool IsConvertibleNumeric(
 		ITypeSymbol source,
-		ITypeSymbol destination)
+		ITypeSymbol destination,
+		int? valueSource = null)
 	{
+		if (IsInt(source) && IsUInt(destination) && valueSource.HasValue && valueSource < 0)
+			return false;
+
 		if (destination.SpecialType == SpecialType.System_Char
 			&& (source.SpecialType == SpecialType.System_Double || source.SpecialType == SpecialType.System_Single))
 		{
@@ -81,4 +88,18 @@ static class ConversionChecker
 
 		return destination.MetadataName == nameof(DateTimeOffset) || destination.MetadataName == nameof(Guid);
 	}
+
+	static bool IsInt(ITypeSymbol typeSymbol) =>
+		new List<SpecialType>() {
+			SpecialType.System_Int16,
+			SpecialType.System_Int32,
+			SpecialType.System_Int64
+		}.Contains(typeSymbol.SpecialType);
+
+	static bool IsUInt(ITypeSymbol typeSymbol) =>
+		new List<SpecialType>() {
+				SpecialType.System_UInt16,
+				SpecialType.System_UInt32,
+				SpecialType.System_UInt64
+		}.Contains(typeSymbol.SpecialType);
 }
