@@ -14,7 +14,7 @@ static class ConversionChecker
 		ITypeSymbol source,
 		ITypeSymbol destination,
 		XunitContext xunitContext,
-		int? valueSource = null)
+		object? valueSource = null)
 	{
 		Guard.ArgumentNotNull(compilation);
 		Guard.ArgumentNotNull(source);
@@ -66,9 +66,10 @@ static class ConversionChecker
 	static bool IsConvertibleNumeric(
 		ITypeSymbol source,
 		ITypeSymbol destination,
-		int? valueSource = null)
+		object? valueSource = null)
 	{
-		if (IsSigned(source) && IsUnsigned(destination) && valueSource.HasValue && valueSource < 0)
+		var isInt = int.TryParse(valueSource?.ToString(), out int valueInt);
+		if (isInt && valueInt < 0 && IsSigned(source) && IsUnsigned(destination))
 			return false;
 
 		if (destination.SpecialType == SpecialType.System_Char
