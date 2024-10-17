@@ -68,7 +68,7 @@ static class ConversionChecker
 		ITypeSymbol destination,
 		int? valueSource = null)
 	{
-		if (IsInt(source) && IsUInt(destination) && valueSource.HasValue && valueSource < 0)
+		if (IsSigned(source) && IsUnsigned(destination) && valueSource.HasValue && valueSource < 0)
 			return false;
 
 		if (destination.SpecialType == SpecialType.System_Char
@@ -89,17 +89,19 @@ static class ConversionChecker
 		return destination.MetadataName == nameof(DateTimeOffset) || destination.MetadataName == nameof(Guid);
 	}
 
-	static bool IsInt(ITypeSymbol typeSymbol) =>
+	static bool IsSigned(ITypeSymbol typeSymbol) =>
 		new List<SpecialType>() {
+			SpecialType.System_SByte,
 			SpecialType.System_Int16,
 			SpecialType.System_Int32,
 			SpecialType.System_Int64
 		}.Contains(typeSymbol.SpecialType);
 
-	static bool IsUInt(ITypeSymbol typeSymbol) =>
+	static bool IsUnsigned(ITypeSymbol typeSymbol) =>
 		new List<SpecialType>() {
-				SpecialType.System_UInt16,
-				SpecialType.System_UInt32,
-				SpecialType.System_UInt64
+			SpecialType.System_Byte,
+			SpecialType.System_UInt16,
+			SpecialType.System_UInt32,
+			SpecialType.System_UInt64
 		}.Contains(typeSymbol.SpecialType);
 }
