@@ -1038,17 +1038,18 @@ public class InlineDataMustMatchTheoryParametersTests
 				await Verify.VerifyAnalyzer(source);
 			}
 
-			[Fact]
-			public async Task FromNegativeInt_ToUint()
+			[Theory]
+			[MemberData(nameof(UnsignedInt))]
+			public async Task FromNegativeInt_ToUnsignedInt(string unsignedType)
 			{
-				var source =/* lang=c#-test */ """
-					public class TestClass {
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
 					    [Xunit.Theory]
-					    [Xunit.InlineData({|#0:-1|})]
-					    public void TestMethod(uint value) { }
-					}
-					""";
-				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", "uint");
+					    [Xunit.InlineData({{|#0:-1|}})]
+					    public void TestMethod({0} value) {{ }}
+					}}
+					""", unsignedType);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
 
 				await Verify.VerifyAnalyzer(source, expected);
 			}
@@ -1267,6 +1268,8 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public static TheoryData<string> ValueTypedValues =
 			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues).Concat(BoolValues).Append("typeof(int)"));
+
+		public static readonly TheoryData<string> UnsignedInt = ["uint", "ulong", "ushort", "byte"];
 	}
 
 	public class X1011_ExtraValue
