@@ -1037,6 +1037,22 @@ public class InlineDataMustMatchTheoryParametersTests
 
 				await Verify.VerifyAnalyzer(source);
 			}
+
+			[Theory]
+			[MemberData(nameof(SignedIntAndUnsignedInt))]
+			public async Task FromNegativeInteger_ToUnsignedInteger(string signedType, string unsignedType)
+			{
+				var source = string.Format(/* lang=c#-test */ """
+					public class TestClass {{
+					    [Xunit.Theory]
+					    [Xunit.InlineData({{|#0:({0})-1|}})]
+					    public void TestMethod({1} value) {{ }}
+					}}
+					""", signedType, unsignedType);
+				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
+
+				await Verify.VerifyAnalyzer(source, expected);
+			}
 		}
 
 		public class DateTimeLikeParameter : X1010_IncompatibleValueType
@@ -1252,6 +1268,12 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public static TheoryData<string> ValueTypedValues =
 			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues).Concat(BoolValues).Append("typeof(int)"));
+
+		public static readonly TheoryData<string> SignedInteger = ["int", "long", "short", "sbyte"];
+
+		public static readonly TheoryData<string> UnsignedInteger = ["uint", "ulong", "ushort", "byte"];
+
+		public static readonly MatrixTheoryData<string, string> SignedIntAndUnsignedInt = new(SignedInteger, UnsignedInteger);
 	}
 
 	public class X1011_ExtraValue
