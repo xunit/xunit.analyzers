@@ -39,8 +39,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.assert", "2.9.1-pre.8"),
-				new PackageIdentity("xunit.core", "2.9.1-pre.8")
+				new PackageIdentity("xunit.assert", "2.9.2"),
+				new PackageIdentity("xunit.core", "2.9.2")
 			)
 		);
 
@@ -51,7 +51,7 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.runner.utility", "2.9.1-pre.8")
+				new PackageIdentity("xunit.runner.utility", "2.9.2")
 			)
 		);
 
@@ -61,9 +61,9 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "8.0.0"),
-				new PackageIdentity("xunit.v3.assert", "0.2.0-pre.41"),
-				new PackageIdentity("xunit.v3.common", "0.2.0-pre.41"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.2.0-pre.41")
+				new PackageIdentity("xunit.v3.assert", "0.5.0-pre.28"),
+				new PackageIdentity("xunit.v3.common", "0.5.0-pre.28"),
+				new PackageIdentity("xunit.v3.extensibility.core", "0.5.0-pre.28")
 			)
 		);
 
@@ -73,8 +73,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "8.0.0"),
-				new PackageIdentity("xunit.v3.common", "0.2.0-pre.41"),
-				new PackageIdentity("xunit.v3.runner.utility", "0.2.0-pre.41")
+				new PackageIdentity("xunit.v3.common", "0.5.0-pre.28"),
+				new PackageIdentity("xunit.v3.runner.utility", "0.5.0-pre.28")
 			)
 		);
 	}
