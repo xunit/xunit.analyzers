@@ -178,6 +178,7 @@ public static class Constants
 			public const string LongLivedMarshalByRefObject_Execution_V2 = "Xunit.LongLivedMarshalByRefObject";
 			public const string LongLivedMarshalByRefObject_RunnerUtility = "Xunit.Sdk.LongLivedMarshalByRefObject";
 			public const string MemberDataAttribute = "Xunit.MemberDataAttribute";
+			public const string RegisterXunitSerializerAttribute_V3 = "Xunit.Sdk.RegisterXunitSerializerAttribute";
 			public const string TestContext_V3 = "Xunit.TestContext";
 			public const string TheoryAttribute = "Xunit.TheoryAttribute";
 			public const string TheoryData = "Xunit.TheoryData";

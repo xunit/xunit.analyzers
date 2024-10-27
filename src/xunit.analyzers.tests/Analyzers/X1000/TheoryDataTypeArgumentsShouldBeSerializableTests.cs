@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataTypeArgumentsShouldBeSerializable>;
 
@@ -251,6 +252,52 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 					    public void Serialize(IXunitSerializationInfo info) {{ }}
 					}}
 					""", member, attribute, type, ns);
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "ICustomSerialized")]
+		[MemberData(nameof(TheoryDataMembers), "CustomSerialized")]
+		[MemberData(nameof(TheoryDataMembers), "CustomSerializedDerived")]
+		public async Task GivenTheory_WithIXunitSerializerTheoryDataMember_DoesNotTrigger(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+				using Xunit.Sdk;
+
+				[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
+
+				public class TestClass {{
+				    {0}
+
+				    [Theory]
+				    [{1}]
+				    public void TestMethod({2} parameter) {{ }}
+				}}
+
+				public interface ICustomSerialized {{ }}
+
+				public class CustomSerialized : ICustomSerialized {{ }}
+
+				public class CustomSerializedDerived : CustomSerialized {{ }}
+
+				public class CustomSerializer : IXunitSerializer {{
+				    public object Deserialize(Type type, string serializedValue) =>
+				        throw new NotImplementedException();
+
+				    public bool IsSerializable(Type type, object? value) =>
+				        true;
+
+				    public string Serialize(object value) =>
+				        throw new NotImplementedException();
+				}}
+				""", member, attribute, type
+			);
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 		}
 
 		[Theory]

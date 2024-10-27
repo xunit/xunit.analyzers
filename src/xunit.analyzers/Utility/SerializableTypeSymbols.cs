@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
@@ -16,6 +18,7 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> timeSpan;
 	readonly Lazy<INamedTypeSymbol?> traitDictionary;
 	readonly Lazy<INamedTypeSymbol?> type;
+	readonly Lazy<ImmutableArray<INamedTypeSymbol>> typesWithCustomSerializers;
 
 	SerializableTypeSymbols(
 		Compilation compilation,
@@ -40,6 +43,21 @@ public sealed class SerializableTypeSymbols
 		timeSpan = new(() => TypeSymbolFactory.TimeSpan(compilation));
 		traitDictionary = new(() => GetTraitDictionary(compilation));
 		type = new(() => TypeSymbolFactory.Type(compilation));
+		typesWithCustomSerializers = new(() =>
+		{
+			var registerXunitSerializer = TypeSymbolFactory.RegisterXunitSerializerAttribute_V3(compilation);
+			if (registerXunitSerializer is null)
+				return ImmutableArray<INamedTypeSymbol>.Empty;
+
+			return
+				compilation
+					.Assembly
+					.GetAttributes()
+					.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, registerXunitSerializer) && a.ConstructorArguments.Length > 1 && a.ConstructorArguments[1].Kind == TypedConstantKind.Array)
+					.SelectMany(a => a.ConstructorArguments[1].Values.Select(v => v.Value as INamedTypeSymbol))
+					.WhereNotNull()
+					.ToImmutableArray();
+		});
 
 		ClassDataAttribute = classDataAttribute;
 		DataAttribute = dataAttribute;
@@ -60,6 +78,7 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? TimeSpan => timeSpan.Value;
 	public INamedTypeSymbol? TraitDictionary => traitDictionary.Value;
 	public INamedTypeSymbol? Type => type.Value;
+	public ImmutableArray<INamedTypeSymbol> TypesWithCustomSerializers => typesWithCustomSerializers.Value;
 
 	public static SerializableTypeSymbols? Create(
 		Compilation compilation,

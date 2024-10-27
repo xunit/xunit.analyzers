@@ -120,6 +120,54 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	}
 
 	[Theory]
+	[InlineData("CustomSerialized")]
+	[InlineData("CustomSerializedDerived")]
+	public async Task IXunitSerializerValue_DoesNotTrigger(string type)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
+
+			using System;
+			using System.Collections.Generic;
+			using Xunit;
+			using Xunit.Sdk;
+
+			[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
+			
+			public class MyClass {{
+			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			        var value = new {0}();
+			        var defaultValue = default({0});
+			        var nullValue = default({0}?);
+			        var arrayValue = new {0}[0];
+
+			        yield return new TheoryDataRow(value, defaultValue, nullValue, arrayValue);
+			        yield return new TheoryDataRow<{0}, {0}?, {0}?, {0}[]>(new {0}(), default({0}), default({0}?), new {0}[0]);
+			    }}
+			}}
+
+			public interface ICustomSerialized {{ }}
+			
+			public class CustomSerialized : ICustomSerialized {{ }}
+			
+			public class CustomSerializedDerived : CustomSerialized {{ }}
+			
+			public class CustomSerializer : IXunitSerializer {{
+			    public object Deserialize(Type type, string serializedValue) =>
+			        throw new NotImplementedException();
+			
+			    public bool IsSerializable(Type type, object? value) =>
+			        true;
+			
+			    public string Serialize(object value) =>
+			        throw new NotImplementedException();
+			}}
+			""", type);
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+	}
+
+	[Theory]
 	[InlineData("Delegate", "Delegate?", "Delegate?")]
 	[InlineData("Func<int>", "Func<int>?", "Func<int>?")]
 	[InlineData("NonSerializableSealedClass", "NonSerializableSealedClass?", "NonSerializableSealedClass?")]

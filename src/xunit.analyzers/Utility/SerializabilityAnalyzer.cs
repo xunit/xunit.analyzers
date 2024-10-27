@@ -47,6 +47,9 @@ public sealed class SerializabilityAnalyzer
 			|| type.Equals(typeSymbols.TimeOnly, SymbolEqualityComparer.Default))
 			return Serializability.AlwaysSerializable;
 
+		if (typeSymbols.TypesWithCustomSerializers.Any(t => t.IsAssignableFrom(type)))
+			return Serializability.AlwaysSerializable;
+
 		if (type.TypeKind == TypeKind.Class && !type.IsSealed)
 			return Serializability.PossiblySerializable;
 
