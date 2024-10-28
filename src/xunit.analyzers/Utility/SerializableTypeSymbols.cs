@@ -34,7 +34,7 @@ public sealed class SerializableTypeSymbols
 		bigInteger = new(() => TypeSymbolFactory.BigInteger(compilation));
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
-		iXunitSerializable = new(() => xunitContext.Abstractions.IXunitSerializableType);
+		iXunitSerializable = new(() => xunitContext.Common.IXunitSerializableType);
 		// For v2 and early versions of v3, the base type is "TheoryData" (non-generic). For later versions
 		// of v3, it's "TheoryDataBase<TTheoryDataRow, TRawDataRow>". In either case, getting "TheoryData<T>"
 		// and going up one layer gets us the type we want to be able to search for.

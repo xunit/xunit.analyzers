@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V2AbstractionsContext : IAbstractionsContext
+public class V2AbstractionsContext : ICommonContext
 {
 	readonly Lazy<INamedTypeSymbol?> lazyIAssemblyInfoType;
 	readonly Lazy<INamedTypeSymbol?> lazyIAttributeInfoType;

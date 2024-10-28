@@ -8,8 +8,8 @@ namespace Xunit.Analyzers;
 /// </summary>
 public class XunitContext
 {
-	IAbstractionsContext? abstractions;
 	IAssertContext? assert;
+	ICommonContext? common;
 	ICoreContext? core;
 	IRunnerUtilityContext? runnerUtility;
 	static readonly Version v2AbstractionsVersion = new(2, 0, 3);
@@ -29,41 +29,42 @@ public class XunitContext
 		V2Core = V2CoreContext.Get(compilation);
 		V2Execution = V2ExecutionContext.Get(compilation);
 		V2RunnerUtility = V2RunnerUtilityContext.Get(compilation);
-		V3Abstractions = V3AbstractionsContext.Get(compilation);
+
 		V3Assert = V3AssertContext.Get(compilation);
+		V3Common = V3CommonContext.Get(compilation);
 		V3Core = V3CoreContext.Get(compilation);
 	}
 
 	/// <summary>
-	/// Gets a combined view of features available to either v2 tests (linked against
-	/// xunit.abstractions) or v3 tests (linked against xunit.v3.common and xunit.v3.core).
-	/// </summary>
-	public IAbstractionsContext Abstractions
-	{
-		get
-		{
-			abstractions ??= V3Abstractions ?? (IAbstractionsContext?)V2Abstractions ?? EmptyAbstractionsContext.Instance;
-			return abstractions;
-		}
-	}
-
-	/// <summary>
 	/// Gets a combined view of the assertion library features available to either v2 tests (linked
-	/// against xunit.assert or xunit.assert.source) or v3 tests (linked against xunit.v3.assert or
-	/// xunit.v3.assert.source).
+	/// against <c>xunit.assert</c> or <c>xunit.assert.source</c>) or v3 tests (linked against
+	/// <c>xunit.v3.assert</c> or <c>xunit.v3.assert.source</c>).
 	/// </summary>
 	public IAssertContext Assert
 	{
 		get
 		{
-			assert ??= V2Assert ?? (IAssertContext?)V3Assert ?? EmptyAssertContext.Instance;
+			assert ??= V3Assert ?? (IAssertContext?)V2Assert ?? EmptyAssertContext.Instance;
 			return assert;
 		}
 	}
 
 	/// <summary>
-	/// Gets a combined view of features available to either v2 tests (linked against xunit.core)
-	/// or v3 tests (linked against xunit.v3.core).
+	/// Gets a combined view of features that are common to both tests and runners, available to either
+	/// v2 tests (linked against <c>xunit.abstractions</c>) or v3 tests (linked against <c>xunit.v3.common</c>).
+	/// </summary>
+	public ICommonContext Common
+	{
+		get
+		{
+			common ??= V3Common ?? (ICommonContext?)V2Abstractions ?? EmptyCommonContext.Instance;
+			return common;
+		}
+	}
+
+	/// <summary>
+	/// Gets a combined view of features available to either v2 tests (linked against <c>xunit.core</c>)
+	/// or v3 tests (linked against <c>xunit.v3.core</c>).
 	/// </summary>
 	public ICoreContext Core
 	{
@@ -76,21 +77,21 @@ public class XunitContext
 
 	/// <summary>
 	/// Gets a flag which indicates whether there are any xUnit.net v2 references in the project
-	/// (including abstractions, assert, core, and execution references).
+	/// (including abstractions, assert, core, execution, and runner utility references).
 	/// </summary>
 	public bool HasV2References =>
 		V2Abstractions is not null || V2Assert is not null || V2Core is not null || V2Execution is not null || V2RunnerUtility is not null;
 
 	/// <summary>
 	/// Gets a flag which indicates whether there are any xUnit.net v3 references in the project
-	/// (including assert and core references).
+	/// (including assert, common, and core references).
 	/// </summary>
 	public bool HasV3References =>
-		V3Abstractions is not null || V3Assert is not null || V3Core is not null;
+		V3Assert is not null || V3Common is not null || V3Core is not null;
 
 	/// <summary>
-	/// Gets a combined view of features available to either v2 runners (linked against xunit.runner.utility.*)
-	/// or v3 runners (linked against xunit.v3.runner.utility.*).
+	/// Gets a combined view of features available to either v2 runners (linked against <c>xunit.runner.utility</c>)
+	/// or v3 runners (linked against <c>xunit.v3.runner.utility</c>).
 	/// </summary>
 	public IRunnerUtilityContext RunnerUtility
 	{
@@ -102,64 +103,67 @@ public class XunitContext
 	}
 
 	/// <summary>
-	/// Gets information about the reference to xunit.abstractions (v2). If the project does
-	/// not reference v2 Abstractions, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.abstractions</c> (v2). If the project does
+	/// not reference the v2 abstractions library, then returns <c>null</c>.
 	/// </summary>
 	public V2AbstractionsContext? V2Abstractions { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.assert or xunit.assert.source (v2). If
+	/// Gets information about the reference to <c>xunit.assert</c> or <c>xunit.assert.source</c> (v2). If
 	/// the project does not reference the v2 assertion library, then returns <c>null</c>.
 	/// </summary>
 	public V2AssertContext? V2Assert { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.core (v2). If the project does not
-	/// reference v2 Core, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.core</c>(v2). If the project does not
+	/// reference the v2 core library, then returns <c>null</c>.
 	/// </summary>
 	public V2CoreContext? V2Core { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.execution.* (v2). If the project does
-	/// not reference v2 Execution, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.execution</c> (v2). If the project does
+	/// not reference the v2 execution library, then returns <c>null</c>.
 	/// </summary>
 	public V2ExecutionContext? V2Execution { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.runner.utility.* (v2). If the project does
-	/// not reference v2 Runner Utility, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.runner.utility</c> (v2). If the project does
+	/// not reference the v2 runner utility library, then returns <c>null</c>.
 	/// </summary>
 	public V2RunnerUtilityContext? V2RunnerUtility { get; private set; }
 
 	/// <summary>
-	/// Gets information about the v3 equivalent to v2's xunit.abstractions, which comes from a mix
-	/// of xunit.v3.common and xunit.v3.core. If the project does not reference xunit.v3.common, then
-	/// returns <c>null</c>.
-	/// </summary>
-	public V3AbstractionsContext? V3Abstractions { get; private set; }
-
-	/// <summary>
-	/// Gets information about the reference to xunit.v3.assert or xunit.v3.assert.source (v3).
-	/// If the project does not reference the v3 assertion library, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.assert</c> or <c>xunit.v3.assert.source</c>
+	/// (v3). If the project does not reference the v3 assertion library, then returns <c>null</c>.
 	/// </summary>
 	public V3AssertContext? V3Assert { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.v3.core (v3). If the project does not
-	/// reference v3 Core, then returns <c>null</c>.
+	/// Gets types that exist in <c>xunit.v3.common</c> (v3). If the project does not reference
+	/// the v3 common library, then returns <c>null</c>.
+	/// </summary>
+	/// <remarks>
+	/// This also contains a few selected types from <c>xunit.v3.core</c> and <c>xunit.v3.runner.common</c>
+	/// to align with the types that were all originally in <c>xunit.abstractions</c> in v2, to support
+	/// the composite view from <see cref="ICommonContext"/>.
+	/// </remarks>
+	public V3CommonContext? V3Common { get; private set; }
+
+	/// <summary>
+	/// Gets information about the reference to <c>xunit.v3.core</c> (v3). If the project does not
+	/// reference the v3 core library, then returns <c>null</c>.
 	/// </summary>
 	public V3CoreContext? V3Core { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to xunit.v3.runner.utility.* (v3). If the project does
-	/// not reference v3 Runner Utility, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.runner.utility</c> (v3). If the project does
+	/// not reference the v3 runner utility library, then returns <c>null</c>.
 	/// </summary>
 	public V3RunnerUtilityContext? V3RunnerUtility { get; private set; }
 
 	/// <summary>
-	/// Used to create a context object for test purposes, which only contains a reference to
-	/// xunit.abstraction (which is always set to version 2.0.3, since it did not float versions).
-	/// </summary>
+	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
+	/// to <c>xunit.abstactions</c> (at version 2.0.3).
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
 	public static XunitContext ForV2Abstractions(Compilation compilation) =>
 		new()
@@ -168,93 +172,91 @@ public class XunitContext
 		};
 
 	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of xunit.assert.
+	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
+	/// to <c>xunit.assert</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v2VersionOverride">The overridden version for xunit.core and xunit.execution.*</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.assert</c></param>
 	public static XunitContext ForV2Assert(
 		Compilation compilation,
-		Version? v2VersionOverride = null) =>
+		Version? versionOverride = null) =>
 			new()
 			{
-				V2Assert = V2AssertContext.Get(compilation, v2VersionOverride),
+				V2Assert = V2AssertContext.Get(compilation, versionOverride),
 			};
 
 	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of xunit.core (xunit.abstractions is always version 2.0.3, since it did not float versions).
+	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
+	/// to <c>xunit.abstractions</c> (at version 2.0.3) and <c>xunit.core</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v2VersionOverride">The overridden version for xunit.core and xunit.execution.*</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.core</c></param>
 	public static XunitContext ForV2Core(
 		Compilation compilation,
-		Version? v2VersionOverride = null) =>
+		Version? versionOverride = null) =>
 			new()
 			{
 				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
-				V2Core = V2CoreContext.Get(compilation, v2VersionOverride),
+				V2Core = V2CoreContext.Get(compilation, versionOverride),
 			};
 
 	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of xunit.execution.* (xunit.abstractions is always version 2.0.3, since it did not float
-	/// versions).
+	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
+	/// to <c>xunit.abstractions</c> (at version 2.0.3) and <c>xunit.execution</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v2VersionOverride">The overridden version for xunit.execution.*</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.execution</c></param>
 	public static XunitContext ForV2Execution(
 		Compilation compilation,
-		Version? v2VersionOverride = null) =>
+		Version? versionOverride = null) =>
 			new()
 			{
 				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
-				V2Execution = V2ExecutionContext.Get(compilation, v2VersionOverride),
+				V2Execution = V2ExecutionContext.Get(compilation, versionOverride),
 			};
 
 	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of xunit.runner.utility.* (xunit.abstractions is always version 2.0.3, since it did not float
-	/// versions).
+	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
+	/// to <c>xunit.abstractions</c> (at version 2.0.3) and <c>xunit.runner.utility</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v2VersionOverride">The overridden version for xunit.execution.*</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.runner.utility</c></param>
 	public static XunitContext ForV2RunnerUtility(
 		Compilation compilation,
-		Version? v2VersionOverride = null) =>
+		Version? versionOverride = null) =>
 			new()
 			{
 				V2Abstractions = V2AbstractionsContext.Get(compilation, v2AbstractionsVersion),
-				V2RunnerUtility = V2RunnerUtilityContext.Get(compilation, v2VersionOverride),
+				V2RunnerUtility = V2RunnerUtilityContext.Get(compilation, versionOverride),
 			};
 
 	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of the v3 assemblies.
+	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
+	/// for <c>xunit.v3.assert</c>, <c>xunit.v3.common</c>, and <c>xunit.v3.core</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v3VersionOverride">The overridden version</param>
+	/// <param name="versionOverride">The overridden version for all libraries</param>
+	public static XunitContext ForV3(
+		Compilation compilation,
+		Version? versionOverride = null) =>
+			new()
+			{
+				V3Assert = V3AssertContext.Get(compilation, versionOverride),
+				V3Common = V3CommonContext.Get(compilation, versionOverride),
+				V3Core = V3CoreContext.Get(compilation, versionOverride),
+			};
+
+	/// <summary>
+	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
+	/// for <c>xunit.v3.assert</c>.
+	/// </summary>
+	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.v3.assert</c></param>
 	public static XunitContext ForV3Assert(
 		Compilation compilation,
-		Version? v3VersionOverride = null) =>
+		Version? versionOverride = null) =>
 			new()
 			{
-				V3Assert = V3AssertContext.Get(compilation, v3VersionOverride),
-			};
-
-	/// <summary>
-	/// Used to create a context object for testing purposes, which is optionally stuck to a specific version
-	/// of the v3 assemblies.
-	/// </summary>
-	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
-	/// <param name="v3VersionOverride">The overridden version</param>
-	public static XunitContext ForV3Core(
-		Compilation compilation,
-		Version? v3VersionOverride = null) =>
-			new()
-			{
-				V3Abstractions = V3AbstractionsContext.Get(compilation, v3VersionOverride),
-				V3Assert = V3AssertContext.Get(compilation, v3VersionOverride),
-				V3Core = V3CoreContext.Get(compilation, v3VersionOverride),
+				V3Assert = V3AssertContext.Get(compilation, versionOverride),
 			};
 }

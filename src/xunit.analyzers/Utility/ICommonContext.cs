@@ -4,10 +4,10 @@ using Microsoft.CodeAnalysis;
 namespace Xunit.Analyzers;
 
 /// <summary>
-/// Context with information from <c>xunit.abstractions</c> (in v2) or <c>xunit.v3.common</c> or <c>xunit.v3.core</c> (in v3).
-/// The types here are the ones common to both.
+/// Context for types that that originated in <c>xunit.abstractions</c> in v2, and moved in v3
+/// to one of <c>xunit.v3.common</c>, <c>xunit.v3.core</c>, or <c>xunit.v3.runner.common</c>.
 /// </summary>
-public interface IAbstractionsContext
+public interface ICommonContext
 {
 	/// <summary>
 	/// Gets a reference to type <c>IMessageSink</c>, if available.

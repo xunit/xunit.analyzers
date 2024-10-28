@@ -50,8 +50,8 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 		INamedTypeSymbol namedType)
 	{
 		// Types that implement IXunitSerializable
-		if (xunitContext.Abstractions.IXunitSerializableType?.IsAssignableFrom(namedType) == true)
-			return xunitContext.Abstractions.IXunitSerializableType.ToDisplayString();
+		if (xunitContext.Common.IXunitSerializableType?.IsAssignableFrom(namedType) == true)
+			return xunitContext.Common.IXunitSerializableType.ToDisplayString();
 
 		// Types that decorate with [JsonTypeID]
 		if (xunitContext.V3Core?.JsonTypeIDAttributeType is INamedTypeSymbol jsonTypeIDAttributeType)

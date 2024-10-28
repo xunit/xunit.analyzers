@@ -113,6 +113,6 @@ public class SerializableClassMustHaveParameterlessConstructorTests
 	public class V3Analyzer : SerializableClassMustHaveParameterlessConstructor
 	{
 		protected override XunitContext CreateXunitContext(Compilation compilation) =>
-			XunitContext.ForV3Core(compilation);
+			XunitContext.ForV3(compilation);
 	}
 }

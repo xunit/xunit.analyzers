@@ -3,12 +3,12 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class EmptyAbstractionsContext : IAbstractionsContext
+public class EmptyCommonContext : ICommonContext
 {
-	EmptyAbstractionsContext()
+	EmptyCommonContext()
 	{ }
 
-	public static EmptyAbstractionsContext Instance { get; } = new();
+	public static EmptyCommonContext Instance { get; } = new();
 
 	public INamedTypeSymbol? IMessageSinkType => null;
 
