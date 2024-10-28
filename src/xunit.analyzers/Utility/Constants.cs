@@ -95,6 +95,7 @@ public static class Constants
 		public const string DataAttributeTypeName = nameof(DataAttributeTypeName);
 		public const string DeclaringType = nameof(DeclaringType);
 		public const string IgnoreCase = nameof(IgnoreCase);
+		public const string IsCtorObsolete = nameof(IsCtorObsolete);
 		public const string IsStatic = nameof(IsStatic);
 		public const string IsStaticMethodCall = nameof(IsStaticMethodCall);
 		public const string LiteralValue = nameof(LiteralValue);
@@ -146,6 +147,7 @@ public static class Constants
 			public const string IMethodInfo_V2 = "Xunit.Abstractions.IMethodInfo";
 			public const string IParameterInfo_V2 = "Xunit.Abstractions.IParameterInfo";
 			public const string InlineDataAttribute = "Xunit.InlineDataAttribute";
+			public const string IRunnerReporter_V3 = "Xunit.Runner.Common.IRunnerReporter";
 			public const string ISourceInformation_V2 = "Xunit.Abstractions.ISourceInformation";
 			public const string ISourceInformationProvider_V2 = "Xunit.Abstractions.ISourceInformationProvider";
 			public const string ISourceInformationProvider_V3 = "Xunit.Runner.Common.ISourceInformationProvider";
@@ -174,6 +176,7 @@ public static class Constants
 			public const string ITypeInfo_V2 = "Xunit.Abstractions.ITypeInfo";
 			public const string IXunitSerializable_V2 = "Xunit.Abstractions.IXunitSerializable";
 			public const string IXunitSerializable_V3 = "Xunit.Sdk.IXunitSerializable";
+			public const string IXunitSerializer_V3 = "Xunit.Sdk.IXunitSerializer";
 			public const string JsonTypeIDAttribute_V3 = "Xunit.Sdk.JsonTypeIDAttribute";
 			public const string LongLivedMarshalByRefObject_Execution_V2 = "Xunit.LongLivedMarshalByRefObject";
 			public const string LongLivedMarshalByRefObject_RunnerUtility = "Xunit.Sdk.LongLivedMarshalByRefObject";

@@ -63,7 +63,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Text.Json", "8.0.0"),
 				new PackageIdentity("xunit.v3.assert", "0.5.0-pre.28"),
 				new PackageIdentity("xunit.v3.common", "0.5.0-pre.28"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.5.0-pre.28")
+				new PackageIdentity("xunit.v3.extensibility.core", "0.5.0-pre.28"),
+				new PackageIdentity("xunit.v3.runner.common", "0.5.0-pre.28")
 			)
 		);
 

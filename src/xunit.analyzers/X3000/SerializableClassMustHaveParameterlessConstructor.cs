@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -25,7 +26,7 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 			if (namedType.TypeKind != TypeKind.Class)
 				return;
 
-			var serializableTargetDisplay = GetSerializableTargetDisplay(context, xunitContext, namedType);
+			var serializableTargetDisplay = GetSerializableTargetDisplay(xunitContext, namedType);
 			if (serializableTargetDisplay is null)
 				return;
 
@@ -33,30 +34,41 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 			if (parameterlessCtor is not null && parameterlessCtor.DeclaredAccessibility == Accessibility.Public)
 				return;
 
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+			builder[Constants.Properties.IsCtorObsolete] = serializableTargetDisplay.Value.IsCtorObsolete ? bool.TrueString : bool.FalseString;
+
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor,
 					namedType.Locations.First(),
+					builder.ToImmutable(),
 					namedType.Name,
-					serializableTargetDisplay
+					serializableTargetDisplay.Value.DisplayName
 				)
 			);
 		}, SymbolKind.NamedType);
 	}
 
-	static string? GetSerializableTargetDisplay(
-		SymbolAnalysisContext context,
+	static (string DisplayName, bool IsCtorObsolete)? GetSerializableTargetDisplay(
 		XunitContext xunitContext,
 		INamedTypeSymbol namedType)
 	{
+		// Types that implement IRunnerReporter (v3 only)
+		if (xunitContext.V3RunnerCommon?.IRunnerReporterType?.IsAssignableFrom(namedType) == true)
+			return (xunitContext.V3RunnerCommon.IRunnerReporterType.ToDisplayString(), false);
+
 		// Types that implement IXunitSerializable
 		if (xunitContext.Common.IXunitSerializableType?.IsAssignableFrom(namedType) == true)
-			return xunitContext.Common.IXunitSerializableType.ToDisplayString();
+			return (xunitContext.Common.IXunitSerializableType.ToDisplayString(), true);
+
+		// Types that implement IXunitSerializer
+		if (xunitContext.V3Common?.IXunitSerializerType?.IsAssignableFrom(namedType) == true)
+			return (xunitContext.V3Common.IXunitSerializerType.ToDisplayString(), false);
 
 		// Types that decorate with [JsonTypeID]
 		if (xunitContext.V3Core?.JsonTypeIDAttributeType is INamedTypeSymbol jsonTypeIDAttributeType)
 			if (namedType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, jsonTypeIDAttributeType)))
-				return jsonTypeIDAttributeType.ToDisplayString();
+				return (jsonTypeIDAttributeType.ToDisplayString(), true);
 
 		return null;
 	}

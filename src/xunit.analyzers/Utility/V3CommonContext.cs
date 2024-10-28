@@ -18,6 +18,7 @@ public class V3CommonContext : ICommonContext
 	readonly Lazy<INamedTypeSymbol?> lazyITestMethodType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestType;
 	readonly Lazy<INamedTypeSymbol?> lazyIXunitSerializableType;
+	readonly Lazy<INamedTypeSymbol?> lazyIXunitSerializerType;
 
 	V3CommonContext(
 		Compilation compilation,
@@ -37,6 +38,7 @@ public class V3CommonContext : ICommonContext
 		lazyITestMethodType = new(() => TypeSymbolFactory.ITestMethod_V3(compilation));
 		lazyITestType = new(() => TypeSymbolFactory.ITest_V3(compilation));
 		lazyIXunitSerializableType = new(() => TypeSymbolFactory.IXunitSerializable_V3(compilation));
+		lazyIXunitSerializerType = new(() => TypeSymbolFactory.IXunitSerializer_V3(compilation));
 	}
 
 	/// <inheritdoc/>
@@ -98,6 +100,9 @@ public class V3CommonContext : ICommonContext
 	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
 	public INamedTypeSymbol? IXunitSerializableType =>
 		lazyIXunitSerializableType.Value;
+
+	public INamedTypeSymbol? IXunitSerializerType =>
+		lazyIXunitSerializerType.Value;
 
 	/// <summary>
 	/// Gets the version number of the <c>xunit.v3.common</c> assembly.

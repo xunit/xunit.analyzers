@@ -172,6 +172,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IReadOnlySetOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IReadOnlySet`1");
 
+	public static INamedTypeSymbol? IRunnerReporter_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IRunnerReporter_V3);
+
 	public static INamedTypeSymbol? ISetOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.ISet`1");
 
@@ -258,6 +261,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? IXunitSerializable_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializable_V3);
+
+	public static INamedTypeSymbol? IXunitSerializer_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializer_V3);
 
 	public static INamedTypeSymbol? JsonTypeIDAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.JsonTypeIDAttribute_V3);

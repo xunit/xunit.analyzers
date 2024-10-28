@@ -34,12 +34,19 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 		if (classDeclaration is null)
 			return;
 
+		var diagnostic = context.Diagnostics.FirstOrDefault();
+		if (diagnostic is null)
+			return;
+
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.IsCtorObsolete, out var isCtorObsolete))
+			return;
+
 		var parameterlessCtor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault(c => c.ParameterList.Parameters.Count == 0);
 
 		context.RegisterCodeFix(
 			CodeAction.Create(
 				parameterlessCtor is null ? "Create public constructor" : "Make parameterless constructor public",
-				ct => CreateOrUpdateConstructor(context.Document, classDeclaration, ct),
+				ct => CreateOrUpdateConstructor(context.Document, classDeclaration, isCtorObsolete == bool.TrueString, ct),
 				Key_GenerateOrUpdateConstructor
 			),
 			context.Diagnostics
@@ -49,6 +56,7 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 	static async Task<Document> CreateOrUpdateConstructor(
 		Document document,
 		ClassDeclarationSyntax declaration,
+		bool isCtorObsolete,
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
@@ -58,26 +66,34 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCod
 
 		if (parameterlessCtor is null)
 		{
-			var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
 			var newCtor = generator.ConstructorDeclaration();
 			newCtor = generator.WithAccessibility(newCtor, Accessibility.Public);
-			newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
+
+			if (isCtorObsolete)
+			{
+				var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
+				newCtor = generator.AddAttributes(newCtor, obsoleteAttribute);
+			}
+
 			editor.InsertMembers(declaration, 0, [newCtor]);
 		}
 		else
 		{
 			var updatedCtor = generator.WithAccessibility(parameterlessCtor, Accessibility.Public);
 
-			var hasObsolete =
-				parameterlessCtor
-					.AttributeLists
-					.SelectMany(al => al.Attributes)
-					.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.System.ObsoleteAttribute);
-
-			if (!hasObsolete)
+			if (isCtorObsolete)
 			{
-				var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
-				updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
+				var hasObsolete =
+					parameterlessCtor
+						.AttributeLists
+						.SelectMany(al => al.Attributes)
+						.Any(@as => semanticModel.GetTypeInfo(@as, cancellationToken).Type?.ToDisplayString() == Constants.Types.System.ObsoleteAttribute);
+
+				if (!hasObsolete)
+				{
+					var obsoleteAttribute = generator.Attribute(Constants.Types.System.ObsoleteAttribute, obsoleteText);
+					updatedCtor = generator.AddAttributes(updatedCtor, obsoleteAttribute);
+				}
 			}
 
 			editor.ReplaceNode(parameterlessCtor, updatedCtor);

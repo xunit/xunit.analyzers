@@ -33,6 +33,7 @@ public class XunitContext
 		V3Assert = V3AssertContext.Get(compilation);
 		V3Common = V3CommonContext.Get(compilation);
 		V3Core = V3CoreContext.Get(compilation);
+		V3RunnerCommon = V3RunnerCommonContext.Get(compilation);
 	}
 
 	/// <summary>
@@ -156,6 +157,12 @@ public class XunitContext
 	public V3CoreContext? V3Core { get; private set; }
 
 	/// <summary>
+	/// Gets information about the reference to <c>xunit.v3.runner.common</c> (v3). If the project does
+	/// not reference the v3 runner common library, then returns <c>null</c>.
+	/// </summary>
+	public V3RunnerCommonContext? V3RunnerCommon { get; private set; }
+
+	/// <summary>
 	/// Gets information about the reference to <c>xunit.v3.runner.utility</c> (v3). If the project does
 	/// not reference the v3 runner utility library, then returns <c>null</c>.
 	/// </summary>
@@ -232,7 +239,8 @@ public class XunitContext
 
 	/// <summary>
 	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
-	/// for <c>xunit.v3.assert</c>, <c>xunit.v3.common</c>, and <c>xunit.v3.core</c>.
+	/// for <c>xunit.v3.assert</c>, <c>xunit.v3.common</c>, <c>xunit.v3.core</c>, and
+	/// <c>xunit.v3.runner.common</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
 	/// <param name="versionOverride">The overridden version for all libraries</param>
@@ -244,6 +252,7 @@ public class XunitContext
 				V3Assert = V3AssertContext.Get(compilation, versionOverride),
 				V3Common = V3CommonContext.Get(compilation, versionOverride),
 				V3Core = V3CoreContext.Get(compilation, versionOverride),
+				V3RunnerCommon = V3RunnerCommonContext.Get(compilation, versionOverride),
 			};
 
 	/// <summary>

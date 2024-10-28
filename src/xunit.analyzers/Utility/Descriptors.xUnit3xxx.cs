@@ -18,7 +18,7 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X3001_SerializableClassMustHaveParameterlessConstructor { get; } =
 		Diagnostic(
 			"xUnit3001",
-			"Classes that are marked as serializable must have a public parameterless constructor",
+			"Classes that are marked as serializable (or created by the test framework at runtime) must have a public parameterless constructor",
 			Extensibility,
 			Error,
 			"Class {0} must have a public parameterless constructor to support {1}."
