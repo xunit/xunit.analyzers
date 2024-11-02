@@ -34,6 +34,6 @@ public class Test
 			);
 
 
-		return context.Exec(context.ConsoleRunner, $"{string.Join(" ", testDLLs)} -xml {Path.Join(context.TestOutputFolder, "netfx.xml")}");
+		return context.Exec(context.ConsoleRunner, $"{string.Join(" ", testDLLs)} -xml {Path.Join(context.TestOutputFolder, "results.xml")}");
 	}
 }
