@@ -15,4 +15,8 @@
     <PackageReference Include="SimpleExec" Version="11.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageDownload Include="xunit.v3.runner.console" Version="[0.5.0-pre.33]" />
+  </ItemGroup>
+
 </Project>

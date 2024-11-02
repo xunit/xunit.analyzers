@@ -4,7 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>8.0.6</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>8.0.10</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -75,11 +75,11 @@
       <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="NSubstitute" Version="5.3.0" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="xunit.assert.source" Version="2.9.2" />
-        <PackageReference Include="xunit.core" Version="2.9.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.43" />
+        <PackageReference Include="xunit.v3.assert.source" Version="0.5.0-pre.34" />
+        <PackageReference Include="xunit.v3.core" Version="0.5.0-pre.34" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.48" />
       </ItemGroup>
 
     </When>

@@ -1,5 +1,7 @@
 {
 	"$schema": "https://xUnit.net/schema/current/xunit.runner.schema.json",
-	"diagnosticMessages": true,
+  "diagnosticMessages": true,
+  "parallelizeAssembly": true,
+  "parallelizeTestCollections": true,
 	"shadowCopy": false
 }

@@ -412,7 +412,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public class NumericParameter : X1010_IncompatibleValueType
 		{
-			public static readonly TheoryData<string> NumericTypes =
+			public static readonly IEnumerable<TheoryDataRow<string>> NumericTypes =
 			[
 				"int",
 				"uint",
@@ -428,10 +428,10 @@ public class InlineDataMustMatchTheoryParametersTests
 			];
 
 			public static MatrixTheoryData<string, string> NumericValuesAndNumericTypes =
-				new(NumericValues, NumericTypes);
+				new(NumericValues.Select(d => d.Data), NumericTypes.Select(d => d.Data));
 
 			public static MatrixTheoryData<string, string> BoolValuesAndNumericTypes =
-				new(BoolValues, NumericTypes);
+				new(BoolValues.Select(d => d.Data), NumericTypes.Select(d => d.Data));
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
@@ -1041,7 +1041,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public class DateTimeLikeParameter : X1010_IncompatibleValueType
 		{
-			public static readonly TheoryData<string> ValidDateTimeStrings =
+			public static readonly IEnumerable<TheoryDataRow<string>> ValidDateTimeStrings =
 			[
 				"\"\"",
 				"\"2018-01-02\"",
@@ -1051,7 +1051,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			];
 
 			public static MatrixTheoryData<string, string> ValueTypedArgumentsCombinedWithDateTimeLikeTypes =
-				new(ValueTypedValues, ["System.DateTime", "System.DateTimeOffset"]);
+				new(ValueTypedValues.Select(d => d.Data), ["System.DateTime", "System.DateTimeOffset"]);
 
 			[Theory]
 			[MemberData(nameof(ValueTypedArgumentsCombinedWithDateTimeLikeTypes))]
@@ -1118,7 +1118,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		public class GuidParameter : X1010_IncompatibleValueType
 		{
-			public static TheoryData<string> ValidGuidStrings =
+			public static IEnumerable<TheoryDataRow<string>> ValidGuidStrings =
 			[
 				"\"\"",
 				"\"{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}\"",
@@ -1223,19 +1223,19 @@ public class InlineDataMustMatchTheoryParametersTests
 
 		// Note: decimal literal 42M is not valid as an attribute argument
 
-		public static TheoryData<string> BoolValues =
+		public static IEnumerable<TheoryDataRow<string>> BoolValues =
 		[
 			"true",
 			"false"
 		];
 
-		public static TheoryData<string> FloatingPointValues =
+		public static IEnumerable<TheoryDataRow<string>> FloatingPointValues =
 		[
 			"42f",
 			"42d"
 		];
 
-		public static TheoryData<string> IntegerValues =
+		public static IEnumerable<TheoryDataRow<string>> IntegerValues =
 		[
 			"42",
 			"42L",
@@ -1247,11 +1247,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			"(sbyte)42"
 		];
 
-		public static TheoryData<string> NumericValues =
-			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues));
+		public static IEnumerable<TheoryDataRow<string>> NumericValues =
+			IntegerValues.Concat(FloatingPointValues);
 
-		public static TheoryData<string> ValueTypedValues =
-			new(((IEnumerable<string>)IntegerValues).Concat(FloatingPointValues).Concat(BoolValues).Append("typeof(int)"));
+		public static IEnumerable<TheoryDataRow<string>> ValueTypedValues =
+			IntegerValues.Concat(FloatingPointValues).Concat(BoolValues).Append(new("typeof(int)"));
 	}
 
 	public class X1011_ExtraValue
@@ -1459,7 +1459,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
-		public static TheoryData<string> ValueTypes =
+		public static IEnumerable<TheoryDataRow<string>> ValueTypes =
 		[
 			"bool",
 			"int",

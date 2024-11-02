@@ -64,7 +64,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var value = {0};
 			        var defaultValue = default({1});
 			        var nullValue = default({1}?);
@@ -92,7 +92,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit.Sdk;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var value = new {0}();
 			        var defaultValue = default({0});
 			        var nullValue = default({0}?);
@@ -135,7 +135,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
 			
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var value = new {0}();
 			        var defaultValue = default({0});
 			        var nullValue = default({0}?);
@@ -185,7 +185,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var defaultValue = default({0});
 			        var nullValue = default({0}?);
 			        var arrayValue = new {0}[0];
@@ -223,7 +223,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var value = new {0}();
 
 			        yield return new TheoryDataRow({{|#0:value|}});
@@ -267,7 +267,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var defaultValue = default({0});
 			        var nullValue = default({0}?);
 			        var arrayValue = new {0}[0];
@@ -306,7 +306,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class MyClass {{
-			    public IEnumerable<TheoryDataRow> MyMethod() {{
+			    public IEnumerable<TheoryDataRowBase> MyMethod() {{
 			        var value = new {0}();
 
 			        yield return new TheoryDataRow({{|#0:value|}});

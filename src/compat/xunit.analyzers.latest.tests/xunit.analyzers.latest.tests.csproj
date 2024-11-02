@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>xunit.analyzers.latest.tests.$(TargetFramework)</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>xunit.analyzers.latest.tests</PackageId>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
   </PropertyGroup>

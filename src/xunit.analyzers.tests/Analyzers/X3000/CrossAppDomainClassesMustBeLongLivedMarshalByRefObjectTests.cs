@@ -90,8 +90,8 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 
 				foreach (var @interface in Interfaces)
 				{
-					result.Add(@interface, "MyLLMBRO");
-					result.Add(@interface, "Xunit.LongLivedMarshalByRefObject");
+					result.Add(@interface.Data, "MyLLMBRO");
+					result.Add(@interface.Data, "Xunit.LongLivedMarshalByRefObject");
 				}
 
 				return result;
@@ -173,8 +173,8 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 
 				foreach (var @interface in Interfaces)
 				{
-					result.Add(@interface, "MyLLMBRO");
-					result.Add(@interface, "Xunit.Sdk.LongLivedMarshalByRefObject");
+					result.Add(@interface.Data, "MyLLMBRO");
+					result.Add(@interface.Data, "Xunit.Sdk.LongLivedMarshalByRefObject");
 				}
 
 				return result;
