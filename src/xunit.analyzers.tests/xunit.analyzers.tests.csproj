@@ -22,17 +22,17 @@
     <PackageDownload Include="xunit.extensibility.core" Version="[2.9.3-pre.4]" />
     <PackageDownload Include="xunit.extensibility.execution" Version="[2.9.3-pre.4]" />
     <PackageDownload Include="xunit.runner.utility" Version="[2.9.3-pre.4]" />
-    
-    <PackageDownload Include="xunit.v3.assert" Version="[0.5.0-pre.34]" />
-    <PackageDownload Include="xunit.v3.common" Version="[0.5.0-pre.34]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.5.0-pre.34]" />
-    <PackageDownload Include="xunit.v3.runner.common" Version="[0.5.0-pre.34]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.5.0-pre.34]" />
+
+    <PackageDownload Include="xunit.v3.assert" Version="[0.5.0-pre.35]" />
+    <PackageDownload Include="xunit.v3.common" Version="[0.5.0-pre.35]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[0.5.0-pre.35]" />
+    <PackageDownload Include="xunit.v3.runner.common" Version="[0.5.0-pre.35]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[0.5.0-pre.35]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24454.1]" />
     <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[3.11.0]" />
-    
+
     <!-- Download packages referenced by VsThreadingAnalyzers -->
     <PackageDownload Include="Microsoft.VisualStudio.Threading.Analyzers" Version="[17.11.20]" />
     <PackageDownload Include="System.Collections.Immutable" Version="[6.0.0]" Condition=" '$(TargetFramework)' == 'net8.0' " />

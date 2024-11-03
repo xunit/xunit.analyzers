@@ -33,6 +33,32 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 
 	[Theory]
 	[MemberData(nameof(Methods))]
+	public async Task Interface_WithExactMatchFlag_TriggersForTrue(
+		string method,
+		string replacement)
+	{
+		// We can only trigger when we know the literal true is being used; anything else,
+		// we let the runtime figure it out.
+		var source = string.Format(/* lang=c#-test */ """
+			using System;
+			using Xunit;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        var flag = true;
+
+			        {{|#0:Assert.{0}<IDisposable>(new object(), true)|}};
+			        Assert.{0}<IDisposable>(new object(), flag);
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("interface", "System.IDisposable", replacement);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(Methods))]
 	public async Task AbstractClass_Triggers(
 		string method,
 		string replacement)
@@ -44,6 +70,30 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			class TestClass {{
 			    void TestMethod() {{
 			        {{|#0:Assert.{0}<Stream>(new object())|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("abstract class", "System.IO.Stream", replacement);
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async Task AbstractClass_WithExactMatchFlag_TriggersForTrue(
+		string method,
+		string replacement)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			using System.IO;
+			using Xunit;
+
+			class TestClass {{
+			    void TestMethod() {{
+			        var flag = true;
+
+			        {{|#0:Assert.{0}<Stream>(new object(), true)|}};
+			        Assert.{0}<Stream>(new object(), flag);
 			    }}
 			}}
 			""", method);

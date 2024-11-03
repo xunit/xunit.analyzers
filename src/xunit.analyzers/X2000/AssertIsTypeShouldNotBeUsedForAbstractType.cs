@@ -47,6 +47,16 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 		if (typeKind is null)
 			return;
 
+		if (invocationOperation.Arguments.Length > 1)
+		{
+			if (invocationOperation.Arguments[1].Value is not ILiteralOperation operation)
+				return;
+			if (operation.ConstantValue.Value is not bool value)
+				return;
+			if (value != true)
+				return;
+		}
+
 		var typeName = SymbolDisplay.ToDisplayString(type);
 
 		if (!ReplacementMethods.TryGetValue(invocationOperation.TargetMethod.Name, out var replacement))
