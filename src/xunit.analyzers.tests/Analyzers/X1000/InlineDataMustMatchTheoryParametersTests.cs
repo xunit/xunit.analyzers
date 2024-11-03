@@ -1482,6 +1482,6 @@ public class InlineDataMustMatchTheoryParametersTests
 	internal class Analyzer_v2_Pre240 : InlineDataMustMatchTheoryParameters
 	{
 		protected override XunitContext CreateXunitContext(Compilation compilation) =>
-			XunitContext.ForV2Core(compilation, new Version(2, 3, 999));
+			XunitContext.ForV2(compilation, new Version(2, 3, 999));
 	}
 }

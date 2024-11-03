@@ -38,6 +38,6 @@ public class TheoryMethodCannotHaveDefaultParameterTests
 	internal class Analyzer_v2_Pre220 : TheoryMethodCannotHaveDefaultParameter
 	{
 		protected override XunitContext CreateXunitContext(Compilation compilation) =>
-			XunitContext.ForV2Core(compilation, new Version(2, 1, 999));
+			XunitContext.ForV2(compilation, new Version(2, 1, 999));
 	}
 }
