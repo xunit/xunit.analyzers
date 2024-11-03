@@ -293,7 +293,7 @@ public static partial class Descriptors
 			"Type assertions based on 'assignable from' are confusingly named",
 			Assertions,
 			Info,
-			"The naming of Assert.{0} can be confusing. An overload of Assert.{0} is available with an exact match flag which can be set to false to perform the same operation."
+			"The naming of Assert.{0} can be confusing. An overload of Assert.{1} is available with an exact match flag which can be set to false to perform the same operation."
 		);
 
 	// Placeholder for rule X2033
