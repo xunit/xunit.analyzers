@@ -113,6 +113,7 @@ public static class Constants
 		public const string TFixtureDisplayName = nameof(TFixtureDisplayName);
 		public const string TFixtureName = nameof(TFixtureName);
 		public const string TypeName = nameof(TypeName);
+		public const string UseExactMatch = nameof(UseExactMatch);
 	}
 
 	/// <summary>

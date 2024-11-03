@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -58,15 +59,20 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 		}
 
 		var typeName = SymbolDisplay.ToDisplayString(type);
-
+		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		string? replacement;
 
 		if (xunitContext.Assert.SupportsInexactTypeAssertions)
+		{
 			replacement = "exactMatch: false";
+			builder[Constants.Properties.UseExactMatch] = bool.TrueString;
+		}
 		else
 		{
 			if (!ReplacementMethods.TryGetValue(invocationOperation.TargetMethod.Name, out replacement))
 				return;
+
+			builder[Constants.Properties.UseExactMatch] = bool.FalseString;
 			replacement = "Assert." + replacement;
 		}
 
@@ -74,6 +80,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 			Diagnostic.Create(
 				Descriptors.X2018_AssertIsTypeShouldNotBeUsedForAbstractType,
 				invocationOperation.Syntax.GetLocation(),
+				builder.ToImmutable(),
 				typeKind,
 				typeName,
 				replacement
