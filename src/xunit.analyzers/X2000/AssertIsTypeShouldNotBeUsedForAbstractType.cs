@@ -59,8 +59,16 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 
 		var typeName = SymbolDisplay.ToDisplayString(type);
 
-		if (!ReplacementMethods.TryGetValue(invocationOperation.TargetMethod.Name, out var replacement))
-			return;
+		string? replacement;
+
+		if (xunitContext.Assert.SupportsInexactTypeAssertions)
+			replacement = "exactMatch: false";
+		else
+		{
+			if (!ReplacementMethods.TryGetValue(invocationOperation.TargetMethod.Name, out replacement))
+				return;
+			replacement = "Assert." + replacement;
+		}
 
 		context.ReportDiagnostic(
 			Diagnostic.Create(

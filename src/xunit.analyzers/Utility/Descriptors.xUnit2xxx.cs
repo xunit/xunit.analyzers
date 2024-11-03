@@ -174,7 +174,7 @@ public static partial class Descriptors
 			"Do not compare an object's exact type to an abstract class or interface",
 			Assertions,
 			Warning,
-			"Do not compare an object's exact type to the {0} '{1}'. Use Assert.{2} instead."
+			"Do not compare an object's exact type to the {0} '{1}'. Use {2} instead."
 		);
 
 	// Note: X2019 was already covered by X2014, and should not be reused
