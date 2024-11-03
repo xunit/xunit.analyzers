@@ -7,6 +7,7 @@ namespace Xunit.Analyzers;
 public class V2AssertContext : IAssertContext
 {
 	internal static readonly Version Version_2_5_0 = new("2.5.0");
+	internal static readonly Version Version_2_9_3 = new("2.9.3");
 
 	readonly Lazy<INamedTypeSymbol?> lazyAssertType;
 
@@ -26,6 +27,10 @@ public class V2AssertContext : IAssertContext
 	/// <inheritdoc/>
 	public bool SupportsAssertFail =>
 		Version >= Version_2_5_0;
+
+	/// <inheritdoc/>
+	public bool SupportsInexactTypeAssertions =>
+		Version >= Version_2_9_3;
 
 	/// <inheritdoc/>
 	public Version Version { get; }

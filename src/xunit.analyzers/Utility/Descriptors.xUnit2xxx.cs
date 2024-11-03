@@ -287,7 +287,14 @@ public static partial class Descriptors
 			"Do not use a Where clause to filter before calling Assert.Single. Use the overload of Assert.Single that accepts a filtering function."
 		);
 
-	// Placeholder for rule X2032
+	public static DiagnosticDescriptor X2032_AssignableFromAssertionIsConfusinglyNamed { get; } =
+		Diagnostic(
+			"xUnit2032",
+			"Type assertions based on 'assignable from' are confusingly named",
+			Assertions,
+			Info,
+			"The naming of Assert.{0} can be confusing. An overload of Assert.{0} is available with an exact match flag which can be set to false to perform the same operation."
+		);
 
 	// Placeholder for rule X2033
 
