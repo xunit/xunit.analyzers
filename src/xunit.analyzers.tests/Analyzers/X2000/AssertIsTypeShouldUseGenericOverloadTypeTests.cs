@@ -1,12 +1,70 @@
-#if NETCOREAPP
-
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverloadType>;
 
+#if NETCOREAPP
+using Microsoft.CodeAnalysis.CSharp;
+#endif
+
 public class AssertIsTypeShouldUseGenericOverloadTypeTests
 {
+	public static TheoryData<string> Methods =
+	[
+		"IsType",
+		"IsNotType",
+		"IsAssignableFrom",
+	];
+
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async Task ForNonGenericCall_Triggers(string method)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        {{|#0:Xunit.Assert.{0}(typeof(int), 1)|}};
+			    }}
+			}}
+			""", method);
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("int");
+
+		await Verify.VerifyAnalyzer(source, expected);
+	}
+
+	[Theory]
+	[MemberData(nameof(Methods))]
+	public async Task ForGenericCall_DoesNotTrigger(string method)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}<int>(1);
+			    }}
+			}}
+			""", method);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Theory]
+	[InlineData("IsType")]
+	[InlineData("IsNotType")]
+	public async Task ForGenericCall_WithExactMatchFlag_DoesNotTrigger(string method)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			class TestClass {{
+			    void TestMethod() {{
+			        Xunit.Assert.{0}<int>(1, false);
+			        Xunit.Assert.{0}<System.Type>(typeof(int), true);
+			    }}
+			}}
+			""", method);
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+#if NETCOREAPP
+
 	public class StaticAbstractInterfaceMethods
 	{
 #if ROSLYN_LATEST  // C# 11 is required for static abstract methods
@@ -88,6 +146,6 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 	}
-}
 
 #endif
+}

@@ -31,8 +31,11 @@ public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 		Guard.ArgumentNotNull(invocationOperation);
 		Guard.ArgumentNotNull(method);
 
+		if (method.IsGenericMethod)
+			return;
+
 		var parameters = invocationOperation.TargetMethod.Parameters;
-		if (parameters.Length != 2)
+		if (parameters.Length < 2)
 			return;
 
 		var typeArgument = invocationOperation.Arguments.FirstOrDefault(arg => SymbolEqualityComparer.Default.Equals(arg.Parameter, parameters[0]));

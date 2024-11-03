@@ -7,7 +7,7 @@ using Verify_X2015 = CSharpVerifier<Xunit.Analyzers.AssertThrowsShouldUseGeneric
 public class UseGenericOverloadFixTests
 {
 	[Fact]
-	public async Task X2007_SwitchesToGenericIsType()
+	public async Task X2007_SwitchesToGenericIsAssignableFrom()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
@@ -17,7 +17,7 @@ public class UseGenericOverloadFixTests
 			    public void TestMethod() {
 			        var result = 123;
 
-			        [|Assert.IsType(typeof(int), result)|];
+			        [|Assert.IsAssignableFrom(typeof(int), result)|];
 			    }
 			}
 			""";
@@ -29,10 +29,44 @@ public class UseGenericOverloadFixTests
 			    public void TestMethod() {
 			        var result = 123;
 
-			        Assert.IsType<int>(result);
+			        Assert.IsAssignableFrom<int>(result);
 			    }
 			}
 			""";
+
+		await Verify_X2007.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
+	}
+
+	[Theory]
+	[InlineData("result")]
+	[InlineData("result, true")]
+	[InlineData("result, false")]
+	public async Task X2007_SwitchesToGenericIsType(string arguments)
+	{
+		var before = string.Format(/* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {{
+			    [Fact]
+			    public void TestMethod() {{
+			        var result = 123;
+
+			        [|Assert.IsType(typeof(int), {0})|];
+			    }}
+			}}
+			""", arguments);
+		var after = string.Format(/* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {{
+			    [Fact]
+			    public void TestMethod() {{
+			        var result = 123;
+
+			        Assert.IsType<int>({0});
+			    }}
+			}}
+			""", arguments);
 
 		await Verify_X2007.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
