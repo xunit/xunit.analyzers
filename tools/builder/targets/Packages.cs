@@ -16,6 +16,12 @@ public static partial class Packages
 		foreach (var packageFile in packageFiles)
 			File.Delete(packageFile);
 
-		await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} src/xunit.analyzers -p:NuspecFile=xunit.analyzers.nuspec");
+		// You can't see the created package name in .NET 9+ SDK without doing detailed verbosity
+		var verbosity =
+			context.DotNetSdkVersion.Major <= 8
+				? context.Verbosity.ToString()
+				: "detailed";
+
+		await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {verbosity} src/xunit.analyzers -p:NuspecFile=xunit.analyzers.nuspec");
 	}
 }
