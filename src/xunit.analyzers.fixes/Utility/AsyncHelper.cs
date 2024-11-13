@@ -33,7 +33,7 @@ public static class AsyncHelper
 
 		var constructedFunctionTypeSymbol =
 			unboundFunctionTypeSymbol
-				.Construct(typeArguments.ToArray())
+				.Construct([.. typeArguments])
 				.WithNullableAnnotation(declarationTypeSymbol.NullableAnnotation);
 
 		return editor.Generator.TypeExpression(constructedFunctionTypeSymbol) as TypeSyntax;
@@ -188,7 +188,7 @@ public static class AsyncHelper
 			if (arity == 0)
 				return SymbolEqualityComparer.Default.Equals(typeSymbol.ConstructedFrom, TypeSymbolFactory.Action(compilation));
 
-			if (arity >= 1 && arity <= 16)
+			if (arity is >= 1 and <= 16)
 				return SymbolEqualityComparer.Default.Equals(typeSymbol.ConstructedFrom, TypeSymbolFactory.Action(compilation, arity));
 		}
 

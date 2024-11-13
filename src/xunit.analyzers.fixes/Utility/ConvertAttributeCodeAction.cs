@@ -7,33 +7,22 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers.Fixes;
 
-public class ConvertAttributeCodeAction : CodeAction
+public class ConvertAttributeCodeAction(
+	string title,
+	string equivalenceKey,
+	Document document,
+	SyntaxList<AttributeListSyntax> attributeLists,
+	string fromTypeName,
+	string toTypeName) :
+		CodeAction
 {
-	readonly SyntaxList<AttributeListSyntax> attributeLists;
-	readonly Document document;
-	readonly string fromTypeName;
-	readonly string toTypeName;
+	readonly Document document = Guard.ArgumentNotNull(document);
+	readonly string fromTypeName = Guard.ArgumentNotNull(fromTypeName);
+	readonly string toTypeName = Guard.ArgumentNotNull(toTypeName);
 
-	public ConvertAttributeCodeAction(
-		string title,
-		string equivalenceKey,
-		Document document,
-		SyntaxList<AttributeListSyntax> attributeLists,
-		string fromTypeName,
-		string toTypeName)
-	{
-		Title = Guard.ArgumentNotNull(title);
-		EquivalenceKey = Guard.ArgumentNotNull(equivalenceKey);
+	public override string EquivalenceKey { get; } = Guard.ArgumentNotNull(equivalenceKey);
 
-		this.toTypeName = Guard.ArgumentNotNull(toTypeName);
-		this.fromTypeName = Guard.ArgumentNotNull(fromTypeName);
-		this.attributeLists = attributeLists;
-		this.document = Guard.ArgumentNotNull(document);
-	}
-
-	public override string EquivalenceKey { get; }
-
-	public override string Title { get; }
+	public override string Title { get; } = Guard.ArgumentNotNull(title);
 
 	protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 	{

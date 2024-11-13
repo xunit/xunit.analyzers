@@ -92,14 +92,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			.SelectMany(attribute => attribute.NamedArguments)
 			.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
 
-	sealed class TheoryDataTypeArgumentFinder
+	sealed class TheoryDataTypeArgumentFinder(SerializableTypeSymbols typeSymbols)
 	{
 		const string MemberType = nameof(MemberType);
-
-		readonly SerializableTypeSymbols typeSymbols;
-
-		public TheoryDataTypeArgumentFinder(SerializableTypeSymbols typeSymbols) =>
-			this.typeSymbols = typeSymbols;
 
 		/// <summary>
 		/// Find all TheoryData type arguments for a data source referenced by the given data attribute

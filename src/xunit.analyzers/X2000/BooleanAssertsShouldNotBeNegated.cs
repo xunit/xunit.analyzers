@@ -10,10 +10,10 @@ namespace Xunit.Analyzers;
 public class BooleanAssertsShouldNotBeNegated : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.False,
 		Constants.Asserts.True,
-	};
+	];
 
 	public BooleanAssertsShouldNotBeNegated() :
 		base(Descriptors.X2022_BooleanAssertionsShouldNotBeNegated, targetMethods)

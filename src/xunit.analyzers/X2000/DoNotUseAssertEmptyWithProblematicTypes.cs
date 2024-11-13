@@ -7,11 +7,11 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DoNotUseAssertEmptyWithProblematicTypes : AssertUsageAnalyzerBase
 {
-	static readonly string[] targetMethods = new[]
-	{
+	static readonly string[] targetMethods =
+	[
 		Constants.Asserts.Empty,
 		Constants.Asserts.NotEmpty,
-	};
+	];
 
 	public DoNotUseAssertEmptyWithProblematicTypes() :
 		base(Descriptors.X2028_DoNotUseAssertEmptyWithProblematicTypes, targetMethods)

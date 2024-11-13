@@ -102,16 +102,14 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			attribute.ConstructorArguments.Length == 1 &&
 			SymbolEqualityComparer.Default.Equals(objectArrayType, attribute.ConstructorArguments.FirstOrDefault().Type);
 
-	sealed class InlineDataUniquenessComparer : IEqualityComparer<AttributeData>
+	sealed class InlineDataUniquenessComparer(IMethodSymbol attributeRelatedMethod) :
+		IEqualityComparer<AttributeData>
 	{
-		readonly ImmutableArray<IParameterSymbol> methodParametersWithExplicitDefaults;
-
-		public InlineDataUniquenessComparer(IMethodSymbol attributeRelatedMethod) =>
-			methodParametersWithExplicitDefaults =
-				attributeRelatedMethod
-					.Parameters
-					.Where(p => p.HasExplicitDefaultValue)
-					.ToImmutableArray();
+		readonly ImmutableArray<IParameterSymbol> methodParametersWithExplicitDefaults =
+			attributeRelatedMethod
+				.Parameters
+				.Where(p => p.HasExplicitDefaultValue)
+				.ToImmutableArray();
 
 		public bool Equals(
 			AttributeData? x,
@@ -231,7 +229,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			var hash = 17;
 
 			foreach (var primitive in flattened)
-				hash = hash * 31 + (primitive?.GetHashCode() ?? 0);
+				hash = (hash * 31) + (primitive?.GetHashCode() ?? 0);
 
 			return hash;
 		}
@@ -262,7 +260,9 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 				}
 			}
 
+#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
 			return results.ToImmutableArray();
+#pragma warning restore IDE0305
 		}
 
 		// Effective test arguments consist of InlineData argument typed constants concatenated
@@ -274,7 +274,9 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			// special case InlineData(null): the compiler will treat the whole data array as being initialized to null
 			var inlineDataArguments =
 				inlineDataObjectArrayArgument.IsNull
+#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
 					? ImmutableArray.Create(inlineDataObjectArrayArgument)
+#pragma warning restore IDE0303
 					: inlineDataObjectArrayArgument.Values;
 
 			var methodDefaultValuesNonCoveredByInlineData =

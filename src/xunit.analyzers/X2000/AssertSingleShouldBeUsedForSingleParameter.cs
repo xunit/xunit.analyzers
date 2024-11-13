@@ -9,9 +9,9 @@ namespace Xunit.Analyzers;
 public class AssertSingleShouldBeUsedForSingleParameter : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Collection
-	};
+	];
 
 	public AssertSingleShouldBeUsedForSingleParameter() :
 		base(Descriptors.X2023_AssertSingleShouldBeUsedForSingleParameter, targetMethods)

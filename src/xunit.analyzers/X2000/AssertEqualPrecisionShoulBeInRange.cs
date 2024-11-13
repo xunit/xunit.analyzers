@@ -17,10 +17,10 @@ public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
 		{ SpecialType.System_Decimal, 28 },
 	};
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.NotEqual,
-	};
+	];
 	static readonly Dictionary<SpecialType, string> typeNames = new()
 	{
 		{ SpecialType.System_Double, "double" },
@@ -61,7 +61,7 @@ public class AssertEqualPrecisionShouldBeInRange : AssertUsageAnalyzerBase
 
 		var type = method.Parameters[0].Type.SpecialType;
 
-		if (type != SpecialType.System_Double && type != SpecialType.System_Decimal)
+		if (type is not SpecialType.System_Double and not SpecialType.System_Decimal)
 			return null;
 
 		return type;

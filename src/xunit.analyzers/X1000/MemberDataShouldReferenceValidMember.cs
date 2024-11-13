@@ -280,14 +280,14 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		};
 
 		if (initializer is null)
-			return new List<ExpressionSyntax> { argumentExpression };
+			return [argumentExpression];
 
 		// In the special case where the argument is an object[], treat like params
 		var type = semanticModel.GetTypeInfo(argumentExpression).Type;
 		if (type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Object)
-			return initializer.Expressions.ToList();
+			return [.. initializer.Expressions];
 
-		return new List<ExpressionSyntax> { argumentExpression };
+		return [argumentExpression];
 	}
 
 	static bool IsGenericTheoryDataRowType(
@@ -333,7 +333,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		if (memberReturnType is not INamedTypeSymbol namedReturnType)
 			return false;
 
-		INamedTypeSymbol? working = namedReturnType;
+		var working = namedReturnType;
 		while (working is not null)
 		{
 			var returnTypeArguments = working.TypeArguments;
@@ -814,7 +814,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 			if (parameterType.Kind != SymbolKind.TypeParameter && !parameterType.IsAssignableFrom(typeArgument))
 			{
-				bool report = true;
+				var report = true;
 
 				// The user might be providing the full array for 'params'; if they do, we need to move
 				// the parameter type index forward because it's been consumed by the array

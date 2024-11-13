@@ -28,6 +28,7 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// Verify that an analyzer was used to suppress another analyzers. Runs against
 	/// xUnit.net v2 and v3, using the provided version of C#.
 	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
 	/// <param name="source">The code to verify</param>
 	/// <param name="suppressedAnalyzer">The analyzer that is expected to be suppressed</param>
 	/// <param name="diagnostics">Any expected diagnostics that still exist after the suppression</param>

@@ -12,16 +12,14 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 {
 	public BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck() :
 		base(
-			new[]
-			{
+			[
 				Descriptors.X2024_BooleanAssertionsShouldNotBeUsedForSimpleEqualityCheck,
 				Descriptors.X2025_BooleanAssertionCanBeSimplified
-			},
-			new[]
-			{
+			],
+			[
 				Constants.Asserts.True,
 				Constants.Asserts.False
-			}
+			]
 		)
 	{ }
 

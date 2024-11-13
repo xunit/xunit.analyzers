@@ -11,13 +11,13 @@ namespace Xunit.Analyzers;
 public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Throws,
 		Constants.Asserts.ThrowsAny,
-	};
+	];
 
 	public AssertThrowsShouldNotBeUsedForAsyncThrowsCheck()
-		: base(new[] { Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck }, targetMethods)
+		: base([Descriptors.X2014_AssertThrowsShouldNotBeUsedForAsyncThrowsCheck], targetMethods)
 	{ }
 
 	protected override void AnalyzeInvocation(
@@ -30,7 +30,7 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheck : AssertUsageAnalyze
 		Guard.ArgumentNotNull(invocationOperation);
 		Guard.ArgumentNotNull(method);
 
-		if (invocationOperation.Arguments.Length < 1 || invocationOperation.Arguments.Length > 2)
+		if (invocationOperation.Arguments.Length is < 1 or > 2)
 			return;
 
 		var throwExpressionSymbol = GetThrowExpressionSymbol(invocationOperation);

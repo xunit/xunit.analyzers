@@ -61,7 +61,7 @@ public class BooleanAssertsShouldNotBeNegatedFixer : BatchedCodeFixProvider
 				editor.ReplaceNode(
 					invocation,
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(prefixUnaryExpression.Operand) })))
+						.WithArgumentList(ArgumentList(SeparatedList([Argument(prefixUnaryExpression.Operand)])))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 				);
 

@@ -10,10 +10,10 @@ namespace Xunit.Analyzers;
 public class AssertEmptyCollectionCheckShouldNotBeUsed : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Collection,
 		Constants.Asserts.CollectionAsync,
-	};
+	];
 
 	public AssertEmptyCollectionCheckShouldNotBeUsed()
 		: base(Descriptors.X2011_AssertEmptyCollectionCheckShouldNotBeUsed, targetMethods)

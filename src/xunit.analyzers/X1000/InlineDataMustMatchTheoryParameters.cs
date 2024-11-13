@@ -34,7 +34,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 		var xunitSupportsParameterArrays = xunitContext.Core.TheorySupportsParameterArrays;
 		var xunitSupportsDefaultParameterValues = xunitContext.Core.TheorySupportsDefaultParameterValues;
 		var compilation = context.Compilation;
-		INamedTypeSymbol? systemRuntimeInteropServicesOptionalAttribute = TypeSymbolFactory.OptionalAttribute(compilation);
+		var systemRuntimeInteropServicesOptionalAttribute = TypeSymbolFactory.OptionalAttribute(compilation);
 		var objectArrayType = compilation.CreateArrayTypeSymbol(compilation.ObjectType);
 
 		context.RegisterSymbolAction(context =>
@@ -71,12 +71,14 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 							?.Arguments
 							.Select(a => a.Expression)
 							.ToList()
-							?? new List<ExpressionSyntax>();
+							?? [];
 				}
 
 				var dataArrayArgument = attribute.ConstructorArguments.Single();
 				// Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
+#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
 				var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
+#pragma warning restore IDE0303
 				if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues, systemRuntimeInteropServicesOptionalAttribute)))
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
@@ -245,7 +247,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 		if (initializer is null)
 			return null;
 
-		return initializer.Expressions.ToList();
+		return [.. initializer.Expressions];
 	}
 
 	public enum ParameterArrayStyleType

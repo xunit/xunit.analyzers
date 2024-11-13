@@ -10,17 +10,17 @@ namespace Xunit.Analyzers;
 public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.NotEqual,
-	};
+	];
 
 	public SetEqualityAnalyzer()
 		: base(
-			new[] {
+			[
 				Descriptors.X2026_SetsMustBeComparedWithEqualityComparer,
 				Descriptors.X2027_SetsShouldNotBeComparedToLinearContainers,
-			},
+			],
 			targetMethods
 		)
 	{ }
@@ -52,7 +52,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 		var interface0Type =
 			collection0Type
 				.AllInterfaces
-				.Concat(new[] { collection0Type })
+				.Concat([collection0Type])
 				.Where(i => i.IsGenericType)
 				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
 
@@ -61,7 +61,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 		var interface1Type =
 			collection1Type
 				.AllInterfaces
-				.Concat(new[] { collection1Type })
+				.Concat([collection1Type])
 				.Where(i => i.IsGenericType)
 				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
 
@@ -75,7 +75,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 			if (arguments.Length != 3)
 				return;
 
-			if (arguments[2].Value is not IDelegateCreationOperation && arguments[2].Value is not ILocalReferenceOperation)
+			if (arguments[2].Value is not IDelegateCreationOperation and not ILocalReferenceOperation)
 				return;
 
 			if (arguments[2].Value.Type is not INamedTypeSymbol funcTypeSymbol || funcTypeSymbol.DelegateInvokeMethod == null)

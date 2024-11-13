@@ -12,10 +12,10 @@ public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck :
 	// Signature without nullable variant
 	const string enumerableAnyExtensionMethod = "System.Linq.Enumerable.Any<TSource>(System.Collections.Generic.IEnumerable<TSource>, System.Func<TSource, bool>)";
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.False,
 		Constants.Asserts.True,
-	};
+	];
 
 	public AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck()
 		: base(Descriptors.X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheck, targetMethods)

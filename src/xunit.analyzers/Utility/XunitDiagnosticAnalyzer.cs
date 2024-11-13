@@ -7,13 +7,13 @@ namespace Xunit.Analyzers;
 /// <summary>
 /// Base class for diagnostic analyzers which support xUnit.net v2 and v3.
 /// </summary>
-public abstract class XunitDiagnosticAnalyzer : DiagnosticAnalyzer
+public abstract class XunitDiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) :
+	DiagnosticAnalyzer
 {
-	protected XunitDiagnosticAnalyzer(params DiagnosticDescriptor[] descriptors) =>
-		SupportedDiagnostics = descriptors.ToImmutableArray();
-
 	/// <inheritdoc/>
-	public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+	public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = descriptors.ToImmutableArray();
+#pragma warning restore IDE0305
 
 	/// <summary>
 	/// Analyzes compilation to discover diagnostics.

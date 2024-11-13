@@ -5,12 +5,9 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Xunit.Analyzers.Fixes;
 
-public abstract class BatchedMemberFixProvider : BatchedCodeFixProvider
+public abstract class BatchedMemberFixProvider(params string[] diagnostics) :
+	BatchedCodeFixProvider(diagnostics)
 {
-	protected BatchedMemberFixProvider(params string[] diagnostics) :
-		base(diagnostics)
-	{ }
-
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
 		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);

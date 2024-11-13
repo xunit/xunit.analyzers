@@ -8,15 +8,15 @@ namespace Xunit.Suppressors;
 /// <summary>
 /// Base class for diagnostic suppressors which support xUnit.net v2 and v3.
 /// </summary>
-public abstract class XunitDiagnosticSuppressor : DiagnosticSuppressor
+public abstract class XunitDiagnosticSuppressor(SuppressionDescriptor descriptor) :
+	DiagnosticSuppressor
 {
-	protected XunitDiagnosticSuppressor(SuppressionDescriptor descriptor) =>
-		SupportedSuppressions = new[] { descriptor }.ToImmutableArray();
-
 	protected SuppressionDescriptor Descriptor => SupportedSuppressions[0];
 
 	/// <inheritdoc/>
-	public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; }
+#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+	public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } = new[] { descriptor }.ToImmutableArray();
+#pragma warning restore IDE0305
 
 	/// <summary>
 	/// Override this factory method to influence the creation of <see cref="XunitContext"/>.
@@ -50,6 +50,7 @@ public abstract class XunitDiagnosticSuppressor : DiagnosticSuppressor
 	/// <summary>
 	/// Analyzes the given diagnostic to determine if it should be suppressed.
 	/// </summary>
+	/// <param name="diagnostic">The diagnostic to analyze</param>
 	/// <param name="context">The Roslyn supression analysis context</param>
 	/// <param name="xunitContext">The xUnit.net context</param>
 	protected abstract bool ShouldSuppress(

@@ -187,6 +187,7 @@ public class XunitContext
 	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
 	/// to <c>xunit.abstactions</c> (at version 2.0.3).
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+	/// </summary>
 	public static XunitContext ForV2Abstractions(Compilation compilation) =>
 		new()
 		{

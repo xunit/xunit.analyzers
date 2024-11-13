@@ -14,33 +14,33 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 {
-	static readonly string[] blockingAwaiterMethods = new[]
-	{
+	static readonly string[] blockingAwaiterMethods =
+	[
 		// We will "steal" the name from TaskAwaiter, but we look for it by pattern: if the type is
 		// assignable from ICriticalNotifyCompletion and it contains a method with this name. We
 		// also explicitly look for IValueTaskSource and IValueTaskSource<T>.
 		nameof(IValueTaskSource.GetResult),
-	};
-	static readonly string[] blockingTaskMethods = new[]
-	{
+	];
+	static readonly string[] blockingTaskMethods =
+	[
 		// These are only on Task, and not on ValueTask
 		nameof(Task.Wait),
 		nameof(Task.WaitAny),
 		nameof(Task.WaitAll),
-	};
-	static readonly string[] blockingTaskProperties = new[]
-	{
+	];
+	static readonly string[] blockingTaskProperties =
+	[
 		// These are on both Task<T> and ValueTask<T>
 		nameof(Task<int>.Result),
-	};
-	static readonly string[] whenAll = new[]
-	{
+	];
+	static readonly string[] whenAll =
+	[
 		nameof(Task.WhenAll),
-	};
-	static readonly string[] whenAny = new[]
-	{
+	];
+	static readonly string[] whenAny =
+	[
 		nameof(Task.WhenAny),
-	};
+	];
 
 	public DoNotUseBlockingTaskOperations() :
 		base(Descriptors.X1031_DoNotUseBlockingTaskOperations)
@@ -84,7 +84,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 			// Ignore anything inside a lambda expression or a local function
 			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
+				if (current is IAnonymousFunctionOperation or ILocalFunctionOperation)
 					return;
 
 			var symbolsForSearch = default(IEnumerable<ILocalSymbol>);
@@ -99,14 +99,14 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 						if (invocation.Instance is IInvocationOperation getAwaiterOperation &&
 								getAwaiterOperation.TargetMethod.Name == nameof(Task.GetAwaiter) &&
 								getAwaiterOperation.Instance is ILocalReferenceOperation localReferenceOperation)
-							symbolsForSearch = new[] { localReferenceOperation.Local };
+							symbolsForSearch = [localReferenceOperation.Local];
 						break;
 					}
 
 				case nameof(Task.Wait):
 					{
 						if (invocation.Instance is ILocalReferenceOperation localReferenceOperation)
-							symbolsForSearch = new[] { localReferenceOperation.Local };
+							symbolsForSearch = [localReferenceOperation.Local];
 						break;
 					}
 
@@ -156,12 +156,12 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 			// Ignore anything inside a lambda expression or a local function
 			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation || current is ILocalFunctionOperation)
+				if (current is IAnonymousFunctionOperation or ILocalFunctionOperation)
 					return;
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
-					TaskIsKnownToBeCompleted(reference, new[] { localReferenceOperation.Local }, taskType, xunitContext))
+					TaskIsKnownToBeCompleted(reference, [localReferenceOperation.Local], taskType, xunitContext))
 				return;
 
 			// Should have two child nodes: "(some other code)" and "(property name)"

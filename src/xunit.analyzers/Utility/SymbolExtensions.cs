@@ -14,8 +14,8 @@ public static class SymbolExtensions
 			attributes.Any(a => a.IsInstanceOf(attributeType, exactMatch));
 
 	/// <summary>
-	/// If the passed <paramref name="typeSymbol"/> is <see cref="IAsyncEnumerable{T}"/>, then returns
-	/// the enumerable type (aka, T); otherwise, returns <c>null</c>.
+	/// If the passed <paramref name="typeSymbol"/> is <see cref="T:System.Collections.Generic.IAsyncEnumerable{T}"/>,
+	/// then returns the enumerable type (aka, T); otherwise, returns <c>null</c>.
 	/// </summary>
 	public static ITypeSymbol? GetAsyncEnumerableType(this ITypeSymbol? typeSymbol)
 	{
@@ -116,8 +116,8 @@ public static class SymbolExtensions
 				// Special handling for tuples as tuples with differently named fields are still assignable
 				if (targetType.IsTupleType && sourceType.IsTupleType)
 				{
-					ITypeSymbol targetTupleType = ((INamedTypeSymbol)targetType).TupleUnderlyingType ?? targetType;
-					ITypeSymbol sourceTupleType = ((INamedTypeSymbol)sourceType).TupleUnderlyingType ?? sourceType;
+					var targetTupleType = ((INamedTypeSymbol)targetType).TupleUnderlyingType ?? targetType;
+					var sourceTupleType = ((INamedTypeSymbol)sourceType).TupleUnderlyingType ?? sourceType;
 					return SymbolEqualityComparer.Default.Equals(sourceTupleType, targetTupleType);
 				}
 

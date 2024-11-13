@@ -11,16 +11,16 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> equalMethods = new()
-	{
+	static readonly HashSet<string> equalMethods =
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.StrictEqual,
-	};
-	static readonly HashSet<string> notEqualMethods = new()
-	{
+	];
+	static readonly HashSet<string> notEqualMethods =
+	[
 		Constants.Asserts.NotEqual,
 		Constants.Asserts.NotStrictEqual,
-	};
+	];
 	static readonly string[] targetMethods = equalMethods.Union(notEqualMethods).ToArray();
 
 	public AssertEqualShouldNotBeUsedForBoolLiteralCheck()
@@ -38,7 +38,7 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzer
 		Guard.ArgumentNotNull(method);
 
 		var arguments = invocationOperation.Arguments;
-		if (arguments.Length != 2 && arguments.Length != 3)
+		if (arguments.Length is not 2 and not 3)
 			return;
 
 		// Match Assert.Equal<bool>(true, expression) but not e.g. Assert.Equal<object>(true, expression).

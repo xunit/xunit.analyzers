@@ -123,7 +123,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixPro
 				var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
 				var replacementNode =
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(collectionVariable) })))
+						.WithArgumentList(ArgumentList(SeparatedList([Argument(collectionVariable)])))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
 
 				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)

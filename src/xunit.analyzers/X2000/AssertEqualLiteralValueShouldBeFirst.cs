@@ -10,12 +10,12 @@ namespace Xunit.Analyzers;
 public class AssertEqualLiteralValueShouldBeFirst : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.NotEqual,
 		Constants.Asserts.NotStrictEqual,
 		Constants.Asserts.StrictEqual,
-	};
+	];
 
 	public AssertEqualLiteralValueShouldBeFirst()
 		: base(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst, targetMethods)

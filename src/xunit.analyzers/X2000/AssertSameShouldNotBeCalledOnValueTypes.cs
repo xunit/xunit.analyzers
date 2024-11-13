@@ -10,10 +10,10 @@ namespace Xunit.Analyzers;
 public class AssertSameShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Same,
 		Constants.Asserts.NotSame
-	};
+	];
 
 	public AssertSameShouldNotBeCalledOnValueTypes()
 		: base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes, targetMethods)

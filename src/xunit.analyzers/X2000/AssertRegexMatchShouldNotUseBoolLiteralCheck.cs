@@ -10,17 +10,17 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertRegexMatchShouldNotUseBoolLiteralCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> regexIsMatchSymbols = new()
-	{
+	static readonly HashSet<string> regexIsMatchSymbols =
+	[
 		// Signatures without nullable variants
 		"System.Text.RegularExpressions.Regex.IsMatch(string)",
 		"System.Text.RegularExpressions.Regex.IsMatch(string, string)",
-	};
+	];
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.True,
 		Constants.Asserts.False
-	};
+	];
 
 	public AssertRegexMatchShouldNotUseBoolLiteralCheck()
 		: base(Descriptors.X2008_AssertRegexMatchShouldNotUseBoolLiteralCheck, targetMethods)

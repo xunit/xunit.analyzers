@@ -20,7 +20,7 @@ static class Guard
 	/// <exception cref="ArgumentNullException">Thrown when the argument is null</exception>
 	public static T ArgumentNotNull<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : class
 	{
 		if (argValue is null)
@@ -39,7 +39,7 @@ static class Guard
 	/// <exception cref="ArgumentException">Thrown when the argument is null or empty</exception>
 	public static T ArgumentNotNullOrEmpty<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : class, IEnumerable
 	{
 		ArgumentNotNull(argValue, argName);

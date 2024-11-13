@@ -62,12 +62,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer : B
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 			if (invocation.ArgumentList.Arguments[0].Expression is BinaryExpressionSyntax binaryExpressionSyntax)
 			{
-				ExpressionSyntax newArgument = isLeftLiteral ? binaryExpressionSyntax.Right : binaryExpressionSyntax.Left;
+				var newArgument = isLeftLiteral ? binaryExpressionSyntax.Right : binaryExpressionSyntax.Left;
 				editor.ReplaceNode(
 					invocation,
 					invocation
 						.WithArgumentList(ArgumentList(SeparatedList(invocation.ArgumentList.Arguments.Count > 1
-							? new[] { Argument(newArgument), invocation.ArgumentList.Arguments[1] }
+							? [Argument(newArgument), invocation.ArgumentList.Arguments[1]]
 							: new[] { Argument(newArgument) })))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 				);

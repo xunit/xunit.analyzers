@@ -57,7 +57,7 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 				else if (argument.Syntax is ArgumentSyntax argumentSyntax)
 				{
 					var kind = argumentSyntax.Expression.Kind();
-					if (kind == SyntaxKind.DefaultExpression || kind == SyntaxKind.DefaultLiteralExpression)
+					if (kind is SyntaxKind.DefaultExpression or SyntaxKind.DefaultLiteralExpression)
 						Report(context, invocationOperation.Syntax.GetLocation(), argument.Parameter!);
 				}
 			}

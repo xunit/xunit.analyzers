@@ -51,7 +51,7 @@ public class UseAssertFailInsteadOfBooleanAssertFixer : BatchedCodeFixProvider
 				editor.ReplaceNode(
 					invocation,
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList(new[] { invocation.ArgumentList.Arguments[1] })))
+						.WithArgumentList(ArgumentList(SeparatedList([invocation.ArgumentList.Arguments[1]])))
 						.WithExpression(memberAccess.WithName(IdentifierName(Constants.Asserts.Fail)))
 				);
 

@@ -7,33 +7,21 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace Xunit.Analyzers.Fixes;
 
-public class RemoveAttributesOfTypeCodeAction : CodeAction
+public class RemoveAttributesOfTypeCodeAction(
+	string title,
+	string equivalenceKey,
+	Document document,
+	SyntaxList<AttributeListSyntax> attributeLists,
+	string attributeType,
+	bool exactMatch = false) :
+		CodeAction
 {
-	readonly SyntaxList<AttributeListSyntax> attributeLists;
-	readonly string attributeType;
-	readonly Document document;
-	readonly bool exactMatch;
+	readonly string attributeType = Guard.ArgumentNotNull(attributeType);
+	readonly Document document = Guard.ArgumentNotNull(document);
 
-	public RemoveAttributesOfTypeCodeAction(
-		string title,
-		string equivalenceKey,
-		Document document,
-		SyntaxList<AttributeListSyntax> attributeLists,
-		string attributeType,
-		bool exactMatch = false)
-	{
-		Title = Guard.ArgumentNotNull(title);
-		EquivalenceKey = Guard.ArgumentNotNull(equivalenceKey);
+	public override string EquivalenceKey { get; } = Guard.ArgumentNotNull(equivalenceKey);
 
-		this.attributeLists = attributeLists;
-		this.attributeType = Guard.ArgumentNotNull(attributeType);
-		this.document = Guard.ArgumentNotNull(document);
-		this.exactMatch = exactMatch;
-	}
-
-	public override string EquivalenceKey { get; }
-
-	public override string Title { get; }
+	public override string Title { get; } = Guard.ArgumentNotNull(title);
 
 	protected override async Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 	{

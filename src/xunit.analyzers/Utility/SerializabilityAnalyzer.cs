@@ -4,13 +4,8 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public sealed class SerializabilityAnalyzer
+public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 {
-	readonly SerializableTypeSymbols typeSymbols;
-
-	public SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols) =>
-		this.typeSymbols = typeSymbols;
-
 	/// <summary>
 	/// Analyze the given type to determine whether it is always, possibly, or never serializable.
 	/// </summary>

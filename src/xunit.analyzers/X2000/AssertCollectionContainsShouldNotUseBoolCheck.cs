@@ -11,20 +11,20 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertCollectionContainsShouldNotUseBoolCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> linqContainsMethods = new()
-	{
+	static readonly HashSet<string> linqContainsMethods =
+	[
 		// Signatures without nullable variants
 		"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource)",
 		// Non-nullable signatures
 		"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource, System.Collections.Generic.IEqualityComparer<TSource>)",
 		// Nullable signatures
 		"System.Linq.Enumerable.Contains<TSource>(System.Collections.Generic.IEnumerable<TSource>, TSource, System.Collections.Generic.IEqualityComparer<TSource>?)",
-	};
+	];
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.False,
 		Constants.Asserts.True,
-	};
+	];
 
 	public AssertCollectionContainsShouldNotUseBoolCheck()
 		: base(Descriptors.X2017_AssertCollectionContainsShouldNotUseBoolCheck, targetMethods)
@@ -41,7 +41,7 @@ public class AssertCollectionContainsShouldNotUseBoolCheck : AssertUsageAnalyzer
 		Guard.ArgumentNotNull(method);
 
 		var arguments = invocationOperation.Arguments;
-		if (arguments.Length < 1 || arguments.Length > 2)
+		if (arguments.Length is < 1 or > 2)
 			return;
 
 		if (method.Parameters.Length > 1 && method.Parameters[1].Type.SpecialType == SpecialType.System_String)

@@ -281,7 +281,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 
 			if (parameterType.Kind != SymbolKind.TypeParameter && !parameterType.IsAssignableFrom(typeArgument))
 			{
-				bool report = true;
+				var report = true;
 
 				// The user might be providing the full array for 'params'; if they do, we need to move
 				// the parameter type index forward because it's been consumed by the array

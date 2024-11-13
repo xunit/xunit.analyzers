@@ -12,8 +12,8 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertStringEqualityCheckShouldNotUseBoolCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> stringEqualsMethods = new()
-	{
+	static readonly HashSet<string> stringEqualsMethods =
+	[
 		// Non-nullable signatures
 		"string.Equals(string)",
 		"string.Equals(string, string)",
@@ -24,17 +24,17 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheck : AssertUsageAnalyze
 		"string.Equals(string?, string?)",
 		"string.Equals(string?, System.StringComparison)",
 		"string.Equals(string?, string?, System.StringComparison)",
-	};
-	static readonly HashSet<StringComparison> supportedStringComparisons = new()
-	{
+	];
+	static readonly HashSet<StringComparison> supportedStringComparisons =
+	[
 		StringComparison.Ordinal,
 		StringComparison.OrdinalIgnoreCase,
-	};
+	];
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.False,
 		Constants.Asserts.True,
-	};
+	];
 
 	public AssertStringEqualityCheckShouldNotUseBoolCheck()
 		: base(Descriptors.X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixer, targetMethods)
@@ -61,7 +61,7 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheck : AssertUsageAnalyze
 		if (!stringEqualsMethods.Contains(SymbolDisplay.ToDisplayString(methodSymbol)))
 			return;
 
-		string ignoreCase = string.Empty;
+		var ignoreCase = string.Empty;
 
 		if (methodSymbol.Parameters.Last().Type.TypeKind == TypeKind.Enum)
 		{

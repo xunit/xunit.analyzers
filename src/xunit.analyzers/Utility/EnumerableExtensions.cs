@@ -18,7 +18,7 @@ static partial class EnumerableExtensions
 	{
 		if (!dictionary.TryGetValue(key, out var list))
 		{
-			list = new();
+			list = [];
 			dictionary[key] = list;
 		}
 

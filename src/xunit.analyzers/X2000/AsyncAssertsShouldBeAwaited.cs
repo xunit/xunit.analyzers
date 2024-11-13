@@ -8,7 +8,7 @@ namespace Xunit.Analyzers;
 public class AsyncAssertsShouldBeAwaited : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.AllAsync,
 		Constants.Asserts.CollectionAsync,
 		Constants.Asserts.PropertyChangedAsync,
@@ -16,7 +16,7 @@ public class AsyncAssertsShouldBeAwaited : AssertUsageAnalyzerBase
 		Constants.Asserts.RaisesAsync,
 		Constants.Asserts.ThrowsAnyAsync,
 		Constants.Asserts.ThrowsAsync,
-	};
+	];
 
 	public AsyncAssertsShouldBeAwaited() :
 		base(Descriptors.X2021_AsyncAssertionsShouldBeAwaited, targetMethods)

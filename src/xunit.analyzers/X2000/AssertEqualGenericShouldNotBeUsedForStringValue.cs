@@ -8,10 +8,10 @@ namespace Xunit.Analyzers;
 public class AssertEqualGenericShouldNotBeUsedForStringValue : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.StrictEqual,
-	};
+	];
 
 	public AssertEqualGenericShouldNotBeUsedForStringValue()
 		: base(Descriptors.X2006_AssertEqualGenericShouldNotBeUsedForStringValue, targetMethods)

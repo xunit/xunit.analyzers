@@ -13,25 +13,25 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> allowedCollections = new()
-	{
+	static readonly HashSet<string> allowedCollections =
+	[
 		// ArraySegment<T>.GetEnumerator() can throw
 		"System.ArraySegment<T>",
 		// StringValues has an implicit string conversion that's preferred by the compiler, https://github.com/xunit/xunit/issues/2859
 		"Microsoft.Extensions.Primitives.StringValues",
-	};
-	static readonly HashSet<string> sizeMethods = new()
-	{
+	];
+	static readonly HashSet<string> sizeMethods =
+	[
 		// Signatures without nullable variants
 		"System.Array.Length",
 		"System.Linq.Enumerable.Count<TSource>(System.Collections.Generic.IEnumerable<TSource>)",
 		"System.Collections.Immutable.ImmutableArray<T>.Length",
-	};
+	];
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.NotEqual,
-	};
+	];
 
 	public AssertEqualShouldNotBeUsedForCollectionSizeCheck()
 		: base(Descriptors.X2013_AssertEqualShouldNotBeUsedForCollectionSizeCheck, targetMethods)
@@ -77,10 +77,10 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheck : AssertUsageAnaly
 			return;
 
 		if (IsAllowedCollection(symbol) ||
-				!IsWellKnownSizeMethod(symbol) &&
-				!IsICollectionCountProperty(context, symbol) &&
-				!IsICollectionOfTCountProperty(context, symbol) &&
-				!IsIReadOnlyCollectionOfTCountProperty(context, symbol))
+				(!IsWellKnownSizeMethod(symbol) &&
+				 !IsICollectionCountProperty(context, symbol) &&
+				 !IsICollectionOfTCountProperty(context, symbol) &&
+				 !IsIReadOnlyCollectionOfTCountProperty(context, symbol)))
 			return;
 
 		var replacement = GetReplacementMethodName(method.Name, size);

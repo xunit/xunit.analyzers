@@ -10,10 +10,10 @@ namespace Xunit.Analyzers;
 public class UseAssertFailInsteadOfBooleanAssert : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.False,
 		Constants.Asserts.True,
-	};
+	];
 	static readonly Dictionary<string, bool> targetValues = new()
 	{
 		{ Constants.Asserts.False, true },

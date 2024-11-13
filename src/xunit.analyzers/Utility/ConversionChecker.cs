@@ -52,7 +52,7 @@ static class ConversionChecker
 			return IsConvertibleNumeric(source, destination, valueSource);
 
 		if (destination.SpecialType == SpecialType.System_DateTime
-			|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid == true && IsDateTimeOffsetOrGuid(destination)))
+			|| (xunitContext.Core.TheorySupportsConversionFromStringToDateTimeOffsetAndGuid && IsDateTimeOffsetOrGuid(destination)))
 		{
 			// Allow all conversions from strings. All parsing issues will be reported at runtime.
 			return source.SpecialType == SpecialType.System_String;
@@ -101,7 +101,7 @@ static class ConversionChecker
 		if (destination.ContainingNamespace?.Name != nameof(System))
 			return false;
 
-		return destination.MetadataName == nameof(DateTimeOffset) || destination.MetadataName == nameof(Guid);
+		return destination.MetadataName is (nameof(DateTimeOffset)) or (nameof(Guid));
 	}
 
 	static bool IsSigned(ITypeSymbol typeSymbol) =>

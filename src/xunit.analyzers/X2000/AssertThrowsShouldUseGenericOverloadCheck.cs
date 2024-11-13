@@ -11,10 +11,10 @@ namespace Xunit.Analyzers;
 public class AssertThrowsShouldUseGenericOverloadCheck : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.Throws,
 		Constants.Asserts.ThrowsAsync,
-	};
+	];
 
 	public AssertThrowsShouldUseGenericOverloadCheck()
 		: base(Descriptors.X2015_AssertThrowsShouldUseGenericOverload, targetMethods)

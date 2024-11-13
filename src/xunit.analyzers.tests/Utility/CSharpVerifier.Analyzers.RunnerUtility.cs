@@ -153,7 +153,6 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
 	/// </summary>
-	/// <param name="languageVersion">The language version to compile with</param>
 	/// <param name="sources">The code to verify</param>
 	/// <param name="diagnostics">The expected diagnostics (pass none for code that
 	/// should not trigger)</param>

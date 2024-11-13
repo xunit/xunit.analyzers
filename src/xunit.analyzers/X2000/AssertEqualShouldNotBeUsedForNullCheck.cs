@@ -12,18 +12,18 @@ namespace Xunit.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class AssertEqualShouldNotBeUsedForNullCheck : AssertUsageAnalyzerBase
 {
-	static readonly HashSet<string> equalMethods = new()
-	{
+	static readonly HashSet<string> equalMethods =
+	[
 		Constants.Asserts.Equal,
 		Constants.Asserts.Same,
 		Constants.Asserts.StrictEqual,
-	};
-	static readonly HashSet<string> notEqualMethods = new()
-	{
+	];
+	static readonly HashSet<string> notEqualMethods =
+	[
 		Constants.Asserts.NotEqual,
 		Constants.Asserts.NotSame,
 		Constants.Asserts.NotStrictEqual,
-	};
+	];
 	static readonly string[] targetMethods = equalMethods.Union(notEqualMethods).ToArray();
 
 	public AssertEqualShouldNotBeUsedForNullCheck()

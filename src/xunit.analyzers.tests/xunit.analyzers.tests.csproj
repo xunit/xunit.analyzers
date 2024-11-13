@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <AssemblyName>xunit.analyzers.tests.$(TargetFramework)</AssemblyName>
+    <!--
+    TODO: Temporarily disable security vulnerability detection because Microsoft.CodeAnalysis.CSharp.CodeFix.Testing
+    1.1.1 is out of date and 1.1.2 is broken.
+    -->
+    <NoWarn>$(NoWarn);NU1902;NU1903;NU1904</NoWarn>
     <OutputType>Exe</OutputType>
     <PackageId>xunit.analyzers.tests</PackageId>
     <RootNamespace>Xunit.Analyzers</RootNamespace>

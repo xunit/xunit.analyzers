@@ -9,10 +9,10 @@ namespace Xunit.Analyzers;
 public class AssertNullShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.NotNull,
 		Constants.Asserts.Null,
-	};
+	];
 
 	public AssertNullShouldNotBeCalledOnValueTypes()
 		: base(Descriptors.X2002_AssertNullShouldNotBeCalledOnValueTypes, targetMethods)

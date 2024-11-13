@@ -171,23 +171,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		bool ShouldFixParentFunction(SyntaxNode parentFunction, CancellationToken cancellationToken);
 	}
 
-	sealed class AnonymousFunctionFixer : IFunctionFixer
+	sealed class AnonymousFunctionFixer(
+		AnonymousFunctionExpressionSyntax anonymousFunction,
+		SemanticModel semanticModel,
+		DocumentEditor editor) :
+			IFunctionFixer
 	{
 		public SyntaxNode Function => anonymousFunction;
-
-		readonly AnonymousFunctionExpressionSyntax anonymousFunction;
-		readonly SemanticModel semanticModel;
-		readonly DocumentEditor editor;
-
-		public AnonymousFunctionFixer(
-			AnonymousFunctionExpressionSyntax anonymousFunction,
-			SemanticModel semanticModel,
-			DocumentEditor editor)
-		{
-			this.anonymousFunction = anonymousFunction;
-			this.semanticModel = semanticModel;
-			this.editor = editor;
-		}
 
 		public async Task Fix(CancellationToken cancellationToken)
 		{
@@ -336,23 +326,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 		}
 	}
 
-	sealed class LocalFunctionFixer : IFunctionFixer
+	sealed class LocalFunctionFixer(
+		LocalFunctionStatementSyntax localFunction,
+		SemanticModel semanticModel,
+		DocumentEditor editor) :
+			IFunctionFixer
 	{
 		public SyntaxNode Function => localFunction;
-
-		readonly LocalFunctionStatementSyntax localFunction;
-		readonly SemanticModel semanticModel;
-		readonly DocumentEditor editor;
-
-		public LocalFunctionFixer(
-			LocalFunctionStatementSyntax localFunction,
-			SemanticModel semanticModel,
-			DocumentEditor editor)
-		{
-			this.localFunction = localFunction;
-			this.semanticModel = semanticModel;
-			this.editor = editor;
-		}
 
 		public async Task Fix(CancellationToken cancellationToken)
 		{
@@ -387,29 +367,21 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFi
 			if (symbol is null)
 				return false;
 
-			return parentFunction
-				.DescendantNodes()
-				.Where(node => node is InvocationExpressionSyntax)
-				.Select(node => semanticModel.GetOperation((InvocationExpressionSyntax)node, cancellationToken) as IInvocationOperation)
-				.Where(invocation => SymbolEqualityComparer.Default.Equals(invocation?.TargetMethod, symbol))
-				.Any();
+			return
+				parentFunction
+					.DescendantNodes()
+					.Where(node => node is InvocationExpressionSyntax)
+					.Select(node => semanticModel.GetOperation((InvocationExpressionSyntax)node, cancellationToken) as IInvocationOperation)
+					.Any(invocation => SymbolEqualityComparer.Default.Equals(invocation?.TargetMethod, symbol));
 		}
 	}
 
-	sealed class MethodFixer : IFunctionFixer
+	sealed class MethodFixer(
+		MethodDeclarationSyntax method,
+		DocumentEditor editor) :
+			IFunctionFixer
 	{
 		public SyntaxNode Function => method;
-
-		readonly MethodDeclarationSyntax method;
-		readonly DocumentEditor editor;
-
-		public MethodFixer(
-			MethodDeclarationSyntax method,
-			DocumentEditor editor)
-		{
-			this.method = method;
-			this.editor = editor;
-		}
 
 		public async Task Fix(CancellationToken cancellationToken)
 		{

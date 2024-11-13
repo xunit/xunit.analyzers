@@ -27,8 +27,8 @@ public static class CodeAnalysisExtensions
 #pragma warning disable CA1308 // These are display names, not normalizations for comparison
 
 		// TODO: Make this respect the user's preferences on identifier name style
-		var fieldName = "_" + typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1, typeName.Length - 1);
-		var constructorArgName = typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1, typeName.Length - 1);
+		var fieldName = "_" + typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1);
+		var constructorArgName = typeName.Substring(0, 1).ToLowerInvariant() + typeName.Substring(1);
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 #pragma warning restore CA1308
@@ -65,7 +65,7 @@ public static class CodeAnalysisExtensions
 				)
 			);
 
-		editor.InsertMembers(declaration, 0, new SyntaxNode[] { fieldDeclaration, constructor });
+		editor.InsertMembers(declaration, 0, [fieldDeclaration, constructor]);
 
 		return editor.GetChangedDocument();
 	}
@@ -218,11 +218,10 @@ public static class CodeAnalysisExtensions
 				var baseTypeNode = generator.TypeExpression(baseTypeMetadata);
 				var baseTypes = generator.GetBaseAndInterfaceTypes(declaration);
 
-				SyntaxNode updatedDeclaration;
-				if (baseTypes is null || baseTypes.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class)
-					updatedDeclaration = generator.AddBaseType(declaration, baseTypeNode);
-				else
-					updatedDeclaration = generator.ReplaceNode(declaration, baseTypes[0], baseTypeNode);
+				var updatedDeclaration =
+					baseTypes is null || baseTypes.Count == 0 || semanticModel.GetTypeInfo(baseTypes[0], cancellationToken).Type?.TypeKind != TypeKind.Class
+						? generator.AddBaseType(declaration, baseTypeNode)
+						: generator.ReplaceNode(declaration, baseTypes[0], baseTypeNode);
 
 				editor.ReplaceNode(declaration, updatedDeclaration);
 			}

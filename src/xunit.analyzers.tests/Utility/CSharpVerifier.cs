@@ -13,7 +13,7 @@ public partial class CSharpVerifier<TAnalyzer>
 	where TAnalyzer : DiagnosticAnalyzer, new()
 {
 	/// <summary>
-	/// Creates a diagnostic result for the diagnostic referenced in <see cref="TAnalyzer"/>.
+	/// Creates a diagnostic result for the diagnostic referenced in <typeparamref name="TAnalyzer"/>.
 	/// </summary>
 	public static DiagnosticResult Diagnostic() =>
 		CSharpCodeFixVerifier<TAnalyzer, EmptyCodeFixProvider, XunitVerifier>.Diagnostic();

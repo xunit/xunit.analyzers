@@ -49,7 +49,7 @@ public class TestMethodSupportedReturnType : XunitDiagnosticAnalyzer
 				Diagnostic.Create(
 					Descriptors.X1028_TestMethodHasInvalidReturnType,
 					method.Locations.FirstOrDefault(),
-					new[] { string.Join(", ", validReturnTypeDisplayNames) }
+					[string.Join(", ", validReturnTypeDisplayNames)]
 				)
 			);
 		}, SymbolKind.Method);

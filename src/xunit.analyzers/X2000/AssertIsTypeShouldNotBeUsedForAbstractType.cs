@@ -54,7 +54,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractType : AssertUsageAnalyzerBas
 				return;
 			if (operation.ConstantValue.Value is not bool value)
 				return;
-			if (value != true)
+			if (!value)
 				return;
 		}
 

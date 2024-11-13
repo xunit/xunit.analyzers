@@ -11,11 +11,11 @@ namespace Xunit.Analyzers;
 public class AssertIsTypeShouldUseGenericOverloadType : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
+	[
 		Constants.Asserts.IsAssignableFrom,
 		Constants.Asserts.IsNotType,
 		Constants.Asserts.IsType,
-	};
+	];
 
 	public AssertIsTypeShouldUseGenericOverloadType()
 		: base(Descriptors.X2007_AssertIsTypeShouldUseGenericOverload, targetMethods)

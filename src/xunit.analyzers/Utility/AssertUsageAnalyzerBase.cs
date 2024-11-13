@@ -6,21 +6,18 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
-public abstract class AssertUsageAnalyzerBase : XunitDiagnosticAnalyzer
+public abstract class AssertUsageAnalyzerBase(
+	DiagnosticDescriptor[] descriptors,
+	IEnumerable<string> methods) :
+		XunitDiagnosticAnalyzer(descriptors)
 {
-	readonly HashSet<string> targetMethods;
+	readonly HashSet<string> targetMethods = new(methods, StringComparer.Ordinal);
 
 	protected AssertUsageAnalyzerBase(
 		DiagnosticDescriptor descriptor,
 		IEnumerable<string> methods)
-			: this(new[] { descriptor }, methods)
+			: this([descriptor], methods)
 	{ }
-
-	protected AssertUsageAnalyzerBase(
-		DiagnosticDescriptor[] descriptors,
-		IEnumerable<string> methods) :
-			base(descriptors) =>
-				targetMethods = new HashSet<string>(methods, StringComparer.Ordinal);
 
 	public sealed override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,

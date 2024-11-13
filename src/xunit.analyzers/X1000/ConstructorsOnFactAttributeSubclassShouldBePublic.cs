@@ -40,8 +40,7 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublic : XunitDiagnostic
 				if (constructor is null)
 					continue;
 
-				if (constructor.DeclaredAccessibility == Accessibility.ProtectedOrInternal
-					|| constructor.DeclaredAccessibility == Accessibility.Internal)
+				if (constructor.DeclaredAccessibility is Accessibility.ProtectedOrInternal or Accessibility.Internal)
 				{
 					if (attribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken) is not AttributeSyntax attributeSyntax)
 						return;

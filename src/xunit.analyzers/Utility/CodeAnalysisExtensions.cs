@@ -201,12 +201,10 @@ static class CodeAnalysisExtensions
 		return current;
 	}
 
-	sealed class NamedTypeVisitor : SymbolVisitor
+	sealed class NamedTypeVisitor(Func<INamedTypeSymbol, bool> selector) :
+		SymbolVisitor
 	{
-		readonly Func<INamedTypeSymbol, bool> selector;
-
-		public NamedTypeVisitor(Func<INamedTypeSymbol, bool> selector) =>
-			this.selector = Guard.ArgumentNotNull(selector);
+		readonly Func<INamedTypeSymbol, bool> selector = Guard.ArgumentNotNull(selector);
 
 		public INamedTypeSymbol? MatchingType { get; private set; }
 

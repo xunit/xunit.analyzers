@@ -10,10 +10,10 @@ namespace Xunit.Analyzers;
 public class AssertEqualsShouldNotBeUsed : AssertUsageAnalyzerBase
 {
 	static readonly string[] targetMethods =
-	{
-		nameof(object.Equals),
-		nameof(object.ReferenceEquals),
-	};
+	[
+		nameof(Equals),
+		nameof(ReferenceEquals),
+	];
 
 	public AssertEqualsShouldNotBeUsed()
 		: base(Descriptors.X2001_AssertEqualsShouldNotBeUsed, targetMethods)
@@ -31,8 +31,8 @@ public class AssertEqualsShouldNotBeUsed : AssertUsageAnalyzerBase
 
 		var replacement = method.Name switch
 		{
-			nameof(object.Equals) => Constants.Asserts.Equal,
-			nameof(object.ReferenceEquals) => Constants.Asserts.Same,
+			nameof(Equals) => Constants.Asserts.Equal,
+			nameof(ReferenceEquals) => Constants.Asserts.Same,
 			_ => null
 		};
 

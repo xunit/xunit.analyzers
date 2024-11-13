@@ -34,7 +34,7 @@ public sealed class ConsiderCallingConfigureAwaitSuppressor : XunitDiagnosticSup
 		var current = invocationSyntax.Parent;
 		while (true)
 		{
-			if (current is null || current is LocalFunctionStatementSyntax || current is LambdaExpressionSyntax)
+			if (current is null or LocalFunctionStatementSyntax or LambdaExpressionSyntax)
 				return false;
 			if (current is MethodDeclarationSyntax)
 				break;

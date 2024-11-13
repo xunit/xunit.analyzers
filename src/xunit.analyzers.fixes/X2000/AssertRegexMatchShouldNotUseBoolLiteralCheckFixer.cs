@@ -79,7 +79,7 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixer : BatchedCodeFixP
 					editor.ReplaceNode(
 						invocation,
 						invocation
-							.WithArgumentList(ArgumentList(SeparatedList(new[] { Argument(regexMember), regexIsMatchInvocation.ArgumentList.Arguments[0] })))
+							.WithArgumentList(ArgumentList(SeparatedList([Argument(regexMember), regexIsMatchInvocation.ArgumentList.Arguments[0]])))
 							.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 					);
 				}

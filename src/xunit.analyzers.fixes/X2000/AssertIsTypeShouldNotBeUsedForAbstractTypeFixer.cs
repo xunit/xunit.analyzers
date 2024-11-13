@@ -82,10 +82,10 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : BatchedCodeFixPro
 				.WithNameColon(NameColon("exactMatch"));
 
 		var argumentList = invocation.ArgumentList;
-		if (argumentList.Arguments.Count == 2)
-			argumentList = argumentList.ReplaceNode(argumentList.Arguments[1], falseArgument);
-		else
-			argumentList = argumentList.AddArguments(falseArgument);
+		argumentList =
+			argumentList.Arguments.Count == 2
+				? argumentList.ReplaceNode(argumentList.Arguments[1], falseArgument)
+				: argumentList.AddArguments(falseArgument);
 
 		editor.ReplaceNode(invocation.ArgumentList, argumentList);
 		return editor.GetChangedDocument();
