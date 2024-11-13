@@ -61,10 +61,10 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "8.0.0"),
-				new PackageIdentity("xunit.v3.assert", "0.6.0-pre.1"),
-				new PackageIdentity("xunit.v3.common", "0.6.0-pre.1"),
-				new PackageIdentity("xunit.v3.extensibility.core", "0.6.0-pre.1"),
-				new PackageIdentity("xunit.v3.runner.common", "0.6.0-pre.1")
+				new PackageIdentity("xunit.v3.assert", "0.6.0-pre.9"),
+				new PackageIdentity("xunit.v3.common", "0.6.0-pre.9"),
+				new PackageIdentity("xunit.v3.extensibility.core", "0.6.0-pre.9"),
+				new PackageIdentity("xunit.v3.runner.common", "0.6.0-pre.9")
 			)
 		);
 
@@ -74,8 +74,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("System.Text.Json", "8.0.0"),
-				new PackageIdentity("xunit.v3.common", "0.6.0-pre.1"),
-				new PackageIdentity("xunit.v3.runner.utility", "0.6.0-pre.1")
+				new PackageIdentity("xunit.v3.common", "0.6.0-pre.9"),
+				new PackageIdentity("xunit.v3.runner.utility", "0.6.0-pre.9")
 			)
 		);
 	}
