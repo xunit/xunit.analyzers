@@ -90,7 +90,7 @@ public class UseCancellationTokenFixerTests
 			        Function(MyContext.Current.CancellationToken);
 			    }
 			
-				void Function(CancellationToken token = default(CancellationToken)) { }
+			    void Function(CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 
