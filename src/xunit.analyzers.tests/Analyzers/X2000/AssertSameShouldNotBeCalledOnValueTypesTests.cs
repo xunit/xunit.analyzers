@@ -19,10 +19,10 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        int a = 0;
-			        {{|#0:Xunit.Assert.{0}(0, a)|}};
-			    }}
+				void TestMethod() {{
+					int a = 0;
+					{{|#0:Xunit.Assert.{0}(0, a)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
@@ -38,10 +38,10 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        object a = 0;
-			        {{|#0:Xunit.Assert.{0}(0, a)|}};
-			    }}
+				void TestMethod() {{
+					object a = 0;
+					{{|#0:Xunit.Assert.{0}(0, a)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
@@ -57,10 +57,10 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        object a = 0;
-			        {{|#0:Xunit.Assert.{0}(a, 0)|}};
-			    }}
+				void TestMethod() {{
+					object a = 0;
+					{{|#0:Xunit.Assert.{0}(a, 0)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
@@ -77,27 +77,27 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    public void TestMethod() {{
-			        var o = new object();
+				public void TestMethod() {{
+					var o = new object();
 
-			        Xunit.Assert.{0}((MyBuggyInt)42, o);
-			        Xunit.Assert.{0}((MyBuggyInt)(int?)42, o);
-			        Xunit.Assert.{0}((MyBuggyIntBase)42, o);
-			        Xunit.Assert.{0}((MyBuggyIntBase)(int?)42, o);
+					Xunit.Assert.{0}((MyBuggyInt)42, o);
+					Xunit.Assert.{0}((MyBuggyInt)(int?)42, o);
+					Xunit.Assert.{0}((MyBuggyIntBase)42, o);
+					Xunit.Assert.{0}((MyBuggyIntBase)(int?)42, o);
 
-			        Xunit.Assert.{0}(o, (MyBuggyInt)42);
-			        Xunit.Assert.{0}(o, (MyBuggyInt)(int?)42);
-			        Xunit.Assert.{0}(o, (MyBuggyIntBase)42);
-			        Xunit.Assert.{0}(o, (MyBuggyIntBase)(int?)42);
-			    }}
+					Xunit.Assert.{0}(o, (MyBuggyInt)42);
+					Xunit.Assert.{0}(o, (MyBuggyInt)(int?)42);
+					Xunit.Assert.{0}(o, (MyBuggyIntBase)42);
+					Xunit.Assert.{0}(o, (MyBuggyIntBase)(int?)42);
+				}}
 			}}
 
 			public abstract class MyBuggyIntBase {{
-			    public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
+				public static implicit operator MyBuggyIntBase(int i) => new MyBuggyInt();
 			}}
 
 			public class MyBuggyInt : MyBuggyIntBase {{
-			    public MyBuggyInt() {{ }}
+				public MyBuggyInt() {{ }}
 			}}
 			""", method);
 
@@ -112,9 +112,9 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(0, null)|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(0, null)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);
@@ -130,9 +130,9 @@ public class AssertSameShouldNotBeCalledOnValueTypesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(null, 0)|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(null, 0)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", "int", replacement);

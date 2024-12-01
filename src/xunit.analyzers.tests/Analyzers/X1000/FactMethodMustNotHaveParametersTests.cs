@@ -9,8 +9,8 @@ public class FactMethodMustNotHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -22,8 +22,8 @@ public class FactMethodMustNotHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(string p) { }
+				[Xunit.Theory]
+				public void TestMethod(string p) { }
 			}
 			""";
 
@@ -35,8 +35,8 @@ public class FactMethodMustNotHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void [|TestMethod|](string p) { }
+				[Xunit.Fact]
+				public void [|TestMethod|](string p) { }
 			}
 			""";
 

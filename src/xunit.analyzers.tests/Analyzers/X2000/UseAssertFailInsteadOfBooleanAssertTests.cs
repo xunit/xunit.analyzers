@@ -10,10 +10,10 @@ public class UseAssertFailInsteadOfBooleanAssertTests
 {
 	const string codeTemplate = /* lang=c#-test */ """
 		public class TestClass {{
-		    [Xunit.Fact]
-		    public void TestMethod() {{
-		        {{|#0:Xunit.Assert.{0}({1}, "failure message")|}};
-		    }}
+			[Xunit.Fact]
+			public void TestMethod() {{
+				{{|#0:Xunit.Assert.{0}({1}, "failure message")|}};
+			}}
 		}}
 		""";
 
@@ -59,11 +59,11 @@ public class UseAssertFailInsteadOfBooleanAssertTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() {
-			        var value = (1 != 2);
-			        Xunit.Assert.False(value, "failure message");
-			    }
+				[Xunit.Fact]
+				public void TestMethod() {
+					var value = (1 != 2);
+					Xunit.Assert.False(value, "failure message");
+				}
 			}
 			""";
 

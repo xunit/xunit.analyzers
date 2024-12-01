@@ -9,12 +9,12 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 		using Xunit;
 
 		public class TestClass {
-		    [Fact]
-		    public void TestMethod() {
-		        var collection = new[] { 1, 2, 3 };
+			[Fact]
+			public void TestMethod() {
+				var collection = new[] { 1, 2, 3 };
 
-		        [|Assert.Collection(collection)|];
-		    }
+				[|Assert.Collection(collection)|];
+			}
 		}
 		""";
 
@@ -25,12 +25,12 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var collection = new[] { 1, 2, 3 };
+				[Fact]
+				public void TestMethod() {
+					var collection = new[] { 1, 2, 3 };
 
-			        Assert.Empty(collection);
-			    }
+					Assert.Empty(collection);
+				}
 			}
 			""";
 
@@ -44,12 +44,12 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var collection = new[] { 1, 2, 3 };
+				[Fact]
+				public void TestMethod() {
+					var collection = new[] { 1, 2, 3 };
 
-			        Assert.Collection(collection, x => { });
-			    }
+					Assert.Collection(collection, x => { });
+				}
 			}
 			""";
 

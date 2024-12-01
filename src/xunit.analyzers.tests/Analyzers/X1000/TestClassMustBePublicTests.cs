@@ -15,8 +15,8 @@ public class TestClassMustBePublicTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -31,8 +31,8 @@ public class TestClassMustBePublicTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			{1} class [|TestClass|] {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute, modifier);
 
@@ -46,13 +46,13 @@ public class TestClassMustBePublicTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public partial class TestClass {{
-			    [Xunit.Fact]
-			    public void Test1() {{ }}
+				[Xunit.Fact]
+				public void Test1() {{ }}
 			}}
 
 			{0} partial class TestClass {{
-			    [Xunit.Fact]
-			    public void Test2() {{ }}
+				[Xunit.Fact]
+				public void Test2() {{ }}
 			}}
 			""", modifier);
 
@@ -66,14 +66,14 @@ public class TestClassMustBePublicTests
 	{
 		var source1 = /* lang=c#-test */ """
 			public partial class TestClass {
-			    [Xunit.Fact]
-			    public void Test1() { }
+				[Xunit.Fact]
+				public void Test1() { }
 			}
 			""";
 		var source2 = string.Format(/* lang=c#-test */ """
 			{0} partial class TestClass {{
-			    [Xunit.Fact]
-			    public void Test2() {{ }}
+				[Xunit.Fact]
+				public void Test2() {{ }}
 			}}
 			""", modifier);
 
@@ -90,13 +90,13 @@ public class TestClassMustBePublicTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			{0} partial class {{|#0:TestClass|}} {{
-			    [Xunit.Fact]
-			    public void Test1() {{ }}
+				[Xunit.Fact]
+				public void Test1() {{ }}
 			}}
 
 			{1} partial class {{|#1:TestClass|}} {{
-			    [Xunit.Fact]
-			    public void Test2() {{ }}
+				[Xunit.Fact]
+				public void Test2() {{ }}
 			}}
 			""", modifier1, modifier2);
 		var expected = Verify.Diagnostic().WithLocation(0).WithLocation(1);
@@ -114,14 +114,14 @@ public class TestClassMustBePublicTests
 	{
 		var source1 = string.Format(/* lang=c#-test */ """
 			{0} partial class {{|#0:TestClass|}} {{
-			    [Xunit.Fact]
-			    public void Test1() {{ }}
+				[Xunit.Fact]
+				public void Test1() {{ }}
 			}}
 			""", modifier1);
 		var source2 = string.Format(/* lang=c#-test */ """
 			{0} partial class {{|#1:TestClass|}} {{
-			    [Xunit.Fact]
-			    public void Test2() {{ }}
+				[Xunit.Fact]
+				public void Test2() {{ }}
 			}}
 			""", modifier2);
 		var expected = Verify.Diagnostic().WithLocation(0).WithLocation(1);

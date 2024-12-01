@@ -11,8 +11,8 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int {|#0:unused|}) { }
+				[Theory]
+				void TestMethod(int {|#0:unused|}) { }
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "unused");
@@ -28,11 +28,11 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int {|#0:unused|}) {
-			        unused = 3;
-			        int.TryParse("123", out unused);
-			    }
+				[Theory]
+				void TestMethod(int {|#0:unused|}) {
+					unused = 3;
+					int.TryParse("123", out unused);
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "unused");
@@ -47,8 +47,8 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int {|#0:foo|}, int {|#1:bar|}, int {|#2:baz|}) { }
+				[Theory]
+				void TestMethod(int {|#0:foo|}, int {|#1:bar|}, int {|#2:baz|}) { }
 			}
 			""";
 		var expected = new[]
@@ -69,11 +69,11 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int {|#0:foo|}, int bar, int {|#1:baz|}) {
-			        Console.WriteLine(bar);
-			        baz = 3;
-			    }
+				[Theory]
+				void TestMethod(int {|#0:foo|}, int bar, int {|#1:baz|}) {
+					Console.WriteLine(bar);
+					baz = 3;
+				}
 			}
 			""";
 		var expected = new[]
@@ -92,8 +92,8 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int {|#0:unused|}) => Assert.Equal(5, 2 + 2);
+				[Theory]
+				void TestMethod(int {|#0:unused|}) => Assert.Equal(5, 2 + 2);
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "unused");
@@ -109,10 +109,10 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int used) {
-			        Console.WriteLine(used);
-			    }
+				[Theory]
+				void TestMethod(int used) {
+					Console.WriteLine(used);
+				}
 			}
 			""";
 
@@ -127,13 +127,13 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(string used, int usedOut) {
-			        // mimicking mock setup use case
-			        // var mock = new Mock<IHaveOutParameter>();
-			        // mock.Setup(m => m.SomeMethod(out used));
-			        Action setup = () => int.TryParse(used, out usedOut);
-			    }
+				[Theory]
+				void TestMethod(string used, int usedOut) {
+					// mimicking mock setup use case
+					// var mock = new Mock<IHaveOutParameter>();
+					// mock.Setup(m => m.SomeMethod(out used));
+					Action setup = () => int.TryParse(used, out usedOut);
+				}
 			}
 			""";
 
@@ -147,8 +147,8 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int used) => Assert.Equal(used, 2 + 2);
+				[Theory]
+				void TestMethod(int used) => Assert.Equal(used, 2 + 2);
 			}
 			""";
 
@@ -163,11 +163,11 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    void TestMethod(int used, string _, object _1, DateTime _42, double {|#0:_a|})
-			    {
-			        Assert.Equal(42, used);
-			    }
+				[Theory]
+				void TestMethod(int used, string _, object _1, DateTime _42, double {|#0:_a|})
+				{
+					Assert.Equal(42, used);
+				}
 			}
 			""";
 		// Only a single warning, for _a; everything else is either used or matches the discard pattern
@@ -183,8 +183,8 @@ public class TheoryMethodShouldUseAllParametersTests
 			using Xunit;
 
 			class TestClass {
-			    [Theory]
-			    extern void TestMethod(int foo);
+				[Theory]
+				extern void TestMethod(int foo);
 			}
 			""";
 

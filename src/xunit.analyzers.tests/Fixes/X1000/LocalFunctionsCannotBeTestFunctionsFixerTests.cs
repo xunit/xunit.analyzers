@@ -15,21 +15,21 @@ public class LocalFunctionsCannotBeTestFunctionsFixerTests
 			using Xunit;
 
 			public class TestClass {{
-			    public void Method() {{
-			        [[|{0}|]]
-			        void LocalFunction() {{
-			        }}
-			    }}
+				public void Method() {{
+					[[|{0}|]]
+					void LocalFunction() {{
+					}}
+				}}
 			}}
 			""", attribute);
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    public void Method() {
-			        void LocalFunction() {
-			        }
-			    }
+				public void Method() {
+					void LocalFunction() {
+					}
+				}
 			}
 			""";
 

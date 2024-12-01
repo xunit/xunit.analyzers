@@ -9,8 +9,8 @@ public class TheoryMethodShouldHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -22,8 +22,8 @@ public class TheoryMethodShouldHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(string s) { }
+				[Xunit.Theory]
+				public void TestMethod(string s) { }
 			}
 			""";
 
@@ -35,8 +35,8 @@ public class TheoryMethodShouldHaveParametersTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void [|TestMethod|]() { }
+				[Xunit.Theory]
+				public void [|TestMethod|]() { }
 			}
 			""";
 

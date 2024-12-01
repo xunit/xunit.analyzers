@@ -22,9 +22,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			using Xunit;
 
 			public class TestClass {{
-			    [{0}]
-			    [ClassData(typeof(DerivedClass))]
-			    public void TestMethod({1} a, {2} b, {3} c) {{ }}
+				[{0}]
+				[ClassData(typeof(DerivedClass))]
+				public void TestMethod({1} a, {2} b, {3} c) {{ }}
 			}}
 
 			public class BaseClass<T1, T2, T3, T4> : TheoryData<T1, T2, {3}> {{ }}
@@ -75,7 +75,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public void TestMethod() { }
+					public void TestMethod() { }
 				}
 				""";
 
@@ -87,8 +87,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    public void TestMethod() { }
+					[Xunit.Fact]
+					public void TestMethod() { }
 				}
 				""";
 
@@ -105,18 +105,18 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {
-				    public static IEnumerable<object[]> Property1 => Array.Empty<object[]>();
-				    public static DataSource<IDisposable, Action> Property2 => new DataSource<IDisposable, Action>();
+					public static IEnumerable<object[]> Property1 => Array.Empty<object[]>();
+					public static DataSource<IDisposable, Action> Property2 => new DataSource<IDisposable, Action>();
 
-				    [Theory]
-				    [MemberData(nameof(Property1))]
-				    [MemberData(nameof(Property2))]
-				    public void TestMethod(object a, object b) { }
+					[Theory]
+					[MemberData(nameof(Property1))]
+					[MemberData(nameof(Property2))]
+					public void TestMethod(object a, object b) { }
 				}
 
 				public class DataSource<T1, T2> : IEnumerable<object[]> {
-				    public IEnumerator<object[]> GetEnumerator() { yield break; }
-				    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+					public IEnumerator<object[]> GetEnumerator() { yield break; }
+					IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 				}
 				""";
 
@@ -192,11 +192,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory]
-				    [{1}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory]
+					[{1}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public enum SerializableEnumeration {{ Zero }}
@@ -233,23 +233,23 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 					using {3};
 
 					public class TestClass {{
-					    {0}
+						{0}
 
-					    [Theory]
-					    [{1}]
-					    public void TestMethod({2} parameter) {{ }}
+						[Theory]
+						[{1}]
+						public void TestMethod({2} parameter) {{ }}
 					}}
 
 					public interface ISerializableInterface : IXunitSerializable {{ }}
 
 					public class SerializableClass : ISerializableInterface {{
-					    public void Deserialize(IXunitSerializationInfo info) {{ }}
-					    public void Serialize(IXunitSerializationInfo info) {{ }}
+						public void Deserialize(IXunitSerializationInfo info) {{ }}
+						public void Serialize(IXunitSerializationInfo info) {{ }}
 					}}
 
 					public struct SerializableStruct : ISerializableInterface {{
-					    public void Deserialize(IXunitSerializationInfo info) {{ }}
-					    public void Serialize(IXunitSerializationInfo info) {{ }}
+						public void Deserialize(IXunitSerializationInfo info) {{ }}
+						public void Serialize(IXunitSerializationInfo info) {{ }}
 					}}
 					""", member, attribute, type, ns);
 		}
@@ -271,11 +271,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory]
-				    [{1}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory]
+					[{1}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public interface ICustomSerialized {{ }}
@@ -285,14 +285,14 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				public class CustomSerializedDerived : CustomSerialized {{ }}
 
 				public class CustomSerializer : IXunitSerializer {{
-				    public object Deserialize(Type type, string serializedValue) =>
-				        throw new NotImplementedException();
+					public object Deserialize(Type type, string serializedValue) =>
+						throw new NotImplementedException();
 
-				    public bool IsSerializable(Type type, object? value) =>
-				        true;
+					public bool IsSerializable(Type type, object? value) =>
+						true;
 
-				    public string Serialize(object value) =>
-				        throw new NotImplementedException();
+					public string Serialize(object value) =>
+						throw new NotImplementedException();
 				}}
 				""", member, attribute, type
 			);
@@ -319,11 +319,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory(DisableDiscoveryEnumeration = true)]
-				    [{1}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory(DisableDiscoveryEnumeration = true)]
+					[{1}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public sealed class NonSerializableSealedClass {{ }}
@@ -357,11 +357,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory]
-				    [{1}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory]
+					[{1}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public sealed class NonSerializableSealedClass {{ }}
@@ -424,11 +424,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory]
-				    [{{|#0:{1}|}}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public sealed class NonSerializableSealedClass {{ }}
@@ -449,9 +449,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			string type3)
 		{
 			var expected = new[] {
-				Verify.Diagnostic("xUnit1044").WithSpan(6, 6, 6, 37).WithArguments(type1),
-				Verify.Diagnostic("xUnit1044").WithSpan(6, 6, 6, 37).WithArguments(type2),
-				Verify.Diagnostic("xUnit1044").WithSpan(6, 6, 6, 37).WithArguments(type3),
+				Verify.Diagnostic("xUnit1044").WithSpan(6, 3, 6, 34).WithArguments(type1),
+				Verify.Diagnostic("xUnit1044").WithSpan(6, 3, 6, 34).WithArguments(type2),
+				Verify.Diagnostic("xUnit1044").WithSpan(6, 3, 6, 34).WithArguments(type3),
 			};
 
 			await Verify.VerifyAnalyzer(source, expected);
@@ -489,11 +489,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [Theory]
-				    [{{|#0:{1}|}}]
-				    public void TestMethod({2} parameter) {{ }}
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
 				}}
 
 				public interface IPossiblySerializableInterface {{ }}
@@ -514,9 +514,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			string type3)
 		{
 			var expected = new[] {
-				Verify.Diagnostic("xUnit1045").WithSpan(6, 6, 6, 37).WithArguments(type1),
-				Verify.Diagnostic("xUnit1045").WithSpan(6, 6, 6, 37).WithArguments(type2),
-				Verify.Diagnostic("xUnit1045").WithSpan(6, 6, 6, 37).WithArguments(type3),
+				Verify.Diagnostic("xUnit1045").WithSpan(6, 3, 6, 34).WithArguments(type1),
+				Verify.Diagnostic("xUnit1045").WithSpan(6, 3, 6, 34).WithArguments(type2),
+				Verify.Diagnostic("xUnit1045").WithSpan(6, 3, 6, 34).WithArguments(type3),
 			};
 
 			await Verify.VerifyAnalyzer(source, expected);

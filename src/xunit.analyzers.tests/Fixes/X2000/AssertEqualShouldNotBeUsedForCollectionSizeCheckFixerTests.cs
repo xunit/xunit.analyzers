@@ -10,12 +10,12 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var data = new[] {{ 1, 2, 3 }};
+			[Fact]
+			public void TestMethod() {{
+				var data = new[] {{ 1, 2, 3 }};
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

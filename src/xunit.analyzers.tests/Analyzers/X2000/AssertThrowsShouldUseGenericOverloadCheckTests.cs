@@ -19,13 +19,13 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(typeof(System.NotImplementedException), (System.Func<System.Threading.Tasks.Task>)ThrowingMethod)|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(typeof(System.NotImplementedException), (System.Func<System.Threading.Tasks.Task>)ThrowingMethod)|}};
+				}}
 			}}
 			""", method);
 		var expected = new List<DiagnosticResult> {
@@ -43,9 +43,9 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(typeof(System.NotImplementedException), () => System.Threading.Tasks.Task.Delay(0))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(typeof(System.NotImplementedException), () => System.Threading.Tasks.Task.Delay(0))|}};
+				}}
 			}}
 			""", method);
 		var expected = new List<DiagnosticResult> {
@@ -62,13 +62,13 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    System.Threading.Tasks.Task ThrowingMethod() {
-			        throw new System.NotImplementedException();
-			    }
+				System.Threading.Tasks.Task ThrowingMethod() {
+					throw new System.NotImplementedException();
+				}
 
-			    void TestMethod() {
-			        {|CS0619:Xunit.Assert.Throws<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod)|};
-			    }
+				void TestMethod() {
+					{|CS0619:Xunit.Assert.Throws<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod)|};
+				}
 			}
 			""";
 
@@ -80,13 +80,13 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    System.Threading.Tasks.Task ThrowingMethod() {
-			        throw new System.NotImplementedException();
-			   }
+				System.Threading.Tasks.Task ThrowingMethod() {
+					throw new System.NotImplementedException();
+				}
 
-			    async System.Threading.Tasks.Task TestMethod() {
-			        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod);
-			    }
+				async System.Threading.Tasks.Task TestMethod() {
+					await Xunit.Assert.ThrowsAsync<System.NotImplementedException>((System.Func<System.Threading.Tasks.Task>)ThrowingMethod);
+				}
 			}
 			""";
 
@@ -98,9 +98,9 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        {|CS0619:Xunit.Assert.Throws<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0))|};
-			    }
+				void TestMethod() {
+					{|CS0619:Xunit.Assert.Throws<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0))|};
+				}
 			}
 			""";
 
@@ -112,9 +112,9 @@ public class AssertThrowsShouldUseGenericOverloadCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    async System.Threading.Tasks.Task TestMethod() {
-			        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
-			    }
+				async System.Threading.Tasks.Task TestMethod() {
+					await Xunit.Assert.ThrowsAsync<System.NotImplementedException>(() => System.Threading.Tasks.Task.Delay(0));
+				}
 			}
 			""";
 

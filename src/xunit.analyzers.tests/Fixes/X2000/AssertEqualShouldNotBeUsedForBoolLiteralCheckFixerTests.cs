@@ -9,12 +9,12 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var actual = true;
+			[Fact]
+			public void TestMethod() {{
+				var actual = true;
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

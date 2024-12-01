@@ -14,11 +14,11 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> DataSource;
+				public static TheoryData<int> DataSource;
 
-			    [Theory]
-			    [MemberData({|xUnit1014:"DataSource"|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData({|xUnit1014:"DataSource"|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -27,11 +27,11 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> DataSource;
+				public static TheoryData<int> DataSource;
 
-			    [Theory]
-			    [MemberData(nameof(DataSource))]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(DataSource))]
+				public void TestMethod(int a) { }
 			}
 			""";
 

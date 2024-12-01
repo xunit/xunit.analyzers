@@ -18,15 +18,15 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			using Xunit;
 
 			public abstract class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = new object();
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
 			
-			        [|Assert.IsType<IDisposable>(data)|];
-			        [|Assert.IsType<TestClass>(data)|];
-			        [|Assert.IsNotType<IDisposable>(data)|];
-			        [|Assert.IsNotType<TestClass>(data)|];
-			    }
+					[|Assert.IsType<IDisposable>(data)|];
+					[|Assert.IsType<TestClass>(data)|];
+					[|Assert.IsNotType<IDisposable>(data)|];
+					[|Assert.IsNotType<TestClass>(data)|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -34,15 +34,15 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			using Xunit;
 
 			public abstract class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = new object();
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
 
-			        Assert.IsAssignableFrom<IDisposable>(data);
-			        Assert.IsAssignableFrom<TestClass>(data);
-			        Assert.IsNotAssignableFrom<IDisposable>(data);
-			        Assert.IsNotAssignableFrom<TestClass>(data);
-			    }
+					Assert.IsAssignableFrom<IDisposable>(data);
+					Assert.IsAssignableFrom<TestClass>(data);
+					Assert.IsNotAssignableFrom<IDisposable>(data);
+					Assert.IsNotAssignableFrom<TestClass>(data);
+				}
 			}
 			""";
 
@@ -58,23 +58,23 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			using Xunit;
 
 			public abstract class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = new object();
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
 			
-			        [|Assert.IsType<IDisposable>(data)|];
-			        [|Assert.IsType<IDisposable>(data, true)|];
-			        [|Assert.IsType<IDisposable>(data, exactMatch: true)|];
-			        [|Assert.IsType<TestClass>(data)|];
-			        [|Assert.IsType<TestClass>(data, true)|];
-			        [|Assert.IsType<TestClass>(data, exactMatch: true)|];
-			        [|Assert.IsNotType<IDisposable>(data)|];
-			        [|Assert.IsNotType<IDisposable>(data, true)|];
-			        [|Assert.IsNotType<IDisposable>(data, exactMatch: true)|];
-			        [|Assert.IsNotType<TestClass>(data)|];
-			        [|Assert.IsNotType<TestClass>(data, true)|];
-			        [|Assert.IsNotType<TestClass>(data, exactMatch: true)|];
-			    }
+					[|Assert.IsType<IDisposable>(data)|];
+					[|Assert.IsType<IDisposable>(data, true)|];
+					[|Assert.IsType<IDisposable>(data, exactMatch: true)|];
+					[|Assert.IsType<TestClass>(data)|];
+					[|Assert.IsType<TestClass>(data, true)|];
+					[|Assert.IsType<TestClass>(data, exactMatch: true)|];
+					[|Assert.IsNotType<IDisposable>(data)|];
+					[|Assert.IsNotType<IDisposable>(data, true)|];
+					[|Assert.IsNotType<IDisposable>(data, exactMatch: true)|];
+					[|Assert.IsNotType<TestClass>(data)|];
+					[|Assert.IsNotType<TestClass>(data, true)|];
+					[|Assert.IsNotType<TestClass>(data, exactMatch: true)|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -82,23 +82,23 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			using Xunit;
 
 			public abstract class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = new object();
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
 
-			        Assert.IsType<IDisposable>(data, exactMatch: false);
-			        Assert.IsType<IDisposable>(data, exactMatch: false);
-			        Assert.IsType<IDisposable>(data, exactMatch: false);
-			        Assert.IsType<TestClass>(data, exactMatch: false);
-			        Assert.IsType<TestClass>(data, exactMatch: false);
-			        Assert.IsType<TestClass>(data, exactMatch: false);
-			        Assert.IsNotType<IDisposable>(data, exactMatch: false);
-			        Assert.IsNotType<IDisposable>(data, exactMatch: false);
-			        Assert.IsNotType<IDisposable>(data, exactMatch: false);
-			        Assert.IsNotType<TestClass>(data, exactMatch: false);
-			        Assert.IsNotType<TestClass>(data, exactMatch: false);
-			        Assert.IsNotType<TestClass>(data, exactMatch: false);
-			    }
+					Assert.IsType<IDisposable>(data, exactMatch: false);
+					Assert.IsType<IDisposable>(data, exactMatch: false);
+					Assert.IsType<IDisposable>(data, exactMatch: false);
+					Assert.IsType<TestClass>(data, exactMatch: false);
+					Assert.IsType<TestClass>(data, exactMatch: false);
+					Assert.IsType<TestClass>(data, exactMatch: false);
+					Assert.IsNotType<IDisposable>(data, exactMatch: false);
+					Assert.IsNotType<IDisposable>(data, exactMatch: false);
+					Assert.IsNotType<IDisposable>(data, exactMatch: false);
+					Assert.IsNotType<TestClass>(data, exactMatch: false);
+					Assert.IsNotType<TestClass>(data, exactMatch: false);
+					Assert.IsNotType<TestClass>(data, exactMatch: false);
+				}
 			}
 			""";
 

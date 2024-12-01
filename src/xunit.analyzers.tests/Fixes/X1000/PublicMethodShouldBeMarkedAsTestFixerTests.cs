@@ -9,20 +9,20 @@ public class PublicMethodShouldBeMarkedAsTestFixerTests
 		using Xunit;
 
 		public class TestClass {
-		    [Fact]
-		    public void TestMethod() { }
+			[Fact]
+			public void TestMethod() { }
 
-		    public void [|TestMethod2|]() { }
+			public void [|TestMethod2|]() { }
 		}
 		""";
 	const string beforeWithParams = /* lang=c#-test */ """
 		using Xunit;
 
 		public class TestClass {
-		    [Fact]
-		    public void TestMethod() { }
+			[Fact]
+			public void TestMethod() { }
 
-		    public void [|TestMethod2|](int _) { }
+			public void [|TestMethod2|](int _) { }
 		}
 		""";
 
@@ -33,11 +33,11 @@ public class PublicMethodShouldBeMarkedAsTestFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 
-			    [Fact]
-			    public void TestMethod2() { }
+				[Fact]
+				public void TestMethod2() { }
 			}
 			""";
 
@@ -51,11 +51,11 @@ public class PublicMethodShouldBeMarkedAsTestFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 
-			    [Theory]
-			    public void TestMethod2(int _) { }
+				[Theory]
+				public void TestMethod2(int _) { }
 			}
 			""";
 

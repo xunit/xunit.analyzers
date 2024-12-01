@@ -11,9 +11,9 @@ public class DoNotUseAsyncVoidForTestMethodsTests
 			using System.Threading.Tasks;
 
 			public class MyClass {
-			    public async void MyMethod() {
-			        await Task.Yield();
-			    }
+				public async void MyMethod() {
+					await Task.Yield();
+				}
 			}
 			""";
 
@@ -27,8 +27,8 @@ public class DoNotUseAsyncVoidForTestMethodsTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -43,10 +43,10 @@ public class DoNotUseAsyncVoidForTestMethodsTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async Task TestMethod() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async Task TestMethod() {
+					await Task.Yield();
+				}
 			}
 			""";
 
@@ -61,10 +61,10 @@ public class DoNotUseAsyncVoidForTestMethodsTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async ValueTask TestMethod() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async ValueTask TestMethod() {
+					await Task.Yield();
+				}
 			}
 			""";
 
@@ -79,10 +79,10 @@ public class DoNotUseAsyncVoidForTestMethodsTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async void {|#0:TestMethod|}() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async void {|#0:TestMethod|}() {
+					await Task.Yield();
+				}
 			}
 			""";
 		var expectedV2 = Verify.Diagnostic("xUnit1048").WithLocation(0);

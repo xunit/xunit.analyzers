@@ -23,9 +23,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.True({0}.Contains(1))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.True({0}.Contains(1))|}};
+				}}
 			}}
 			""", collection);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Contains);
@@ -39,9 +39,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.False({0}.Contains(1))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.False({0}.Contains(1))|}};
+				}}
 			}}
 			""", collection);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
@@ -57,9 +57,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.True({0}.Contains(1))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.True({0}.Contains(1))|}};
+				}}
 			}}
 			""", enumerable);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Contains);
@@ -75,9 +75,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.True({0}.Contains(1, System.Collections.Generic.EqualityComparer<int>.Default))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.True({0}.Contains(1, System.Collections.Generic.EqualityComparer<int>.Default))|}};
+				}}
 			}}
 			""", enumerable);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Contains);
@@ -93,9 +93,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.False({0}.Contains(1))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.False({0}.Contains(1))|}};
+				}}
 			}}
 			""", enumerable);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
@@ -111,9 +111,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.False({0}.Contains(1, System.Collections.Generic.EqualityComparer<int>.Default))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.False({0}.Contains(1, System.Collections.Generic.EqualityComparer<int>.Default))|}};
+				}}
 			}}
 			""", enumerable);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.False()", Constants.Asserts.DoesNotContain);
@@ -127,9 +127,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.True({0}.Contains(1), "Custom message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.True({0}.Contains(1), "Custom message");
+				}}
 			}}
 			""", collection);
 
@@ -142,9 +142,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.False({0}.Contains(1), "Custom message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.False({0}.Contains(1), "Custom message");
+				}}
 			}}
 			""", collection);
 
@@ -159,9 +159,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.True({0}.Contains(1), "Custom message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.True({0}.Contains(1), "Custom message");
+				}}
 			}}
 			""", enumerable);
 
@@ -176,9 +176,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.False({0}.Contains(1), "Custom message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.False({0}.Contains(1), "Custom message");
+				}}
 			}}
 			""", enumerable);
 
@@ -194,9 +194,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			class IntList : List<int> { }
 
 			class TestClass {
-			    void TestMethod() {
-			        [|Xunit.Assert.False(new IntList().Contains(1))|];
-			    }
+				void TestMethod() {
+					[|Xunit.Assert.False(new IntList().Contains(1))|];
+				}
 			}
 			""";
 
@@ -210,9 +210,9 @@ public class AssertCollectionContainsShouldNotUseBoolCheckTests
 			using System.Collections.Generic;
 
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.False(new Dictionary<int, int>().ContainsKey(1));
-			    }
+				void TestMethod() {
+					Xunit.Assert.False(new Dictionary<int, int>().ContainsKey(1));
+				}
 			}
 			""";
 

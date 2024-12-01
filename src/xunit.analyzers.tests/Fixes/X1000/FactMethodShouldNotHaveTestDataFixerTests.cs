@@ -12,17 +12,17 @@ public class FactMethodShouldNotHaveTestDataFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    [InlineData(1)]
-			    public void [|TestMethod|](int x) { }
+				[Fact]
+				[InlineData(1)]
+				public void [|TestMethod|](int x) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod(int x) { }
+				[Fact]
+				public void TestMethod(int x) { }
 			}
 			""";
 

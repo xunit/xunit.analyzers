@@ -10,12 +10,12 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        string result = "foo";
+			[Fact]
+			public void TestMethod() {{
+				string result = "foo";
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

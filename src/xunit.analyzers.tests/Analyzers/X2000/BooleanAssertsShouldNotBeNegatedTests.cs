@@ -15,12 +15,12 @@ public class BooleanAssertsShouldNotBeNegatedTests
 			using Xunit;
 
 			public class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        bool condition = true;
+				[Fact]
+				public void TestMethod() {{
+					bool condition = true;
 
-			        {{|#0:Assert.{0}(!condition)|}};
-			    }}
+					{{|#0:Assert.{0}(!condition)|}};
+				}}
 			}}
 			""", assertion);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(assertion, replacement);

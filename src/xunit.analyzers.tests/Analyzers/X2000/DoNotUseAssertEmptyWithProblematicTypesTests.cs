@@ -22,10 +22,10 @@ public class DoNotUseAssertEmptyWithProblematicTypesTests
 			using Xunit;
 
 			public class TestClass {{
-			    public void TestMethod() {{
-			        Assert.Empty({0});
-			        Assert.NotEmpty({0});
-			    }}
+				public void TestMethod() {{
+					Assert.Empty({0});
+					Assert.NotEmpty({0});
+				}}
 			}}
 			""", invocation);
 
@@ -46,10 +46,10 @@ public class DoNotUseAssertEmptyWithProblematicTypesTests
 			using Xunit;
 
 			public class TestClass {{
-			    public void TestMethod() {{
-			        Assert.Empty({0}.ToArray());
-			        Assert.NotEmpty({0}.ToArray());
-			    }}
+				public void TestMethod() {{
+					Assert.Empty({0}.ToArray());
+					Assert.NotEmpty({0}.ToArray());
+				}}
 			}}
 			""", invocation);
 
@@ -69,10 +69,10 @@ public class DoNotUseAssertEmptyWithProblematicTypesTests
 			using Xunit;
 
 			public class TestClass {{
-			    public void TestMethod() {{
-			        {{|#0:Assert.Empty({0})|}};
-			        {{|#1:Assert.NotEmpty({0})|}};
-			    }}
+				public void TestMethod() {{
+					{{|#0:Assert.Empty({0})|}};
+					{{|#1:Assert.NotEmpty({0})|}};
+				}}
 			}}
 			""", invocation);
 		var expected = new[]

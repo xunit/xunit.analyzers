@@ -25,13 +25,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Action ThrowingMethod = () => {{
-			        throw new System.NotImplementedException();
-			    }};
+				System.Action ThrowingMethod = () => {{
+					throw new System.NotImplementedException();
+				}};
 
-			    void TestMethod() {{
-			        Xunit.Assert.Throws(typeof(System.NotImplementedException), {0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Throws(typeof(System.NotImplementedException), {0});
+				}}
 			}}
 			""", lambda);
 
@@ -44,13 +44,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Action ThrowingMethod = () => {{
-			        throw new System.NotImplementedException();
-			    }};
+				System.Action ThrowingMethod = () => {{
+					throw new System.NotImplementedException();
+				}};
 
-			    void TestMethod() {{
-			        Xunit.Assert.Throws<System.NotImplementedException>({0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Throws<System.NotImplementedException>({0});
+				}}
 			}}
 			""", lambda);
 
@@ -63,13 +63,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Action ThrowingMethod = () => {{
-			        throw new System.NotImplementedException();
-			    }};
+				System.Action ThrowingMethod = () => {{
+					throw new System.NotImplementedException();
+				}};
 
-			    void TestMethod() {{
-			        Xunit.Assert.Throws<System.ArgumentException>("param1", {0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Throws<System.ArgumentException>("param1", {0});
+				}}
 			}}
 			""", lambda);
 
@@ -82,13 +82,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
+				System.Threading.Tasks.Task ThrowingMethod() {{
 					throw new System.NotImplementedException();
-			    }}
+				}}
 
-			    void TestMethod() {{
-			        {{|#0:{{|CS0619:Xunit.Assert.Throws(typeof(System.NotImplementedException), {0})|}}|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:{{|CS0619:Xunit.Assert.Throws(typeof(System.NotImplementedException), {0})|}}|}};
+				}}
 			}}
 			""", lambda);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
@@ -102,13 +102,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    void TestMethod() {{
-			        {{|#0:{{|CS0619:Xunit.Assert.Throws<System.NotImplementedException>({0})|}}|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:{{|CS0619:Xunit.Assert.Throws<System.NotImplementedException>({0})|}}|}};
+				}}
 			}}
 			""", lambda);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
@@ -122,13 +122,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    void TestMethod() {{
-			        {{|#0:{{|CS0619:Xunit.Assert.Throws<System.ArgumentException>("param1", {0})|}}|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:{{|CS0619:Xunit.Assert.Throws<System.ArgumentException>("param1", {0})|}}|}};
+				}}
 			}}
 			""", lambda);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.Throws()", Constants.Asserts.ThrowsAsync);
@@ -142,13 +142,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    async System.Threading.Tasks.Task TestMethod() {{
-			        await Xunit.Assert.ThrowsAsync(typeof(System.NotImplementedException), {0});
-			    }}
+				async System.Threading.Tasks.Task TestMethod() {{
+					await Xunit.Assert.ThrowsAsync(typeof(System.NotImplementedException), {0});
+				}}
 			}}
 			""", lambda);
 
@@ -161,13 +161,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    async void TestMethod() {{
-			        await Xunit.Assert.ThrowsAsync<System.NotImplementedException>({0});
-			    }}
+				async void TestMethod() {{
+					await Xunit.Assert.ThrowsAsync<System.NotImplementedException>({0});
+				}}
 			}}
 			""", lambda);
 
@@ -180,13 +180,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Action ThrowingMethod = () => {{
-			        throw new System.NotImplementedException();
-			    }};
+				System.Action ThrowingMethod = () => {{
+					throw new System.NotImplementedException();
+				}};
 
-			    void TestMethod() {{
-			        Xunit.Assert.ThrowsAny<System.NotImplementedException>({0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.ThrowsAny<System.NotImplementedException>({0});
+				}}
 			}}
 			""", lambda);
 
@@ -199,13 +199,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    void TestMethod() {{
-			        {{|#0:{{|CS0619:Xunit.Assert.ThrowsAny<System.NotImplementedException>({0})|}}|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:{{|CS0619:Xunit.Assert.ThrowsAny<System.NotImplementedException>({0})|}}|}};
+				}}
 			}}
 			""", lambda);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.ThrowsAny()", Constants.Asserts.ThrowsAnyAsync);
@@ -219,13 +219,13 @@ public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    System.Threading.Tasks.Task ThrowingMethod() {{
-			        throw new System.NotImplementedException();
-			    }}
+				System.Threading.Tasks.Task ThrowingMethod() {{
+					throw new System.NotImplementedException();
+				}}
 
-			    async void TestMethod() {{
-			        await Xunit.Assert.ThrowsAnyAsync<System.NotImplementedException>({0});
-			    }}
+				async void TestMethod() {{
+					await Xunit.Assert.ThrowsAnyAsync<System.NotImplementedException>({0});
+				}}
 			}}
 			""", lambda);
 

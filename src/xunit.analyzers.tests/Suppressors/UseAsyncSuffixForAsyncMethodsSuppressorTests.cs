@@ -17,12 +17,12 @@ public class UseAsyncSuffixForAsyncMethodsSuppressorTests
 			using Xunit;
 
 			public class NonTestClass {
-			    public async Task {|#0:NonTestMethod|}() { }
+				public async Task {|#0:NonTestMethod|}() { }
 			}
 
 			public class TestClass {
-			    [Fact]
-			    public async Task {|#1:TestMethod|]() { }
+				[Fact]
+				public async Task {|#1:TestMethod|]() { }
 			}
 			""";
 		var expected = new[]

@@ -9,7 +9,7 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    public void TestMethod() { }
+				public void TestMethod() { }
 			}
 			""";
 
@@ -23,8 +23,8 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute);
 
@@ -36,10 +36,10 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass: System.IDisposable {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public void Dispose() { }
+				public void Dispose() { }
 			}
 			""";
 
@@ -51,10 +51,10 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public abstract void AbstractMethod();
+				public abstract void AbstractMethod();
 			}
 			""";
 
@@ -66,15 +66,15 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class BaseClass {
-			    [Xunit.Fact]
-			    public abstract void TestMethod();
+				[Xunit.Fact]
+				public abstract void TestMethod();
 			}
 
 			public class TestClass : BaseClass {
-			    public override void TestMethod() { }
+				public override void TestMethod() { }
 
-			    [Xunit.Fact]
-			    public void TestMethod2() { }
+				[Xunit.Fact]
+				public void TestMethod2() { }
 			}
 			""";
 
@@ -86,11 +86,11 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    [Xunit.Fact]
-			    public abstract void AbstractMethod();
+				[Xunit.Fact]
+				public abstract void AbstractMethod();
 			}
 			""";
 
@@ -102,14 +102,14 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class BaseClass: System.IDisposable {
-			    public virtual void Dispose() { }
+				public virtual void Dispose() { }
 			}
 
 			public class TestClass: BaseClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public override void Dispose() { }
+				public override void Dispose() { }
 			}
 			""";
 
@@ -121,14 +121,14 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class BaseClass: System.IDisposable {
-			    public virtual void Dispose() { }
+				public virtual void Dispose() { }
 			}
 
 			public class TestClass: BaseClass, System.IDisposable {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public override void Dispose() { }
+				public override void Dispose() { }
 			}
 			""";
 
@@ -140,16 +140,16 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class BaseClass: System.IDisposable {
-			    public abstract void Dispose();
+				public abstract void Dispose();
 			}
 
 			public abstract class IntermediateClass: BaseClass { }
 
 			public class TestClass: IntermediateClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public override void Dispose() { }
+				public override void Dispose() { }
 			}
 			""";
 
@@ -161,18 +161,18 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass: Xunit.IAsyncLifetime {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public System.Threading.Tasks.Task DisposeAsync()
-			    {
-			        throw new System.NotImplementedException();
-			    }
+				public System.Threading.Tasks.Task DisposeAsync()
+				{
+					throw new System.NotImplementedException();
+				}
 
-			    public System.Threading.Tasks.Task InitializeAsync()
-			    {
-			        throw new System.NotImplementedException();
-			    }
+				public System.Threading.Tasks.Task InitializeAsync()
+				{
+					throw new System.NotImplementedException();
+				}
 			}
 			""";
 
@@ -184,18 +184,18 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass: Xunit.IAsyncLifetime {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    public System.Threading.Tasks.ValueTask DisposeAsync()
-			    {
-			        throw new System.NotImplementedException();
-			    }
+				public System.Threading.Tasks.ValueTask DisposeAsync()
+				{
+					throw new System.NotImplementedException();
+				}
 
-			    public System.Threading.Tasks.ValueTask InitializeAsync()
-			    {
-			        throw new System.NotImplementedException();
-			    }
+				public System.Threading.Tasks.ValueTask InitializeAsync()
+				{
+					throw new System.NotImplementedException();
+				}
 			}
 			""";
 
@@ -212,11 +212,11 @@ public class PublicMethodShouldBeMarkedAsTestTests
 			public class CustomTestTypeAttribute: System.Attribute { }
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    [CustomTestType]
-			    public void CustomTestMethod() { }
+				[CustomTestType]
+				public void CustomTestMethod() { }
 			}
 			""";
 
@@ -235,11 +235,11 @@ public class PublicMethodShouldBeMarkedAsTestTests
 			public class DerivedCustomTestTypeAttribute: BaseCustomTestTypeAttribute { }
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 
-			    [DerivedCustomTestType]
-			    public void {|#0:CustomTestMethod|}() { }
+				[DerivedCustomTestType]
+				public void {|#0:CustomTestMethod|}() { }
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("CustomTestMethod", "TestClass", "Fact");
@@ -254,10 +254,10 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 
-			    public void {{|#0:Method|}}() {{ }}
+				public void {{|#0:Method|}}() {{ }}
 			}}
 			""", attribute);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Method", "TestClass", "Fact");
@@ -272,10 +272,10 @@ public class PublicMethodShouldBeMarkedAsTestTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 
-			    public void {{|#0:Method|}}(int a) {{ }}
+				public void {{|#0:Method|}}(int a) {{ }}
 			}}
 			""", attribute);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Method", "TestClass", "Theory");
@@ -292,14 +292,14 @@ public class PublicMethodShouldBeMarkedAsTestTests
 			using Xunit;
 
 			public abstract class ParentClass {{
-			    public abstract void ParentMethod();
+				public abstract void ParentMethod();
 			}}
 
 			public class TestClass : ParentClass {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 
-			    public override void ParentMethod() {{ }}
+				public override void ParentMethod() {{ }}
 			
 				public override void {{|CS0115:MissingMethod|}}() {{ }}
 			}}

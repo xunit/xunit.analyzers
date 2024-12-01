@@ -14,10 +14,10 @@ public class AsyncAssertsShouldBeAwaitedTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        Task.Delay(1);
-			    }
+				[Fact]
+				public void TestMethod() {
+					Task.Delay(1);
+				}
 			}
 			""";
 
@@ -32,20 +32,20 @@ public class AsyncAssertsShouldBeAwaitedTests
 		using Xunit;
 
 		public class TestClass : INotifyPropertyChanged {{
-		    public int Property {{ get; set; }}
+			public int Property {{ get; set; }}
 
-		    public event PropertyChangedEventHandler? PropertyChanged;
-		    public event EventHandler? SimpleEvent;
-		    public event EventHandler<int>? SimpleIntEvent;
+			public event PropertyChangedEventHandler? PropertyChanged;
+			public event EventHandler? SimpleEvent;
+			public event EventHandler<int>? SimpleIntEvent;
 
-		    [Fact]
-		    public async Task TestMethod() {{
-		        {0}
-		    }}
+			[Fact]
+			public async Task TestMethod() {{
+				{0}
+			}}
 		}}
 
 		public static class MyTaskExtensions {{
-		    public static void ConsumeTask(this Task t) {{ }}
+			public static void ConsumeTask(this Task t) {{ }}
 		}}
 		""";
 

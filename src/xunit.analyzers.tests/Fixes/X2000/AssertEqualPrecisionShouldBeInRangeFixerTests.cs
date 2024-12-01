@@ -9,10 +9,10 @@ public class AssertEqualPrecisionShouldBeInRangeFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        {0};
-		    }}
+			[Fact]
+			public void TestMethod() {{
+				{0};
+			}}
 		}}
 		""";
 

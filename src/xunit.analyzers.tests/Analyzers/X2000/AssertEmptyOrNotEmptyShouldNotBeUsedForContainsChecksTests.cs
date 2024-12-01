@@ -25,10 +25,10 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Empty({0});
+				void TestMethod() {{
+					Xunit.Assert.Empty({0});
 					Xunit.Assert.NotEmpty({0});
-			    }}
+				}}
 			}}
 			""", collection);
 
@@ -46,10 +46,10 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Empty({0}.Where((f, i) => {1} && i > 0));
+				void TestMethod() {{
+					Xunit.Assert.Empty({0}.Where((f, i) => {1} && i > 0));
 					Xunit.Assert.NotEmpty({0}.Where((f, i) => {1} && i > 0));
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -67,10 +67,10 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Empty({0}.Where(f => {1}).Select(f => f));
+				void TestMethod() {{
+					Xunit.Assert.Empty({0}.Where(f => {1}).Select(f => f));
 					Xunit.Assert.NotEmpty({0}.Where(f => {1}).Select(f => f));
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -88,10 +88,10 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|xUnit2029:Xunit.Assert.Empty({0}.Where(f => {1}))|}};
+				void TestMethod() {{
+					{{|xUnit2029:Xunit.Assert.Empty({0}.Where(f => {1}))|}};
 					{{|xUnit2030:Xunit.Assert.NotEmpty({0}.Where(f => {1}))|}};
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -108,10 +108,10 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|xUnit2029:Xunit.Assert.Empty("{0}".Where(f => f > 0))|}};
+				void TestMethod() {{
+					{{|xUnit2029:Xunit.Assert.Empty("{0}".Where(f => f > 0))|}};
 					{{|xUnit2030:Xunit.Assert.NotEmpty("{0}".Where(f => f > 0))|}};
-			    }}
+				}}
 			}}
 			""", sampleString);
 

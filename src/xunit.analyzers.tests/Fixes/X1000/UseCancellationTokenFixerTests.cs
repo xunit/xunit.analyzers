@@ -14,22 +14,22 @@ public class UseCancellationTokenFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod()
-			    {
-			        [|FunctionWithOverload(42)|];
-			        [|FunctionWithOverload(42, default(CancellationToken))|];
+				[Fact]
+				public void TestMethod()
+				{
+					[|FunctionWithOverload(42)|];
+					[|FunctionWithOverload(42, default(CancellationToken))|];
 			
-			        [|FunctionWithDefaults()|];
-			        [|FunctionWithDefaults(42)|];
-			        [|FunctionWithDefaults(cancellationToken: default(CancellationToken))|];
-			        [|FunctionWithDefaults(42, cancellationToken: default(CancellationToken))|];
-			    }
+					[|FunctionWithDefaults()|];
+					[|FunctionWithDefaults(42)|];
+					[|FunctionWithDefaults(cancellationToken: default(CancellationToken))|];
+					[|FunctionWithDefaults(42, cancellationToken: default(CancellationToken))|];
+				}
 			
-			    void FunctionWithOverload(int _) { }
-			    void FunctionWithOverload(int _1, CancellationToken _2) { }
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(int _1, CancellationToken _2) { }
 
-			    void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -38,22 +38,22 @@ public class UseCancellationTokenFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod()
-			    {
-			        FunctionWithOverload(42, TestContext.Current.CancellationToken);
-			        FunctionWithOverload(42, TestContext.Current.CancellationToken);
+				[Fact]
+				public void TestMethod()
+				{
+					FunctionWithOverload(42, TestContext.Current.CancellationToken);
+					FunctionWithOverload(42, TestContext.Current.CancellationToken);
 			
-			        FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
-			        FunctionWithDefaults(42, TestContext.Current.CancellationToken);
-			        FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
-			        FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken);
-			    }
+					FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
+					FunctionWithDefaults(42, TestContext.Current.CancellationToken);
+					FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
+					FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken);
+				}
 			
-			    void FunctionWithOverload(int _) { }
-			    void FunctionWithOverload(int _1, CancellationToken _2) { }
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(int _1, CancellationToken _2) { }
 
-			    void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
 			}
 			""";
 
@@ -69,13 +69,13 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        [|Function()|];
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					[|Function()|];
+				}
 			
-			    void Function(CancellationToken token = default(CancellationToken)) { }
+				void Function(CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -84,13 +84,13 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        Function(MyContext.Current.CancellationToken);
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					Function(MyContext.Current.CancellationToken);
+				}
 			
-			    void Function(CancellationToken token = default(CancellationToken)) { }
+				void Function(CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 
@@ -106,15 +106,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        [|Function(1, 2, 3)|];
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					[|Function(1, 2, 3)|];
+				}
 
-			    void Function(params int[] integers) { }
+				void Function(params int[] integers) { }
 
-			    void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
+				void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -123,15 +123,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        Function(new int[] { 1, 2, 3 }, MyContext.Current.CancellationToken);
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					Function(new int[] { 1, 2, 3 }, MyContext.Current.CancellationToken);
+				}
 			
-			    void Function(params int[] integers) { }
+				void Function(params int[] integers) { }
 
-			    void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
+				void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 
@@ -147,15 +147,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        [|Function("hello", System.Guid.NewGuid(), System.Guid.NewGuid())|];
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					[|Function("hello", System.Guid.NewGuid(), System.Guid.NewGuid())|];
+				}
 			
-			    void Function(string str, params System.Guid[] guids) { }
+				void Function(string str, params System.Guid[] guids) { }
 			
-			    void Function(string str, System.Guid[] guids, CancellationToken token = default(CancellationToken)) { }
+				void Function(string str, System.Guid[] guids, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -164,15 +164,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        Function("hello", new System.Guid[] { System.Guid.NewGuid(), System.Guid.NewGuid() }, MyContext.Current.CancellationToken);
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					Function("hello", new System.Guid[] { System.Guid.NewGuid(), System.Guid.NewGuid() }, MyContext.Current.CancellationToken);
+				}
 			
-			    void Function(string str, params System.Guid[] guids) { }
+				void Function(string str, params System.Guid[] guids) { }
 			
-			    void Function(string str, System.Guid[] guids, CancellationToken token = default(CancellationToken)) { }
+				void Function(string str, System.Guid[] guids, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 
@@ -188,15 +188,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        [|Function()|];
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					[|Function()|];
+				}
 
-			    void Function(params int[] integers) { }
+				void Function(params int[] integers) { }
 
-			    void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
+				void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -205,15 +205,15 @@ public class UseCancellationTokenFixerTests
 			using MyContext = Xunit.TestContext;
 
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod()
-			    {
-			        Function(new int[] { }, MyContext.Current.CancellationToken);
-			    }
+				[Xunit.Fact]
+				public void TestMethod()
+				{
+					Function(new int[] { }, MyContext.Current.CancellationToken);
+				}
 			
-			    void Function(params int[] integers) { }
+				void Function(params int[] integers) { }
 
-			    void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
+				void Function(int[] integers, CancellationToken token = default(CancellationToken)) { }
 			}
 			""";
 

@@ -9,8 +9,8 @@ public class TheoryMethodMustHaveTestDataTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -25,9 +25,9 @@ public class TheoryMethodMustHaveTestDataTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.Theory]
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.Theory]
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", dataAttribute);
 
@@ -39,8 +39,8 @@ public class TheoryMethodMustHaveTestDataTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void [|TestMethod|]() { }
+				[Xunit.Theory]
+				public void [|TestMethod|]() { }
 			}
 			""";
 

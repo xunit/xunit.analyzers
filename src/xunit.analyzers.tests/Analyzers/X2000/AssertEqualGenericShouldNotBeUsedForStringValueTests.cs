@@ -23,9 +23,9 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Equal({0}, {1});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Equal({0}, {1});
+				}}
 			}}
 			""", expected, value);
 
@@ -40,9 +40,9 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.Equal<string>({0}, {1})|];
-			    }}
+				void TestMethod() {{
+					[|Xunit.Assert.Equal<string>({0}, {1})|];
+				}}
 			}}
 			""", expected, value);
 
@@ -57,9 +57,9 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.StrictEqual({0}, {1})|];
-			    }}
+				void TestMethod() {{
+					[|Xunit.Assert.StrictEqual({0}, {1})|];
+				}}
 			}}
 			""", expected, value);
 
@@ -74,9 +74,9 @@ public class AssertEqualGenericShouldNotBeUsedForStringValueTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.StrictEqual<string>({0}, {1})|];
-			    }}
+				void TestMethod() {{
+					[|Xunit.Assert.StrictEqual<string>({0}, {1})|];
+				}}
 			}}
 			""", expected, value);
 

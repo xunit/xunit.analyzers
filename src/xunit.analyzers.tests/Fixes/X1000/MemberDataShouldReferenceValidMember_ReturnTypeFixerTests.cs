@@ -13,11 +13,11 @@ public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static IEnumerable<object> Data => null;
+				public static IEnumerable<object> Data => null;
 
-			    [Theory]
-			    [{|xUnit1019:MemberData(nameof(Data))|}]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[{|xUnit1019:MemberData(nameof(Data))|}]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -25,11 +25,11 @@ public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static IEnumerable<object[]> Data => null;
+				public static IEnumerable<object[]> Data => null;
 
-			    [Theory]
-			    [{|xUnit1042:MemberData(nameof(Data))|}]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[{|xUnit1042:MemberData(nameof(Data))|}]
+				public void TestMethod(int a) { }
 			}
 			""";
 
@@ -44,11 +44,11 @@ public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static IEnumerable<object> Data => null;
+				public static IEnumerable<object> Data => null;
 
-			    [Theory]
-			    [{|xUnit1019:MemberData(nameof(Data))|}]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[{|xUnit1019:MemberData(nameof(Data))|}]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -56,11 +56,11 @@ public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static IEnumerable<ITheoryDataRow> Data => null;
+				public static IEnumerable<ITheoryDataRow> Data => null;
 
-			    [Theory]
-			    [{|xUnit1042:MemberData(nameof(Data))|}]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[{|xUnit1042:MemberData(nameof(Data))|}]
+				public void TestMethod(int a) { }
 			}
 			""";
 

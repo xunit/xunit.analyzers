@@ -13,8 +13,8 @@ public class TheoryMethodCannotHaveDefaultParameterTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, string c {|#0:= ""|}) { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, string c {|#0:= ""|}) { }
 			}
 			""";
 		var expected = Verify_v2_Pre220.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "c");
@@ -27,8 +27,8 @@ public class TheoryMethodCannotHaveDefaultParameterTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, string c = "") { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, string c = "") { }
 			}
 			""";
 

@@ -19,9 +19,9 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(System.Text.RegularExpressions.Regex.IsMatch("abc", "\\w*"))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(System.Text.RegularExpressions.Regex.IsMatch("abc", "\\w*"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -37,9 +37,9 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(new System.Text.RegularExpressions.Regex("abc").IsMatch("\\w*"))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(new System.Text.RegularExpressions.Regex("abc").IsMatch("\\w*"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -55,10 +55,10 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var regex = new System.Text.RegularExpressions.Regex("abc");
-			        {{|#0:Xunit.Assert.{0}(regex.IsMatch("\\w*"))|}};
-			    }}
+				void TestMethod() {{
+					var regex = new System.Text.RegularExpressions.Regex("abc");
+					{{|#0:Xunit.Assert.{0}(regex.IsMatch("\\w*"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);

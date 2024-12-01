@@ -12,7 +12,7 @@ public class EnsureFixturesHaveASourceTests
 		{
 			var source = /* lang=c#-test */ """
 				public class NonTestClass {
-				    public NonTestClass(object _) { }
+					public NonTestClass(object _) { }
 				}
 				""";
 
@@ -32,9 +32,9 @@ public class EnsureFixturesHaveASourceTests
 				using Xunit.Abstractions;
 
 				{0} public class TestClass {{
-				    public TestClass(ITestOutputHelper _) {{ }}
+					public TestClass(ITestOutputHelper _) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", attribute);
 
@@ -51,9 +51,9 @@ public class EnsureFixturesHaveASourceTests
 				using Xunit.v3;
 
 				{0} public class TestClass {{
-				    public TestClass(ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
+					public TestClass(ITestOutputHelper _1, ITestContextAccessor _2) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", attribute);
 
@@ -67,9 +67,9 @@ public class EnsureFixturesHaveASourceTests
 				using Xunit;
 
 				public class TestClass {
-				    public TestClass(bool value = true) { }
+					public TestClass(bool value = true) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -110,9 +110,9 @@ public class EnsureFixturesHaveASourceTests
 
 				{2}
 				public class TestClass : BaseClass {3} {{
-				    public TestClass(object _) {{ }}
+					public TestClass(object _) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", baseAttribute, baseInterface, derivedAttribute, derivedInterface);
 
@@ -130,9 +130,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass {
-				    public TestClass(object _) { }
+					public TestClass(object _) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -146,9 +146,9 @@ public class EnsureFixturesHaveASourceTests
 				using Xunit;
 
 				public class TestClass {
-				    public TestClass(object [|_|]) { }
+					public TestClass(object [|_|]) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -171,7 +171,7 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass {{
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", definitionAttribute);
 
@@ -199,15 +199,15 @@ public class EnsureFixturesHaveASourceTests
 				public class TestCollection : ICollectionFixture<Fixture> {{ }}
 
 				public abstract class TestContext {{
-				    protected TestContext(Fixture fixture) {{ }}
+					protected TestContext(Fixture fixture) {{ }}
 				}}
 
 				{1}
 				public class TestClass : TestContext {{
-				    public TestClass(Fixture fixture) : base(fixture) {{ }}
+					public TestClass(Fixture fixture) : base(fixture) {{ }}
 
-				    [Fact]
-				    public void TestMethod() {{ }}
+					[Fact]
+					public void TestMethod() {{ }}
 				}}
 				""", collectionDefinition, collectionReference);
 
@@ -229,10 +229,10 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection("test")]
 				public class TestClass {
-				    public TestClass(Fixture<int> {|#0:fixture|}) { }
+					public TestClass(Fixture<int> {|#0:fixture|}) { }
 
-				    [Fact]
-				    public void TestMethod() { }
+					[Fact]
+					public void TestMethod() { }
 				}
 				""";
 			var expectedV2 = Verify.Diagnostic().WithLocation(0).WithArguments("fixture");
@@ -254,14 +254,14 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection("test")]
 				public abstract class TestContext<TContextFixture> {
-				    protected TestContext(Fixture<TContextFixture> fixture) { }
+					protected TestContext(Fixture<TContextFixture> fixture) { }
 				}
 
 				public class TestClass : TestContext<int> {
-				    public TestClass(Fixture<int> {|#0:fixture|}) : base(fixture) { }
+					public TestClass(Fixture<int> {|#0:fixture|}) : base(fixture) { }
 
-				    [Fact]
-				    public void TestMethod() { }
+					[Fact]
+					public void TestMethod() { }
 				}
 				""";
 			var expectedV2 = Verify.Diagnostic().WithLocation(0).WithArguments("fixture");
@@ -288,7 +288,7 @@ public class EnsureFixturesHaveASourceTests
 
 				{1}
 				public class TestClass : BaseClass {{
-				    public TestClass(object _) {{ }}
+					public TestClass(object _) {{ }}
 				}}
 				""", baseAttribute, derivedAttribute);
 
@@ -306,9 +306,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass {
-				    public TestClass(object _) { }
+					public TestClass(object _) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -328,9 +328,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass {{
-				    public TestClass(object [|_|]) {{ }}
+					public TestClass(object [|_|]) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", definitionAttribute);
 
@@ -349,9 +349,9 @@ public class EnsureFixturesHaveASourceTests
 				[assembly: AssemblyFixture(typeof(object))]
 
 				public class TestClass {
-				    public TestClass(object _) { }
+					public TestClass(object _) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -374,9 +374,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass : IClassFixture<object> {{
-				    public TestClass(object _) {{ }}
+					public TestClass(object _) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""", definitionAttribute);
 
@@ -397,9 +397,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass : IClassFixture<ClassFixture> {{
-				    public TestClass(ClassFixture _1, CollectionFixture _2, {0} _3) {{ }}
+					public TestClass(ClassFixture _1, CollectionFixture _2, {0} _3) {{ }}
 
-				    [Fact] public void TestMethod() {{ }}
+					[Fact] public void TestMethod() {{ }}
 				}}
 				""";
 
@@ -421,9 +421,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass {
-				    public TestClass(ClassFixture [|_1|], CollectionFixture _2) { }
+					public TestClass(ClassFixture [|_1|], CollectionFixture _2) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 
@@ -444,9 +444,9 @@ public class EnsureFixturesHaveASourceTests
 
 				[Collection(nameof(TestCollection))]
 				public class TestClass : IClassFixture<ClassFixture> {
-				    public TestClass(ClassFixture _1, CollectionFixture [|_2|]) { }
+					public TestClass(ClassFixture _1, CollectionFixture [|_2|]) { }
 
-				    [Fact] public void TestMethod() { }
+					[Fact] public void TestMethod() { }
 				}
 				""";
 

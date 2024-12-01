@@ -12,18 +12,18 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, {|xUnit1011:21.12|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[InlineData(42, {|xUnit1011:21.12|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42)]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[InlineData(42)]
+				public void TestMethod(int a) { }
 			}
 			""";
 
@@ -41,18 +41,18 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {{
-			    [Theory]
-			    [InlineData(42, {{|xUnit1011:{0}|}})]
-			    public void TestMethod(int a) {{ }}
+				[Theory]
+				[InlineData(42, {{|xUnit1011:{0}|}})]
+				public void TestMethod(int a) {{ }}
 			}}
 			""", value);
 		var after = string.Format(/* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {{
-			    [Theory]
-			    [InlineData(42, {0})]
-			    public void TestMethod(int a, {1} p) {{ }}
+				[Theory]
+				[InlineData(42, {0})]
+				public void TestMethod(int a, {1} p) {{ }}
 			}}
 			""", value, valueType);
 
@@ -66,18 +66,18 @@ public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, {|xUnit1011:21.12|})]
-			    public void TestMethod(int p) { }
+				[Theory]
+				[InlineData(42, {|xUnit1011:21.12|})]
+				public void TestMethod(int p) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, 21.12)]
-			    public void TestMethod(int p, double p_2) { }
+				[Theory]
+				[InlineData(42, 21.12)]
+				public void TestMethod(int p, double p_2) { }
 			}
 			""";
 

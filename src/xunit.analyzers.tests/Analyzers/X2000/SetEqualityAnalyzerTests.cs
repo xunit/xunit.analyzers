@@ -10,32 +10,32 @@ public class SetEqualityAnalyzerTests
 		using System.Collections.Generic;
 
 		public class MySet : ISet<int> {
-		    public int Count => throw new System.NotImplementedException();
-		    public bool IsReadOnly => throw new System.NotImplementedException();
+			public int Count => throw new System.NotImplementedException();
+			public bool IsReadOnly => throw new System.NotImplementedException();
 
-		    public bool Add(int item) => throw new System.NotImplementedException();
-		    public void Clear() => throw new System.NotImplementedException();
-		    public bool Contains(int item) => throw new System.NotImplementedException();
-		    public void CopyTo(int[] array, int arrayIndex) => throw new System.NotImplementedException();
-		    public void ExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public IEnumerator<int> GetEnumerator() => throw new System.NotImplementedException();
-		    public void IntersectWith(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool IsProperSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool IsProperSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool IsSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool IsSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool Overlaps(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public bool Remove(int item) => throw new System.NotImplementedException();
-		    public bool SetEquals(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public void SymmetricExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    public void UnionWith(IEnumerable<int> other) => throw new System.NotImplementedException();
-		    void ICollection<int>.Add(int item) => throw new System.NotImplementedException();
-		    IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
+			public bool Add(int item) => throw new System.NotImplementedException();
+			public void Clear() => throw new System.NotImplementedException();
+			public bool Contains(int item) => throw new System.NotImplementedException();
+			public void CopyTo(int[] array, int arrayIndex) => throw new System.NotImplementedException();
+			public void ExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public IEnumerator<int> GetEnumerator() => throw new System.NotImplementedException();
+			public void IntersectWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool IsProperSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool IsProperSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool IsSubsetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool IsSupersetOf(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool Overlaps(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public bool Remove(int item) => throw new System.NotImplementedException();
+			public bool SetEquals(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public void SymmetricExceptWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+			public void UnionWith(IEnumerable<int> other) => throw new System.NotImplementedException();
+			void ICollection<int>.Add(int item) => throw new System.NotImplementedException();
+			IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
 		}
 
 		public class MyComparer : IEqualityComparer<int> {
-		    public bool Equals(int x, int y) => throw new System.NotImplementedException();
-		    public int GetHashCode(int obj) => throw new System.NotImplementedException();
+			public bool Equals(int x, int y) => throw new System.NotImplementedException();
+			public int GetHashCode(int obj) => throw new System.NotImplementedException();
 		}
 		""";
 
@@ -61,13 +61,13 @@ public class SetEqualityAnalyzerTests
 				using System.Collections.Immutable;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = {1};
-				        var collection2 = {2};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = {1};
+						var collection2 = {2};
 
-				        Assert.{0}(collection1, collection2, (IEnumerable<int> e1, IEnumerable<int> e2) => true);
-				    }}
+						Assert.{0}(collection1, collection2, (IEnumerable<int> e1, IEnumerable<int> e2) => true);
+					}}
 				}}
 				""", method, collection1, collection2);
 
@@ -87,23 +87,23 @@ public class SetEqualityAnalyzerTests
 				using System.Collections.Immutable;
 
 				public class TestEqualityComparer : IEqualityComparer<int> {{
-				    public bool Equals(int x, int y) {{
-				        return true;
-				    }}
+					public bool Equals(int x, int y) {{
+						return true;
+					}}
 
-				    public int GetHashCode(int obj) {{
-				        return 0;
-				    }}
+					public int GetHashCode(int obj) {{
+						return 0;
+					}}
 				}}
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = {1};
-				        var collection2 = {2};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = {1};
+						var collection2 = {2};
 
-				        Assert.{0}(collection1, collection2, new TestEqualityComparer());
-				    }}
+						Assert.{0}(collection1, collection2, new TestEqualityComparer());
+					}}
 				}}
 				""", method, collection1, collection2);
 
@@ -123,13 +123,13 @@ public class SetEqualityAnalyzerTests
 				using System.Collections.Immutable;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = {1};
-				        var collection2 = {2};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = {1};
+						var collection2 = {2};
 
-				        {{|#0:Assert.{0}(collection1, collection2, (int e1, int e2) => true)|}};
-				    }}
+						{{|#0:Assert.{0}(collection1, collection2, (int e1, int e2) => true)|}};
+					}}
 				}}
 				""", method, collection1, collection2);
 			var expected = Verify.Diagnostic("xUnit2026").WithLocation(0).WithArguments(method);
@@ -161,25 +161,25 @@ public class SetEqualityAnalyzerTests
 				using System.Collections.Immutable;
 
 				public class TestClass {{
-				    private bool FuncComparer(int obj1, int obj2) {{
-				        return true;
-				    }}
+					private bool FuncComparer(int obj1, int obj2) {{
+						return true;
+					}}
 
-				    private delegate bool FuncDelegate(int obj1, int obj2);
+					private delegate bool FuncDelegate(int obj1, int obj2);
 
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = {2};
-				        var collection2 = {3};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = {2};
+						var collection2 = {3};
 
-				        bool LocalFunc(int obj1, int obj2) {{
-				            return true;
-				        }}
+						bool LocalFunc(int obj1, int obj2) {{
+							return true;
+						}}
 
-				        var funcDelegate = FuncComparer;
+						var funcDelegate = FuncComparer;
 
-				        {{|#0:Assert.{0}(collection1, collection2, {1})|}};
-				    }}
+						{{|#0:Assert.{0}(collection1, collection2, {1})|}};
+					}}
 				}}
 				""", method, comparerFuncSyntax, collection1, collection2);
 			var expected = Verify.Diagnostic("xUnit2026").WithLocation(0).WithArguments(method);
@@ -210,15 +210,15 @@ public class SetEqualityAnalyzerTests
 				using System.Linq;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = new List<int>();
-				        var collection2 = {1};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = new List<int>();
+						var collection2 = {1};
 
-				        Assert.{0}(collection1, collection2);
-				        Assert.{0}(collection1, collection2, (int e1, int e2) => true);
-				        Assert.{0}(collection1, collection2, new MyComparer());
-				    }}
+						Assert.{0}(collection1, collection2);
+						Assert.{0}(collection1, collection2, (int e1, int e2) => true);
+						Assert.{0}(collection1, collection2, new MyComparer());
+					}}
 				}}
 				""", method, collection);
 
@@ -233,16 +233,16 @@ public class SetEqualityAnalyzerTests
 				using System.Collections.Generic;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        var expected = new HashSet<string> { "bar", "foo" };
-				        var actual = new HashSet<string> { "foo", "bar" };
+					[Fact]
+					public void TestMethod() {
+						var expected = new HashSet<string> { "bar", "foo" };
+						var actual = new HashSet<string> { "foo", "bar" };
 
-				         Assert.Equal(expected, actual);
-				         Assert.Equal(expected, (ISet<string>)actual);
-				         Assert.Equal((ISet<string>)expected, actual);
-				         Assert.Equal((ISet<string>)expected, (ISet<string>)actual);
-				    }
+							Assert.Equal(expected, actual);
+							Assert.Equal(expected, (ISet<string>)actual);
+							Assert.Equal((ISet<string>)expected, actual);
+							Assert.Equal((ISet<string>)expected, (ISet<string>)actual);
+					}
 				}
 				""";
 
@@ -252,10 +252,11 @@ public class SetEqualityAnalyzerTests
 		public static MatrixTheoryData<string, (string type, string initializer)> MethodAndTypeAndInitializer =>
 			new(
 				/* lang=c#-test */ ["Equal", "NotEqual"],
-				/* lang=c#-test */ [
+				/* lang=c#-test */
+				[
 					("System.Collections.Generic.HashSet<int>", "new HashSet<int>()"),
-									   ("System.Collections.Immutable.ImmutableHashSet<int>", "new HashSet<int>().ToImmutableHashSet()"),
-									   ("MySet", "new MySet()")
+					("System.Collections.Immutable.ImmutableHashSet<int>", "new HashSet<int>().ToImmutableHashSet()"),
+					("MySet", "new MySet()")
 				]
 			);
 
@@ -272,19 +273,19 @@ public class SetEqualityAnalyzerTests
 				using System.Linq;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var collection1 = new List<int>();
-				        var collection2 = {1};
+					[Fact]
+					public void TestMethod() {{
+						var collection1 = new List<int>();
+						var collection2 = {1};
 
-				        {{|#0:Assert.{0}(collection1, collection2)|}};
-				        {{|#1:Assert.{0}(collection1, collection2, (int e1, int e2) => true)|}};
-				        {{|#2:Assert.{0}(collection1, collection2, new MyComparer())|}};
+						{{|#0:Assert.{0}(collection1, collection2)|}};
+						{{|#1:Assert.{0}(collection1, collection2, (int e1, int e2) => true)|}};
+						{{|#2:Assert.{0}(collection1, collection2, new MyComparer())|}};
 
-				        {{|#3:Assert.{0}(collection2, collection1)|}};
-				        {{|#4:Assert.{0}(collection2, collection1, (int e1, int e2) => true)|}};
-				        {{|#5:Assert.{0}(collection2, collection1, new MyComparer())|}};
-				    }}
+						{{|#3:Assert.{0}(collection2, collection1)|}};
+						{{|#4:Assert.{0}(collection2, collection1, (int e1, int e2) => true)|}};
+						{{|#5:Assert.{0}(collection2, collection1, new MyComparer())|}};
+					}}
 				}}
 				""", method, collection.initializer);
 			var expected = new[]

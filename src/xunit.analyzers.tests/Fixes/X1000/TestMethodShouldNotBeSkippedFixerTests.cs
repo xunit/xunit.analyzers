@@ -12,16 +12,16 @@ public class TestMethodShouldNotBeSkippedFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact([|Skip = "Don't run this"|])]
-			    public void TestMethod() { }
+				[Fact([|Skip = "Don't run this"|])]
+				public void TestMethod() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 			}
 			""";
 

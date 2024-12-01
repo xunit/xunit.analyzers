@@ -17,7 +17,7 @@ public sealed class MakeTypesInternalSuppressorTests
 	{
 		var code = /* lang=c#-test */ """
 			public class {|CA1515:NonTestClass|} {
-			    public void NonTestMethod() { }
+				public void NonTestMethod() { }
 			}
 			""";
 
@@ -39,8 +39,8 @@ public sealed class MakeTypesInternalSuppressorTests
 			internal class CustomFactAttribute : FactAttribute {{ }}
 
 			public class {{|#0:TestClass|}} {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute);
 #if ROSLYN_LATEST

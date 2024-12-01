@@ -16,18 +16,18 @@ public class RemoveMethodParameterFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1, 2, 3)]
-			    public void TestMethod([|params int[] values|]) { }
+				[Theory]
+				[InlineData(1, 2, 3)]
+				public void TestMethod([|params int[] values|]) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1, 2, 3)]
-			    public void TestMethod() { }
+				[Theory]
+				[InlineData(1, 2, 3)]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -41,18 +41,18 @@ public class RemoveMethodParameterFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1)]
-			    public void TestMethod(int [|arg|]) { }
+				[Theory]
+				[InlineData(1)]
+				public void TestMethod(int [|arg|]) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1)]
-			    public void TestMethod() { }
+				[Theory]
+				[InlineData(1)]
+				public void TestMethod() { }
 			}
 			""";
 

@@ -28,10 +28,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        string val = null;
-			        {{|#0:Xunit.Assert.{0}(null, val)|}};
-			    }}
+				void TestMethod() {{
+					string val = null;
+					{{|#0:Xunit.Assert.{0}(null, val)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -47,10 +47,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        string val = null;
-			        {{|#0:Xunit.Assert.{0}(null, val, System.StringComparer.Ordinal)|}};
-			    }}
+				void TestMethod() {{
+					string val = null;
+					{{|#0:Xunit.Assert.{0}(null, val, System.StringComparer.Ordinal)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -71,10 +71,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        object val = null;
-			        {{|#0:Xunit.Assert.{0}(null, val)|}};
-			    }}
+				void TestMethod() {{
+					object val = null;
+					{{|#0:Xunit.Assert.{0}(null, val)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -90,10 +90,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        object val = null;
-			        {{|#0:Xunit.Assert.{0}(null, val, System.Collections.Generic.EqualityComparer<object>.Default)|}};
-			    }}
+				void TestMethod() {{
+					object val = null;
+					{{|#0:Xunit.Assert.{0}(null, val, System.Collections.Generic.EqualityComparer<object>.Default)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -112,10 +112,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        TestClass val = null;
-			        {{|#0:Xunit.Assert.{0}<TestClass>(null, val)|}};
-			    }}
+				void TestMethod() {{
+					TestClass val = null;
+					{{|#0:Xunit.Assert.{0}<TestClass>(null, val)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -131,10 +131,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        TestClass val = null;
-			        {{|#0:Xunit.Assert.{0}<TestClass>(null, val, System.Collections.Generic.EqualityComparer<TestClass>.Default)|}};
-			    }}
+				void TestMethod() {{
+					TestClass val = null;
+					{{|#0:Xunit.Assert.{0}<TestClass>(null, val, System.Collections.Generic.EqualityComparer<TestClass>.Default)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -148,10 +148,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        int val = 1;
-			        Xunit.Assert.{0}(1, val);
-			    }}
+				void TestMethod() {{
+					int val = 1;
+					Xunit.Assert.{0}(1, val);
+				}}
 			}}
 			""", method);
 
@@ -164,10 +164,10 @@ public class AssertEqualShouldNotBeUsedForNullCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        string val = null;
-			        Xunit.Assert.{0}(val, null);
-			    }}
+				void TestMethod() {{
+					string val = null;
+					Xunit.Assert.{0}(val, null);
+				}}
 			}}
 			""", method);
 

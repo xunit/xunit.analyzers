@@ -10,12 +10,12 @@ public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var result = "foo bar baz";
+			[Fact]
+			public void TestMethod() {{
+				var result = "foo bar baz";
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

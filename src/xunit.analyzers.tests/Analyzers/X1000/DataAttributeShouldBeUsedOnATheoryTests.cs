@@ -9,8 +9,8 @@ public class DataAttributeShouldBeUsedOnATheoryTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -25,9 +25,9 @@ public class DataAttributeShouldBeUsedOnATheoryTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.Fact]
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.Fact]
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", dataAttribute);
 
@@ -42,9 +42,9 @@ public class DataAttributeShouldBeUsedOnATheoryTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.Theory]
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.Theory]
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", dataAttribute);
 
@@ -59,8 +59,8 @@ public class DataAttributeShouldBeUsedOnATheoryTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.{0}]
-			    public void [|TestMethod|]() {{ }}
+				[Xunit.{0}]
+				public void [|TestMethod|]() {{ }}
 			}}
 			""", dataAttribute);
 

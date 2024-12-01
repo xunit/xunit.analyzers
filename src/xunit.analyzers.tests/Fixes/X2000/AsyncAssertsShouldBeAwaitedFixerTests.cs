@@ -13,20 +13,20 @@ public class AsyncAssertsShouldBeAwaitedFixerTests
 		using Xunit;
 
 		public class TestClass : INotifyPropertyChanged {{
-		    public int Property {{ get; set; }}
+			public int Property {{ get; set; }}
 
-		    public event PropertyChangedEventHandler? PropertyChanged;
-		    public event EventHandler? SimpleEvent;
-		    public event EventHandler<int>? SimpleIntEvent;
+			public event PropertyChangedEventHandler? PropertyChanged;
+			public event EventHandler? SimpleEvent;
+			public event EventHandler<int>? SimpleIntEvent;
 
-		    [Fact]
-		    public void TestMethod() {{
-		        {0}
-		    }}
+			[Fact]
+			public void TestMethod() {{
+				{0}
+			}}
 		}}
 
 		public static class MyTaskExtensions {{
-		    public static void ConsumeTask(this Task t) {{ }}
+			public static void ConsumeTask(this Task t) {{ }}
 		}}
 		""";
 

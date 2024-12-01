@@ -55,18 +55,18 @@ public class SerializableClassMustHaveParameterlessConstructorTests
 
 			public class {{|#0:MyRunnerReporter|}} : IRunnerReporter
 			{{
-			    {0}
+				{0}
 
-			    public bool CanBeEnvironmentallyEnabled => false;
-			    public string Description => string.Empty;
-			    public bool ForceNoLogo => false;
-			    public bool IsEnvironmentallyEnabled => false;
-			    public string? RunnerSwitch => "unused";
+				public bool CanBeEnvironmentallyEnabled => false;
+				public string Description => string.Empty;
+				public bool ForceNoLogo => false;
+				public bool IsEnvironmentallyEnabled => false;
+				public string? RunnerSwitch => "unused";
 
-			    public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
-			        IRunnerLogger logger,
-			        IMessageSink? diagnosticMessageSink) =>
-			            throw new NotImplementedException();
+				public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
+					IRunnerLogger logger,
+					IMessageSink? diagnosticMessageSink) =>
+						throw new NotImplementedException();
 			}}
 			""";
 

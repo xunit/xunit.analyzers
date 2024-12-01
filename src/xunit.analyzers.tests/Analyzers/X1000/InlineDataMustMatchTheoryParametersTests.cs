@@ -18,9 +18,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc", "xyz")]
-				    public void TestMethod(params string[] args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc", "xyz")]
+					public void TestMethod(params string[] args) { }
 				}
 				""";
 
@@ -32,9 +32,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(null)]
-				    public void TestMethod(params string[] args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(null)]
+					public void TestMethod(params string[] args) { }
 				}
 				""";
 
@@ -48,9 +48,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(null)]
-				    public void TestMethod(params string[]? args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(null)]
+					public void TestMethod(params string[]? args) { }
 				}
 				""";
 
@@ -62,9 +62,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc", "xyz")]
-				    public void TestMethod(string first, params string[] args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc", "xyz")]
+					public void TestMethod(string first, params string[] args) { }
 				}
 				""";
 
@@ -76,9 +76,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc", null)]
-				    public void TestMethod(string first, params string[] args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc", null)]
+					public void TestMethod(string first, params string[] args) { }
 				}
 				""";
 
@@ -92,9 +92,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc", null)]
-				    public void TestMethod(string first, params string[]? args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc", null)]
+					public void TestMethod(string first, params string[]? args) { }
 				}
 				""";
 
@@ -106,9 +106,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc")]
-				    public void TestMethod(string first, params string[] args) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc")]
+					public void TestMethod(string first, params string[] args) { }
 				}
 				""";
 
@@ -120,9 +120,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new int[] { })]
-				    public void VariableArgumentsTest(params int[] sq) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new int[] { })]
+					public void VariableArgumentsTest(params int[] sq) { }
 				}
 				""";
 
@@ -134,9 +134,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(21.12, new int[] { })]
-				    public void VariableArgumentsTest(double d, params int[] sq) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(21.12, new int[] { })]
+					public void VariableArgumentsTest(double d, params int[] sq) { }
 				}
 				""";
 
@@ -148,9 +148,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new int[] { 1, 2, 3 })]
-				    public void VariableArgumentsTest(params int[] sq) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new int[] { 1, 2, 3 })]
+					public void VariableArgumentsTest(params int[] sq) { }
 				}
 				""";
 
@@ -162,9 +162,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
-				    public void VariableArgumentsTest(double d, params int[] sq) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
+					public void VariableArgumentsTest(double d, params int[] sq) { }
 				}
 				""";
 
@@ -176,9 +176,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc", 1, null)]
-				    public void TestMethod(string a, int b, object c) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc", 1, null)]
+					public void TestMethod(string a, int b, object c) { }
 				}
 				""";
 
@@ -190,9 +190,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc")]
-				    public void TestMethod(string a, string b = "default", string c = null) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc")]
+					public void TestMethod(string a, string b = "default", string c = null) { }
 				}
 				""";
 
@@ -204,9 +204,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc")]
-				    public void TestMethod(string a, string b = "default", string c = null, params string[] d) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc")]
+					public void TestMethod(string a, string b = "default", string c = null, params string[] d) { }
 				}
 				""";
 
@@ -218,9 +218,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData("abc")]
-				    public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
+					[Xunit.Theory]
+					[Xunit.InlineData("abc")]
+					public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
 				}
 				""";
 
@@ -232,12 +232,13 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData]
-				    [Xunit.InlineData("abc")]
-				    [Xunit.InlineData("abc", "def")]
-				    public void TestMethod([System.Runtime.InteropServices.Optional] string a,
-				                           [System.Runtime.InteropServices.Optional] string b) { }
+					[Xunit.Theory]
+					[Xunit.InlineData]
+					[Xunit.InlineData("abc")]
+					[Xunit.InlineData("abc", "def")]
+					public void TestMethod(
+						[System.Runtime.InteropServices.Optional] string a,
+						[System.Runtime.InteropServices.Optional] string b) { }
 				}
 				""";
 
@@ -249,9 +250,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new object[] { "abc", 1, null })]
-				    public void TestMethod(string a, int b, object c) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new object[] { "abc", 1, null })]
+					public void TestMethod(string a, int b, object c) { }
 				}
 				""";
 
@@ -263,9 +264,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(data: new object[] { "abc", 1, null })]
-				    public void TestMethod(string a, int b, object c) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(data: new object[] { "abc", 1, null })]
+					public void TestMethod(string a, int b, object c) { }
 				}
 				""";
 
@@ -277,9 +278,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new[] { (object)"abc", 1, null })]
-				    public void TestMethod(string a, int b, object c) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new[] { (object)"abc", 1, null })]
+					public void TestMethod(string a, int b, object c) { }
 				}
 				""";
 
@@ -291,9 +292,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(data: new[] { (object)"abc", 1, null })]
-				    public void TestMethod(string a, int b, object c) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(data: new[] { (object)"abc", 1, null })]
+					public void TestMethod(string a, int b, object c) { }
 				}
 				""";
 
@@ -305,9 +306,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new byte[0])]
-				    public void TestMethod(byte[] input) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new byte[0])]
+					public void TestMethod(byte[] input) { }
 				}
 				""";
 
@@ -340,9 +341,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    [Xunit.InlineData]
-				    public void TestMethod(string a) { }
+					[Xunit.Fact]
+					[Xunit.InlineData]
+					public void TestMethod(string a) { }
 				}
 				""";
 
@@ -356,9 +357,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [{{|xUnit1009:{0}|}}]
-				    public void TestMethod(int a) {{ }}
+					[Xunit.Theory]
+					[{{|xUnit1009:{0}|}}]
+					public void TestMethod(int a) {{ }}
 				}}
 				""", attribute);
 
@@ -370,9 +371,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [{|xUnit1009:Xunit.InlineData(1)|}]
-				    public void TestMethod(int a, int b, string c) { }
+					[Xunit.Theory]
+					[{|xUnit1009:Xunit.InlineData(1)|}]
+					public void TestMethod(int a, int b, string c) { }
 				}
 				""";
 
@@ -384,9 +385,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [{|xUnit1009:Xunit.InlineData(1)|}]
-				    public void TestMethod(int a, int b, params string[] value) { }
+					[Xunit.Theory]
+					[{|xUnit1009:Xunit.InlineData(1)|}]
+					public void TestMethod(int a, int b, params string[] value) { }
 				}
 				""";
 
@@ -401,9 +402,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
-				    public void VariableArgumentsTest(double d, params int[] sq) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
+					public void VariableArgumentsTest(double d, params int[] sq) { }
 				}
 				""";
 
@@ -441,9 +442,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod({1} a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod({1} a) {{ }}
 					}}
 					""", value, type);
 
@@ -458,9 +459,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod({1}? a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod({1}? a) {{ }}
 					}}
 					""", value, type);
 
@@ -475,9 +476,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod({1} a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod({1} a) {{ }}
 					}}
 					""", value, type);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", type);
@@ -491,9 +492,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData('a')]
-					    public void TestMethod({0} a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData('a')]
+						public void TestMethod({0} a) {{ }}
 					}}
 					""", type);
 
@@ -506,9 +507,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:System.StringComparison.InvariantCulture|}})]
-					    public void TestMethod({0} a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:System.StringComparison.InvariantCulture|}})]
+						public void TestMethod({0} a) {{ }}
 					}}
 					""", type);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", type);
@@ -525,9 +526,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(bool a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(bool a) {{ }}
 					}}
 					""", value);
 
@@ -540,9 +541,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(bool? a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(bool? a) {{ }}
 					}}
 					""", value);
 
@@ -559,9 +560,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(bool a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(bool a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "bool");
@@ -579,9 +580,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(char a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(char a) {{ }}
 					}}
 					""", value);
 
@@ -595,9 +596,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(char? a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(char? a) {{ }}
 					}}
 					""", value);
 
@@ -614,9 +615,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(char a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(char a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "char");
@@ -632,9 +633,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
-					    [Xunit.Theory]
-					    [Xunit.InlineData(System.StringComparison.Ordinal)]
-					    public void TestMethod(System.StringComparison a) { }
+						[Xunit.Theory]
+						[Xunit.InlineData(System.StringComparison.Ordinal)]
+						public void TestMethod(System.StringComparison a) { }
 					}
 					""";
 
@@ -646,9 +647,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
-					    [Xunit.Theory]
-					    [Xunit.InlineData(System.StringComparison.Ordinal)]
-					    public void TestMethod(System.StringComparison? a) { }
+						[Xunit.Theory]
+						[Xunit.InlineData(System.StringComparison.Ordinal)]
+						public void TestMethod(System.StringComparison? a) { }
 					}
 					""";
 
@@ -665,9 +666,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(System.StringComparison a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(System.StringComparison a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.StringComparison");
@@ -685,9 +686,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(System.Type a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(System.Type a) {{ }}
 					}}
 					""", value);
 
@@ -701,9 +702,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(params System.Type[] a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(params System.Type[] a) {{ }}
 					}}
 					""", value);
 
@@ -720,9 +721,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(System.Type a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(System.Type a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.Type");
@@ -740,9 +741,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(params System.Type[] a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(params System.Type[] a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.Type");
@@ -760,9 +761,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(string a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(string a) {{ }}
 					}}
 					""", value);
 
@@ -779,9 +780,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(string a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(string a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "string");
@@ -800,9 +801,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(System.IFormattable a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(System.IFormattable a) {{ }}
 					}}
 					""", value);
 
@@ -820,9 +821,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(System.IFormattable a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(System.IFormattable a) {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "System.IFormattable");
@@ -845,9 +846,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(object a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(object a) {{ }}
 					}}
 					""", value);
 
@@ -866,9 +867,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod(params object[] a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod(params object[] a) {{ }}
 					}}
 					""", value);
 
@@ -890,9 +891,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod<T>(T a) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod<T>(T a) {{ }}
 					}}
 					""", value);
 
@@ -908,9 +909,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod<T>(T a) where T: struct {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod<T>(T a) where T: struct {{ }}
 					}}
 					""", value);
 
@@ -924,9 +925,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod<T>(T a) where T: struct {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod<T>(T a) where T: struct {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
@@ -942,9 +943,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod<T>(T a) where T: class {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod<T>(T a) where T: class {{ }}
 					}}
 					""", value);
 
@@ -960,9 +961,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod<T>(T a) where T: class {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod<T>(T a) where T: class {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
@@ -978,9 +979,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({0})]
-					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({0})]
+						public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
 					}}
 					""", value);
 
@@ -999,9 +1000,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				var source = string.Format(/* lang=c#-test */ """
 
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable {{ }}
 					}}
 					""", value);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
@@ -1014,9 +1015,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source =/* lang=c#-test */ """
 					public class TestClass {
-					    [Xunit.Theory]
-					    [Xunit.InlineData(new int[] { {|#0:1|}, 2, 3 })]
-					    public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { }
+						[Xunit.Theory]
+						[Xunit.InlineData(new int[] { {|#0:1|}, 2, 3 })]
+						public void TestMethod<T>(T a) where T: System.IConvertible, System.IFormattable { }
 					}
 					""";
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("a", "T");
@@ -1029,9 +1030,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
-					    [Xunit.Theory]
-					    [Xunit.InlineData(new int[] { 1, 2, 3 })]
-					    public void TestMethod<T>(T[] a) { }
+						[Xunit.Theory]
+						[Xunit.InlineData(new int[] { 1, 2, 3 })]
+						public void TestMethod<T>(T[] a) { }
 					}
 					""";
 
@@ -1046,9 +1047,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:({0})-1|}})]
-					    public void TestMethod({1} value) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:({0})-1|}})]
+						public void TestMethod({1} value) {{ }}
 					}}
 					""", signedType, unsignedType);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
@@ -1062,9 +1063,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:long.MinValue|}})]
-					    public void TestMethod({0} value) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:long.MinValue|}})]
+						public void TestMethod({0} value) {{ }}
 					}}
 					""", unsignedType);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("value", unsignedType);
@@ -1097,11 +1098,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    const int MyConstInt = 1;
+						const int MyConstInt = 1;
 
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod({1} parameter) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod({1} parameter) {{ }}
 					}}
 					""", data, parameterType);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", parameterType);
@@ -1141,11 +1142,11 @@ public class InlineDataMustMatchTheoryParametersTests
 				string data,
 				string parameterType) => string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    const string MyConstString = "some string";
+					const string MyConstString = "some string";
 
-				    [Xunit.Theory]
-				    [Xunit.InlineData({0})]
-				    public void TestMethod({1} parameter) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData({0})]
+					public void TestMethod({1} parameter) {{ }}
 				}}
 				""", data, parameterType);
 		}
@@ -1168,11 +1169,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
-					    private const int MyConstInt = 1;
+						private const int MyConstInt = 1;
 
-					    [Xunit.Theory]
-					    [Xunit.InlineData({{|#0:{0}|}})]
-					    public void TestMethod(System.Guid parameter) {{ }}
+						[Xunit.Theory]
+						[Xunit.InlineData({{|#0:{0}|}})]
+						public void TestMethod(System.Guid parameter) {{ }}
 					}}
 					""", data);
 				var expected = Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.Guid");
@@ -1201,9 +1202,9 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			static string CreateSource(string data) => string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData({0})]
-				    public void TestMethod(System.Guid parameter) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData({0})]
+					public void TestMethod(System.Guid parameter) {{ }}
 				}}
 				""", data);
 		}
@@ -1217,15 +1218,15 @@ public class InlineDataMustMatchTheoryParametersTests
 					using Xunit;
 
 					public class TestClass {
-					    [Theory]
-					    [InlineData("abc")]
-					    public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal("abc", i.Value);
+						[Theory]
+						[InlineData("abc")]
+						public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal("abc", i.Value);
 
-					    public class Implicit {
-					        public string Value { get; set; }
-					        public static implicit operator Implicit(string value) => new Implicit() { Value = value };
-					        public static implicit operator string(Implicit i) => i.Value;
-					    }
+						public class Implicit {
+							public string Value { get; set; }
+							public static implicit operator Implicit(string value) => new Implicit() { Value = value };
+							public static implicit operator string(Implicit i) => i.Value;
+						}
 					}
 					""";
 
@@ -1239,15 +1240,15 @@ public class InlineDataMustMatchTheoryParametersTests
 					using Xunit;
 
 					public class TestClass {
-					    [Theory]
-					    [InlineData("abc")]
-					    public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal("abc", i.Value);
+						[Theory]
+						[InlineData("abc")]
+						public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal("abc", i.Value);
 
-					    public class Explicit {
-					        public string Value { get; set; }
-					        public static explicit operator Explicit(string value) => new Explicit() { Value = value };
-					        public static explicit operator string(Explicit i) => i.Value;
-					    }
+						public class Explicit {
+							public string Value { get; set; }
+							public static explicit operator Explicit(string value) => new Explicit() { Value = value };
+							public static explicit operator string(Explicit i) => i.Value;
+						}
 					}
 					""";
 
@@ -1307,9 +1308,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    [Xunit.InlineData(1, 2, "abc")]
-				    public void TestMethod(int a) { }
+					[Xunit.Fact]
+					[Xunit.InlineData(1, 2, "abc")]
+					public void TestMethod(int a) { }
 				}
 				""";
 
@@ -1321,9 +1322,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, {|#0:2|}, {|#1:"abc"|})]
-				    public void TestMethod(int a) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(1, {|#0:2|}, {|#1:"abc"|})]
+					public void TestMethod(int a) { }
 				}
 				""";
 			var expected = new[]
@@ -1343,9 +1344,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    [Xunit.InlineData(null)]
-				    public void TestMethod(int a) { }
+					[Xunit.Fact]
+					[Xunit.InlineData(null)]
+					public void TestMethod(int a) { }
 				}
 				""";
 
@@ -1359,9 +1360,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData({{|#0:null|}})]
-				    public void TestMethod({0} a) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData({{|#0:null|}})]
+					public void TestMethod({0} a) {{ }}
 				}}
 				""", type);
 			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("a", "int");
@@ -1375,9 +1376,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, {{|#0:null|}}, {{|#1:null|}})]
-				    public void TestMethod(int a, {0} b, params {0}[] c) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, {{|#0:null|}}, {{|#1:null|}})]
+					public void TestMethod(int a, {0} b, params {0}[] c) {{ }}
 				}}
 				""", type);
 			var expected = new[]
@@ -1395,9 +1396,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, null)]
-				    public void TestMethod(int a, {0}? b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, null)]
+					public void TestMethod(int a, {0}? b) {{ }}
 				}}
 				""", type);
 
@@ -1412,9 +1413,9 @@ public class InlineDataMustMatchTheoryParametersTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, null)]
-				    public void TestMethod(int a, {0} b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, null)]
+					public void TestMethod(int a, {0} b) {{ }}
 				}}
 				""", type);
 
@@ -1431,9 +1432,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, {{|#0:null|}})]
-				    public void TestMethod(int a, {0} b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, {{|#0:null|}})]
+					public void TestMethod(int a, {0} b) {{ }}
 				}}
 				""", type);
 			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type);
@@ -1451,9 +1452,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, null)]
-				    public void TestMethod(int a, {0}? b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, null)]
+					public void TestMethod(int a, {0}? b) {{ }}
 				}}
 				""", type);
 
@@ -1471,9 +1472,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, {0}, null, null)]
-				    public void TestMethod(int a, params {1}?[] b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, {0}, null, null)]
+					public void TestMethod(int a, params {1}?[] b) {{ }}
 				}}
 				""", param, type);
 
@@ -1491,9 +1492,9 @@ public class InlineDataMustMatchTheoryParametersTests
 				#nullable enable
 
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, {0}, {{|#0:null|}}, {{|#1:null|}})]
-				    public void TestMethod(int a, params {1}[] b) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, {0}, {{|#0:null|}}, {{|#1:null|}})]
+					public void TestMethod(int a, params {1}[] b) {{ }}
 				}}
 				""", param, type);
 			var expected = new[]

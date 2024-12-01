@@ -13,13 +13,13 @@ public class AssignableFromAssertionIsConfusinglyNamedFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = "Hello world";
+				[Fact]
+				public void TestMethod() {
+					var data = "Hello world";
 			
-			        [|Assert.IsAssignableFrom(typeof(object), data)|];
-			        [|Assert.IsAssignableFrom<object>(data)|];
-			    }
+					[|Assert.IsAssignableFrom(typeof(object), data)|];
+					[|Assert.IsAssignableFrom<object>(data)|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -27,13 +27,13 @@ public class AssignableFromAssertionIsConfusinglyNamedFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var data = "Hello world";
+				[Fact]
+				public void TestMethod() {
+					var data = "Hello world";
 
-			        Assert.IsType(typeof(object), data, exactMatch: false);
-			        Assert.IsType<object>(data, exactMatch: false);
-			    }
+					Assert.IsType(typeof(object), data, exactMatch: false);
+					Assert.IsType<object>(data, exactMatch: false);
+				}
 			}
 			""";
 

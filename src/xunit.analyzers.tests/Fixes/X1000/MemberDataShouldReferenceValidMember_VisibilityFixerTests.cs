@@ -16,11 +16,11 @@ public class MemberDataShouldReferenceValidMember_VisibilityFixerTests
 			using Xunit;
 
 			public class TestClass {{
-			    {0}static TheoryData<int> TestData => null;
+				{0}static TheoryData<int> TestData => null;
 
-			    [Theory]
-			    [{{|xUnit1016:MemberData(nameof(TestData))|}}]
-			    public void TestMethod(int x) {{ }}
+				[Theory]
+				[{{|xUnit1016:MemberData(nameof(TestData))|}}]
+				public void TestMethod(int x) {{ }}
 			}}
 			""", badModifier);
 		var after = /* lang=c#-test */ """
@@ -28,11 +28,11 @@ public class MemberDataShouldReferenceValidMember_VisibilityFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData => null;
+				public static TheoryData<int> TestData => null;
 
-			    [Theory]
-			    [MemberData(nameof(TestData))]
-			    public void TestMethod(int x) { }
+				[Theory]
+				[MemberData(nameof(TestData))]
+				public void TestMethod(int x) { }
 			}
 			""";
 

@@ -13,10 +13,10 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        Thread.Sleep(1);
-			    }
+				[Fact]
+				public void TestMethod() {
+					Thread.Sleep(1);
+				}
 			}
 			""";
 
@@ -32,9 +32,9 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {
-			    public async Task NonTestMethod() {
-			        await Task.Delay(1);
-			    }
+				public async Task NonTestMethod() {
+					await Task.Delay(1);
+				}
 			}
 			""";
 
@@ -52,14 +52,14 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        FunctionWithDefaults(42, {0});
-			        FunctionWithDefaults(42, cancellationToken: {0});
-			        FunctionWithDefaults(cancellationToken: {0});
-			    }}
+				[Fact]
+				public void TestMethod() {{
+					FunctionWithDefaults(42, {0});
+					FunctionWithDefaults(42, cancellationToken: {0});
+					FunctionWithDefaults(cancellationToken: {0});
+				}}
 
-			    void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) {{ }}
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) {{ }}
 			}}
 			""", token);
 
@@ -75,10 +75,10 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {
-			    [Fact]
-			    public async Task TestMethod() {
-			        await Task.Delay(1);
-			    }
+				[Fact]
+				public async Task TestMethod() {
+					await Task.Delay(1);
+				}
 			}
 			""";
 
@@ -94,13 +94,13 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        FunctionWithOverload(42);
-			    }
+				[Fact]
+				public void TestMethod() {
+					FunctionWithOverload(42);
+				}
 
-			    void FunctionWithOverload(int _) { }
-			    void FunctionWithOverload(CancellationToken _) { }
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(CancellationToken _) { }
 			}
 			""";
 
@@ -125,15 +125,15 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        [|{0}|];
-			    }}
+				[Fact]
+				public void TestMethod() {{
+					[|{0}|];
+				}}
 
-			    void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default) {{ }}
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default) {{ }}
 
-			    void FunctionWithOverload(int _) {{ }}
-			    void FunctionWithOverload(int _1, CancellationToken _2) {{ }}
+				void FunctionWithOverload(int _) {{ }}
+				void FunctionWithOverload(int _1, CancellationToken _2) {{ }}
 			}}
 			""", invocation);
 
@@ -150,13 +150,13 @@ public class UseCancellationTokenTests
 			using Xunit;
 
 			class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        async Task InnerMethod() {
-			            await [|Task.Delay(1)|];
-			        }
-			        Func<Task> _ = async () => await [|Task.Delay(1)|];
-			    }
+				[Fact]
+				public void TestMethod() {
+					async Task InnerMethod() {
+						await [|Task.Delay(1)|];
+					}
+					Func<Task> _ = async () => await [|Task.Delay(1)|];
+				}
 			}
 			""";
 

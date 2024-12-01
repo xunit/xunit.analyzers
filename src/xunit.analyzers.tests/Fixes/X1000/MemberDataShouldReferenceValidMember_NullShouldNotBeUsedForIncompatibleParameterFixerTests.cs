@@ -13,22 +13,22 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n, int k) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n, int k) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n, int? k) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n, int? k) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, null)]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, null)]
+				public void TestMethod(int a) { }
 			}
 			""";
 
@@ -44,11 +44,11 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n, string k) => new TheoryData<int> { n };
+				public static TheoryData<int> TestData(int n, string k) => new TheoryData<int> { n };
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, {|xUnit1034:null|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -57,11 +57,11 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n, string? k) => new TheoryData<int> { n };
+				public static TheoryData<int> TestData(int n, string? k) => new TheoryData<int> { n };
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, null)]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, null)]
+				public void TestMethod(int a) { }
 			}
 			""";
 

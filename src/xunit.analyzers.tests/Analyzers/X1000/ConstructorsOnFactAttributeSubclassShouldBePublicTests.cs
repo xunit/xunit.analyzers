@@ -15,11 +15,11 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 			internal sealed class CustomFactAttribute : FactAttribute { }
 
 			public class Tests {
-			    [CustomFact]
-			    public void TestCustomFact() { }
+				[CustomFact]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 
@@ -35,17 +35,17 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 
 			[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 			internal sealed class CustomFactAttribute : FactAttribute {
-			    public CustomFactAttribute() {
-			        this.Skip = "xxx";
-			    }
+				public CustomFactAttribute() {
+					this.Skip = "xxx";
+				}
 			}
 
 			public class Tests {
-			    [CustomFact]
-			    public void TestCustomFact() { }
+				[CustomFact]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 
@@ -61,17 +61,17 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 
 			[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 			internal sealed class CustomFactAttribute : FactAttribute {
-			    public CustomFactAttribute(string skip) {
-			        this.Skip = skip;
-			    }
+				public CustomFactAttribute(string skip) {
+					this.Skip = skip;
+				}
 			}
 
 			public class Tests {
-			    [CustomFact("blah")]
-			    public void TestCustomFact() { }
+				[CustomFact("blah")]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 
@@ -87,21 +87,21 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 
 			[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 			internal sealed class CustomFactAttribute : FactAttribute {
-			    public CustomFactAttribute() {
-			        this.Skip = "xxx";
-			    }
+				public CustomFactAttribute() {
+					this.Skip = "xxx";
+				}
 
-			    internal CustomFactAttribute(string skip) {
-			        this.Skip = skip;
-			    }
+				internal CustomFactAttribute(string skip) {
+					this.Skip = skip;
+				}
 			}
 
 			public class Tests {
-			    [CustomFact]
-			    public void TestCustomFact() { }
+				[CustomFact]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 
@@ -117,15 +117,15 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 
 			[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 			internal sealed class CustomFactAttribute : FactAttribute {
-			    internal CustomFactAttribute(string skip, params int[] values) { }
+				internal CustomFactAttribute(string skip, params int[] values) { }
 			}
 
 			public class Tests {
-			    [{|#0:CustomFact("Skip", 42)|}]
-			    public void TestCustomFact() { }
+				[{|#0:CustomFact("Skip", 42)|}]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("CustomFactAttribute.CustomFactAttribute(string, params int[])");
@@ -142,17 +142,17 @@ public class ConstructorsOnFactAttributeSubclassShouldBePublicTests
 
 			[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 			internal sealed class CustomFactAttribute : FactAttribute {
-			    protected internal CustomFactAttribute() {
-			        this.Skip = "xxx";
-			    }
+				protected internal CustomFactAttribute() {
+					this.Skip = "xxx";
+				}
 			}
 
 			public class Tests {
-			    [{|#0:CustomFact|}]
-			    public void TestCustomFact() { }
+				[{|#0:CustomFact|}]
+				public void TestCustomFact() { }
 
-			    [Fact]
-			    public void TestFact() { }
+				[Fact]
+				public void TestFact() { }
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("CustomFactAttribute.CustomFactAttribute()");

@@ -9,12 +9,12 @@ public class AssertEqualsShouldNotBeUsedFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var data = 1;
+			[Fact]
+			public void TestMethod() {{
+				var data = 1;
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

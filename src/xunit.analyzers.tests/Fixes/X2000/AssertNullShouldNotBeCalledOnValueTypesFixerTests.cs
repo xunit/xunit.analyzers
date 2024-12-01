@@ -12,22 +12,22 @@ public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
 			using Xunit;
 
 			public class Tests {
-			    [Fact]
-			    public void TestMethod() {
-			        int i = 1;
+				[Fact]
+				public void TestMethod() {
+					int i = 1;
 
-			        [|Assert.NotNull(i)|];
-			    }
+					[|Assert.NotNull(i)|];
+				}
 			}
 			""";
 		const string after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class Tests {
-			    [Fact]
-			    public void TestMethod() {
-			        int i = 1;
-			    }
+				[Fact]
+				public void TestMethod() {
+					int i = 1;
+				}
 			}
 			""";
 
@@ -43,17 +43,17 @@ public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
 			using Xunit;
 
 			namespace XUnitTestProject1 {
-			    public class UnitTest1 {
-			        [Fact]
-			        public void Test1() {
-			            int i = 1;
+				public class UnitTest1 {
+					[Fact]
+					public void Test1() {
+						int i = 1;
 
-			            // I am a comment which gets deleted by the quick fix
-			            // Assert
-			            [|Assert.NotNull(i)|];
-			            Assert.Null(null);
-			        }
-			    }
+						// I am a comment which gets deleted by the quick fix
+						// Assert
+						[|Assert.NotNull(i)|];
+						Assert.Null(null);
+					}
+				}
 			}
 			""";
 		const string after = /* lang=c#-test */ """
@@ -61,16 +61,16 @@ public class AssertNullShouldNotBeCalledOnValueTypesFixerTests
 			using Xunit;
 
 			namespace XUnitTestProject1 {
-			    public class UnitTest1 {
-			        [Fact]
-			        public void Test1() {
-			            int i = 1;
+				public class UnitTest1 {
+					[Fact]
+					public void Test1() {
+						int i = 1;
 
-			            // I am a comment which gets deleted by the quick fix
-			            // Assert
-			            Assert.Null(null);
-			        }
-			    }
+						// I am a comment which gets deleted by the quick fix
+						// Assert
+						Assert.Null(null);
+					}
+				}
 			}
 			""";
 

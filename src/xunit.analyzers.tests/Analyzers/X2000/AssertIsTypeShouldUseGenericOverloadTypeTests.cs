@@ -21,9 +21,9 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(typeof(int), 1)|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(typeof(int), 1)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("int");
@@ -37,9 +37,9 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}<int>(1);
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}<int>(1);
+				}}
 			}}
 			""", method);
 
@@ -53,10 +53,10 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}<int>(1, false);
-			        Xunit.Assert.{0}<System.Type>(typeof(int), true);
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}<int>(1, false);
+					Xunit.Assert.{0}<System.Type>(typeof(int), true);
+				}}
 			}}
 			""", method);
 
@@ -78,20 +78,20 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 			}}
 
 			public interface IClass : IParentClass {{
-			    {1}
+				{1}
 			}}
 
 			public class Class : IClass {{
-			    public static void Method() {{ }}
+				public static void Method() {{ }}
 			}}
 
 			public abstract class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        var data = new Class();
+				[Fact]
+				public void TestMethod() {{
+					var data = new Class();
 
-			        Assert.IsAssignableFrom(typeof(IClass), data);
-			    }}
+					Assert.IsAssignableFrom(typeof(IClass), data);
+				}}
 			}}
 			""";
 
@@ -125,20 +125,20 @@ public class AssertIsTypeShouldUseGenericOverloadTypeTests
 				using Xunit;
 
 				public interface IClass {{
-				    {0} {1} void Method() {2}
+					{0} {1} void Method() {2}
 				}}
 
 				public class Class : IClass {{
-				    public {0} void Method() {{ }}
+					public {0} void Method() {{ }}
 				}}
 
 				public abstract class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var data = new Class();
+					[Fact]
+					public void TestMethod() {{
+						var data = new Class();
 
-				        {{|#0:Assert.IsAssignableFrom(typeof(IClass), data)|}};
-				    }}
+						{{|#0:Assert.IsAssignableFrom(typeof(IClass), data)|}};
+					}}
 				}}
 				""", staticModifier, abstractModifier, methodBody);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("IClass");

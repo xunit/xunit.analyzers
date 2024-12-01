@@ -12,14 +12,14 @@ public class TestClassMustBePublicFixerTests
 	{
 		var before = string.Format(/* lang=c#-test */ """
 			{0}class [|TestClass|] {{
-			    [Xunit.Fact]
-			    public void TestMethod() {{ }}
+				[Xunit.Fact]
+				public void TestMethod() {{ }}
 			}}
 			""", nonPublicAccessModifier);
 		var after = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -31,24 +31,24 @@ public class TestClassMustBePublicFixerTests
 	{
 		var before = /* lang=c#-test */ """
 			partial class [|TestClass|] {
-			    [Xunit.Fact]
-			    public void TestMethod1() {}
+				[Xunit.Fact]
+				public void TestMethod1() {}
 			}
 
 			partial class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod2() {}
+				[Xunit.Fact]
+				public void TestMethod2() {}
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			public partial class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod1() {}
+				[Xunit.Fact]
+				public void TestMethod1() {}
 			}
 
 			partial class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod2() {}
+				[Xunit.Fact]
+				public void TestMethod2() {}
 			}
 			""";
 

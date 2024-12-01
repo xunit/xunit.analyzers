@@ -18,9 +18,9 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 			using System.Threading.Tasks;
 
 			public class NonTestClass {
-			    public async Task NonTestMethod() {
-			        await {|CA2007:Task.Delay(1)|};
-			    }
+				public async Task NonTestMethod() {
+					await {|CA2007:Task.Delay(1)|};
+				}
 			}
 			""";
 
@@ -39,10 +39,10 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 			using Xunit;
 
 			public class TestClass {{
-			    [{0}]
-			    public async Task TestMethod() {{
-			        await {{|#0:Task.Delay(1)|}};
-			    }}
+				[{0}]
+				public async Task TestMethod() {{
+					await {{|#0:Task.Delay(1)|}};
+				}}
 			}}
 			""", attribute);
 #if ROSLYN_LATEST
@@ -64,10 +64,10 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 			internal class CustomFactAttribute : FactAttribute { }
 
 			public class TestClass {
-			    [CustomFact]
-			    public async Task TestMethod() {
-			        await {|CA2007:Task.Delay(1)|};
-			    }
+				[CustomFact]
+				public async Task TestMethod() {
+					await {|CA2007:Task.Delay(1)|};
+				}
 			}
 			""";
 
@@ -83,12 +83,12 @@ public sealed class ConsiderCallingConfigureAwaitSuppressorTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        async Task InnerMethod1() { await {|CA2007:Task.Delay(1)|}; }
-			        async Task InnerMethod2() => await {|CA2007:Task.Delay(1)|};
-			        Func<Task> Lambda = async () => await {|CA2007:Task.Delay(1)|};
-			    }
+				[Fact]
+				public void TestMethod() {
+					async Task InnerMethod1() { await {|CA2007:Task.Delay(1)|}; }
+					async Task InnerMethod2() => await {|CA2007:Task.Delay(1)|};
+					Func<Task> Lambda = async () => await {|CA2007:Task.Delay(1)|};
+				}
 			}
 			""";
 

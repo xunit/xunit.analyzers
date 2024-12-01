@@ -10,9 +10,9 @@ public class TestMethodSupportedReturnTypeTests
 	{
 		var source = /* lang=c#-test */ """
 			public class NonTestClass {
-			    public int Add(int x, int y) {
-			        return x + y;
-			    }
+				public int Add(int x, int y) {
+					return x + y;
+				}
 			}
 			""";
 
@@ -30,9 +30,9 @@ public class TestMethodSupportedReturnTypeTests
 			using Xunit;
 
 			public class TestClass {{
-			    [Fact]
-			    public {0} {{|#0:TestMethod|}}() {{
-			        return default({0});
+				[Fact]
+				public {0} {{|#0:TestMethod|}}() {{
+					return default({0});
 				}}
 			}}
 			""", returnType);
@@ -51,10 +51,10 @@ public class TestMethodSupportedReturnTypeTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public ValueTask {|#0:TestMethod|}() {
-			        return default(ValueTask);
-			    }
+				[Fact]
+				public ValueTask {|#0:TestMethod|}() {
+					return default(ValueTask);
+				}
 			}
 			""";
 		var expectedV2 = Verify.Diagnostic().WithLocation(0).WithArguments("void, Task");
@@ -74,9 +74,9 @@ public class TestMethodSupportedReturnTypeTests
 			class MyTestAttribute : FactAttribute {{ }}
 
 			public class TestClass {{
-			    [{0}]
-			    public int TestMethod() {{
-			        return 0;
+				[{0}]
+				public int TestMethod() {{
+					return 0;
 				}}
 			}}
 			""", attribute);

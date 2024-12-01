@@ -11,8 +11,8 @@ public class TestMethodShouldNotBeSkippedTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute);
 
@@ -26,8 +26,8 @@ public class TestMethodShouldNotBeSkippedTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    [Xunit.{0}([|Skip="Lazy"|])]
-			    public void TestMethod() {{ }}
+				[Xunit.{0}([|Skip="Lazy"|])]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute);
 

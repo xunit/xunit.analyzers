@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
+using Microsoft.CodeAnalysis.Text;
 
 public partial class CSharpVerifier<TAnalyzer>
 	where TAnalyzer : DiagnosticAnalyzer, new()
@@ -43,6 +44,17 @@ public partial class CSharpVerifier<TAnalyzer>
 		{
 			LanguageVersion = languageVersion;
 			ReferenceAssemblies = referenceAssemblies;
+
+			// Ensure all fixed source matches the inline source (tabs, not spaces)
+			TestState.AnalyzerConfigFiles.Add(
+				(
+					"/.editorconfig",
+					SourceText.From("""
+						[*]
+						indent_style = tab
+						""")
+				)
+			);
 
 			// Diagnostics are reported in both normal and generated code
 			TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;

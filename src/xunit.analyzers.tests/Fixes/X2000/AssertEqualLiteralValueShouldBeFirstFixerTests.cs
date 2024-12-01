@@ -10,11 +10,11 @@ public class AssertEqualLiteralValueShouldBeFirstFixerTests
 		using System.Collections.Generic;
 
 		public class TestClass {{
-		    [Xunit.Fact]
-		    public void TestMethod() {{
-		        var i = 0;
-		        [|Xunit.{0}|];
-		    }}
+			[Xunit.Fact]
+			public void TestMethod() {{
+				var i = 0;
+				[|Xunit.{0}|];
+			}}
 		}}
 		""";
 

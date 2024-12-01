@@ -13,16 +13,16 @@ public class ConvertToFactFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    public void [|TestMethod|](int a) { }
+				[Theory]
+				public void [|TestMethod|](int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod(int a) { }
+				[Fact]
+				public void TestMethod(int a) { }
 			}
 			""";
 
@@ -36,16 +36,16 @@ public class ConvertToFactFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    public void [|TestMethod|]() { }
+				[Theory]
+				public void [|TestMethod|]() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 			}
 			""";
 

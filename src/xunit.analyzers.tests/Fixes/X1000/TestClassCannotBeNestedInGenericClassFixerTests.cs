@@ -11,11 +11,11 @@ public class TestClassCannotBeNestedInGenericClassFixerTests
 		const string before = /* lang=c#-test */ """
 			public abstract class OpenGenericType<T>
 			{
-			    public class [|NestedTestClass|]
-			    {
-			        [Xunit.Fact]
-			        public void TestMethod() { }
-			    }
+				public class [|NestedTestClass|]
+				{
+					[Xunit.Fact]
+					public void TestMethod() { }
+				}
 			}
 			""";
 		const string after = /* lang=c#-test */ """
@@ -25,8 +25,8 @@ public class TestClassCannotBeNestedInGenericClassFixerTests
 
 			public class NestedTestClass
 			{
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 

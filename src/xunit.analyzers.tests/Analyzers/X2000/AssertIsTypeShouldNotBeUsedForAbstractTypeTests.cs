@@ -30,9 +30,9 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Assert.{0}<IDisposable>(new object())|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Assert.{0}<IDisposable>(new object())|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("interface", "System.IDisposable", replacement);
@@ -57,13 +57,13 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        var flag = true;
+				void TestMethod() {{
+					var flag = true;
 
-			        {{|#0:Assert.{0}<IDisposable>(new object(), true)|}};
-			        {{|#1:Assert.{0}<IDisposable>(new object(), exactMatch: true)|}};
-			        Assert.{0}<IDisposable>(new object(), flag);
-			    }}
+					{{|#0:Assert.{0}<IDisposable>(new object(), true)|}};
+					{{|#1:Assert.{0}<IDisposable>(new object(), exactMatch: true)|}};
+					Assert.{0}<IDisposable>(new object(), flag);
+				}}
 			}}
 			""", method);
 		var expected = new[] {
@@ -86,9 +86,9 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Assert.{0}<Stream>(new object())|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Assert.{0}<Stream>(new object())|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("abstract class", "System.IO.Stream", replacement);
@@ -113,13 +113,13 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        var flag = true;
+				void TestMethod() {{
+					var flag = true;
 
-			        {{|#0:Assert.{0}<Stream>(new object(), true)|}};
-			        {{|#1:Assert.{0}<Stream>(new object(), exactMatch: true)|}};
-			        Assert.{0}<Stream>(new object(), flag);
-			    }}
+					{{|#0:Assert.{0}<Stream>(new object(), true)|}};
+					{{|#1:Assert.{0}<Stream>(new object(), exactMatch: true)|}};
+					Assert.{0}<Stream>(new object(), flag);
+				}}
 			}}
 			""", method);
 		var expected = new[] {
@@ -142,9 +142,9 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using static Xunit.Assert;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:{0}<IDisposable>(new object())|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:{0}<IDisposable>(new object())|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("interface", "System.IDisposable", replacement);
@@ -166,17 +166,17 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        var flag = true;
+				void TestMethod() {{
+					var flag = true;
 
-			        Assert.{0}<string>(new object());
-			        Assert.{0}<string>(new object(), flag);
-			        Assert.{0}<string>(new object(), exactMatch: flag);
-			        Assert.{0}<string>(new object(), true);
-			        Assert.{0}<string>(new object(), exactMatch: true);
-			        Assert.{0}<string>(new object(), false);
-			        Assert.{0}<string>(new object(), exactMatch: false);
-			    }}
+					Assert.{0}<string>(new object());
+					Assert.{0}<string>(new object(), flag);
+					Assert.{0}<string>(new object(), exactMatch: flag);
+					Assert.{0}<string>(new object(), true);
+					Assert.{0}<string>(new object(), exactMatch: true);
+					Assert.{0}<string>(new object(), false);
+					Assert.{0}<string>(new object(), exactMatch: false);
+				}}
 			}}
 			""", method);
 

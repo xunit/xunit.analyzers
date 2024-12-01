@@ -9,12 +9,12 @@ public class AssertEqualShouldNotBeUsedForNullCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        int? data = 1;
+			[Fact]
+			public void TestMethod() {{
+				int? data = 1;
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

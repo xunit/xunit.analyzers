@@ -11,9 +11,9 @@ public class ClassDataAttributeMustPointAtValidClassTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Theory]
-		    [ClassData(typeof(DataClass))]
-		    public void TestMethod{0} {{ }}
+			[Theory]
+			[ClassData(typeof(DataClass))]
+			public void TestMethod{0} {{ }}
 		}}
 		""", testMethodParams);
 
@@ -27,8 +27,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using System.Collections.Generic;
 
 				class DataClass: IEnumerable<object[]> {
-				    public IEnumerator<object[]> GetEnumerator() => null;
-				    IEnumerator IEnumerable.GetEnumerator() => null;
+					public IEnumerator<object[]> GetEnumerator() => null;
+					IEnumerator IEnumerable.GetEnumerator() => null;
 				}
 				""";
 
@@ -46,8 +46,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				class DataClass: IEnumerable<TheoryDataRow<int>> {
-				    public IEnumerator<TheoryDataRow<int>> GetEnumerator() => null;
-				    IEnumerator IEnumerable.GetEnumerator() => null;
+					public IEnumerator<TheoryDataRow<int>> GetEnumerator() => null;
+					IEnumerator IEnumerable.GetEnumerator() => null;
 				}
 				"""
 			},
@@ -60,7 +60,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -73,7 +73,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -86,7 +86,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -99,7 +99,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -112,7 +112,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string, string>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, string, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, string, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -125,7 +125,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string[]>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, string[]>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, string[]>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -138,7 +138,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -151,7 +151,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -164,7 +164,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<(int, int)>> {
-				    public IAsyncEnumerator<TheoryDataRow<(int, int)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<(int, int)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -178,7 +178,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<(int x1, int y1)>> {
-				    public IAsyncEnumerator<TheoryDataRow<(int x1, int y1)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<(int x1, int y1)>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				"""
 			},
@@ -217,8 +217,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using System.Collections.Generic;
 
 			abstract class DataClass: IEnumerable<object[]> {
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -229,9 +229,9 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using System.Collections.Generic;
 
 			class DataClass: IEnumerable<object[]> {
-			    public DataClass(string parameter) { }
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public DataClass(string parameter) { }
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -242,9 +242,9 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using System.Collections.Generic;
 
 			class DataClass: IEnumerable<object[]> {
-			    internal DataClass() { }
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				internal DataClass() { }
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -255,9 +255,9 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using System.Collections.Generic;
 
 			class DataClass: IEnumerable<object[]> {
-			    private DataClass() { }
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				private DataClass() { }
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 		];
@@ -266,8 +266,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 		[MemberData(nameof(FailureCasesData))]
 		public async Task FailureCases(string dataClassSource)
 		{
-			var expectedV2 = Verify.Diagnostic("xUnit1007").WithSpan(7, 6, 7, 34).WithArguments("DataClass", "IEnumerable<object[]>");
-			var expectedV3 = Verify.Diagnostic("xUnit1007").WithSpan(7, 6, 7, 34).WithArguments("DataClass", "IEnumerable<object[]>, IAsyncEnumerable<object[]>, IEnumerable<ITheoryDataRow>, or IAsyncEnumerable<ITheoryDataRow>");
+			var expectedV2 = Verify.Diagnostic("xUnit1007").WithSpan(7, 3, 7, 31).WithArguments("DataClass", "IEnumerable<object[]>");
+			var expectedV3 = Verify.Diagnostic("xUnit1007").WithSpan(7, 3, 7, 31).WithArguments("DataClass", "IEnumerable<object[]>, IAsyncEnumerable<object[]>, IEnumerable<ITheoryDataRow>, or IAsyncEnumerable<ITheoryDataRow>");
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expectedV2);
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expectedV3);
@@ -281,10 +281,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using System.Threading;
 
 				public class DataClass : IAsyncEnumerable<object[]> {
-				    public IAsyncEnumerator<object[]> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<object[]> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1007").WithSpan(7, 6, 7, 34).WithArguments("DataClass", "IEnumerable<object[]>");
+			var expected = Verify.Diagnostic("xUnit1007").WithSpan(7, 3, 7, 31).WithArguments("DataClass", "IEnumerable<object[]>");
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expected);
 		}
@@ -301,10 +301,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1037").WithSpan(7, 6, 7, 34).WithArguments("Xunit.TheoryDataRow");
+			var expected = Verify.Diagnostic("xUnit1037").WithSpan(7, 3, 7, 31).WithArguments("Xunit.TheoryDataRow");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, string f)"), dataClassSource], expected);
 		}
@@ -321,10 +321,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, double>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, double>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, double>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1038").WithSpan(7, 6, 7, 34).WithArguments("Xunit.TheoryDataRow");
+			var expected = Verify.Diagnostic("xUnit1038").WithSpan(7, 3, 7, 31).WithArguments("Xunit.TheoryDataRow");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n)"), dataClassSource], expected);
 		}
@@ -338,10 +338,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, double[], long>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, double[], long>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, double[], long>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1038").WithSpan(7, 6, 7, 34).WithArguments("Xunit.TheoryDataRow");
+			var expected = Verify.Diagnostic("xUnit1038").WithSpan(7, 3, 7, 31).WithArguments("Xunit.TheoryDataRow");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, params double[] d)"), dataClassSource], expected);
 		}
@@ -358,10 +358,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1039").WithSpan(8, 35, 8, 41).WithArguments("string", "DataClass", "d");
+			var expected = Verify.Diagnostic("xUnit1039").WithSpan(8, 32, 8, 38).WithArguments("string", "DataClass", "d");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, double d)"), dataClassSource], expected);
 		}
@@ -375,10 +375,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<int, string, int>> {
-				    public IAsyncEnumerator<TheoryDataRow<int, string, int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<int, string, int>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1039").WithSpan(8, 42, 8, 50).WithArguments("int", "DataClass", "s");
+			var expected = Verify.Diagnostic("xUnit1039").WithSpan(8, 39, 8, 47).WithArguments("int", "DataClass", "s");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(int n, params string[] s)"), dataClassSource], expected);
 		}
@@ -395,10 +395,10 @@ public class ClassDataAttributeMustPointAtValidClassTests
 				using Xunit;
 
 				public class DataClass : IAsyncEnumerable<TheoryDataRow<string?>> {
-				    public IAsyncEnumerator<TheoryDataRow<string?>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+					public IAsyncEnumerator<TheoryDataRow<string?>> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1040").WithSpan(8, 28, 8, 34).WithArguments("string?", "DataClass", "s");
+			var expected = Verify.Diagnostic("xUnit1040").WithSpan(8, 25, 8, 31).WithArguments("string?", "DataClass", "s");
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource("(string s)"), dataClassSource], expected);
 		}
@@ -415,8 +415,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IEnumerable<object[]> {
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -428,7 +428,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IAsyncEnumerable<object[]> {
-			    public IAsyncEnumerator<object[]> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+				public IAsyncEnumerator<object[]> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 			}
 			""",
 
@@ -440,8 +440,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IEnumerable<ITheoryDataRow> {
-			    public IEnumerator<ITheoryDataRow> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<ITheoryDataRow> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -453,7 +453,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IAsyncEnumerable<ITheoryDataRow> {
-			    public IAsyncEnumerator<ITheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+				public IAsyncEnumerator<ITheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 			}
 			""",
 
@@ -465,8 +465,8 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IEnumerable<TheoryDataRow> {
-			    public IEnumerator<TheoryDataRow> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<TheoryDataRow> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 			""",
 
@@ -478,7 +478,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 			using Xunit;
 
 			public class DataClass : IAsyncEnumerable<TheoryDataRow> {
-			    public IAsyncEnumerator<TheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
+				public IAsyncEnumerator<TheoryDataRow> GetAsyncEnumerator(CancellationToken cancellationToken = default) => null;
 			}
 			""",
 		];
@@ -487,7 +487,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 		[MemberData(nameof(FailureCasesData))]
 		public async Task FailureCases(string dataClassSource)
 		{
-			var expected = Verify.Diagnostic("xUnit1050").WithSpan(7, 6, 7, 34);
+			var expected = Verify.Diagnostic("xUnit1050").WithSpan(7, 3, 7, 31);
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, [TestMethodSource(), dataClassSource], expected);
 		}

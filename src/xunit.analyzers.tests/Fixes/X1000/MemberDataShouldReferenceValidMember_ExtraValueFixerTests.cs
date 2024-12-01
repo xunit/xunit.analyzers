@@ -12,22 +12,22 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42)]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42)]
+				public void TestMethod(int a) { }
 			}
 			""";
 
@@ -45,22 +45,22 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {{
-			    public static TheoryData<int> TestData(int n) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {{|xUnit1036:{0}|}})]
-			    public void TestMethod(int a) {{ }}
+				[Theory]
+				[MemberData(nameof(TestData), 42, {{|xUnit1036:{0}|}})]
+				public void TestMethod(int a) {{ }}
 			}}
 			""", value);
 		var after = string.Format(/* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {{
-			    public static TheoryData<int> TestData(int n, {1} p) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int n, {1} p) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {0})]
-			    public void TestMethod(int a) {{ }}
+				[Theory]
+				[MemberData(nameof(TestData), 42, {0})]
+				public void TestMethod(int a) {{ }}
 			}}
 			""", value, valueType);
 
@@ -74,22 +74,22 @@ public class MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int p) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int p) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
-			    public void TestMethod(int n) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, {|xUnit1036:21.12|})]
+				public void TestMethod(int n) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    public static TheoryData<int> TestData(int p, double p_2) => new TheoryData<int>();
+				public static TheoryData<int> TestData(int p, double p_2) => new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(TestData), 42, 21.12)]
-			    public void TestMethod(int n) { }
+				[Theory]
+				[MemberData(nameof(TestData), 42, 21.12)]
+				public void TestMethod(int n) { }
 			}
 			""";
 

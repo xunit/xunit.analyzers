@@ -18,9 +18,9 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
+				void TestMethod() {{
 					Xunit.Assert.Single({0});
-			    }}
+				}}
 			}}
 			""", collection);
 
@@ -38,9 +38,9 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
+				void TestMethod() {{
 					Xunit.Assert.Single({0}.Where((f, i) => {1} && i > 0));
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -58,9 +58,9 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
+				void TestMethod() {{
 					Xunit.Assert.Single({0}.Where(f => {1}).Select(f => f));
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -78,9 +78,9 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
+				void TestMethod() {{
 					[|Xunit.Assert.Single({0}.Where(f => {1}))|];
-			    }}
+				}}
 			}}
 			""", collection, comparison);
 
@@ -97,9 +97,9 @@ public class AssertSingleShouldUseTwoArgumentCallTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
+				void TestMethod() {{
 					[|Xunit.Assert.Single("{0}".Where(f => f > 0))|];
-			    }}
+				}}
 			}}
 			""", sampleString);
 

@@ -24,14 +24,14 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				using Xunit;
 
 				public class TestClass {{
-				    public void TestMethod() {{
-				        var value1 = 42;
-				        var value2 = 2112;
-				        var value3 = new {{ innerValue = 2600 }};
+					public void TestMethod() {{
+						var value1 = 42;
+						var value2 = 2112;
+						var value3 = new {{ innerValue = 2600 }};
 
-				        Assert.{0}(value1 {1} value2);
-				        Assert.{0}(value1 {1} value3.innerValue);
-				    }}
+						Assert.{0}(value1 {1} value2);
+						Assert.{0}(value1 {1} value3.innerValue);
+					}}
 				}}
 				""", method, @operator);
 
@@ -58,12 +58,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				public enum MyEnum {{ None, Bacon, Veggie }}
 
 				public class TestClass {{
-				    public void TestMethod() {{
-				        var value = {2};
+					public void TestMethod() {{
+						var value = {2};
 
-				        Assert.{0}(value {1} {2}, "message");
-				        Assert.{0}({2} {1} value, "message");
-				    }}
+						Assert.{0}(value {1} {2}, "message");
+						Assert.{0}({2} {1} value, "message");
+					}}
 				}}
 				""", method, @operator, value);
 
@@ -83,12 +83,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				public enum MyEnum {{ None, Bacon, Veggie }}
 
 				public class TestClass {{
-				    public void TestMethod() {{
-				        var value = {2};
+					public void TestMethod() {{
+						var value = {2};
 
-				        {{|#0:Assert.{0}(value {1} {2})|}};
-				        {{|#1:Assert.{0}({2} {1} value)|}};
-				    }}
+						{{|#0:Assert.{0}(value {1} {2})|}};
+						{{|#1:Assert.{0}({2} {1} value)|}};
+					}}
 				}}
 				""", method, @operator, value);
 			var suggestedAssert =
@@ -126,12 +126,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				public enum MyEnum {{ None, Bacon, Veggie }}
 
 				public class TestClass {{
-				    {2}? field = default;
+					{2}? field = default;
 
-				    public void TestMethod() {{
-				        Assert.{0}(field {1} null, "Message");
-				        Assert.{0}(null {1} field, "Message");
-				    }}
+					public void TestMethod() {{
+						Assert.{0}(field {1} null, "Message");
+						Assert.{0}(null {1} field, "Message");
+					}}
 				}}
 				""", method, @operator, type);
 
@@ -151,12 +151,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				public enum MyEnum {{ None, Bacon, Veggie }}
 
 				public class TestClass {{
-				    {2}? field = default;
+					{2}? field = default;
 
-				    public void TestMethod() {{
-				        {{|#0:Assert.{0}(field {1} null)|}};
-				        {{|#1:Assert.{0}(null {1} field)|}};
-				    }}
+					public void TestMethod() {{
+						{{|#0:Assert.{0}(field {1} null)|}};
+						{{|#1:Assert.{0}(null {1} field)|}};
+					}}
 				}}
 				""", method, @operator, type);
 			var suggestedAssert =
@@ -195,14 +195,14 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 				using Xunit;
 
 				public class TestClass {{
-				    bool field = {2};
+					bool field = {2};
 
-				    void TestMethod() {{
-				        {{|#0:Assert.{0}(field {1} {2})|}};
-				        {{|#1:Assert.{0}(field {1} {2}, "Message")|}};
-				        {{|#2:Assert.{0}({2} {1} field)|}};
-				        {{|#3:Assert.{0}({2} {1} field, "Message")|}};
-				    }}
+					void TestMethod() {{
+						{{|#0:Assert.{0}(field {1} {2})|}};
+						{{|#1:Assert.{0}(field {1} {2}, "Message")|}};
+						{{|#2:Assert.{0}({2} {1} field)|}};
+						{{|#3:Assert.{0}({2} {1} field, "Message")|}};
+					}}
 				}}
 				""", method, @operator, value);
 			var expected = new[]

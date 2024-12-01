@@ -13,24 +13,24 @@ public class UseGenericOverloadFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var result = 123;
+				[Fact]
+				public void TestMethod() {
+					var result = 123;
 
-			        [|Assert.IsAssignableFrom(typeof(int), result)|];
-			    }
+					[|Assert.IsAssignableFrom(typeof(int), result)|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        var result = 123;
+				[Fact]
+				public void TestMethod() {
+					var result = 123;
 
-			        Assert.IsAssignableFrom<int>(result);
-			    }
+					Assert.IsAssignableFrom<int>(result);
+				}
 			}
 			""";
 
@@ -47,24 +47,24 @@ public class UseGenericOverloadFixTests
 			using Xunit;
 
 			public class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        var result = 123;
+				[Fact]
+				public void TestMethod() {{
+					var result = 123;
 
-			        [|Assert.IsType(typeof(int), {0})|];
-			    }}
+					[|Assert.IsType(typeof(int), {0})|];
+				}}
 			}}
 			""", arguments);
 		var after = string.Format(/* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        var result = 123;
+				[Fact]
+				public void TestMethod() {{
+					var result = 123;
 
-			        Assert.IsType<int>({0});
-			    }}
+					Assert.IsType<int>({0});
+				}}
 			}}
 			""", arguments);
 
@@ -79,12 +79,12 @@ public class UseGenericOverloadFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        Action func = () => { };
+				[Fact]
+				public void TestMethod() {
+					Action func = () => { };
 
-			        [|Assert.Throws(typeof(DivideByZeroException), func)|];
-			    }
+					[|Assert.Throws(typeof(DivideByZeroException), func)|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -92,12 +92,12 @@ public class UseGenericOverloadFixTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() {
-			        Action func = () => { };
+				[Fact]
+				public void TestMethod() {
+					Action func = () => { };
 
-			        Assert.Throws<DivideByZeroException>(func);
-			    }
+					Assert.Throws<DivideByZeroException>(func);
+				}
 			}
 			""";
 

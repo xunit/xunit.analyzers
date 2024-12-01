@@ -11,8 +11,8 @@ public class TestMethodMustNotHaveMultipleFactAttributesTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute);
 
@@ -24,9 +24,9 @@ public class TestMethodMustNotHaveMultipleFactAttributesTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    [Xunit.Theory]
-			    public void [|TestMethod|]() { }
+				[Xunit.Fact]
+				[Xunit.Theory]
+				public void [|TestMethod|]() { }
 			}
 			""";
 
@@ -38,9 +38,9 @@ public class TestMethodMustNotHaveMultipleFactAttributesTests
 	{
 		var source1 = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    [CustomFact]
-			    public void [|TestMethod|]() { }
+				[Xunit.Fact]
+				[CustomFact]
+				public void [|TestMethod|]() { }
 			}
 			""";
 		var source2 = /* lang=c#-test */ """

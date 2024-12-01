@@ -9,12 +9,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixerTest
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        bool condition = true;
+			[Fact]
+			public void TestMethod() {{
+				bool condition = true;
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

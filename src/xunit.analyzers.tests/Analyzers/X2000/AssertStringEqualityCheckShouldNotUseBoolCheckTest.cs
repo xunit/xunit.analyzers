@@ -41,9 +41,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}("abc".Equals("a"))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}("abc".Equals("a"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -57,9 +57,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}))|}};
+				}}
 			}}
 			""", comparison);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Equal);
@@ -73,9 +73,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.True("abc".Equals("a", System.StringComparison.{0}));
+				}}
 			}}
 			""", comparison);
 
@@ -88,9 +88,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.False("abc".Equals("a", System.StringComparison.{0}));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.False("abc".Equals("a", System.StringComparison.{0}));
+				}}
 			}}
 			""", comparison);
 
@@ -105,9 +105,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}(System.String.Equals("abc", "a"))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}(System.String.Equals("abc", "a"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -121,9 +121,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}))|}};
+				}}
 			}}
 			""", comparison);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.Equal);
@@ -137,9 +137,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.True(System.String.Equals("abc", "a", System.StringComparison.{0}));
+				}}
 			}}
 			""", comparison);
 
@@ -152,9 +152,9 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckTest
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.False(System.String.Equals("abc", "a", System.StringComparison.{0}));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.False(System.String.Equals("abc", "a", System.StringComparison.{0}));
+				}}
 			}}
 			""", comparison);
 

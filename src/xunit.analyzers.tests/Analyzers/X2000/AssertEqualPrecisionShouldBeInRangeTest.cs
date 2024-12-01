@@ -6,9 +6,9 @@ public class AssertEqualPrecisionShouldBeInRangeTest
 {
 	static readonly string Template = /* lang=c#-test */ """
 		class TestClass {{
-		    void TestMethod() {{
-		        {0}
-		    }}
+			void TestMethod() {{
+				{0}
+			}}
 		}}
 		""";
 

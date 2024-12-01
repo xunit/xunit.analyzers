@@ -13,18 +13,18 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, {|xUnit1012:null|})]
-			    public void TestMethod(int a, int b) { }
+				[Theory]
+				[InlineData(42, {|xUnit1012:null|})]
+				public void TestMethod(int a, int b) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, null)]
-			    public void TestMethod(int a, int? b) { }
+				[Theory]
+				[InlineData(42, null)]
+				public void TestMethod(int a, int? b) { }
 			}
 			""";
 
@@ -40,9 +40,9 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, {|xUnit1012:null|})]
-			    public void TestMethod(int a, object b) { }
+				[Theory]
+				[InlineData(42, {|xUnit1012:null|})]
+				public void TestMethod(int a, object b) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -51,9 +51,9 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(42, null)]
-			    public void TestMethod(int a, object? b) { }
+				[Theory]
+				[InlineData(42, null)]
+				public void TestMethod(int a, object? b) { }
 			}
 			""";
 

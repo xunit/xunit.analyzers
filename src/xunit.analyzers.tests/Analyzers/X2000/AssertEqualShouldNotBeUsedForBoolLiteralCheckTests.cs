@@ -24,10 +24,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        bool val = true;
-			        {{|#0:Xunit.Assert.{0}(true, val)|}};
-			    }}
+				void TestMethod() {{
+					bool val = true;
+					{{|#0:Xunit.Assert.{0}(true, val)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -44,10 +44,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        bool val = false;
-			        {{|#0:Xunit.Assert.{0}(false, val, System.Collections.Generic.EqualityComparer<bool>.Default)|}};
-			    }}
+				void TestMethod() {{
+					bool val = false;
+					{{|#0:Xunit.Assert.{0}(false, val, System.Collections.Generic.EqualityComparer<bool>.Default)|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -61,10 +61,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        object val = false;
-			        Xunit.Assert.{0}(true, val);
-			    }}
+				void TestMethod() {{
+					object val = false;
+					Xunit.Assert.{0}(true, val);
+				}}
 			}}
 			""", method);
 
@@ -77,10 +77,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        int val = 1;
-			        Xunit.Assert.{0}(1, val);
-			    }}
+				void TestMethod() {{
+					int val = 1;
+					Xunit.Assert.{0}(1, val);
+				}}
 			}}
 			""", method);
 
@@ -93,10 +93,10 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        bool val = false;
-			        Xunit.Assert.{0}(val, true);
-			    }}
+				void TestMethod() {{
+					bool val = false;
+					Xunit.Assert.{0}(val, true);
+				}}
 			}}
 			""", method);
 

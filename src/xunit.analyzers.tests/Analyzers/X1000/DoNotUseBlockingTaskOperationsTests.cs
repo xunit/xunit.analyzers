@@ -13,10 +13,10 @@ public class DoNotUseBlockingTaskOperationsTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async Task TestMethod() {
-			        await Task.Delay(1);
-			    }
+				[Fact]
+				public async Task TestMethod() {
+					await Task.Delay(1);
+				}
 			}
 			""";
 
@@ -34,14 +34,14 @@ public class DoNotUseBlockingTaskOperationsTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        default(IValueTaskSource).[|GetResult(0)|];
-				        Action<IValueTaskSource> _ = vts => vts.GetResult(0);
-				        void LocalFunction() {
-				            default(IValueTaskSource).GetResult(0);
-				        }
-				    }
+					[Fact]
+					public void TestMethod() {
+						default(IValueTaskSource).[|GetResult(0)|];
+						Action<IValueTaskSource> _ = vts => vts.GetResult(0);
+						void LocalFunction() {
+							default(IValueTaskSource).GetResult(0);
+						}
+					}
 				}
 				""";
 
@@ -60,14 +60,14 @@ public class DoNotUseBlockingTaskOperationsTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        default(IValueTaskSource<int>).[|GetResult(0)|];
-				        Func<IValueTaskSource<int>, int> _ = vts => vts.GetResult(0);
-				        void LocalFunction() {
-				            default(IValueTaskSource<int>).GetResult(0);
-				        }
-				    }
+					[Fact]
+					public void TestMethod() {
+						default(IValueTaskSource<int>).[|GetResult(0)|];
+						Func<IValueTaskSource<int>, int> _ = vts => vts.GetResult(0);
+						void LocalFunction() {
+							default(IValueTaskSource<int>).GetResult(0);
+						}
+					}
 				}
 				""";
 
@@ -88,14 +88,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        Task.Delay(1).[|Wait()|];
-					        Action<Task> _ = t => t.Wait();
-					        void LocalFunction() {
-					            Task.Delay(1).Wait();
-					        }
-					    }
+						[Fact]
+						public void TestMethod() {
+							Task.Delay(1).[|Wait()|];
+							Action<Task> _ = t => t.Wait();
+							void LocalFunction() {
+								Task.Delay(1).Wait();
+							}
+						}
 					}
 					""";
 
@@ -110,14 +110,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task = Task.Delay(1);
+						[Fact]
+						public async Task TestMethod() {
+							var task = Task.Delay(1);
 
-					        task.[|Wait()|];
+							task.[|Wait()|];
 
-					        await Task.WhenAll(task);
-					    }
+							await Task.WhenAll(task);
+						}
 					}
 					""";
 
@@ -132,16 +132,16 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(new[] { task1 });
+							await Task.WhenAll(new[] { task1 });
 
-					        task1.Wait();
-					        task2.[|Wait()|];
-					    }
+							task1.Wait();
+							task2.[|Wait()|];
+						}
 					}
 					""";
 
@@ -156,10 +156,10 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        Task.CompletedTask.ContinueWith(x => x.Wait());
-					    }
+						[Fact]
+						public void TestMethod() {
+							Task.CompletedTask.ContinueWith(x => x.Wait());
+						}
 					}
 					""";
 
@@ -174,16 +174,16 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(task1, task2);
+							await Task.WhenAll(task1, task2);
 
-					        task1.Wait();
-					        task2.Wait();
-					    }
+							task1.Wait();
+							task2.Wait();
+						}
 					}
 					""";
 
@@ -198,15 +198,15 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        var finishedTask = await Task.WhenAny(task1, task2);
+							var finishedTask = await Task.WhenAny(task1, task2);
 
-					        finishedTask.Wait();
-					    }
+							finishedTask.Wait();
+						}
 					}
 					""";
 
@@ -227,14 +227,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public void TestMethod() {{
-					        Task.[|{0}(Task.Delay(1))|];
-					        Action<Task> _ = t => Task.{0}(t);
-					        void LocalFunction() {{
-					            Task.{0}(Task.Delay(1));
-					        }}
-					    }}
+						[Fact]
+						public void TestMethod() {{
+							Task.[|{0}(Task.Delay(1))|];
+							Action<Task> _ = t => Task.{0}(t);
+							void LocalFunction() {{
+								Task.{0}(Task.Delay(1));
+							}}
+						}}
 					}}
 					""", waitMethod);
 
@@ -251,14 +251,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var task = Task.Delay(1);
+						[Fact]
+						public async Task TestMethod() {{
+							var task = Task.Delay(1);
 
-					        Task.[|{0}(task)|];
+							Task.[|{0}(task)|];
 
-					        await Task.WhenAll(task);
-					    }}
+							await Task.WhenAll(task);
+						}}
 					}}
 					""", waitMethod);
 
@@ -275,17 +275,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {{
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(new[] {{ task1 }});
+							await Task.WhenAll(new[] {{ task1 }});
 
-					        Task.{0}(task1);
-					        Task.[|{0}(task2)|];
-					        Task.[|{0}(task1, task2)|];
-					    }}
+							Task.{0}(task1);
+							Task.[|{0}(task2)|];
+							Task.[|{0}(task1, task2)|];
+						}}
 					}}
 					""", waitMethod);
 
@@ -302,10 +302,10 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public void TestMethod() {{
-					        Task.CompletedTask.ContinueWith(x => Task.{0}(x));
-					    }}
+						[Fact]
+						public void TestMethod() {{
+							Task.CompletedTask.ContinueWith(x => Task.{0}(x));
+						}}
 					}}
 					""", waitMethod);
 
@@ -322,17 +322,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {{
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(task1, task2);
+							await Task.WhenAll(task1, task2);
 
-					        Task.{0}(task1);
-					        Task.{0}(task2);
-					        Task.{0}(task1, task2);
-					    }}
+							Task.{0}(task1);
+							Task.{0}(task2);
+							Task.{0}(task1, task2);
+						}}
 					}}
 					""", waitMethod);
 
@@ -349,15 +349,15 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {{
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        var finishedTask = await Task.WhenAny(task1, task2);
+							var finishedTask = await Task.WhenAny(task1, task2);
 
-					        Task.{0}(finishedTask);
-					    }}
+							Task.{0}(finishedTask);
+						}}
 					}}
 					""", waitMethod);
 
@@ -376,14 +376,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        Task.CompletedTask.GetAwaiter().[|GetResult()|];
-					        Action<Task> _ = t => t.GetAwaiter().GetResult();
-					        void LocalFunction() {
-					            Task.CompletedTask.GetAwaiter().GetResult();
-					        }
-					    }
+						[Fact]
+						public void TestMethod() {
+							Task.CompletedTask.GetAwaiter().[|GetResult()|];
+							Action<Task> _ = t => t.GetAwaiter().GetResult();
+							void LocalFunction() {
+								Task.CompletedTask.GetAwaiter().GetResult();
+							}
+						}
 					}
 					""";
 
@@ -398,14 +398,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task = Task.Delay(1);
+						[Fact]
+						public async Task TestMethod() {
+							var task = Task.Delay(1);
 
-					        task.GetAwaiter().[|GetResult()|];
+							task.GetAwaiter().[|GetResult()|];
 
-					        await Task.WhenAll(task);
-					    }
+							await Task.WhenAll(task);
+						}
 					}
 					""";
 
@@ -420,16 +420,16 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(new[] { task1 });
+							await Task.WhenAll(new[] { task1 });
 
-					        task1.GetAwaiter().GetResult();
-					        task2.GetAwaiter().[|GetResult()|];
-					    }
+							task1.GetAwaiter().GetResult();
+							task2.GetAwaiter().[|GetResult()|];
+						}
 					}
 					""";
 
@@ -444,10 +444,10 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        Task.CompletedTask.ContinueWith(x => x.GetAwaiter().GetResult());
-					    }
+						[Fact]
+						public void TestMethod() {
+							Task.CompletedTask.ContinueWith(x => x.GetAwaiter().GetResult());
+						}
 					}
 					""";
 
@@ -462,16 +462,16 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        await Task.WhenAll(task1, task2);
+							await Task.WhenAll(task1, task2);
 
-					        task1.GetAwaiter().GetResult();
-					        task2.GetAwaiter().GetResult();
-					    }
+							task1.GetAwaiter().GetResult();
+							task2.GetAwaiter().GetResult();
+						}
 					}
 					""";
 
@@ -486,15 +486,15 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.Delay(1);
-					        var task2 = Task.Delay(2);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.Delay(1);
+							var task2 = Task.Delay(2);
 
-					        var finishedTask = await Task.WhenAny(task1, task2);
+							var finishedTask = await Task.WhenAny(task1, task2);
 
-					        finishedTask.GetAwaiter().GetResult();
-					    }
+							finishedTask.GetAwaiter().GetResult();
+						}
 					}
 					""";
 
@@ -516,14 +516,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var _ = Task.FromResult(42).[|Result|];
-					        Func<Task<int>, int> _2 = t => t.Result;
-					        void LocalFunction() {
-					            var _3 = Task.FromResult(42).Result;
-					        }
-					    }
+						[Fact]
+						public void TestMethod() {
+							var _ = Task.FromResult(42).[|Result|];
+							Func<Task<int>, int> _2 = t => t.Result;
+							void LocalFunction() {
+								var _3 = Task.FromResult(42).Result;
+							}
+						}
 					}
 					""";
 
@@ -538,14 +538,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task = Task.FromResult(42);
+						[Fact]
+						public async Task TestMethod() {
+							var task = Task.FromResult(42);
 
-					        Assert.Equal(42, task.[|Result|]);
+							Assert.Equal(42, task.[|Result|]);
 
-					        await Task.WhenAll(task);
-					    }
+							await Task.WhenAll(task);
+						}
 					}
 					""";
 
@@ -560,17 +560,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        await Task.WhenAll(new[] { task1 });
+							await Task.WhenAll(new[] { task1 });
 
-					        Assert.Equal(42, task1.Result);
-					        Assert.Equal(2112, task2.[|Result|]);
-					        Assert.Equal(2154, task1.Result + task2.[|Result|]);
-					    }
+							Assert.Equal(42, task1.Result);
+							Assert.Equal(2112, task2.[|Result|]);
+							Assert.Equal(2154, task1.Result + task2.[|Result|]);
+						}
 					}
 					""";
 
@@ -585,10 +585,10 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var _ = Task.FromResult(42).ContinueWith(x => x.Result);
-					    }
+						[Fact]
+						public void TestMethod() {
+							var _ = Task.FromResult(42).ContinueWith(x => x.Result);
+						}
 					}
 					""";
 
@@ -603,17 +603,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        await Task.WhenAll(task1, task2);
+							await Task.WhenAll(task1, task2);
 
-					        Assert.Equal(42, task1.Result);
-					        Assert.Equal(2112, task2.Result);
-					        Assert.Equal(2154, task1.Result + task2.Result);
-					    }
+							Assert.Equal(42, task1.Result);
+							Assert.Equal(2112, task2.Result);
+							Assert.Equal(2154, task1.Result + task2.Result);
+						}
 					}
 					""";
 
@@ -628,15 +628,15 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        var finishedTask = await Task.WhenAny(task1, task2);
+							var finishedTask = await Task.WhenAny(task1, task2);
 
-					        Assert.Equal(2600, finishedTask.Result);
-					    }
+							Assert.Equal(2600, finishedTask.Result);
+						}
 					}
 					""";
 
@@ -655,14 +655,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var _ = Task.FromResult(42).GetAwaiter().[|GetResult()|];
-					        Func<Task<int>, int> _2 = t => t.GetAwaiter().GetResult();
-					        void LocalFunction() {
-					            var _3 = Task.FromResult(42).GetAwaiter().GetResult();
-					        }
-					    }
+						[Fact]
+						public void TestMethod() {
+							var _ = Task.FromResult(42).GetAwaiter().[|GetResult()|];
+							Func<Task<int>, int> _2 = t => t.GetAwaiter().GetResult();
+							void LocalFunction() {
+								var _3 = Task.FromResult(42).GetAwaiter().GetResult();
+							}
+						}
 					}
 					""";
 
@@ -678,14 +678,14 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task = Task.FromResult(42);
+						[Fact]
+						public async Task TestMethod() {
+							var task = Task.FromResult(42);
 
-					        Assert.Equal(42, task.GetAwaiter().[|GetResult()|]);
+							Assert.Equal(42, task.GetAwaiter().[|GetResult()|]);
 
-					        await Task.WhenAll(task);
-					    }
+							await Task.WhenAll(task);
+						}
 					}
 					""";
 
@@ -700,17 +700,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        await Task.WhenAll(new[] { task1 });
+							await Task.WhenAll(new[] { task1 });
 
-					        Assert.Equal(42, task1.GetAwaiter().GetResult());
-					        Assert.Equal(2112, task2.GetAwaiter().[|GetResult()|]);
-					        Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().[|GetResult()|]);
-					    }
+							Assert.Equal(42, task1.GetAwaiter().GetResult());
+							Assert.Equal(2112, task2.GetAwaiter().[|GetResult()|]);
+							Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().[|GetResult()|]);
+						}
 					}
 					""";
 
@@ -725,10 +725,10 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var _ = Task.FromResult(42).ContinueWith(x => x.GetAwaiter().GetResult());
-					    }
+						[Fact]
+						public void TestMethod() {
+							var _ = Task.FromResult(42).ContinueWith(x => x.GetAwaiter().GetResult());
+						}
 					}
 					""";
 
@@ -743,17 +743,17 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        await Task.WhenAll(task1, task2);
+							await Task.WhenAll(task1, task2);
 
-					        Assert.Equal(42, task1.GetAwaiter().GetResult());
-					        Assert.Equal(2112, task2.GetAwaiter().GetResult());
-					        Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().GetResult());
-					    }
+							Assert.Equal(42, task1.GetAwaiter().GetResult());
+							Assert.Equal(2112, task2.GetAwaiter().GetResult());
+							Assert.Equal(2154, task1.GetAwaiter().GetResult() + task2.GetAwaiter().GetResult());
+						}
 					}
 					""";
 
@@ -768,15 +768,15 @@ public class DoNotUseBlockingTaskOperationsTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var task1 = Task.FromResult(42);
-					        var task2 = Task.FromResult(2112);
+						[Fact]
+						public async Task TestMethod() {
+							var task1 = Task.FromResult(42);
+							var task2 = Task.FromResult(2112);
 
-					        var finishedTask = await Task.WhenAny(task1, task2);
+							var finishedTask = await Task.WhenAny(task1, task2);
 
-					        Assert.Equal(2600, finishedTask.GetAwaiter().GetResult());
-					    }
+							Assert.Equal(2600, finishedTask.GetAwaiter().GetResult());
+						}
 					}
 					""";
 
@@ -796,14 +796,14 @@ public class DoNotUseBlockingTaskOperationsTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        default(ValueTask).GetAwaiter().[|GetResult()|];
-				        Action<ValueTask> _ = vt => vt.GetAwaiter().GetResult();
-				        void LocalFunction() {
-				            default(ValueTask).GetAwaiter().GetResult();
-				        }
-				    }
+					[Fact]
+					public void TestMethod() {
+						default(ValueTask).GetAwaiter().[|GetResult()|];
+						Action<ValueTask> _ = vt => vt.GetAwaiter().GetResult();
+						void LocalFunction() {
+							default(ValueTask).GetAwaiter().GetResult();
+						}
+					}
 				}
 				""";
 
@@ -822,14 +822,14 @@ public class DoNotUseBlockingTaskOperationsTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        var _ = new ValueTask<int>(42).[|Result|];
-				        Func<ValueTask<int>, int> _2 = vt => vt.Result;
-				        void LocalFunction() {
-				            var _3 = new ValueTask<int>(42).Result;
-				        }
-				    }
+					[Fact]
+					public void TestMethod() {
+						var _ = new ValueTask<int>(42).[|Result|];
+						Func<ValueTask<int>, int> _2 = vt => vt.Result;
+						void LocalFunction() {
+							var _3 = new ValueTask<int>(42).Result;
+						}
+					}
 				}
 				""";
 
@@ -845,14 +845,14 @@ public class DoNotUseBlockingTaskOperationsTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public void TestMethod() {
-				        var _ = new ValueTask<int>(42).GetAwaiter().[|GetResult()|];
-				        Func<ValueTask<int>, int> _2 = vt => vt.GetAwaiter().GetResult();
-				        void LocalFunction() {
-				            var _3 = new ValueTask<int>(42).GetAwaiter().GetResult();
-				        }
-				    }
+					[Fact]
+					public void TestMethod() {
+						var _ = new ValueTask<int>(42).GetAwaiter().[|GetResult()|];
+						Func<ValueTask<int>, int> _2 = vt => vt.GetAwaiter().GetResult();
+						void LocalFunction() {
+							var _3 = new ValueTask<int>(42).GetAwaiter().GetResult();
+						}
+					}
 				}
 				""";
 

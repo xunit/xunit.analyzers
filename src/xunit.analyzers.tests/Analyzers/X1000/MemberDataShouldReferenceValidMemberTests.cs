@@ -13,11 +13,11 @@ public class MemberDataShouldReferenceValidMemberTests
 			using Xunit;
 
 			public partial class TestClass {
-			    public static TheoryData<int> Data { get; set; }
+				public static TheoryData<int> Data { get; set; }
 			}
 
 			public class OtherClass {
-			    public static TheoryData<int> OtherData { get; set; }
+				public static TheoryData<int> OtherData { get; set; }
 			}
 			""";
 
@@ -26,8 +26,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public partial class TestClass {
-				    [Xunit.MemberData(nameof(Data))]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData(nameof(Data))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -39,8 +39,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public partial class TestClass {
-				    [Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -52,8 +52,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public partial class TestClass {
-				    [Xunit.MemberData({|#0:"Data"|})]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData({|#0:"Data"|})]
+					public void TestMethod(int _) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1014").WithLocation(0).WithArguments("Data", "TestClass");
@@ -66,8 +66,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public partial class TestClass {
-				    [Xunit.MemberData({|#0:"OtherData"|}, MemberType = typeof(OtherClass))]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData({|#0:"OtherData"|}, MemberType = typeof(OtherClass))]
+					public void TestMethod(int _) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1014").WithLocation(0).WithArguments("OtherData", "OtherClass");
@@ -85,8 +85,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [{{|#0:Xunit.MemberData("BogusName"{0})|}}]
-				    public void TestMethod() {{ }}
+					[{{|#0:Xunit.MemberData("BogusName"{0})|}}]
+					public void TestMethod() {{ }}
 				}}
 				""", memberType);
 			var expected = Verify.Diagnostic("xUnit1015").WithLocation(0).WithArguments("BogusName", "TestClass");
@@ -99,8 +99,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source1 = /* lang=c#-test */ """
 				public class TestClass {
-				    [{|#0:Xunit.MemberData("BogusName", MemberType = typeof(OtherClass))|}]
-				    public void TestMethod() { }
+					[{|#0:Xunit.MemberData("BogusName", MemberType = typeof(OtherClass))|}]
+					public void TestMethod() { }
 				}
 				""";
 			var source2 = /* lang=c#-test */ """
@@ -116,8 +116,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source1 = /* lang=c#-test */ """
 				public class TestClass {
-				    [{|#0:Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))|}]
-				    public void TestMethod() { }
+					[{|#0:Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))|}]
+					public void TestMethod() { }
 				}
 				""";
 			var source2 = /* lang=c#-test */ """
@@ -136,10 +136,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> Data = null;
+					public static Xunit.TheoryData<int> Data = null;
 
-				    [Xunit.MemberData(nameof(Data))]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData(nameof(Data))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -163,13 +163,13 @@ public class MemberDataShouldReferenceValidMemberTests
 
 			var source1 = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    const string DataNameConst = "Data";
-				    const string DataNameofConst = nameof(Data);
+					const string DataNameConst = "Data";
+					const string DataNameofConst = nameof(Data);
 
-				    {0} static Xunit.TheoryData<int> Data = null;
+					{0} static Xunit.TheoryData<int> Data = null;
 
-				    [{{|xUnit1016:Xunit.MemberData({1})|}}]
-				    public void TestMethod(int _) {{ }}
+					[{{|xUnit1016:Xunit.MemberData({1})|}}]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", accessModifier, dataNameExpression);
 			var source2 = /* lang=c#-test */ """
@@ -187,10 +187,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> Data = null;
+					public static Xunit.TheoryData<int> Data = null;
 
-				    [Xunit.MemberData(nameof(Data))]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData(nameof(Data))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -202,10 +202,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public Xunit.TheoryData<int> Data = null;
+					public Xunit.TheoryData<int> Data = null;
 
-				    [{|xUnit1017:Xunit.MemberData(nameof(Data))|}]
-				    public void TestMethod(int _) { }
+					[{|xUnit1017:Xunit.MemberData(nameof(Data))|}]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -223,10 +223,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> {0}
+					public static Xunit.TheoryData<int> {0}
 
-				    [Xunit.MemberData(nameof(Data))]
-				    public void TestMethod(int _) {{ }}
+					[Xunit.MemberData(nameof(Data))]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", member);
 
@@ -241,10 +241,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    {0}
+					{0}
 
-				    [{{|xUnit1018:Xunit.MemberData(nameof(Data))|}}]
-				    public void TestMethod() {{ }}
+					[{{|xUnit1018:Xunit.MemberData(nameof(Data))|}}]
+					public void TestMethod() {{ }}
 				}}
 				""", member);
 
@@ -266,10 +266,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {
-				    public static TheoryData<int> Data;
+					public static TheoryData<int> Data;
 
-				    [MemberData(nameof(Data))]
-				    public void TestMethod(int _) { }
+					[MemberData(nameof(Data))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -287,10 +287,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static {0}<TheoryData<int>> Data;
+					public static {0}<TheoryData<int>> Data;
 
-				    [{{|#0:MemberData(nameof(Data))|}}]
-				    public void TestMethod(int _) {{ }}
+					[{{|#0:MemberData(nameof(Data))|}}]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", taskType);
 			var expectedV2 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", $"System.Threading.Tasks.{taskType}<Xunit.TheoryData<int>>");
@@ -311,13 +311,13 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit.Sdk;
 
 				public class TestClass {{
-				    [Theory]
-				    [MemberData(nameof(DataRowSource))]
-				    public void SkippedDataRow(int x, string y) {{ }}
+					[Theory]
+					[MemberData(nameof(DataRowSource))]
+					public void SkippedDataRow(int x, string y) {{ }}
 
-				    public static {0} DataRowSource() {{
-				        throw new NotImplementedException();
-				    }}
+					public static {0} DataRowSource() {{
+						throw new NotImplementedException();
+					}}
 				}}
 				""", dataType);
 
@@ -337,13 +337,13 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit.Sdk;
 
 				public class TestClass {{
-				    [Theory]
-				    [MemberData(nameof(DataRowSource))]
-				    public void SkippedDataRow(int x, string y) {{ }}
+					[Theory]
+					[MemberData(nameof(DataRowSource))]
+					public void SkippedDataRow(int x, string y) {{ }}
 
-				    public static async {0} DataRowSource() {{
-				        throw new NotImplementedException();
-				    }}
+					public static async {0} DataRowSource() {{
+						throw new NotImplementedException();
+					}}
 				}}
 				""", taskType);
 
@@ -360,10 +360,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    public static {0} Data;
+					public static {0} Data;
 
-				    [{{|#0:Xunit.MemberData(nameof(Data))|}}]
-				    public void TestMethod() {{ }}
+					[{{|#0:Xunit.MemberData(nameof(Data))|}}]
+					public void TestMethod() {{ }}
 				}}
 				""", memberType);
 			var expectedV2 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
@@ -381,10 +381,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> Data { set { } }
+					public static Xunit.TheoryData<int> Data { set { } }
 
-				    [{|xUnit1020:Xunit.MemberData(nameof(Data))|}]
-				    public void TestMethod(int _) { }
+					[{|xUnit1020:Xunit.MemberData(nameof(Data))|}]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -399,10 +399,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> Data {{ {0} get {{ return null; }} set {{ }} }}
+					public static Xunit.TheoryData<int> Data {{ {0} get {{ return null; }} set {{ }} }}
 
-				    [{{|xUnit1020:Xunit.MemberData(nameof(Data))|}}]
-				    public void TestMethod(int _) {{ }}
+					[{{|xUnit1020:Xunit.MemberData(nameof(Data))|}}]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", visibility);
 
@@ -419,12 +419,12 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    private static void TestData() {{ }}
+					private static void TestData() {{ }}
 
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameter);
 			await Verify.VerifyAnalyzer(source);
@@ -437,10 +437,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> {{ n[0] }};
+					public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> {{ n[0] }};
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameters);
 
@@ -454,14 +454,14 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClassBase {{
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 				}}
 
 				public class TestClass : TestClassBase {{
-				    private static void TestData() {{ }}
+					private static void TestData() {{ }}
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameter);
 
@@ -476,10 +476,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var sourceTemplate = /* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> Data;
+					public static Xunit.TheoryData<int> Data;
 
-				    [Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
-				    public void TestMethod(int _) {{ }}
+					[Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
+					public void TestMethod(int _) {{ }}
 				}}
 				""";
 
@@ -495,10 +495,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var sourceTemplate = /* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> Data {{ get; set; }}
+					public static Xunit.TheoryData<int> Data {{ get; set; }}
 
-				    [Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
-				    public void TestMethod(int _) {{ }}
+					[Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
+					public void TestMethod(int _) {{ }}
 				}}
 				""";
 
@@ -520,10 +520,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				{0}
 
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> TestData({1} f) => new Xunit.TheoryData<int> {{ 42 }};
+					public static Xunit.TheoryData<int> TestData({1} f) => new Xunit.TheoryData<int> {{ 42 }};
 
-				    [Xunit.MemberData(nameof(TestData), new object[] {{ null }})]
-				    public void TestMethod(int _) {{ }}
+					[Xunit.MemberData(nameof(TestData), new object[] {{ null }})]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", header, argumentType);
 
@@ -535,10 +535,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> { n };
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> { n };
 
-				    [Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
-				    public void TestMethod(int _) { }
+					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
+					public void TestMethod(int _) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1034").WithLocation(0).WithArguments("n", "int");
@@ -553,10 +553,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				#nullable enable
 
 				public class TestClass {
-				    public static Xunit.TheoryData<string> TestData(string f) => new Xunit.TheoryData<string> { f };
+					public static Xunit.TheoryData<string> TestData(string f) => new Xunit.TheoryData<string> { f };
 
-				    [Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
-				    public void TestMethod(string _) { }
+					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
+					public void TestMethod(string _) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1034").WithLocation(0).WithArguments("f", "string");
@@ -579,13 +579,13 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Theory]
-				    [MemberData(nameof(SomeData), {0})]
-				    public void TestMethod(int _) {{ }}
+					[Theory]
+					[MemberData(nameof(SomeData), {0})]
+					public void TestMethod(int _) {{ }}
 
-				    public enum Foo {{ Bar }}
+					public enum Foo {{ Bar }}
 
-				    public static Xunit.TheoryData<int> SomeData(Foo foo) => new Xunit.TheoryData<int>();
+					public static Xunit.TheoryData<int> SomeData(Foo foo) => new Xunit.TheoryData<int>();
 				}}
 				""", enumValue);
 
@@ -605,11 +605,11 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
+					public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
 
-				    [Theory]
-				    [MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
-				    public void Test(int value) {{ }}
+					[Theory]
+					[MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
+					public void Test(int value) {{ }}
 				}}
 				""", header);
 
@@ -628,11 +628,11 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
+					public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
 
-				    [Theory]
-				    [MemberData(nameof(GetSequences), {{|#0:new char[] {{ 'a', 'b' }}|}})]
-				    public void Test(int value) {{ }}
+					[Theory]
+					[MemberData(nameof(GetSequences), {{|#0:new char[] {{ 'a', 'b' }}|}})]
+					public void Test(int value) {{ }}
 				}}
 				""", header);
 			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("seq", "System.Collections.Generic.IEnumerable<int>");
@@ -645,10 +645,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> TestData(string n) => new Xunit.TheoryData<int> { n.Length };
+					public static Xunit.TheoryData<int> TestData(string n) => new Xunit.TheoryData<int> { n.Length };
 
-				    [Xunit.MemberData(nameof(TestData), new object[] { {|#0:1|} })]
-				    public void TestMethod(int n) { }
+					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:1|} })]
+					public void TestMethod(int n) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("n", "string");
@@ -661,10 +661,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> { n[0] };
+					public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> { n[0] };
 
-				    [Xunit.MemberData(nameof(TestData), new object[] { 1, {|#0:"bob"|} })]
-				    public void TestMethod(int n) { }
+					[Xunit.MemberData(nameof(TestData), new object[] { 1, {|#0:"bob"|} })]
+					public void TestMethod(int n) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("n", "int");
@@ -682,12 +682,12 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    private static void TestData() {{ }}
+					private static void TestData() {{ }}
 
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameter);
 
@@ -703,10 +703,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				#nullable enable
 
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameter);
 
@@ -720,10 +720,10 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
 
-				    [Xunit.MemberData(nameof(TestData), {0})]
-				    public void TestMethod(int n) {{ }}
+					[Xunit.MemberData(nameof(TestData), {0})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", parameters);
 			var expected = Verify.Diagnostic("xUnit1036").WithLocation(0).WithArguments("2");
@@ -752,10 +752,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryData<int> TestData{0}new TheoryData<int>();
+					public static TheoryData<int> TestData{0}new TheoryData<int>();
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void TestMethod(int n, string f) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void TestMethod(int n, string f) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryData");
@@ -774,10 +774,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<int>> TestData{0}null;
+					public static IEnumerable<TheoryDataRow<int>> TestData{0}null;
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void TestMethod(int n, string f) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void TestMethod(int n, string f) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
@@ -797,10 +797,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void TestMethod(int n, string f) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void TestMethod(int n, string f) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryData");
@@ -846,10 +846,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -867,10 +867,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
+					public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -890,10 +890,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, int a = 0) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, int a = 0) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -911,10 +911,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryDataRow<int>[] TestData{0}new TheoryDataRow<int>[0];
+					public static TheoryDataRow<int>[] TestData{0}new TheoryDataRow<int>[0];
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, int a = 0) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, int a = 0) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -934,10 +934,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, params int[] a) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, params int[] a) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -955,10 +955,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static ICollection<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
+					public static ICollection<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, params int[] a) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, params int[] a) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -978,10 +978,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, params int[] a) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, params int[] a) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -999,10 +999,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<int, int>> TestData{0}new List<TheoryDataRow<int, int>>();
+					public static IEnumerable<TheoryDataRow<int, int>> TestData{0}new List<TheoryDataRow<int, int>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n, params int[] a) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n, params int[] a) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -1022,10 +1022,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod<T>(T n) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod<T>(T n) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -1043,10 +1043,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static ISet<TheoryDataRow<int>> TestData{0}new HashSet<TheoryDataRow<int>>();
+					public static ISet<TheoryDataRow<int>> TestData{0}new HashSet<TheoryDataRow<int>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod<T>(T n) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod<T>(T n) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -1068,10 +1068,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [Xunit.MemberData(nameof(TestData){1})]
-				    public void TestMethod<T>(T? n) {{ }}
+					[Xunit.MemberData(nameof(TestData){1})]
+					public void TestMethod<T>(T? n) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 
@@ -1091,10 +1091,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
+					public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
 
-				    [Xunit.MemberData(nameof(TestData){1})]
-				    public void TestMethod<T>(T? n) {{ }}
+					[Xunit.MemberData(nameof(TestData){1})]
+					public void TestMethod<T>(T? n) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -1113,10 +1113,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
 
 				public class TestClass {{
-				    public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod(int n) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 
@@ -1137,8 +1137,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				    [MemberData(nameof(GetSequences), new[] { 1, 2 })]
 				    [MemberData(nameof(GetSequences), new[] { 3, 4, 5 })]
 				    public void Test(IEnumerable<int> seq) {
-				        Assert.NotEmpty(seq);
-				    }
+						Assert.NotEmpty(seq);
+					}
 				}
 				""";
 
@@ -1158,10 +1158,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void TestMethod(int n) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryData");
@@ -1180,10 +1180,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<int, string>> TestData{0}new List<TheoryDataRow<int, string>>();
+					public static IEnumerable<TheoryDataRow<int, string>> TestData{0}new List<TheoryDataRow<int, string>>();
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void TestMethod(int n) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void TestMethod(int n) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
@@ -1204,10 +1204,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class DerivedTheoryData<T1, T2, T3> : TheoryData<T1, T2, T3> {{ }}
 
 				public class TestClass {{
-				    public static {2} TestData{0}new {2}();
+					public static {2} TestData{0}new {2}();
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void PuzzleOne(int _1, params string[] _2) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void PuzzleOne(int _1, params string[] _2) {{ }}
 				}}
 				""", member.syntax, member.args, theoryDataType);
 			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryData");
@@ -1226,10 +1226,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static ICollection<TheoryDataRow<int, string[], string>> TestData{0}new TheoryDataRow<int, string[], string>[0];
+					public static ICollection<TheoryDataRow<int, string[], string>> TestData{0}new TheoryDataRow<int, string[], string>[0];
 
-				    [{{|#0:MemberData(nameof(TestData){1})|}}]
-				    public void PuzzleOne(int _1, params string[] _2) {{ }}
+					[{{|#0:MemberData(nameof(TestData){1})|}}]
+					public void PuzzleOne(int _1, params string[] _2) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
@@ -1262,8 +1262,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryData<int, string, string> TestData = new TheoryData<int, string, string>();
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params string[] _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params string[] _2) { }
 				}
 				""";
 
@@ -1280,8 +1280,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static IEnumerable<TheoryDataRow<int, string, string>> TestData = new List<TheoryDataRow<int, string, string>>();
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params string[] _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params string[] _2) { }
 				}
 				""";
 
@@ -1297,8 +1297,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryData<int, string[]> TestData = new TheoryData<int, string[]>();
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params string[] _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params string[] _2) { }
 				}
 				""";
 
@@ -1314,8 +1314,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryDataRow<int, string[]>[] TestData = new TheoryDataRow<int, string[]>[0];
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params string[] _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params string[] _2) { }
 				}
 				""";
 
@@ -1331,8 +1331,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryData<(int, int)> TestData = new TheoryData<(int, int)>();
 
-				    [MemberData(nameof(TestData))]
-				    public void TestMethod((int a, int b) x) { }
+					[MemberData(nameof(TestData))]
+					public void TestMethod((int a, int b) x) { }
 				}
 				""";
 
@@ -1349,8 +1349,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static IList<TheoryDataRow<(int, int)>> TestData = new List<TheoryDataRow<(int, int)>>();
 
-				    [MemberData(nameof(TestData))]
-				    public void TestMethod((int a, int b) x) { }
+					[MemberData(nameof(TestData))]
+					public void TestMethod((int a, int b) x) { }
 				}
 				""";
 
@@ -1366,8 +1366,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryData<(int c, int d)> TestData = new TheoryData<(int, int)>();
 
-				    [MemberData(nameof(TestData))]
-				    public void TestMethod((int a, int b) x) { }
+					[MemberData(nameof(TestData))]
+					public void TestMethod((int a, int b) x) { }
 				}
 				""";
 
@@ -1384,8 +1384,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static IEnumerable<TheoryDataRow<(int c, int d)>> TestData = new List<TheoryDataRow<(int, int)>>();
 
-				    [MemberData(nameof(TestData))]
-				    public void TestMethod((int a, int b) x) { }
+					[MemberData(nameof(TestData))]
+					public void TestMethod((int a, int b) x) { }
 				}
 				""";
 
@@ -1422,8 +1422,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static TheoryData<int, string, int> TestData = new TheoryData<int, string, int>();
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.TestData", "_2");
@@ -1441,8 +1441,8 @@ public class MemberDataShouldReferenceValidMemberTests
 				public class TestClass {
 					public static IEnumerable<TheoryDataRow<int, string, int>> TestData = new List<TheoryDataRow<int, string, int>>();
 
-				    [MemberData(nameof(TestData))]
-				    public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
+					[MemberData(nameof(TestData))]
+					public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
 				}
 				""";
 			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.TestData", "_2");
@@ -1460,10 +1460,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryData<{2}> TestData{0}new TheoryData<{2}>();
+					public static TheoryData<{2}> TestData{0}new TheoryData<{2}>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod({{|#0:string|}} f) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod({{|#0:string|}} f) {{ }}
 				}}
 				""", member.syntax, member.args, type);
 			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments(type, "TestClass.TestData", "f");
@@ -1482,10 +1482,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IList<TheoryDataRow<{2}>> TestData{0}new List<TheoryDataRow<{2}>>();
+					public static IList<TheoryDataRow<{2}>> TestData{0}new List<TheoryDataRow<{2}>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod({{|#0:string|}} f) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod({{|#0:string|}} f) {{ }}
 				}}
 				""", member.syntax, member.args, type);
 			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments(type, "TestClass.TestData", "f");
@@ -1516,10 +1516,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static TheoryData<string?> TestData{0}new TheoryData<string?>();
+					public static TheoryData<string?> TestData{0}new TheoryData<string?>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod({{|#0:string|}} f) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod({{|#0:string|}} f) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.TestData", "f");
@@ -1540,10 +1540,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static IEnumerable<TheoryDataRow<string?>> TestData{0}new List<TheoryDataRow<string?>>();
+					public static IEnumerable<TheoryDataRow<string?>> TestData{0}new List<TheoryDataRow<string?>>();
 
-				    [MemberData(nameof(TestData){1})]
-				    public void TestMethod({{|#0:string|}} f) {{ }}
+					[MemberData(nameof(TestData){1})]
+					public void TestMethod({{|#0:string|}} f) {{ }}
 				}}
 				""", memberSyntax, memberArgs);
 			var expected = Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.TestData", "f");
@@ -1562,10 +1562,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {
-				    public static TheoryData<int> Data;
+					public static TheoryData<int> Data;
 
-				    [MemberData(nameof(Data))]
-				    public void TestMethod(int _) { }
+					[MemberData(nameof(Data))]
+					public void TestMethod(int _) { }
 				}
 				""";
 
@@ -1580,10 +1580,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {
-				    public static MatrixTheoryData<int, string> Data;
+					public static MatrixTheoryData<int, string> Data;
 
-				    [MemberData(nameof(Data))]
-				    public void TestMethod(int _1, string _2) { }
+					[MemberData(nameof(Data))]
+					public void TestMethod(int _1, string _2) { }
 				}
 				""";
 
@@ -1603,10 +1603,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit.v3;
 
 				public class TestClass {{
-				    public static {0} Data;
+					public static {0} Data;
 
-				    [MemberData(nameof(Data))]
-				    public void TestMethod(int _) {{ }}
+					[MemberData(nameof(Data))]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", memberType);
 
@@ -1623,10 +1623,10 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static {0} Data;
+					public static {0} Data;
 
-				    [{{|#0:MemberData(nameof(Data))|}}]
-				    public void TestMethod(int _) {{ }}
+					[{{|#0:MemberData(nameof(Data))|}}]
+					public void TestMethod(int _) {{ }}
 				}}
 				""", memberType);
 			var expectedV2 = Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments("TheoryData<>");
@@ -1660,15 +1660,15 @@ public class MemberDataShouldReferenceValidMemberTests
 				using Xunit;
 
 				public class TestClass {{
-				    public static {0} Data;
+					public static {0} Data;
 
-				    [{{|#0:MemberData(nameof(Data))|}}]
-				    public void TestMethod(int _) {{ }}
+					[{{|#0:MemberData(nameof(Data))|}}]
+					public void TestMethod(int _) {{ }}
 				}}
 
 				public class EnumerableOfITheoryDataRow : IEnumerable<ITheoryDataRow> {{
-				    public IEnumerator<ITheoryDataRow> GetEnumerator() => null;
-				    IEnumerator IEnumerable.GetEnumerator() => null;
+					public IEnumerator<ITheoryDataRow> GetEnumerator() => null;
+					IEnumerator IEnumerable.GetEnumerator() => null;
 				}}
 				""", memberType);
 			var expected = Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments("TheoryData<> or IEnumerable<TheoryDataRow<>>");

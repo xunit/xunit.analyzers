@@ -9,9 +9,9 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.Equal("TestMethod", nameof(TestMethod));
-			    }
+				void TestMethod() {
+					Xunit.Assert.Equal("TestMethod", nameof(TestMethod));
+				}
 			}
 			""";
 
@@ -39,10 +39,10 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var v = default({0});
-			        Xunit.Assert.Equal({1}, v);
-			    }}
+				void TestMethod() {{
+					var v = default({0});
+					Xunit.Assert.Equal({1}, v);
+				}}
 			}}
 			""", type, value);
 
@@ -54,9 +54,9 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.Equal(new string(' ', 4), "    ");
-			    }
+				void TestMethod() {
+					Xunit.Assert.Equal(new string(' ', 4), "    ");
+				}
 			}
 			""";
 
@@ -71,10 +71,10 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var v = default({0});
-			        {{|#0:Xunit.Assert.Equal(v, {1})|}};
-			    }}
+				void TestMethod() {{
+					var v = default({0});
+					{{|#0:Xunit.Assert.Equal(v, {1})|}};
+				}}
 			}}
 			""", type, value);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
@@ -89,10 +89,10 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var v = default(int);
-			        Xunit.Assert.Equal({0}actual: v, {0}expected: 0);
-			    }}
+				void TestMethod() {{
+					var v = default(int);
+					Xunit.Assert.Equal({0}actual: v, {0}expected: 0);
+				}}
 			}}
 			""", useAlternateForm ? "@" : "");
 
@@ -107,10 +107,10 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var v = default({0});
-			        {{|#0:Xunit.Assert.Equal(actual: {1}, expected: v)|}};
-			    }}
+				void TestMethod() {{
+					var v = default({0});
+					{{|#0:Xunit.Assert.Equal(actual: {1}, expected: v)|}};
+				}}
 			}}
 			""", type, value);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments(value, "Assert.Equal(expected, actual)", "TestMethod", "TestClass");
@@ -130,10 +130,10 @@ public class AssertEqualLiteralValueShouldBeFirstTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        var v = default(int);
-			        Xunit.Assert.{0}({1}: 1, {2}: v);
-			    }}
+				void TestMethod() {{
+					var v = default(int);
+					Xunit.Assert.{0}({1}: 1, {2}: v);
+				}}
 			}}
 			""", methodName, firstArgumentName, secondArgumentName);
 

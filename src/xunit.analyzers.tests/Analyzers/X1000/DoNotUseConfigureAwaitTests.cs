@@ -13,10 +13,10 @@ public class DoNotUseConfigureAwaitTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async Task TestMethod() {
-			        await Task.Delay(1);
-			    }
+				[Fact]
+				public async Task TestMethod() {
+					await Task.Delay(1);
+				}
 			}
 			""";
 
@@ -33,9 +33,9 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class NonTestClass {
-				    public async Task NonTestMethod() {
-				        await Task.Delay(1).ConfigureAwait(false);
-				    }
+					public async Task NonTestMethod() {
+						await Task.Delay(1).ConfigureAwait(false);
+					}
 				}
 				""";
 
@@ -50,10 +50,10 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {
-				    [Fact]
-				    public async Task TestMethod() {
-				        await Task.Delay(1).ConfigureAwait(true);
-				    }
+					[Fact]
+					public async Task TestMethod() {
+						await Task.Delay(1).ConfigureAwait(true);
+					}
 				}
 				""";
 
@@ -77,14 +77,14 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        var t = Task.Run(async () => {{
-				            await Task.Delay(1).ConfigureAwait({0});
-				        }});
-				        await t;
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						var t = Task.Run(async () => {{
+							await Task.Delay(1).ConfigureAwait({0});
+						}});
+						await t;
+					}}
 				}}
 				""", argumentValue);
 
@@ -100,13 +100,13 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        async Task AssertEventStateAsync() {{
-				            await Task.Delay(1).ConfigureAwait({0});
-				        }}
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						async Task AssertEventStateAsync() {{
+							await Task.Delay(1).ConfigureAwait({0});
+						}}
+					}}
 				}}
 				""", argumentValue);
 
@@ -122,11 +122,11 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        await Task.Delay(1).{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						await Task.Delay(1).{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.");
@@ -143,11 +143,11 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var booleanVar = true;
-				        Task.Delay(1).{{|#0:ConfigureAwait({0})|}}.GetAwaiter().GetResult();
-				    }}
+					[Fact]
+					public void TestMethod() {{
+						var booleanVar = true;
+						Task.Delay(1).{{|#0:ConfigureAwait({0})|}}.GetAwaiter().GetResult();
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.");
@@ -164,12 +164,12 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        var task = Task.FromResult(42);
-				        await task.{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						var task = Task.FromResult(42);
+						await task.{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.");
@@ -186,12 +186,12 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        var valueTask = default(ValueTask);
-				        await valueTask.{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						var valueTask = default(ValueTask);
+						await valueTask.{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.");
@@ -208,12 +208,12 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var booleanVar = true;
-				        var valueTask = default(ValueTask<int>);
-				        await valueTask.{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var booleanVar = true;
+						var valueTask = default(ValueTask<int>);
+						await valueTask.{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007.");
@@ -234,9 +234,9 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class NonTestClass {
-				    public async Task NonTestMethod() {
-				        await Task.Delay(1).ConfigureAwait(ConfigureAwaitOptions.None);
-				    }
+					public async Task NonTestMethod() {
+						await Task.Delay(1).ConfigureAwait(ConfigureAwaitOptions.None);
+					}
 				}
 				""";
 
@@ -254,10 +254,10 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        await Task.Delay(1).ConfigureAwait({0});
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						await Task.Delay(1).ConfigureAwait({0});
+					}}
 				}}
 				""", enumValue);
 
@@ -283,14 +283,14 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        var t = Task.Run(async () => {{
-				            await Task.Delay(1).ConfigureAwait({0});
-				        }});
-				        await t;
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						var t = Task.Run(async () => {{
+							await Task.Delay(1).ConfigureAwait({0});
+						}});
+						await t;
+					}}
 				}}
 				""", argumentValue);
 
@@ -306,13 +306,13 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        async Task AssertEventStateAsync() {{
-				            await Task.Delay(1).ConfigureAwait({0});
-				        }}
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						async Task AssertEventStateAsync() {{
+							await Task.Delay(1).ConfigureAwait({0});
+						}}
+					}}
 				}}
 				""", argumentValue);
 
@@ -328,11 +328,11 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        await Task.Delay(1).{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						await Task.Delay(1).{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", enumValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(enumValue, "Ensure ConfigureAwaitOptions.ContinueOnCapturedContext in the flags.");
@@ -349,11 +349,11 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        Task.Delay(1).{{|#0:ConfigureAwait({0})|}}.GetAwaiter().GetResult();
-				    }}
+					[Fact]
+					public void TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						Task.Delay(1).{{|#0:ConfigureAwait({0})|}}.GetAwaiter().GetResult();
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Ensure ConfigureAwaitOptions.ContinueOnCapturedContext in the flags.");
@@ -370,12 +370,12 @@ public class DoNotUseConfigureAwaitTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        var task = Task.FromResult(42);
-				        await task.{{|#0:ConfigureAwait({0})|}};
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						var task = Task.FromResult(42);
+						await task.{{|#0:ConfigureAwait({0})|}};
+					}}
 				}}
 				""", argumentValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments(argumentValue, "Ensure ConfigureAwaitOptions.ContinueOnCapturedContext in the flags.");

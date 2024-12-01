@@ -36,11 +36,11 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Equal(0, {0});
-			        Xunit.Assert.Equal(1, {0});
-			        Xunit.Assert.NotEqual(0, {0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Equal(0, {0});
+					Xunit.Assert.Equal(1, {0});
+					Xunit.Assert.NotEqual(0, {0});
+				}}
 			}}
 			""", collection);
 
@@ -57,11 +57,11 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Equal(2, {0});
-			        Xunit.Assert.NotEqual(1, {0});
-			        Xunit.Assert.NotEqual(2, {0});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Equal(2, {0});
+					Xunit.Assert.NotEqual(1, {0});
+					Xunit.Assert.NotEqual(2, {0});
+				}}
 			}}
 			""", collection);
 
@@ -77,11 +77,11 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.Equal(0, {0})|}};
-			        {{|#1:Xunit.Assert.Equal(1, {0})|}};
-			        {{|#2:Xunit.Assert.NotEqual(0, {0})|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.Equal(0, {0})|}};
+					{{|#1:Xunit.Assert.Equal(1, {0})|}};
+					{{|#2:Xunit.Assert.NotEqual(0, {0})|}};
+				}}
 			}}
 			""", collection);
 		var expected = new[]
@@ -103,12 +103,12 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using System.Collections.Generic;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {0} collection = null;
-			        {{|#0:Xunit.Assert.Equal(0, collection.Count)|}};
-			        {{|#1:Xunit.Assert.Equal(1, collection.Count)|}};
-			        {{|#2:Xunit.Assert.NotEqual(0, collection.Count)|}};
-			    }}
+				void TestMethod() {{
+					{0} collection = null;
+					{{|#0:Xunit.Assert.Equal(0, collection.Count)|}};
+					{{|#1:Xunit.Assert.Equal(1, collection.Count)|}};
+					{{|#2:Xunit.Assert.NotEqual(0, collection.Count)|}};
+				}}
 			}}
 			""", @interface);
 		var expected = new[]
@@ -130,23 +130,23 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using Xunit;
 
 			class IntCollection : ICollection<int> {
-			    public int Count { get { throw null; } }
-			    public bool IsReadOnly { get { throw null; } }
-			    public void Add(int item) { throw null; }
-			    public void Clear() { throw null; }
-			    public bool Contains(int item) { throw null; }
-			    public void CopyTo(int[] array, int arrayIndex) { throw null; }
-			    public IEnumerator<int> GetEnumerator() { throw null; }
-			    public bool Remove(int item) { throw null; }
-			    IEnumerator IEnumerable.GetEnumerator() { throw null; }
+				public int Count { get { throw null; } }
+				public bool IsReadOnly { get { throw null; } }
+				public void Add(int item) { throw null; }
+				public void Clear() { throw null; }
+				public bool Contains(int item) { throw null; }
+				public void CopyTo(int[] array, int arrayIndex) { throw null; }
+				public IEnumerator<int> GetEnumerator() { throw null; }
+				public bool Remove(int item) { throw null; }
+				IEnumerator IEnumerable.GetEnumerator() { throw null; }
 			}
 
 			class TestClass {
-			    void TestMethod() {
-			        {|#0:Assert.Equal(0, new IntCollection().Count)|};
-			        {|#1:Assert.Equal(1, new IntCollection().Count)|};
-			        {|#2:Assert.NotEqual(0, new IntCollection().Count)|};
-			    }
+				void TestMethod() {
+					{|#0:Assert.Equal(0, new IntCollection().Count)|};
+					{|#1:Assert.Equal(1, new IntCollection().Count)|};
+					{|#2:Assert.NotEqual(0, new IntCollection().Count)|};
+				}
 			}
 			""";
 		var expected = new[]
@@ -166,23 +166,23 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 			using System.Collections.Generic;
 
 			interface IIntCollection : ICollection<int> {
-			    new int Count { get; }
+				new int Count { get; }
 			}
 
 			interface ICustomCollection<T> : ICollection<T> {
-			    new int Count { get; }
+				new int Count { get; }
 			}
 
 			interface ICustomDictionary<K, V> : ICollection<KeyValuePair<K, V>> {
-			    new int Count { get; }
+				new int Count { get; }
 			}
 
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.Equal(1, ((IIntCollection)null).Count);
-			        Xunit.Assert.Equal(1, ((ICustomCollection<int>)null).Count);
-			        Xunit.Assert.Equal(1, ((ICustomDictionary<int, int>)null).Count);
-			    }
+				void TestMethod() {
+					Xunit.Assert.Equal(1, ((IIntCollection)null).Count);
+					Xunit.Assert.Equal(1, ((ICustomCollection<int>)null).Count);
+					Xunit.Assert.Equal(1, ((ICustomDictionary<int, int>)null).Count);
+				}
 			}
 			""";
 
@@ -194,9 +194,9 @@ public class AssertEqualShouldNotBeUsedForCollectionSizeCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.Equal('b', new int[0].Length);
-			    }
+				void TestMethod() {
+					Xunit.Assert.Equal('b', new int[0].Length);
+				}
 			}
 			""";
 

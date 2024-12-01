@@ -13,10 +13,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async void {|xUnit1048:TestMethod|}() {
-			        await System.Threading.Tasks.Task.Yield();
-			    }
+				[Fact]
+				public async void {|xUnit1048:TestMethod|}() {
+					await System.Threading.Tasks.Task.Yield();
+				}
 			}
 			""";
 		var beforeV3 = beforeV2.Replace("xUnit1048", "xUnit1049");
@@ -24,10 +24,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async System.Threading.Tasks.Task TestMethod() {
-			        await System.Threading.Tasks.Task.Yield();
-			    }
+				[Fact]
+				public async System.Threading.Tasks.Task TestMethod() {
+					await System.Threading.Tasks.Task.Yield();
+				}
 			}
 			""";
 
@@ -43,10 +43,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async void {|xUnit1048:TestMethod|}() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async void {|xUnit1048:TestMethod|}() {
+					await Task.Yield();
+				}
 			}
 			""";
 		var beforeV3 = beforeV2.Replace("xUnit1048", "xUnit1049");
@@ -55,10 +55,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async Task TestMethod() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async Task TestMethod() {
+					await Task.Yield();
+				}
 			}
 			""";
 
@@ -73,20 +73,20 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async void {|xUnit1049:TestMethod|}() {
-			        await System.Threading.Tasks.Task.Yield();
-			    }
+				[Fact]
+				public async void {|xUnit1049:TestMethod|}() {
+					await System.Threading.Tasks.Task.Yield();
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async System.Threading.Tasks.ValueTask TestMethod() {
-			        await System.Threading.Tasks.Task.Yield();
-			    }
+				[Fact]
+				public async System.Threading.Tasks.ValueTask TestMethod() {
+					await System.Threading.Tasks.Task.Yield();
+				}
 			}
 			""";
 
@@ -101,10 +101,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async void {|xUnit1049:TestMethod|}() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async void {|xUnit1049:TestMethod|}() {
+					await Task.Yield();
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -112,10 +112,10 @@ public class DoNotUseAsyncVoidForTestMethodsFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Fact]
-			    public async ValueTask TestMethod() {
-			        await Task.Yield();
-			    }
+				[Fact]
+				public async ValueTask TestMethod() {
+					await Task.Yield();
+				}
 			}
 			""";
 

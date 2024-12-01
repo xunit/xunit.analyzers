@@ -11,12 +11,12 @@ public class AssertCollectionContainsShouldNotUseBoolCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var items = new[] {{ "a", "b", "c" }};
+			[Fact]
+			public void TestMethod() {{
+				var items = new[] {{ "a", "b", "c" }};
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

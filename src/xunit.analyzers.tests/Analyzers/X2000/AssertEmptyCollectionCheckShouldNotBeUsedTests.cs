@@ -22,10 +22,10 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.Collection({0})|];
-			        [|Xunit.Assert.CollectionAsync({0})|];
-			    }}
+				void TestMethod() {{
+					[|Xunit.Assert.Collection({0})|];
+					[|Xunit.Assert.CollectionAsync({0})|];
+				}}
 			}}
 			""", collection);
 
@@ -38,10 +38,10 @@ public class AssertEmptyCollectionCheckShouldNotBeUsedTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.Collection({0}, i => Xunit.Assert.True(true));
-			        Xunit.Assert.CollectionAsync({0}, async i => {{ await System.Threading.Tasks.Task.Yield(); Xunit.Assert.True(true); }});
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.Collection({0}, i => Xunit.Assert.True(true));
+					Xunit.Assert.CollectionAsync({0}, async i => {{ await System.Threading.Tasks.Task.Yield(); Xunit.Assert.True(true); }});
+				}}
 			}}
 			""", collection);
 

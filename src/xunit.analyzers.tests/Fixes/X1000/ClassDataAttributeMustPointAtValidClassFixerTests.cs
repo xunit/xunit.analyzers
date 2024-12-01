@@ -16,9 +16,9 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [{|xUnit1007:ClassData(typeof(TestData))|}]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[{|xUnit1007:ClassData(typeof(TestData))|}]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV2 = /* lang=c#-test */ """
@@ -30,9 +30,9 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [ClassData(typeof(TestData))]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[ClassData(typeof(TestData))]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV3 = afterV2.Replace("ClassData(typeof(TestData))", "{|xUnit1050:ClassData(typeof(TestData))|}");
@@ -50,16 +50,16 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public class TestData : IEnumerable<object[]> {
-			    TestData() { }
+				TestData() { }
 
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [{|xUnit1007:ClassData(typeof(TestData))|}]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[{|xUnit1007:ClassData(typeof(TestData))|}]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV2 = /* lang=c#-test */ """
@@ -68,16 +68,16 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public class TestData : IEnumerable<object[]> {
-			    public TestData() { }
+				public TestData() { }
 
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [ClassData(typeof(TestData))]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[ClassData(typeof(TestData))]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV3 = afterV2.Replace("ClassData(typeof(TestData))", "{|xUnit1050:ClassData(typeof(TestData))|}");
@@ -95,16 +95,16 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public class TestData : IEnumerable<object[]> {
-			    TestData(int _) { }
+				TestData(int _) { }
 
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [{|xUnit1007:ClassData(typeof(TestData))|}]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[{|xUnit1007:ClassData(typeof(TestData))|}]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV2 = """
@@ -113,20 +113,20 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public class TestData : IEnumerable<object[]> {
-			    TestData(int _) { }
+				TestData(int _) { }
 
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 
-			    public TestData()
-			    {
-			    }
+				public TestData()
+				{
+				}
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [ClassData(typeof(TestData))]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[ClassData(typeof(TestData))]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV3 = afterV2.Replace("ClassData(typeof(TestData))", "{|xUnit1050:ClassData(typeof(TestData))|}");
@@ -144,14 +144,14 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public abstract class TestData : IEnumerable<object[]> {
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [{|xUnit1007:ClassData(typeof(TestData))|}]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[{|xUnit1007:ClassData(typeof(TestData))|}]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV2 = /* lang=c#-test */ """
@@ -160,14 +160,14 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 			using Xunit;
 
 			public class TestData : IEnumerable<object[]> {
-			    public IEnumerator<object[]> GetEnumerator() => null;
-			    IEnumerator IEnumerable.GetEnumerator() => null;
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
 			}
 
 			public class TestClass {
-			    [Theory]
-			    [ClassData(typeof(TestData))]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[ClassData(typeof(TestData))]
+				public void TestMethod(int _) { }
 			}
 			""";
 		var afterV3 = afterV2.Replace("ClassData(typeof(TestData))", "{|xUnit1050:ClassData(typeof(TestData))|}");

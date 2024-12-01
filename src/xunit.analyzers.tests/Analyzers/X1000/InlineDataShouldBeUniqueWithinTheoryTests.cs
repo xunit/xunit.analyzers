@@ -12,8 +12,8 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    public void TestMethod() { }
+					[Xunit.Fact]
+					public void TestMethod() { }
 				}
 				""";
 
@@ -28,9 +28,9 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.{0}]
-				    public void TestMethod() {{ }}
+					[Xunit.Theory]
+					[Xunit.{0}]
+					public void TestMethod() {{ }}
 				}}
 				""", dataAttribute);
 
@@ -45,9 +45,9 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    [Xunit.InlineData]
-				    public void TestMethod(int x) { }
+					[Xunit.Fact]
+					[Xunit.InlineData]
+					public void TestMethod(int x) { }
 				}
 				""";
 
@@ -59,10 +59,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Fact]
-				    [Xunit.InlineData]
-				    [Xunit.InlineData]
-				    public void TestMethod(int x) { }
+					[Xunit.Fact]
+					[Xunit.InlineData]
+					[Xunit.InlineData]
+					public void TestMethod(int x) { }
 				}
 				""";
 
@@ -74,9 +74,9 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					public void TestMethod(int x) { }
 				}
 				""";
 
@@ -88,10 +88,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    [Xunit.InlineData(20)]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					[Xunit.InlineData(20)]
+					public void TestMethod(int x) { }
 				}
 				""";
 
@@ -107,10 +107,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, 2)]
-				    [Xunit.InlineData({0})]
-				    public void TestMethod(params int[] args) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1, 2)]
+					[Xunit.InlineData({0})]
+					public void TestMethod(params int[] args) {{ }}
 				}}
 				""", data);
 
@@ -122,10 +122,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1)]
-				    [Xunit.InlineData(1, "non-default-val")]
-				    public void TestMethod(int x, string a = "default-val") { }
+					[Xunit.Theory]
+					[Xunit.InlineData(1)]
+					[Xunit.InlineData(1, "non-default-val")]
+					public void TestMethod(int x, string a = "default-val") { }
 				}
 				""";
 
@@ -137,10 +137,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(null)]
-				    [Xunit.InlineData]
-				    public void TestMethod(string s) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(null)]
+					[Xunit.InlineData]
+					public void TestMethod(string s) { }
 				}
 				""";
 
@@ -152,10 +152,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new[] { 0 })]
-				    [Xunit.InlineData(null)]
-				    public void TestMethod(int[] arr) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new[] { 0 })]
+					[Xunit.InlineData(null)]
+					public void TestMethod(int[] arr) { }
 				}
 				""";
 
@@ -171,10 +171,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 			// would cause the other parameters to not be evaluated for equality at all.
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new int[] { 1 }, new int[0], new int[] { 1 })]
-				    [Xunit.InlineData(new int[] { 1 }, new int[] { 1 }, new int[0])]
-				    public static void Test(int[] x, int[] y, int[] z) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new int[] { 1 }, new int[0], new int[] { 1 })]
+					[Xunit.InlineData(new int[] { 1 }, new int[] { 1 }, new int[0])]
+					public static void Test(int[] x, int[] y, int[] z) { }
 				}
 				""";
 
@@ -189,10 +189,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData]
-				    [{|#0:Xunit.InlineData|}]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData]
+					[{|#0:Xunit.InlineData|}]
+					public void TestMethod(int x) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -205,10 +205,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(null)]
-				    [{|#0:Xunit.InlineData(null)|}]
-				    public void TestMethod(string x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(null)]
+					[{|#0:Xunit.InlineData(null)|}]
+					public void TestMethod(string x) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -221,10 +221,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    [{|#0:Xunit.InlineData(10)|}]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					[{|#0:Xunit.InlineData(10)|}]
+					public void TestMethod(int x) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -237,12 +237,12 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    private const int X = 10;
+					private const int X = 10;
 
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    [{|#0:Xunit.InlineData(X)|}]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					[{|#0:Xunit.InlineData(X)|}]
+					public void TestMethod(int x) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -257,10 +257,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10, 20)]
-				    [{{|#0:Xunit.InlineData({0})|}}]
-				    public void TestMethod(int x, int y) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(10, 20)]
+					[{{|#0:Xunit.InlineData({0})|}}]
+					public void TestMethod(int x, int y) {{ }}
 				}}
 				""", data);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -275,10 +275,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10, 20)]
-				    [{{|#0:Xunit.InlineData({0})|}}]
-				    public void TestMethod(params int[] args) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(10, 20)]
+					[{{|#0:Xunit.InlineData({0})|}}]
+					public void TestMethod(params int[] args) {{ }}
 				}}
 				""", data);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -291,10 +291,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new object[] { 10, 20 })]
-				    [{|#0:Xunit.InlineData(new object[] { 10, 20 })|}]
-				    public void TestMethod(int x, int y) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new object[] { 10, 20 })]
+					[{|#0:Xunit.InlineData(new object[] { 10, 20 })|}]
+					public void TestMethod(int x, int y) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -307,10 +307,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})]
-				    [{|#0:Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})|}]
-				    public void TestMethod(object x, object y) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})]
+					[{|#0:Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})|}]
+					public void TestMethod(object x, object y) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -323,10 +323,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				   [Xunit.Theory]
-				   [Xunit.InlineData(10, new object[] { new object[] {20}, 30}, 40)]
-				   [{|#0:Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})|}]
-				   public void TestMethod(object x, object y, int z = 40) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10, new object[] { new object[] {20}, 30}, 40)]
+					[{|#0:Xunit.InlineData(new object[] {10, new object[] { new object[] {20}, 30}})|}]
+					public void TestMethod(object x, object y, int z = 40) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -343,10 +343,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData]
-				    [{{|#0:Xunit.InlineData({0})|}}]
-				    public void TestMethod(int y = {0}) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData]
+					[{{|#0:Xunit.InlineData({0})|}}]
+					public void TestMethod(int y = {0}) {{ }}
 				}}
 				""", defaultValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -360,10 +360,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData({0})]
-				    [{{|#0:Xunit.InlineData|}}]
-				    public void TestMethod(int y = {0}) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData({0})]
+					[{{|#0:Xunit.InlineData|}}]
+					public void TestMethod(int y = {0}) {{ }}
 				}}
 				""", defaultValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -377,10 +377,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData]
-				    [{{|#0:Xunit.InlineData|}}]
-				    public void TestMethod(int y = {0}) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData]
+					[{{|#0:Xunit.InlineData|}}]
+					public void TestMethod(int y = {0}) {{ }}
 				}}
 				""", defaultValue);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -399,10 +399,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				    [Xunit.Theory]
-				    [Xunit.InlineData({0})]
-				    [{{|#0:Xunit.InlineData({1})|}}]
-				    public void TestMethod(string x = null) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData({0})]
+					[{{|#0:Xunit.InlineData({1})|}}]
+					public void TestMethod(string x = null) {{ }}
 				}}
 				""", firstArg, secondArg);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -415,10 +415,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(1, null)]
-				    [{|#0:Xunit.InlineData(new object[] { 1, null })|}]
-				    public void TestMethod(object x, object y) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(1, null)]
+					[{|#0:Xunit.InlineData(new object[] { 1, null })|}]
+					public void TestMethod(object x, object y) { }
 				}
 				""";
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -437,10 +437,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				   [Xunit.Theory]
-				   [Xunit.InlineData(1{0})]
-				   [{{|#0:Xunit.InlineData(1{1})|}}]
-				   public void TestMethod(int x, System.DateTime date = default) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1{0})]
+					[{{|#0:Xunit.InlineData(1{1})|}}]
+					public void TestMethod(int x, System.DateTime date = default) {{ }}
 				}}
 				""", firstDefaultOverride, secondDefaultOverride);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -459,10 +459,10 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = string.Format(/* lang=c#-test */ """
 				public class TestClass {{
-				   [Xunit.Theory]
-				   [Xunit.InlineData(1{0})]
-				   [{{|#0:Xunit.InlineData(1{1})|}}]
-				   public void TestMethod(int x, string y = null) {{ }}
+					[Xunit.Theory]
+					[Xunit.InlineData(1{0})]
+					[{{|#0:Xunit.InlineData(1{1})|}}]
+					public void TestMethod(int x, string y = null) {{ }}
 				}}
 				""", firstDefaultOverride, secondDefaultOverride);
 			var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass");
@@ -475,11 +475,11 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    [{|#0:Xunit.InlineData(10)|}]
-				    [{|#1:Xunit.InlineData(10)|}]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					[{|#0:Xunit.InlineData(10)|}]
+					[{|#1:Xunit.InlineData(10)|}]
+					public void TestMethod(int x) { }
 				}
 				""";
 			var expected = new[]
@@ -496,12 +496,12 @@ public abstract class InlineDataShouldBeUniqueWithinTheoryTests
 		{
 			var source = /* lang=c#-test */ """
 				public class TestClass {
-				    [Xunit.Theory]
-				    [Xunit.InlineData(10)]
-				    [Xunit.InlineData(20)]
-				    [{|#0:Xunit.InlineData(10)|}]
-				    [{|#1:Xunit.InlineData(20)|}]
-				    public void TestMethod(int x) { }
+					[Xunit.Theory]
+					[Xunit.InlineData(10)]
+					[Xunit.InlineData(20)]
+					[{|#0:Xunit.InlineData(10)|}]
+					[{|#1:Xunit.InlineData(20)|}]
+					public void TestMethod(int x) { }
 				}
 				""";
 			var expected = new[]

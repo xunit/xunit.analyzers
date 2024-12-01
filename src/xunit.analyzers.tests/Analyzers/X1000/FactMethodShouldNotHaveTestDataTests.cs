@@ -9,8 +9,8 @@ public class FactMethodShouldNotHaveTestDataTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -25,9 +25,9 @@ public class FactMethodShouldNotHaveTestDataTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.Theory]
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[Xunit.Theory]
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", dataAttribute);
 
@@ -43,9 +43,9 @@ public class FactMethodShouldNotHaveTestDataTests
 		var source1 = /* lang=c#-test */ "public class DerivedFactAttribute: Xunit.FactAttribute {}";
 		var source2 = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [DerivedFactAttribute]
-			    [Xunit.{0}]
-			    public void TestMethod() {{ }}
+				[DerivedFactAttribute]
+				[Xunit.{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", dataAttribute);
 
@@ -60,9 +60,9 @@ public class FactMethodShouldNotHaveTestDataTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			public class TestClass {{
-			    [Xunit.Fact]
-			    [Xunit.{0}]
-			    public void [|TestMethod|]() {{ }}
+				[Xunit.Fact]
+				[Xunit.{0}]
+				public void [|TestMethod|]() {{ }}
 			}}
 			""", dataAttribute);
 

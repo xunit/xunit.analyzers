@@ -19,9 +19,9 @@ public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckTe
 			using System.Linq;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        [|Xunit.Assert.{0}(new [] {{ 1 }}.Any(i => true))|];
-			    }}
+				void TestMethod() {{
+					[|Xunit.Assert.{0}(new [] {{ 1 }}.Any(i => true))|];
+				}}
 			}}
 			""", method);
 

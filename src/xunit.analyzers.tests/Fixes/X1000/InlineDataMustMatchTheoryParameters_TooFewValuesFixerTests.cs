@@ -24,9 +24,9 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
 			public enum Color {{ Red, Green, Blue }}
 
 			public class TestClass {{
-			    [Theory]
-			    [{{|xUnit1009:InlineData|}}]
-			    public void TestMethod({0} p) {{ }}
+				[Theory]
+				[{{|xUnit1009:InlineData|}}]
+				public void TestMethod({0} p) {{ }}
 			}}
 			""", valueType);
 		var after = string.Format(/* lang=c#-test */ """
@@ -35,9 +35,9 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
 			public enum Color {{ Red, Green, Blue }}
 
 			public class TestClass {{
-			    [Theory]
-			    [InlineData({1})]
-			    public void TestMethod({0} p) {{ }}
+				[Theory]
+				[InlineData({1})]
+				public void TestMethod({0} p) {{ }}
 			}}
 			""", valueType, defaultValue);
 

@@ -14,9 +14,9 @@ public class AssertEqualsShouldNotBeUsedTests
 	{
 		var source = $@"
 class TestClass {{
-    void TestMethod() {{
-        {{|#0:{{|CS0619:Xunit.Assert.{method}(null, null)|}}|}};
-    }}
+	void TestMethod() {{
+		{{|#0:{{|CS0619:Xunit.Assert.{method}(null, null)|}}|}};
+	}}
 }}";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
 

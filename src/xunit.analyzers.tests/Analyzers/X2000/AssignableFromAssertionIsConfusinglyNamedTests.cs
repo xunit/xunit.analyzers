@@ -26,10 +26,10 @@ public class AssignableFromAssertionIsConfusinglyNamedTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Assert.{0}<object>(new object())|}};
-			        {{|#1:Assert.{0}(typeof(object), new object())|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Assert.{0}<object>(new object())|}};
+					{{|#1:Assert.{0}(typeof(object), new object())|}};
+				}}
 			}}
 			""", method);
 		var expected = new[] {
@@ -51,10 +51,10 @@ public class AssignableFromAssertionIsConfusinglyNamedTests
 			using Xunit;
 
 			class TestClass {{
-			    void TestMethod() {{
-			        Assert.{0}<object>(new object());
-			        Assert.{0}(typeof(object), new object());
-			    }}
+				void TestMethod() {{
+					Assert.{0}<object>(new object());
+					Assert.{0}(typeof(object), new object());
+				}}
 			}}
 			""", method);
 

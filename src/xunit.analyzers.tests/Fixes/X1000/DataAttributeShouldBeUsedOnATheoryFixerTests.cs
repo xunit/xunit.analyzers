@@ -12,17 +12,17 @@ public class DataAttributeShouldBeUsedOnATheoryFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [InlineData]
-			    public void [|TestMethod|]() { }
+				[InlineData]
+				public void [|TestMethod|]() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData]
-			    public void TestMethod() { }
+				[Theory]
+				[InlineData]
+				public void TestMethod() { }
 			}
 			""";
 
@@ -36,15 +36,15 @@ public class DataAttributeShouldBeUsedOnATheoryFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [InlineData]
-			    public void [|TestMethod|]() { }
+				[InlineData]
+				public void [|TestMethod|]() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    public void TestMethod() { }
+				public void TestMethod() { }
 			}
 			""";
 

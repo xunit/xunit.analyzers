@@ -10,12 +10,12 @@ public class AssertSingleShouldUseTwoArgumentCallFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var list = new[] {{ -1, 0, 1, 2 }};
+			[Fact]
+			public void TestMethod() {{
+				var list = new[] {{ -1, 0, 1, 2 }};
 
-		        {0};
-		    }}
+				{0};
+			}}
 
 			public bool IsEven(int num) => num % 2 == 0;
 		}}

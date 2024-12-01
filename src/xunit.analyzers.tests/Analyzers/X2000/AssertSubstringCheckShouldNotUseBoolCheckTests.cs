@@ -20,9 +20,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        {{|#0:Xunit.Assert.{0}("abc".Contains("a"))|}};
-			    }}
+				void TestMethod() {{
+					{{|#0:Xunit.Assert.{0}("abc".Contains("a"))|}};
+				}}
 			}}
 			""", method);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"Assert.{method}()", replacement);
@@ -36,9 +36,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".Contains("a"), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".Contains("a"), "message");
+				}}
 			}}
 			""", method);
 
@@ -50,9 +50,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        {|#0:Xunit.Assert.True("abc".StartsWith("a"))|};
-			    }
+				void TestMethod() {
+					{|#0:Xunit.Assert.True("abc".StartsWith("a"))|};
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.StartsWith);
@@ -65,9 +65,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        {|#0:Xunit.Assert.True("abc".StartsWith("a", System.StringComparison.CurrentCulture))|};
-			    }
+				void TestMethod() {
+					{|#0:Xunit.Assert.True("abc".StartsWith("a", System.StringComparison.CurrentCulture))|};
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.StartsWith);
@@ -80,9 +80,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.False("abc".StartsWith("a"));
-			    }
+				void TestMethod() {
+					Xunit.Assert.False("abc".StartsWith("a"));
+				}
 			}
 			""";
 
@@ -94,9 +94,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.False("abc".StartsWith("a", System.StringComparison.CurrentCulture));
-			    }
+				void TestMethod() {
+					Xunit.Assert.False("abc".StartsWith("a", System.StringComparison.CurrentCulture));
+				}
 			}
 			""";
 
@@ -109,9 +109,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".StartsWith("a"), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".StartsWith("a"), "message");
+				}}
 			}}
 			""", method);
 
@@ -124,9 +124,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".StartsWith("a", System.StringComparison.CurrentCulture), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".StartsWith("a", System.StringComparison.CurrentCulture), "message");
+				}}
 			}}
 			""", method);
 
@@ -139,9 +139,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
+				}}
 			}}
 			""", method);
 
@@ -154,9 +154,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".StartsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
+				}}
 			}}
 			""", method);
 
@@ -168,9 +168,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        {|#0:Xunit.Assert.True("abc".EndsWith("a"))|};
-			    }
+				void TestMethod() {
+					{|#0:Xunit.Assert.True("abc".EndsWith("a"))|};
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.EndsWith);
@@ -183,9 +183,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        {|#0:Xunit.Assert.True("abc".EndsWith("a", System.StringComparison.CurrentCulture))|};
-			    }
+				void TestMethod() {
+					{|#0:Xunit.Assert.True("abc".EndsWith("a", System.StringComparison.CurrentCulture))|};
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Assert.True()", Constants.Asserts.EndsWith);
@@ -198,9 +198,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.False("abc".EndsWith("a"));
-			    }
+				void TestMethod() {
+					Xunit.Assert.False("abc".EndsWith("a"));
+				}
 			}
 			""";
 
@@ -212,9 +212,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    void TestMethod() {
-			        Xunit.Assert.False("abc".EndsWith("a", System.StringComparison.CurrentCulture));
-			    }
+				void TestMethod() {
+					Xunit.Assert.False("abc".EndsWith("a", System.StringComparison.CurrentCulture));
+				}
 			}
 			""";
 
@@ -227,9 +227,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".EndsWith("a"), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".EndsWith("a"), "message");
+				}}
 			}}
 			""", method);
 
@@ -242,9 +242,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".EndsWith("a", System.StringComparison.CurrentCulture), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".EndsWith("a", System.StringComparison.CurrentCulture), "message");
+				}}
 			}}
 			""", method);
 
@@ -257,9 +257,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture));
+				}}
 			}}
 			""", method);
 
@@ -272,9 +272,9 @@ public class AssertSubstringCheckShouldNotUseBoolCheckTests
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			class TestClass {{
-			    void TestMethod() {{
-			        Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
-			    }}
+				void TestMethod() {{
+					Xunit.Assert.{0}("abc".EndsWith("a", true, System.Globalization.CultureInfo.CurrentCulture), "message");
+				}}
 			}}
 			""", method);
 

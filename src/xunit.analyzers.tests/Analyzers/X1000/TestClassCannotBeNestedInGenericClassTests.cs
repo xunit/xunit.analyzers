@@ -9,10 +9,10 @@ public class TestClassCannotBeNestedInGenericClassTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class OpenGenericType<T> {
-			    public class [|NestedTestClass|] {
-			        [Xunit.Fact]
-			        public void TestMethod() { }
-			    }
+				public class [|NestedTestClass|] {
+					[Xunit.Fact]
+					public void TestMethod() { }
+				}
 			}
 			""";
 
@@ -24,12 +24,12 @@ public class TestClassCannotBeNestedInGenericClassTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class BaseTestClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 
 			public abstract class OpenGenericType<T> {
-			    public class [|NestedTestClass|] : BaseTestClass { }
+				public class [|NestedTestClass|] : BaseTestClass { }
 			}
 			""";
 
@@ -43,10 +43,10 @@ public class TestClassCannotBeNestedInGenericClassTests
 			public abstract class OpenGenericType<T> { }
 
 			public abstract class ClosedGenericType : OpenGenericType<int> {
-			    public class NestedTestClass {
-			        [Xunit.Fact]
-			        public void TestMethod() { }
-			    }
+				public class NestedTestClass {
+					[Xunit.Fact]
+					public void TestMethod() { }
+				}
 			}
 			""";
 
@@ -58,7 +58,7 @@ public class TestClassCannotBeNestedInGenericClassTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class OpenGenericType<T> {
-			    public class NestedClass { }
+				public class NestedClass { }
 			}
 			""";
 
@@ -70,10 +70,10 @@ public class TestClassCannotBeNestedInGenericClassTests
 	{
 		var source = /* lang=c#-test */ """
 			public abstract class NonGenericType {
-			    public class NestedTestClass {
-			        [Xunit.Fact]
-			        public void TestMethod() { }
-			    }
+				public class NestedTestClass {
+					[Xunit.Fact]
+					public void TestMethod() { }
+				}
 			}
 			""";
 

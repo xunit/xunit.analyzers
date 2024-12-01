@@ -13,12 +13,12 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixerT
 		public enum MyEnum {{ None, Bacon, Veggie }}
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        {0} value = {1};
+			[Fact]
+			public void TestMethod() {{
+				{0} value = {1};
 
-		        {2};
-		    }}
+				{2};
+			}}
 		}}
 		""";
 

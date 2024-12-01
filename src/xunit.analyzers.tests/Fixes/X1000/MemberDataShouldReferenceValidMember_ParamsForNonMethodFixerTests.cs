@@ -15,11 +15,11 @@ public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixerTests
 
 			public class TestClass
 			{
-			    public static TheoryData<int> DataSource = new TheoryData<int>();
+				public static TheoryData<int> DataSource = new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(DataSource), {|xUnit1021:"abc", 123|})]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(DataSource), {|xUnit1021:"abc", 123|})]
+				public void TestMethod(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -29,11 +29,11 @@ public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixerTests
 
 			public class TestClass
 			{
-			    public static TheoryData<int> DataSource = new TheoryData<int>();
+				public static TheoryData<int> DataSource = new TheoryData<int>();
 
-			    [Theory]
-			    [MemberData(nameof(DataSource))]
-			    public void TestMethod(int a) { }
+				[Theory]
+				[MemberData(nameof(DataSource))]
+				public void TestMethod(int a) { }
 			}
 			""";
 

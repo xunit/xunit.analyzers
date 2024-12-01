@@ -14,9 +14,9 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixerTests
 			public class FactDerivedAttribute : FactAttribute { }
 
 			public class TestClass {
-			    [Fact]
-			    [{|CS0579:Fact|}]
-			    public void [|TestMethod|]() { }
+				[Fact]
+				[{|CS0579:Fact|}]
+				public void [|TestMethod|]() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -25,8 +25,8 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixerTests
 			public class FactDerivedAttribute : FactAttribute { }
 
 			public class TestClass {
-			    [Fact]
-			    public void TestMethod() { }
+				[Fact]
+				public void TestMethod() { }
 			}
 			""";
 

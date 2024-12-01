@@ -26,11 +26,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        await Task.Delay(1).[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							await Task.Delay(1).[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -38,11 +38,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        await Task.Delay(1);
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							await Task.Delay(1);
+						}
 					}
 					""";
 
@@ -58,11 +58,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public void TestMethod() {{
-					        var booleanVar = true;
-					        Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
-					    }}
+						[Fact]
+						public void TestMethod() {{
+							var booleanVar = true;
+							Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -70,11 +70,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var booleanVar = true;
-					        Task.Delay(1).GetAwaiter().GetResult();
-					    }
+						[Fact]
+						public void TestMethod() {
+							var booleanVar = true;
+							Task.Delay(1).GetAwaiter().GetResult();
+						}
 					}
 					""";
 
@@ -90,12 +90,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var task = Task.FromResult(42);
-					        await task.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var task = Task.FromResult(42);
+							await task.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -103,12 +103,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var task = Task.FromResult(42);
-					        await task;
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var task = Task.FromResult(42);
+							await task;
+						}
 					}
 					""";
 
@@ -124,12 +124,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask);
-					        await valueTask.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var valueTask = default(ValueTask);
+							await valueTask.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -137,12 +137,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask);
-					        await valueTask;
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var valueTask = default(ValueTask);
+							await valueTask;
+						}
 					}
 					""";
 
@@ -158,12 +158,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask<object>);
-					        await valueTask.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var valueTask = default(ValueTask<object>);
+							await valueTask.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -171,12 +171,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask<object>);
-					        await valueTask;
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var valueTask = default(ValueTask<object>);
+							await valueTask;
+						}
 					}
 					""";
 
@@ -195,11 +195,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        await Task.Delay(1).[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							await Task.Delay(1).[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -207,11 +207,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        await Task.Delay(1).ConfigureAwait(true);
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							await Task.Delay(1).ConfigureAwait(true);
+						}
 					}
 					""";
 
@@ -227,11 +227,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public void TestMethod() {{
-					        var booleanVar = true;
-					        Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
-					    }}
+						[Fact]
+						public void TestMethod() {{
+							var booleanVar = true;
+							Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -239,11 +239,11 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public void TestMethod() {
-					        var booleanVar = true;
-					        Task.Delay(1).ConfigureAwait(true).GetAwaiter().GetResult();
-					    }
+						[Fact]
+						public void TestMethod() {
+							var booleanVar = true;
+							Task.Delay(1).ConfigureAwait(true).GetAwaiter().GetResult();
+						}
 					}
 					""";
 
@@ -259,12 +259,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var task = Task.FromResult(42);
-					        await task.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var task = Task.FromResult(42);
+							await task.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -272,12 +272,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var task = Task.FromResult(42);
-					        await task.ConfigureAwait(true);
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var task = Task.FromResult(42);
+							await task.ConfigureAwait(true);
+						}
 					}
 					""";
 
@@ -293,12 +293,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask);
-					        await valueTask.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var valueTask = default(ValueTask);
+							await valueTask.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -306,12 +306,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask);
-					        await valueTask.ConfigureAwait(true);
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var valueTask = default(ValueTask);
+							await valueTask.ConfigureAwait(true);
+						}
 					}
 					""";
 
@@ -327,12 +327,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {{
-					    [Fact]
-					    public async Task TestMethod() {{
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask<object>);
-					        await valueTask.[|ConfigureAwait({0})|];
-					    }}
+						[Fact]
+						public async Task TestMethod() {{
+							var booleanVar = true;
+							var valueTask = default(ValueTask<object>);
+							await valueTask.[|ConfigureAwait({0})|];
+						}}
 					}}
 					""", argumentValue);
 				var after = /* lang=c#-test */ """
@@ -340,12 +340,12 @@ public class DoNotUseConfigureAwaitFixerTests
 					using Xunit;
 
 					public class TestClass {
-					    [Fact]
-					    public async Task TestMethod() {
-					        var booleanVar = true;
-					        var valueTask = default(ValueTask<object>);
-					        await valueTask.ConfigureAwait(true);
-					    }
+						[Fact]
+						public async Task TestMethod() {
+							var booleanVar = true;
+							var valueTask = default(ValueTask<object>);
+							await valueTask.ConfigureAwait(true);
+						}
 					}
 					""";
 
@@ -378,11 +378,11 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        await Task.Delay(1).[|ConfigureAwait({0})|];
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						await Task.Delay(1).[|ConfigureAwait({0})|];
+					}}
 				}}
 				""", argumentValue);
 			var after = string.Format(/* lang=c#-test */ """
@@ -390,11 +390,11 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        await Task.Delay(1).ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext);
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						await Task.Delay(1).ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext);
+					}}
 				}}
 				""", argumentValue);
 
@@ -410,11 +410,11 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
-				    }}
+					[Fact]
+					public void TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						Task.Delay(1).[|ConfigureAwait({0})|].GetAwaiter().GetResult();
+					}}
 				}}
 				""", argumentValue);
 			var after = string.Format(/* lang=c#-test */ """
@@ -422,11 +422,11 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public void TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        Task.Delay(1).ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext).GetAwaiter().GetResult();
-				    }}
+					[Fact]
+					public void TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						Task.Delay(1).ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext).GetAwaiter().GetResult();
+					}}
 				}}
 				""", argumentValue);
 
@@ -442,12 +442,12 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        var task = Task.FromResult(42);
-				        await task.[|ConfigureAwait({0})|];
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						var task = Task.FromResult(42);
+						await task.[|ConfigureAwait({0})|];
+					}}
 				}}
 				""", argumentValue);
 			var after = string.Format(/* lang=c#-test */ """
@@ -455,12 +455,12 @@ public class DoNotUseConfigureAwaitFixerTests
 				using Xunit;
 
 				public class TestClass {{
-				    [Fact]
-				    public async Task TestMethod() {{
-				        var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
-				        var task = Task.FromResult(42);
-				        await task.ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext);
-				    }}
+					[Fact]
+					public async Task TestMethod() {{
+						var enumVar = ConfigureAwaitOptions.ContinueOnCapturedContext;
+						var task = Task.FromResult(42);
+						await task.ConfigureAwait({0} | ConfigureAwaitOptions.ContinueOnCapturedContext);
+					}}
 				}}
 				""", argumentValue);
 

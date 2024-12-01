@@ -15,18 +15,18 @@ public class TheoryMethodCannotHaveDefaultParameterFixerTests
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1)]
-			    public void TestMethod(int _ [|= 0|]) { }
+				[Theory]
+				[InlineData(1)]
+				public void TestMethod(int _ [|= 0|]) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
-			    [Theory]
-			    [InlineData(1)]
-			    public void TestMethod(int _) { }
+				[Theory]
+				[InlineData(1)]
+				public void TestMethod(int _) { }
 			}
 			""";
 

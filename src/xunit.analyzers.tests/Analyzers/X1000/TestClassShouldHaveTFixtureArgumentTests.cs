@@ -20,8 +20,8 @@ public class TestClassShouldHaveTFixtureArgumentTests
 			public class FixtureData {{ }}
 
 			public class {{|#0:TestClass|}}: {1}<FixtureData> {{
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute, @interface);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestClass", "FixtureData");
@@ -39,10 +39,10 @@ public class TestClassShouldHaveTFixtureArgumentTests
 			public class FixtureData {{ }}
 
 			public class TestClass: {1}<FixtureData> {{
-			    public TestClass(FixtureData fixtureData) {{ }}
+				public TestClass(FixtureData fixtureData) {{ }}
 
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""", attribute, @interface);
 
@@ -59,10 +59,10 @@ public class TestClassShouldHaveTFixtureArgumentTests
 			public class FixtureData {{ }}
 
 			public class TestClass: {1}<FixtureData> {{
-			    public TestClass(FixtureData fixtureData, {2}.ITestOutputHelper output) {{ }}
+				public TestClass(FixtureData fixtureData, {2}.ITestOutputHelper output) {{ }}
 
-			    [{0}]
-			    public void TestMethod() {{ }}
+				[{0}]
+				public void TestMethod() {{ }}
 			}}
 			""";
 

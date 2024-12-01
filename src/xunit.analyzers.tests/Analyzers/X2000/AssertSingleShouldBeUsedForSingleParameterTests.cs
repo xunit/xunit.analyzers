@@ -16,10 +16,10 @@ public class AssertSingleShouldBeUsedForSingleParameterTests
 			using System.Collections.Generic;
 
 			public class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        {{|#0:Assert.Collection({0}, item => Assert.NotNull(item))|}};
-			    }}
+				[Fact]
+				public void TestMethod() {{
+					{{|#0:Assert.Collection({0}, item => Assert.NotNull(item))|}};
+				}}
 			}}
 			""", collection);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Collection");
@@ -39,10 +39,10 @@ public class AssertSingleShouldBeUsedForSingleParameterTests
 			using System.Collections.Generic;
 
 			public class TestClass {{
-			    [Fact]
-			    public void TestMethod() {{
-			        Assert.Collection({0}, item1 => Assert.NotNull(item1), item2 => Assert.NotNull(item2));
-			    }}
+				[Fact]
+				public void TestMethod() {{
+					Assert.Collection({0}, item1 => Assert.NotNull(item1), item2 => Assert.NotNull(item2));
+				}}
 			}}
 			""", collection);
 

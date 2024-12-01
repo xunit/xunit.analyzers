@@ -63,7 +63,7 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 			""";
 		var messagePartial2 = /* lang=c#-test */ """
 			public partial class MyMessage {
-			    public int PropertyValue { get; set; }
+				public int PropertyValue { get; set; }
 			};
 			""";
 

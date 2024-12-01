@@ -10,9 +10,9 @@ public class LocalFunctionsCannotBeTestFunctionsTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    public void Method() {
-			        void LocalFunction() { }
-			    }
+				public void Method() {
+					void LocalFunction() { }
+				}
 			}
 			""";
 
@@ -32,12 +32,12 @@ public class LocalFunctionsCannotBeTestFunctionsTests
 			using Xunit;
 
 			public class TestClass {{
-			    public void Method() {{
-			        [{{|#0:{0}|}}]
-			        void LocalFunction() {{ }}
-			    }}
+				public void Method() {{
+					[{{|#0:{0}|}}]
+					void LocalFunction() {{ }}
+				}}
 
-			    public static IEnumerable<object[]> MyData;
+				public static IEnumerable<object[]> MyData;
 			}}
 			""", attribute);
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments($"[{attribute}]");

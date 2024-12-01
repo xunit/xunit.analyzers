@@ -10,12 +10,12 @@ public class AssertStringEqualityCheckShouldNotUseBoolCheckFixerTests
 		using Xunit;
 
 		public class TestClass {{
-		    [Fact]
-		    public void TestMethod() {{
-		        var data = "foo bar baz";
+			[Fact]
+			public void TestMethod() {{
+				var data = "foo bar baz";
 
-		        {0};
-		    }}
+				{0};
+			}}
 		}}
 		""";
 

@@ -9,11 +9,11 @@ public class TestMethodCannotHaveOverloadsTests
 	{
 		var source = /* lang=c#-test */ """
 			public class TestClass {
-			    [Xunit.Fact]
-			    public void {|#0:TestMethod|}() { }
+				[Xunit.Fact]
+				public void {|#0:TestMethod|}() { }
 
-			    [Xunit.Theory]
-			    public void {|#1:TestMethod|}(int a) { }
+				[Xunit.Theory]
+				public void {|#1:TestMethod|}(int a) { }
 			}
 			""";
 		var expected = new[]
@@ -30,11 +30,11 @@ public class TestMethodCannotHaveOverloadsTests
 	{
 		var source = /* lang=c#-test */ """
 			public static class TestClass {
-			    [Xunit.Fact]
-			    public static void {|#0:TestMethod|}() { }
+				[Xunit.Fact]
+				public static void {|#0:TestMethod|}() { }
 
-			    [Xunit.Theory]
-			    public static void {|#1:TestMethod|}(int a) { }
+				[Xunit.Theory]
+				public static void {|#1:TestMethod|}(int a) { }
 			}
 			""";
 		var expected = new[]
@@ -51,16 +51,16 @@ public class TestMethodCannotHaveOverloadsTests
 	{
 		var source1 = /* lang=c#-test */ """
 			public class TestClass : BaseClass {
-			    [Xunit.Theory]
-			    public void {|#0:TestMethod|}(int a) { }
+				[Xunit.Theory]
+				public void {|#0:TestMethod|}(int a) { }
 
-			    private void {|#1:TestMethod|}(int a, byte c) { }
+				private void {|#1:TestMethod|}(int a, byte c) { }
 			}
 			""";
 		var source2 = /* lang=c#-test */ """
 			public class BaseClass {
-			    [Xunit.Fact]
-			    public void TestMethod() { }
+				[Xunit.Fact]
+				public void TestMethod() { }
 			}
 			""";
 		var expected = new[]
@@ -77,14 +77,14 @@ public class TestMethodCannotHaveOverloadsTests
 	{
 		var source1 = /* lang=c#-test */ """
 			public class TestClass : BaseClass {
-			    [Xunit.Theory]
-			    public void {|#0:TestMethod|}(int a) { }
+				[Xunit.Theory]
+				public void {|#0:TestMethod|}(int a) { }
 			}
 			""";
 		var source2 = /* lang=c#-test */ """
 			public class BaseClass {
-			    [Xunit.Fact]
-			    public static void TestMethod() { }
+				[Xunit.Fact]
+				public static void TestMethod() { }
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "BaseClass");
@@ -97,14 +97,14 @@ public class TestMethodCannotHaveOverloadsTests
 	{
 		var source1 = /* lang=c#-test */ """
 			public class BaseClass {
-			    [Xunit.Fact]
-			    public virtual void TestMethod() { }
+				[Xunit.Fact]
+				public virtual void TestMethod() { }
 			}
 			""";
 		var source2 = /* lang=c#-test */ """
 			public class TestClass : BaseClass {
-			    [Xunit.Fact]
-			    public override void TestMethod() { }
+				[Xunit.Fact]
+				public override void TestMethod() { }
 			}
 			""";
 

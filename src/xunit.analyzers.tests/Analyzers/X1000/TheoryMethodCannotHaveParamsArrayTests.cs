@@ -13,8 +13,8 @@ public class TheoryMethodCannotHaveParamsArrayTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, {|#0:params string[] c|}) { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, {|#0:params string[] c|}) { }
 			}
 			""";
 		var expected = Verify_v2_Pre220.Diagnostic().WithLocation(0).WithArguments("TestMethod", "TestClass", "c");
@@ -27,8 +27,8 @@ public class TheoryMethodCannotHaveParamsArrayTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, params string[] c) { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, params string[] c) { }
 			}
 			""";
 
@@ -40,8 +40,8 @@ public class TheoryMethodCannotHaveParamsArrayTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, string[] c) { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, string[] c) { }
 			}
 			""";
 
@@ -53,8 +53,8 @@ public class TheoryMethodCannotHaveParamsArrayTests
 	{
 		var source = /* lang=c#-test */ """
 			class TestClass {
-			    [Xunit.Theory]
-			    public void TestMethod(int a, string b, string[] c) { }
+				[Xunit.Theory]
+				public void TestMethod(int a, string b, string[] c) { }
 			}
 			""";
 
