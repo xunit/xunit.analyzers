@@ -58,13 +58,11 @@ public class UseCancellationTokenFixer : BatchedCodeFixProvider
 		var arguments = invocation.ArgumentList.Arguments;
 
 		for (var argumentIndex = 0; argumentIndex < arguments.Count; argumentIndex++)
-		{
 			if (arguments[argumentIndex].NameColon?.Name.Identifier.Text == parameterName)
 			{
 				parameterIndex = argumentIndex;
 				break;
 			}
-		}
 
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
@@ -82,27 +80,17 @@ public class UseCancellationTokenFixer : BatchedCodeFixProvider
 
 					var args = new List<ArgumentSyntax>(arguments);
 
-					if (
-						invocationOperation.Arguments.FirstOrDefault(arg =>
-							arg.ArgumentKind == ArgumentKind.ParamArray
-						) is
-						{ } paramsArgument
-					)
-					{
+					if (invocationOperation.Arguments.FirstOrDefault(arg => arg.ArgumentKind == ArgumentKind.ParamArray) is { } paramsArgument)
 						TransformParamsArgument(args, paramsArgument, editor.Generator);
-					}
 
 					if (parameterIndex < args.Count)
-					{
 						args[parameterIndex] = args[parameterIndex].WithExpression(testContextCancellationTokenExpression);
-					}
 					else
 					{
 						var argument = Argument(testContextCancellationTokenExpression);
 						if (parameterIndex > args.Count || args.Any(arg => arg.NameColon is not null))
-						{
 							argument = argument.WithNameColon(NameColon(parameterName));
-						}
+
 						args.Add(argument);
 					}
 
@@ -121,24 +109,13 @@ public class UseCancellationTokenFixer : BatchedCodeFixProvider
 		);
 	}
 
-	private static void TransformParamsArgument(
+	static void TransformParamsArgument(
 		List<ArgumentSyntax> arguments,
 		IArgumentOperation paramsOperation,
-		SyntaxGenerator generator
-	)
+		SyntaxGenerator generator)
 	{
-
-		if (paramsOperation is not
-			{
-				Value: IArrayCreationOperation
-				{
-					Type: IArrayTypeSymbol arrayTypeSymbol,
-					Initializer: { } initializer
-				}
-			})
-		{
+		if (paramsOperation is not { Value: IArrayCreationOperation { Type: IArrayTypeSymbol arrayTypeSymbol, Initializer: { } initializer } })
 			return;
-		}
 
 		// We know that the params arguments occupy the end of the list because the language
 		// does not allow regular arguments after params.
