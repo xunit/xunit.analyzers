@@ -101,6 +101,10 @@ public class V3CommonContext : ICommonContext
 	public INamedTypeSymbol? IXunitSerializableType =>
 		lazyIXunitSerializableType.Value;
 
+	/// <summary>
+	/// Gets a reference to type <c>IXunitSerializer</c>, if available.
+	/// </summary>
+	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
 	public INamedTypeSymbol? IXunitSerializerType =>
 		lazyIXunitSerializerType.Value;
 
