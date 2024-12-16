@@ -288,8 +288,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 					public object Deserialize(Type type, string serializedValue) =>
 						throw new NotImplementedException();
 
-					public bool IsSerializable(Type type, object? value) =>
-						true;
+					public bool IsSerializable(Type type, object? value, out string? failureReason)
+					{{
+						failureReason = null;
+						return true;
+					}}
 
 					public string Serialize(object value) =>
 						throw new NotImplementedException();

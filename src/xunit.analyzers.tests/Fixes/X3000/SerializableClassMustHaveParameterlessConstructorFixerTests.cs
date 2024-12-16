@@ -336,7 +336,11 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 					public MySerializer(int _) { }
 
 					public object Deserialize(Type type, string serializedValue) => null!;
-					public bool IsSerializable(Type type, object? value) => true;
+					public bool IsSerializable(Type type, object? value, out string? failureReason)
+					{
+						failureReason = null;
+						return true;
+					}
 					public string Serialize(object value) => string.Empty;
 				}
 				""";
@@ -353,7 +357,11 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 					public MySerializer(int _) { }
 				
 					public object Deserialize(Type type, string serializedValue) => null!;
-					public bool IsSerializable(Type type, object? value) => true;
+					public bool IsSerializable(Type type, object? value, out string? failureReason)
+					{
+						failureReason = null;
+						return true;
+					}
 					public string Serialize(object value) => string.Empty;
 				}
 				""";
@@ -373,7 +381,11 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 					protected MySerializer() { }
 
 					public object Deserialize(Type type, string serializedValue) => null!;
-					public bool IsSerializable(Type type, object? value) => true;
+					public bool IsSerializable(Type type, object? value, out string? failureReason)
+					{
+						failureReason = null;
+						return true;
+					}
 					public string Serialize(object value) => string.Empty;
 				}
 				""";
@@ -386,7 +398,11 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 					public MySerializer() { }
 				
 					public object Deserialize(Type type, string serializedValue) => null!;
-					public bool IsSerializable(Type type, object? value) => true;
+					public bool IsSerializable(Type type, object? value, out string? failureReason)
+					{
+						failureReason = null;
+						return true;
+					}
 					public string Serialize(object value) => string.Empty;
 				}
 				""";

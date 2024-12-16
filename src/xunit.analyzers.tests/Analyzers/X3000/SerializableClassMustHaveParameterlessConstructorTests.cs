@@ -182,7 +182,11 @@ public class SerializableClassMustHaveParameterlessConstructorTests
 				{0}
 
 				public object Deserialize(Type type, string serializedValue) => null!;
-				public bool IsSerializable(Type type, object? value) => true;
+				public bool IsSerializable(Type type, object? value, out string? failureReason)
+				{{
+					failureReason = null;
+					return true;
+				}}
 				public string Serialize(object value) => string.Empty;
 			}}
 			""";
