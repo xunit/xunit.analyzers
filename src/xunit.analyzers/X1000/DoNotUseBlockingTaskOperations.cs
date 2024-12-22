@@ -154,11 +154,6 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			if (!foundSymbol)
 				return;
 
-			// Ignore anything inside a lambda expression or a local function
-			for (var current = context.Operation; current is not null; current = current.Parent)
-				if (current is IAnonymousFunctionOperation or ILocalFunctionOperation)
-					return;
-
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
 					TaskIsKnownToBeCompleted(reference, [localReferenceOperation.Local], taskType, xunitContext))

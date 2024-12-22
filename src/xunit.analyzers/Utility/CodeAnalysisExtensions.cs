@@ -84,6 +84,8 @@ static class CodeAnalysisExtensions
 
 		for (var parent = operation.Parent; parent is not null; parent = parent.Parent)
 		{
+			if (parent is IAnonymousFunctionOperation or ILocalFunctionOperation)
+				return false;
 			if (parent is not IMethodBodyOperation methodBodyOperation)
 				continue;
 			if (methodBodyOperation.Syntax is not MethodDeclarationSyntax methodSyntax)
