@@ -35,6 +35,11 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			if (!invocationOperation.IsInTestMethod(xunitContext))
 				return;
 
+			// Ignore anything inside a lambda expression or a local function
+			for (var current = context.Operation; current is not null; current = current.Parent)
+				if (current is IAnonymousFunctionOperation or ILocalFunctionOperation)
+					return;
+
 			var invokedMethod = invocationOperation.TargetMethod;
 			var parameters = invokedMethod.Parameters;
 

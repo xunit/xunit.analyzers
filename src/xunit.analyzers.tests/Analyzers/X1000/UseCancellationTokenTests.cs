@@ -141,7 +141,7 @@ public class UseCancellationTokenTests
 	}
 
 	[Fact]
-	public async Task InsideLambda_Triggers()
+	public async Task InsideLambda_DoesNotTrigger()
 	{
 		var source = /* lang=c#-test */ """
 			using System;
@@ -153,9 +153,9 @@ public class UseCancellationTokenTests
 				[Fact]
 				public void TestMethod() {
 					async Task InnerMethod() {
-						await [|Task.Delay(1)|];
+						await Task.Delay(1);
 					}
-					Func<Task> _ = async () => await [|Task.Delay(1)|];
+					Func<Task> _ = async () => await Task.Delay(1);
 				}
 			}
 			""";
