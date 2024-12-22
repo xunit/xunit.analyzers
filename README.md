@@ -2,7 +2,7 @@
 
 This project contains source code analysis and cleanup rules for xUnit.net. Analysis and fixes are only supported with C#.
 
-**Requirements**: xUnit.net v2 2.0+. Supported in Visual Studio 2019 16.11+ or 2022 17.4+ (as well as via command line builds with Roslyn 3.11+).
+**Requirements**: xUnit.net v2 or v3. Supported in Visual Studio 2019 16.11+ or 2022 17.4+ (as well as via command line builds with Roslyn 3.11+).
 Other environments (such as Mono or JetBrains Rider) may be able to use these analyzers as well; support and issue resolution will be provided by
 those third parties and not by xUnit.net itself.
 
@@ -34,7 +34,7 @@ and [`xunit.v3.assert`](https://www.nuget.org/packages/xunit.v3.assert).
 to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core`](https://www.nuget.org/packages/xunit.core)
 and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert).
 
-- If you are using xUnit.net v2 v.2.0 or earlier: remove the reference to the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers).
+- If you are using xUnit.net v2 v2.2.0 or earlier: remove the reference to the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers).
 
 ## Analysis and Code Fix in Action
 
