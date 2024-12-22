@@ -14,6 +14,10 @@ those third parties and not by xUnit.net itself.
 
 ## How to install
 
+- xUnit.net v3: the analyzer package is referenced by the main [`xunit.v3` NuGet package](https://www.nuget.org/packages/xunit.v3) out of the box.
+If you choose to reference [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core) instead, you can reference
+[`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
+
 - xUnit.net v2 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box.
 If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.core) instead, you can reference
 [`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
@@ -22,9 +26,15 @@ If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.c
 
 ## How to uninstall
 
-If you installed xUnit.net v2 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference
+- If you are using xUnit.net v3 and do not wish to use the analyzers package, replace the package reference
+to [`xunit.v3`](https://www.nuget.org/packages/xunit.v3) with the corresponding versions of [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core)
+and [`xunit.v3.assert`](https://www.nuget.org/packages/xunit.v3.assert).
+
+- If you are using xUnit.net v2 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference
 to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core`](https://www.nuget.org/packages/xunit.core)
-and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert)
+and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert).
+
+- If you are using xUnit.net v2 v.2.0 or earlier: remove the reference to the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers).
 
 ## Analysis and Code Fix in Action
 
