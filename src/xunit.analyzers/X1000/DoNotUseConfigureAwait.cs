@@ -60,7 +60,8 @@ public class DoNotUseConfigureAwait : XunitDiagnosticAnalyzer
 			if (!match)
 				return;
 
-			if (!invocation.IsInTestMethod(xunitContext))
+			var (foundSymbol, lambdaOwner) = invocation.IsInTestMethod(xunitContext);
+			if (!foundSymbol || lambdaOwner is not null)
 				return;
 
 			// invocation should be two nodes: "(some other code).ConfigureAwait" and the arguments (like "(false)")

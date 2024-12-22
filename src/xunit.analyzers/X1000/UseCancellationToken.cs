@@ -27,13 +27,27 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 		if (cancellationTokenType is null)
 			return;
 
+		var xunitContainerTypes = new[]
+		{
+			TypeSymbolFactory.Assert(context.Compilation),
+			TypeSymbolFactory.Record(context.Compilation),
+		}.WhereNotNull().ToImmutableHashSet(SymbolEqualityComparer.Default);
+
 		context.RegisterOperationAction(context =>
 		{
 			if (context.Operation is not IInvocationOperation invocationOperation)
 				return;
 
-			if (!invocationOperation.IsInTestMethod(xunitContext))
+			var (foundSymbol, lambdaOwner) = invocationOperation.IsInTestMethod(xunitContext);
+			if (!foundSymbol || lambdaOwner is ILocalFunctionOperation or IAnonymousFunctionOperation)
 				return;
+
+			// We want to try to catch anything that's a lambda from Assert or Record, but
+			// ignore all other lambdas, because we don't want to catch false positives from
+			// things like mocking libraries.
+			if (lambdaOwner is IInvocationOperation lambdaOwnerInvocation)
+				if (!xunitContainerTypes.Contains(lambdaOwnerInvocation.TargetMethod.ContainingType))
+					return;
 
 			var invokedMethod = invocationOperation.TargetMethod;
 			var parameters = invokedMethod.Parameters;

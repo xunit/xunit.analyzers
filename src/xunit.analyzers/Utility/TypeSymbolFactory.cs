@@ -292,6 +292,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? OptionalAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.InteropServices.OptionalAttribute");
 
+	public static INamedTypeSymbol? Record(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Record);
+
 	public static INamedTypeSymbol? RegisterXunitSerializerAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterXunitSerializerAttribute_V3);
 

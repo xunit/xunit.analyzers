@@ -162,4 +162,25 @@ public class UseCancellationTokenTests
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
 	}
+
+	[Fact]
+	public async Task InsideAssertionLambda_Triggers()
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using System.Threading;
+			using System.Threading.Tasks;
+			using Xunit;
+
+			class TestClass {
+				[Fact]
+				public async ValueTask TestMethod() {
+					await Assert.ThrowsAsync<Exception>(() => [|Task.Delay(1)|]);
+					await Record.ExceptionAsync(() => [|Task.Delay(1)|]);
+				}
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
+	}
 }

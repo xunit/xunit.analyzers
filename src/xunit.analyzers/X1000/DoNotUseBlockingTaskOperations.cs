@@ -197,11 +197,12 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			return false;
 
 		// Only trigger when you're inside a test method
-		var foundSymbol = operation.IsInTestMethod(xunitContext);
-		if (foundSymbol)
-			foundSymbolName = symbol.Name;
+		var (foundSymbol, lambdaOwner) = operation.IsInTestMethod(xunitContext);
+		if (!foundSymbol || lambdaOwner is not null)
+			return false;
 
-		return foundSymbol;
+		foundSymbolName = symbol.Name;
+		return true;
 	}
 
 	static bool TaskIsKnownToBeCompleted(
