@@ -254,149 +254,180 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1019_MemberDataMustReferenceMemberOfValidType
 	{
-		// The base type of IEnumerable<object[]> and IEnumerable<ITheoryDataRow> trigger xUnit1042,
-		// which is covered below in X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
-		// so we'll only test TheoryData<> and IEnumerable<TheoryDataRow<>> here.
+		const string V2AllowedTypes = "'System.Collections.Generic.IEnumerable<object[]>'";
+		const string V3AllowedTypes = "'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IEnumerable<System.Runtime.CompilerServices.ITuple>', or 'System.Collections.Generic.IAsyncEnumerable<System.Runtime.CompilerServices.ITuple>'";
 
 		[Fact]
-		public async Task TheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<int> Data;
-
-					[MemberData(nameof(Data))]
-					public void TestMethod(int _) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "Task")]
-		[InlineData(/* lang=c#-test */ "ValueTask")]
-		public async Task Async_TheoryData_TriggersInV2_DoesNotTriggerInV3(string taskType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using System.Threading.Tasks;
-				using Xunit;
-
-				public class TestClass {{
-					public static {0}<TheoryData<int>> Data;
-
-					[{{|#0:MemberData(nameof(Data))|}}]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", taskType);
-			var expectedV2 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", $"System.Threading.Tasks.{taskType}<Xunit.TheoryData<int>>");
-
-			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "List<TheoryDataRow<int, string>>")]
-		[InlineData(/* lang=c#-test */ "IAsyncEnumerable<TheoryDataRow<int, string>>")]
-		public async Task GenericTheoryDataRow_DoesNotTrigger(string dataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System;
-				using System.Collections.Generic;
-				using Xunit;
-				using Xunit.Sdk;
-
-				public class TestClass {{
-					[Theory]
-					[MemberData(nameof(DataRowSource))]
-					public void SkippedDataRow(int x, string y) {{ }}
-
-					public static {0} DataRowSource() {{
-						throw new NotImplementedException();
-					}}
-				}}
-				""", dataType);
-
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "Task<List<TheoryDataRow<int, string>>>")]
-		[InlineData(/* lang=c#-test */ "ValueTask<IAsyncEnumerable<TheoryDataRow<int, string>>>")]
-		public async Task Async_GenericTheoryDataRow_DoesNotTrigger(string taskType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System;
-				using System.Collections.Generic;
-				using System.Threading.Tasks;
-				using Xunit;
-				using Xunit.Sdk;
-
-				public class TestClass {{
-					[Theory]
-					[MemberData(nameof(DataRowSource))]
-					public void SkippedDataRow(int x, string y) {{ }}
-
-					public static async {0} DataRowSource() {{
-						throw new NotImplementedException();
-					}}
-				}}
-				""", taskType);
-
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "System.Collections.Generic.IEnumerable<object>")]
-		[InlineData(/* lang=c#-test */ "object[]")]
-		[InlineData(/* lang=c#-test */ "object")]
-		public async Task InvalidMemberType_Triggers(string memberType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					public static {0} Data;
-
-					[{{|#0:Xunit.MemberData(nameof(Data))|}}]
-					public void TestMethod() {{ }}
-				}}
-				""", memberType);
-			var expectedV2 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
-			var expectedV3 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IEnumerable<System.Runtime.CompilerServices.ITuple>', or 'System.Collections.Generic.IAsyncEnumerable<System.Runtime.CompilerServices.ITuple>'", memberType);
-
-			await Verify.VerifyAnalyzerV2(source, expectedV2);
-			await Verify.VerifyAnalyzerV3(source, expectedV3);
-		}
-
-		[Fact]
-		public async Task Tuple_TriggersInV2_DoesNotTriggerInV3()
+		public async Task V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1042
 
 				using System;
 				using System.Collections.Generic;
+				using System.Threading.Tasks;
 				using Xunit;
 
 				public class TestClass {
-					public static IEnumerable<(string, int)> UntypedTupleSource;
-					public static IEnumerable<Tuple<string, int>> TypedTupleSource;
+					public static IEnumerable<object> ObjectSource;
+					public static object NakedObjectSource;
+					public static object[] NakedObjectArraySource;
 
-					[{|#0:MemberData(nameof(UntypedTupleSource))|}]
-					[{|#1:MemberData(nameof(TypedTupleSource))|}]
+					public static IEnumerable<object[]> ObjectArraySource;
+					public static Task<IEnumerable<object[]>> TaskObjectArraySource;
+					public static ValueTask<IEnumerable<object[]>> ValueTaskObjectArraySource;
+
+					public static IAsyncEnumerable<object[]> AsyncObjectArraySource;
+					public static Task<IAsyncEnumerable<object[]>> TaskAsyncObjectArraySource;
+					public static ValueTask<IAsyncEnumerable<object[]>> ValueTaskAsyncObjectArraySource;
+
+					public static TheoryData<string, int> TheoryDataSource;
+					public static Task<TheoryData<string, int>> TaskTheoryDataSource;
+					public static ValueTask<TheoryData<string, int>> ValueTaskTheoryDataSource;
+
+					public static IEnumerable<(string, int)> UntypedTupleSource;
+					public static Task<IEnumerable<(string, int)>> TaskUntypedTupleSource;
+					public static ValueTask<IEnumerable<(string, int)>> ValueTaskUntypedTupleSource;
+
+					public static IAsyncEnumerable<(string, int)> AsyncUntypedTupleSource;
+					public static Task<IAsyncEnumerable<(string, int)>> TaskAsyncUntypedTupleSource;
+					public static ValueTask<IAsyncEnumerable<(string, int)>> ValueTaskAsyncUntypedTupleSource;
+
+					public static IEnumerable<Tuple<string, int>> TypedTupleSource;
+					public static Task<IEnumerable<Tuple<string, int>>> TaskTypedTupleSource;
+					public static ValueTask<IEnumerable<Tuple<string, int>>> ValueTaskTypedTupleSource;
+
+					public static IAsyncEnumerable<Tuple<string, int>> AsyncTypedTupleSource;
+					public static Task<IAsyncEnumerable<Tuple<string, int>>> TaskAsyncTypedTupleSource;
+					public static ValueTask<IAsyncEnumerable<Tuple<string, int>>> ValueTaskAsyncTypedTupleSource;
+
+					[{|#0:MemberData(nameof(ObjectSource))|}]
+					[{|#1:MemberData(nameof(NakedObjectSource))|}]
+					[{|#2:MemberData(nameof(NakedObjectArraySource))|}]
+
+					[MemberData(nameof(ObjectArraySource))]
+					[{|#10:MemberData(nameof(TaskObjectArraySource))|}]
+					[{|#11:MemberData(nameof(ValueTaskObjectArraySource))|}]
+
+					[{|#20:MemberData(nameof(AsyncObjectArraySource))|}]
+					[{|#21:MemberData(nameof(TaskAsyncObjectArraySource))|}]
+					[{|#22:MemberData(nameof(ValueTaskAsyncObjectArraySource))|}]
+
+					[MemberData(nameof(TheoryDataSource))]
+					[{|#30:MemberData(nameof(TaskTheoryDataSource))|}]
+					[{|#31:MemberData(nameof(ValueTaskTheoryDataSource))|}]
+			
+					[{|#40:MemberData(nameof(UntypedTupleSource))|}]
+					[{|#41:MemberData(nameof(TaskUntypedTupleSource))|}]
+					[{|#42:MemberData(nameof(ValueTaskUntypedTupleSource))|}]
+
+					[{|#50:MemberData(nameof(AsyncUntypedTupleSource))|}]
+					[{|#51:MemberData(nameof(TaskAsyncUntypedTupleSource))|}]
+					[{|#52:MemberData(nameof(ValueTaskAsyncUntypedTupleSource))|}]
+
+					[{|#60:MemberData(nameof(TypedTupleSource))|}]
+					[{|#61:MemberData(nameof(TaskTypedTupleSource))|}]
+					[{|#62:MemberData(nameof(ValueTaskTypedTupleSource))|}]
+
+					[{|#70:MemberData(nameof(AsyncTypedTupleSource))|}]
+					[{|#71:MemberData(nameof(TaskAsyncTypedTupleSource))|}]
+					[{|#72:MemberData(nameof(ValueTaskAsyncTypedTupleSource))|}]
+
 					public void TestMethod(string _1, int _2) { }
 				}
 				""";
-			DiagnosticResult[] expectedV2 = [
-				Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", "System.Collections.Generic.IEnumerable<(string, int)>"),
-				Verify.Diagnostic("xUnit1019").WithLocation(1).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", "System.Collections.Generic.IEnumerable<System.Tuple<string, int>>"),
-			];
+			var expectedV2 = new[] {
+				// Generally invalid types
+				Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IEnumerable<object>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(1).WithArguments(V2AllowedTypes, $"object"),
+				Verify.Diagnostic("xUnit1019").WithLocation(2).WithArguments(V2AllowedTypes, $"object[]"),
 
-			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp7, source, expectedV2);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
+				// v2 does not support tuples, wrapping in Task/ValueTask, and does not support IAsyncEnumerable
+				Verify.Diagnostic("xUnit1019").WithLocation(10).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<object[]>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(11).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<object[]>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(20).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IAsyncEnumerable<object[]>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(21).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IAsyncEnumerable<object[]>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(22).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IAsyncEnumerable<object[]>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(30).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<Xunit.TheoryData<string, int>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(31).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<Xunit.TheoryData<string, int>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(40).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IEnumerable<(string, int)>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(41).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<(string, int)>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(42).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<(string, int)>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(50).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IAsyncEnumerable<(string, int)>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(51).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IAsyncEnumerable<(string, int)>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(52).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IAsyncEnumerable<(string, int)>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(60).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IEnumerable<System.Tuple<string, int>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(61).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<System.Tuple<string, int>>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(62).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IEnumerable<System.Tuple<string, int>>>"),
+
+				Verify.Diagnostic("xUnit1019").WithLocation(70).WithArguments(V2AllowedTypes, $"System.Collections.Generic.IAsyncEnumerable<System.Tuple<string, int>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(71).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.Task<System.Collections.Generic.IAsyncEnumerable<System.Tuple<string, int>>>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(72).WithArguments(V2AllowedTypes, $"System.Threading.Tasks.ValueTask<System.Collections.Generic.IAsyncEnumerable<System.Tuple<string, int>>>"),
+			};
+			var expectedV3 = new[] {
+				// Generally invalid types
+				Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments(V3AllowedTypes, $"System.Collections.Generic.IEnumerable<object>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(1).WithArguments(V3AllowedTypes, $"object"),
+				Verify.Diagnostic("xUnit1019").WithLocation(2).WithArguments(V3AllowedTypes, $"object[]"),
+			};
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectedV3);
+		}
+
+		[Fact]
+		public async Task V3_only()
+		{
+			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1042
+
+				using System.Collections.Generic;
+				using System.Threading.Tasks;
+				using Xunit;
+
+				public class TestClass {
+					public static List<ITheoryDataRow> ITheoryDataRowSource;
+					public static Task<List<ITheoryDataRow>> TaskITheoryDataRowSource;
+					public static ValueTask<List<ITheoryDataRow>> ValueTaskITheoryDataRowSource;
+
+					public static List<TheoryDataRow<int, string>> TheoryDataRowSource;
+					public static Task<List<TheoryDataRow<int, string>>> TaskTheoryDataRowSource;
+					public static ValueTask<List<TheoryDataRow<int, string>>> ValueTaskTheoryDataRowSource;
+
+					public static IAsyncEnumerable<ITheoryDataRow> AsyncITheoryDataRowSource;
+					public static Task<IAsyncEnumerable<ITheoryDataRow>> TaskAsyncITheoryDataRowSource;
+					public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> ValueTaskAsyncITheoryDataRowSource;
+
+					public static IAsyncEnumerable<TheoryDataRow<int, string>> AsyncTheoryDataRowSource;
+					public static Task<IAsyncEnumerable<TheoryDataRow<int, string>>> TaskAsyncTheoryDataRowSource;
+					public static ValueTask<IAsyncEnumerable<TheoryDataRow<int, string>>> ValueTaskAsyncTheoryDataRowSource;
+
+					[MemberData(nameof(ITheoryDataRowSource))]
+					[MemberData(nameof(TaskITheoryDataRowSource))]
+					[MemberData(nameof(ValueTaskITheoryDataRowSource))]
+
+					[MemberData(nameof(TheoryDataRowSource))]
+					[MemberData(nameof(TaskTheoryDataRowSource))]
+					[MemberData(nameof(ValueTaskTheoryDataRowSource))]
+
+					[MemberData(nameof(AsyncITheoryDataRowSource))]
+					[MemberData(nameof(TaskAsyncITheoryDataRowSource))]
+					[MemberData(nameof(ValueTaskAsyncITheoryDataRowSource))]
+
+					[MemberData(nameof(AsyncTheoryDataRowSource))]
+					[MemberData(nameof(TaskAsyncTheoryDataRowSource))]
+					[MemberData(nameof(ValueTaskAsyncTheoryDataRowSource))]
+
+					public void TestMethod(int _1, string _2) { }
+				}
+				""";
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 		}
 	}
 
