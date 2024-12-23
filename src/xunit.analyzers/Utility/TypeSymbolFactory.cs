@@ -103,6 +103,15 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IAsyncEnumerableOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Collections.Generic.IAsyncEnumerable`1");
 
+	public static INamedTypeSymbol? IAsyncEnumerableOfTuple(Compilation compilation)
+	{
+		var iTuple = ITuple(compilation);
+		if (iTuple is null)
+			return null;
+
+		return IAsyncEnumerableOfT(compilation)?.Construct(iTuple);
+	}
+
 	public static INamedTypeSymbol? IAsyncLifetime(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IAsyncLifetime);
 
@@ -141,6 +150,15 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol IEnumerableOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
+
+	public static INamedTypeSymbol? IEnumerableOfTuple(Compilation compilation)
+	{
+		var iTuple = ITuple(compilation);
+		if (iTuple is null)
+			return null;
+
+		return IEnumerableOfT(compilation).Construct(iTuple);
+	}
 
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMessageSink_V2);
@@ -252,6 +270,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? ITheoryDataRow_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITheoryDataRow_V3);
+
+	public static INamedTypeSymbol? ITuple(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.CompilerServices.ITuple");
 
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITypeInfo_V2);

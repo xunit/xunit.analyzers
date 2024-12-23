@@ -156,8 +156,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				// Make sure the member returns a compatible type
 				var iEnumerableOfTheoryDataRowType = TypeSymbolFactory.IEnumerableOfITheoryDataRow(compilation);
 				var iAsyncEnumerableOfTheoryDataRowType = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
+				var iEnumerableOfTupleType = TypeSymbolFactory.IEnumerableOfTuple(compilation);
+				var iAsyncEnumerableOfTupleType = TypeSymbolFactory.IAsyncEnumerableOfTuple(compilation);
 				var IsValidMemberReturnType =
-					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType);
+					VerifyDataSourceReturnType(context, compilation, xunitContext, memberReturnType, memberProperties, attributeSyntax, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType, iEnumerableOfTupleType, iAsyncEnumerableOfTupleType);
 
 				// Make sure public properties have a public getter
 				if (memberSymbol.Kind == SymbolKind.Property && memberSymbol.DeclaredAccessibility == Accessibility.Public)
@@ -381,6 +383,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		INamedTypeSymbol? iAsyncEnumerableOfObjectArrayType,
 		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
 		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iEnumerableOfTupleType,
+		INamedTypeSymbol? iAsyncEnumerableOfTupleType,
 		AttributeSyntax attribute,
 		ImmutableDictionary<string, string?> memberProperties,
 		ITypeSymbol memberType)
@@ -390,14 +394,18 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		// Only want the extra types when we know ITheoryDataRow is valid
 		if (iAsyncEnumerableOfObjectArrayType is not null &&
 				iEnumerableOfTheoryDataRowType is not null &&
-				iAsyncEnumerableOfTheoryDataRowType is not null)
+				iAsyncEnumerableOfTheoryDataRowType is not null &&
+				iEnumerableOfTupleType is not null &&
+				iAsyncEnumerableOfTupleType is not null)
 #pragma warning disable RS1035  // The suggested fix is not available in this context
 			validSymbols += string.Format(
 				CultureInfo.CurrentCulture,
-				", '{0}', '{1}', or '{2}'",
+				", '{0}', '{1}', '{2}', '{3}', or '{4}'",
 				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfObjectArrayType),
 				SymbolDisplay.ToDisplayString(iEnumerableOfTheoryDataRowType),
-				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfTheoryDataRowType)
+				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfTheoryDataRowType),
+				SymbolDisplay.ToDisplayString(iEnumerableOfTupleType),
+				SymbolDisplay.ToDisplayString(iAsyncEnumerableOfTupleType)
 			);
 #pragma warning restore RS1035
 
@@ -721,7 +729,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		ImmutableDictionary<string, string?> memberProperties,
 		AttributeSyntax attributeSyntax,
 		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
-		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType)
+		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iEnumerableOfTupleType,
+		INamedTypeSymbol? iAsyncEnumerableOfTupleType)
 	{
 		var v3 = xunitContext.HasV3References;
 		var iEnumerableOfObjectArrayType = TypeSymbolFactory.IEnumerableOfObjectArray(compilation);
@@ -738,6 +748,12 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		if (!valid && v3 && iAsyncEnumerableOfTheoryDataRowType is not null)
 			valid = iAsyncEnumerableOfTheoryDataRowType.IsAssignableFrom(memberType);
 
+		if (!valid && v3 && iEnumerableOfTupleType is not null)
+			valid = iEnumerableOfTupleType.IsAssignableFrom(memberType);
+
+		if (!valid && v3 && iAsyncEnumerableOfTupleType is not null)
+			valid = iAsyncEnumerableOfTupleType.IsAssignableFrom(memberType);
+
 		if (!valid)
 			ReportIncorrectReturnType(
 				context,
@@ -745,6 +761,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				iAsyncEnumerableOfObjectArrayType,
 				iEnumerableOfTheoryDataRowType,
 				iAsyncEnumerableOfTheoryDataRowType,
+				iEnumerableOfTupleType,
+				iAsyncEnumerableOfTupleType,
 				attributeSyntax,
 				memberProperties,
 				memberType

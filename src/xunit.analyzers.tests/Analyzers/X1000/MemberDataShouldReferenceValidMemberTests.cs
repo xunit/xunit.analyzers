@@ -354,8 +354,6 @@ public class MemberDataShouldReferenceValidMemberTests
 		[InlineData(/* lang=c#-test */ "System.Collections.Generic.IEnumerable<object>")]
 		[InlineData(/* lang=c#-test */ "object[]")]
 		[InlineData(/* lang=c#-test */ "object")]
-		[InlineData(/* lang=c#-test */ "System.Tuple<string, int>")]
-		[InlineData(/* lang=c#-test */ "System.Tuple<string, int>[]")]
 		public async Task InvalidMemberType_Triggers(string memberType)
 		{
 			var source = string.Format(/* lang=c#-test */ """
@@ -367,10 +365,38 @@ public class MemberDataShouldReferenceValidMemberTests
 				}}
 				""", memberType);
 			var expectedV2 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", memberType);
-			var expectedV3 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', or 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>'", memberType);
+			var expectedV3 = Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IEnumerable<System.Runtime.CompilerServices.ITuple>', or 'System.Collections.Generic.IAsyncEnumerable<System.Runtime.CompilerServices.ITuple>'", memberType);
 
 			await Verify.VerifyAnalyzerV2(source, expectedV2);
 			await Verify.VerifyAnalyzerV3(source, expectedV3);
+		}
+
+		[Fact]
+		public async Task Tuple_TriggersInV2_DoesNotTriggerInV3()
+		{
+			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1042
+
+				using System;
+				using System.Collections.Generic;
+				using Xunit;
+
+				public class TestClass {
+					public static IEnumerable<(string, int)> UntypedTupleSource;
+					public static IEnumerable<Tuple<string, int>> TypedTupleSource;
+
+					[{|#0:MemberData(nameof(UntypedTupleSource))|}]
+					[{|#1:MemberData(nameof(TypedTupleSource))|}]
+					public void TestMethod(string _1, int _2) { }
+				}
+				""";
+			DiagnosticResult[] expectedV2 = [
+				Verify.Diagnostic("xUnit1019").WithLocation(0).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", "System.Collections.Generic.IEnumerable<(string, int)>"),
+				Verify.Diagnostic("xUnit1019").WithLocation(1).WithArguments("'System.Collections.Generic.IEnumerable<object[]>'", "System.Collections.Generic.IEnumerable<System.Tuple<string, int>>"),
+			];
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp7, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source);
 		}
 	}
 
