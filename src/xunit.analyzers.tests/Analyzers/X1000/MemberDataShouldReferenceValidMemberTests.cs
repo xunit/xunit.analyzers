@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
 
@@ -8,122 +7,67 @@ public class MemberDataShouldReferenceValidMemberTests
 {
 	public class X1014_MemberDataShouldUseNameOfOperator
 	{
-		static readonly string sharedCode = /* lang=c#-test */ """
-			using System.Collections.Generic;
-			using Xunit;
-
-			public partial class TestClass {
-				public static TheoryData<int> Data { get; set; }
-			}
-
-			public class OtherClass {
-				public static TheoryData<int> OtherData { get; set; }
-			}
-			""";
-
 		[Fact]
-		public async Task NameofOnSameClass_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
-				public partial class TestClass {
-					[Xunit.MemberData(nameof(Data))]
-					public void TestMethod(int _) { }
+				using System.Collections.Generic;
+				using Xunit;
+
+				public class TestClass {
+					public static TheoryData<int> Data { get; set; }
+
+					[MemberData(nameof(Data))]
+					[MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))]
+					public void TestMethod1(int _) { }
+
+					[MemberData({|#0:"Data"|})]
+					[MemberData({|#1:"OtherData"|}, MemberType = typeof(OtherClass))]
+					public void TestMethod2(int _) { }
+				}
+
+				public class OtherClass {
+					public static TheoryData<int> OtherData { get; set; }
 				}
 				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1014").WithLocation(0).WithArguments("Data", "TestClass"),
+				Verify.Diagnostic("xUnit1014").WithLocation(1).WithArguments("OtherData", "OtherClass"),
+			};
 
-			await Verify.VerifyAnalyzer([source, sharedCode]);
-		}
-
-		[Fact]
-		public async Task NameofOnOtherClass_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				public partial class TestClass {
-					[Xunit.MemberData(nameof(OtherClass.OtherData), MemberType = typeof(OtherClass))]
-					public void TestMethod(int _) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer([source, sharedCode]);
-		}
-
-		[Fact]
-		public async Task StringNameOnSameClass_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				public partial class TestClass {
-					[Xunit.MemberData({|#0:"Data"|})]
-					public void TestMethod(int _) { }
-				}
-				""";
-			var expected = Verify.Diagnostic("xUnit1014").WithLocation(0).WithArguments("Data", "TestClass");
-
-			await Verify.VerifyAnalyzer([source, sharedCode], expected);
-		}
-
-		[Fact]
-		public async Task StringNameOnOtherClass_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				public partial class TestClass {
-					[Xunit.MemberData({|#0:"OtherData"|}, MemberType = typeof(OtherClass))]
-					public void TestMethod(int _) { }
-				}
-				""";
-			var expected = Verify.Diagnostic("xUnit1014").WithLocation(0).WithArguments("OtherData", "OtherClass");
-
-			await Verify.VerifyAnalyzer([source, sharedCode], expected);
+			await Verify.VerifyAnalyzer(source, expected);
 		}
 	}
 
 	public class X1015_MemberDataMustReferenceExistingMember
 	{
-		[Theory]
-		[InlineData(/* lang=c#-test */ "")]
-		[InlineData(/* lang=c#-test */ ", MemberType = typeof(TestClass)")]
-		public async Task InvalidStringNameOnSameClass_Triggers(string memberType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[{{|#0:Xunit.MemberData("BogusName"{0})|}}]
-					public void TestMethod() {{ }}
-				}}
-				""", memberType);
-			var expected = Verify.Diagnostic("xUnit1015").WithLocation(0).WithArguments("BogusName", "TestClass");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
 		[Fact]
-		public async Task InvalidStringNameOnOtherClass_Triggers()
+		public async ValueTask V2_and_V3()
 		{
 			var source1 = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					[{|#0:Xunit.MemberData("BogusName", MemberType = typeof(OtherClass))|}]
-					public void TestMethod() { }
+					[{|#0:MemberData("BogusName")|}]
+					public void TestMethod1() { }
+
+					[{|#1:MemberData("BogusName", MemberType = typeof(TestClass))|}]
+					public void TestMethod2() { }
+
+					[{|#2:MemberData("BogusName", MemberType = typeof(OtherClass))|}]
+					public void TestMethod3() { }
+
+					[{|#3:MemberData(nameof(TestClass.TestMethod4), MemberType = typeof(OtherClass))|}]
+					public void TestMethod4() { }
 				}
 				""";
-			var source2 = /* lang=c#-test */ """
-				public class OtherClass { }
-				""";
-			var expected = Verify.Diagnostic("xUnit1015").WithLocation(0).WithArguments("BogusName", "OtherClass");
-
-			await Verify.VerifyAnalyzer([source1, source2], expected);
-		}
-
-		[Fact]
-		public async Task InvalidNameofOnOtherClass_Triggers()
-		{
-			var source1 = /* lang=c#-test */ """
-				public class TestClass {
-					[{|#0:Xunit.MemberData(nameof(TestClass.TestMethod), MemberType = typeof(OtherClass))|}]
-					public void TestMethod() { }
-				}
-				""";
-			var source2 = /* lang=c#-test */ """
-				public class OtherClass { }
-				""";
-			var expected = Verify.Diagnostic("xUnit1015").WithLocation(0).WithArguments("TestMethod", "OtherClass");
+			var source2 = /* lang=c#-test */ "public class OtherClass { }";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1015").WithLocation(0).WithArguments("BogusName", "TestClass"),
+				Verify.Diagnostic("xUnit1015").WithLocation(1).WithArguments("BogusName", "TestClass"),
+				Verify.Diagnostic("xUnit1015").WithLocation(2).WithArguments("BogusName", "OtherClass"),
+				Verify.Diagnostic("xUnit1015").WithLocation(3).WithArguments("TestMethod4", "OtherClass"),
+			};
 
 			await Verify.VerifyAnalyzer([source1, source2], expected);
 		}
@@ -132,79 +76,65 @@ public class MemberDataShouldReferenceValidMemberTests
 	public class X1016_MemberDataMustReferencePublicMember
 	{
 		[Fact]
-		public async Task PublicMember_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
-				public class TestClass {
-					public static Xunit.TheoryData<int> Data = null;
+				using Xunit;
 
-					[Xunit.MemberData(nameof(Data))]
-					public void TestMethod(int _) { }
+				public class TestClass {
+					public static TheoryData<int> PublicData = null;
+
+					[MemberData(nameof(PublicData))]
+					public void TestMethod1a(int _) { }
+
+					const string PrivateDataNameConst = "PrivateData";
+					const string PrivateDataNameofConst = nameof(PrivateData);
+					private static TheoryData<int> PrivateData = null;
+
+					[{|xUnit1016:MemberData(nameof(PrivateData))|}]
+					public void TestMethod2a(int _) { }
+
+					[{|xUnit1016:MemberData(PrivateDataNameConst)|}]
+					public void TestMethod2b(int _) { }
+
+					[{|xUnit1016:MemberData(PrivateDataNameofConst)|}]
+					public void TestMethod2c(int _) { }
+
+					internal static TheoryData<int> InternalData = null;
+
+					[{|xUnit1016:MemberData(nameof(InternalData))|}]
+					public void TestMethod3(int _) { }
+
+					protected static TheoryData<int> ProtectedData = null;
+
+					[{|xUnit1016:MemberData(nameof(ProtectedData))|}]
+					public void TestMethod4(int _) { }
+
+					protected internal static TheoryData<int> ProtectedInternalData = null;
+
+					[{|xUnit1016:MemberData(nameof(ProtectedInternalData))|}]
+					public void TestMethod5(int _) { }
 				}
 				""";
 
 			await Verify.VerifyAnalyzer(source);
-		}
-
-		public static MatrixTheoryData<string, string> NonPublicTestData =>
-			new(
-				/* lang=c#-test */ ["", "private", "protected", "internal", "protected internal"],
-				/* lang=c#-test */ ["{|xUnit1014:\"Data\"|}", "DataNameConst", "DataNameofConst", "nameof(Data)", "nameof(TestClass.Data)", "OtherClass.Data", "nameof(OtherClass.Data)"]
-			);
-
-		[Theory]
-		[MemberData(nameof(NonPublicTestData))]
-		public async Task NonPublicNameExpression_Triggers(
-			string accessModifier,
-			string dataNameExpression)
-		{
-			TestFileMarkupParser.GetPositionsAndSpans(dataNameExpression, out var parsedDataNameExpression, out _, out _);
-			var dataNameExpressionLength = parsedDataNameExpression.Length;
-
-			var source1 = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					const string DataNameConst = "Data";
-					const string DataNameofConst = nameof(Data);
-
-					{0} static Xunit.TheoryData<int> Data = null;
-
-					[{{|xUnit1016:Xunit.MemberData({1})|}}]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", accessModifier, dataNameExpression);
-			var source2 = /* lang=c#-test */ """
-				public static class OtherClass { public const string Data = "Data"; }
-				""";
-
-			await Verify.VerifyAnalyzer([source1, source2]);
 		}
 	}
 
 	public class X1017_MemberDataMustReferenceStaticMember
 	{
 		[Fact]
-		public async Task StaticMember_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					public static Xunit.TheoryData<int> Data = null;
+					public static TheoryData<int> StaticData = null;
+					public TheoryData<int> NonStaticData = null;
 
-					[Xunit.MemberData(nameof(Data))]
-					public void TestMethod(int _) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task InstanceMember_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					public Xunit.TheoryData<int> Data = null;
-
-					[{|xUnit1017:Xunit.MemberData(nameof(Data))|}]
+					[MemberData(nameof(StaticData))]
+					[{|xUnit1017:MemberData(nameof(NonStaticData))|}]
 					public void TestMethod(int _) { }
 				}
 				""";
@@ -215,38 +145,42 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1018_MemberDataMustReferenceValidMemberKind
 	{
-		[Theory]
-		[InlineData(/* lang=c#-test */ "Data;")]
-		[InlineData(/* lang=c#-test */ "Data { get; set; }")]
-		[InlineData(/* lang=c#-test */ "Data() { return null; }")]
-		public async Task ValidMemberKind_DoesNotTrigger(string member)
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> {0}
+			var source = /* lang=c#-test */ """
+				using System;
+				using System.Collections.Generic;
+				using Xunit;
 
-					[Xunit.MemberData(nameof(Data))]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", member);
+				public class TestClass {
+					public static TheoryData<int> FieldData;
+					public static TheoryData<int> PropertyData { get; set; }
+					public static TheoryData<int> MethodData() { return null; }
 
-			await Verify.VerifyAnalyzer(source);
-		}
+					public static class ClassData { }
+					public delegate IEnumerable<object[]> DelegateData();
+					public static event EventHandler EventData;
 
-		[Theory]
-		[InlineData(/* lang=c#-test */ "public delegate System.Collections.Generic.IEnumerable<object[]> Data();")]
-		[InlineData(/* lang=c#-test */ "public static class Data { }")]
-		[InlineData(/* lang=c#-test */ "public static event System.EventHandler Data;")]
-		public async Task InvalidMemberKind_Triggers(string member)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					{0}
+					[MemberData(nameof(FieldData))]
+					public void TestMethod1(int _) { }
 
-					[{{|xUnit1018:Xunit.MemberData(nameof(Data))|}}]
-					public void TestMethod() {{ }}
-				}}
-				""", member);
+					[MemberData(nameof(PropertyData))]
+					public void TestMethod2(int _) { }
+
+					[MemberData(nameof(MethodData))]
+					public void TestMethod3(int _) { }
+
+					[{|xUnit1018:MemberData(nameof(ClassData))|}]
+					public void TestMethod4(int _) { }
+
+					[{|xUnit1018:MemberData(nameof(DelegateData))|}]
+					public void TestMethod5(int _) { }
+
+					[{|xUnit1018:MemberData(nameof(EventData))|}]
+					public void TestMethod6(int _) { }
+				}
+				""";
 
 			await Verify.VerifyAnalyzer(source);
 		}
@@ -258,7 +192,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		const string V3AllowedTypes = "'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IEnumerable<System.Runtime.CompilerServices.ITuple>', or 'System.Collections.Generic.IAsyncEnumerable<System.Runtime.CompilerServices.ITuple>'";
 
 		[Fact]
-		public async Task V2_and_V3()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1042
@@ -316,7 +250,7 @@ public class MemberDataShouldReferenceValidMemberTests
 					[MemberData(nameof(TheoryDataSource))]
 					[{|#30:MemberData(nameof(TaskTheoryDataSource))|}]
 					[{|#31:MemberData(nameof(ValueTaskTheoryDataSource))|}]
-			
+
 					[{|#40:MemberData(nameof(UntypedTupleSource))|}]
 					[{|#41:MemberData(nameof(TaskUntypedTupleSource))|}]
 					[{|#42:MemberData(nameof(ValueTaskUntypedTupleSource))|}]
@@ -381,7 +315,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		}
 
 		[Fact]
-		public async Task V3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1042
@@ -434,189 +368,127 @@ public class MemberDataShouldReferenceValidMemberTests
 	public class X1020_MemberDataPropertyMustHaveGetter
 	{
 		[Fact]
-		public async Task PropertyWithoutGetter_Triggers()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
-				public class TestClass {
-					public static Xunit.TheoryData<int> Data { set { } }
+				using Xunit;
 
-					[{|xUnit1020:Xunit.MemberData(nameof(Data))|}]
+				public class TestClass {
+					public static TheoryData<int> PublicWithGetter => new();
+					public static TheoryData<int> PublicWithoutGetter { set { } }
+					public static TheoryData<int> ProtectedGetter { protected get { return null; } set { } }
+					public static TheoryData<int> InternalGetter { internal get { return null; } set { } }
+					public static TheoryData<int> PrivateGetter { private get { return null; } set { } }
+
+					[MemberData(nameof(PublicWithGetter))]
+					[{|xUnit1020:MemberData(nameof(PublicWithoutGetter))|}]
+					[{|xUnit1020:MemberData(nameof(ProtectedGetter))|}]
+					[{|xUnit1020:MemberData(nameof(InternalGetter))|}]
+					[{|xUnit1020:MemberData(nameof(PrivateGetter))|}]
 					public void TestMethod(int _) { }
 				}
 				""";
 
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "internal")]
-		[InlineData(/* lang=c#-test */ "protected")]
-		[InlineData(/* lang=c#-test */ "private")]
-		public async Task PropertyWithNonPublicGetter_Triggers(string visibility)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> Data {{ {0} get {{ return null; }} set {{ }} }}
-
-					[{{|xUnit1020:Xunit.MemberData(nameof(Data))|}}]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", visibility);
-
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
 		}
 	}
 
 	public class X1021_MemberDataNonMethodShouldNotHaveParameters
 	{
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1")]                   // implicit params
-		[InlineData(/* lang=c#-test */ "new object[] { 1 }")]  // explicit params
-		public async Task MethodMemberWithParameters_DoesNotTrigger(string parameter)
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					private static void TestData() {{ }}
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+				public class TestClassBase {
+					public static TheoryData<int> BaseTestData(int n) => new TheoryData<int> { n };
+				}
 
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameter);
-			await Verify.VerifyAnalyzer(source);
-		}
+				public class TestClass : TestClassBase {
+					private static void TestData() { }
 
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1, 2")]                   // implicit params
-		[InlineData(/* lang=c#-test */ "new object[] { 1, 2 }")]  // explicit params
-		public async Task MethodMemberWithParamsArrayParameters_DoesNotTrigger(string parameters)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> {{ n[0] }};
+					public static TheoryData<int> SingleData(int n) => new TheoryData<int> { n };
 
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameters);
+					[MemberData(nameof(SingleData), 1)]
+					[MemberData(nameof(SingleData), new object[] { 1 })]
+					public void TestMethod1(int n) { }
 
-			await Verify.VerifyAnalyzer(source);
-		}
+					public static TheoryData<int> ParamsData(params int[] n) => new TheoryData<int> { n[0] };
 
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1")]                   // implicit params
-		[InlineData(/* lang=c#-test */ "new object[] { 1 }")]  // explicit params
-		public async Task MethodMemberOnBaseType_DoesNotTrigger(string parameter)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClassBase {{
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
-				}}
+					[MemberData(nameof(ParamsData), 1, 2)]
+					[MemberData(nameof(ParamsData), new object[] { 1, 2 })]
+					public void TestMethod2(int n) { }
 
-				public class TestClass : TestClassBase {{
-					private static void TestData() {{ }}
+					[MemberData(nameof(BaseTestData), 1)]
+					[MemberData(nameof(BaseTestData), new object[] { 1 })]
+					public void TestMethod3(int n) { }
 
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameter);
+					public static TheoryData<int> FieldData;
 
-			await Verify.VerifyAnalyzer(source);
-		}
+					[MemberData(nameof(FieldData), {|xUnit1021:'a', 123|})]
+					public void TestMethod4a(int _) { }
 
-		[Theory]
-		[InlineData(/* lang=c#-test */ "'a', 123")]
-		[InlineData(/* lang=c#-test */ "new object[] {{ 'a', 123 }}")]
-		[InlineData(/* lang=c#-test */ "{0}: new object[] {{ 'a', 123 }}")]
-		public async Task FieldMemberWithParameters_Triggers(string paramsArgument)
-		{
-			var sourceTemplate = /* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> Data;
+					[MemberData(nameof(FieldData), {|xUnit1021:new object[] { 'a', 123 }|})]
+					public void TestMethod4b(int _) { }
 
-					[Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
-					public void TestMethod(int _) {{ }}
-				}}
+					public static TheoryData<int> PropertyData { get; set; }
+
+					[MemberData(nameof(PropertyData), {|xUnit1021:'a', 123|})]
+					public void TestMethod5a(int _) { }
+
+					[MemberData(nameof(PropertyData), {|xUnit1021:new object[] { 'a', 123 }|})]
+					public void TestMethod5b(int _) { }
+				}
 				""";
 
-			await Verify.VerifyAnalyzerV2(string.Format(sourceTemplate, string.Format(paramsArgument, "parameters")));
-			await Verify.VerifyAnalyzerV3(string.Format(sourceTemplate, string.Format(paramsArgument, "arguments")));
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "'a', 123")]
-		[InlineData(/* lang=c#-test */ "new object[] {{ 'a', 123 }}")]
-		[InlineData(/* lang=c#-test */ "{0}: new object[] {{ 'a', 123 }}")]
-		public async Task PropertyMemberWithParameters_Triggers(string paramsArgument)
-		{
-			var sourceTemplate = /* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> Data {{ get; set; }}
-
-					[Xunit.MemberData(nameof(Data), {{|xUnit1021:{0}|}}, MemberType = typeof(TestClass))]
-					public void TestMethod(int _) {{ }}
-				}}
-				""";
-
-			await Verify.VerifyAnalyzerV2(string.Format(sourceTemplate, string.Format(paramsArgument, "parameters")));
-			await Verify.VerifyAnalyzerV3(string.Format(sourceTemplate, string.Format(paramsArgument, "arguments")));
+			await Verify.VerifyAnalyzer(source);
 		}
 	}
 
 	public class X1034_MemberDataArgumentsMustMatchMethodParameters_NullShouldNotBeUsedForIncompatibleParameter
 	{
-		[Theory]
-		[InlineData(/* lang=c#-test */ "", "string")]
-		[InlineData(/* lang=c#-test */ "#nullable enable", "string?")]
-		public async Task PassingNullForNullableReferenceType_DoesNotTrigger(
-			string header,
-			string argumentType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				{0}
-
-				public class TestClass {{
-					public static Xunit.TheoryData<int> TestData({1} f) => new Xunit.TheoryData<int> {{ 42 }};
-
-					[Xunit.MemberData(nameof(TestData), new object[] {{ null }})]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", header, argumentType);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
 		[Fact]
-		public async Task PassingNullForStructType_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> { n };
-
-					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
-					public void TestMethod(int _) { }
-				}
-				""";
-			var expected = Verify.Diagnostic("xUnit1034").WithLocation(0).WithArguments("n", "int");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Fact]
-		public async Task PassingNullForNonNullableReferenceType_Triggers()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				#nullable enable
 
-				public class TestClass {
-					public static Xunit.TheoryData<string> TestData(string f) => new Xunit.TheoryData<string> { f };
+				using Xunit;
 
-					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:null|} })]
+				public class TestClass {
+					public static TheoryData<string?> NullableReferenceData(string? s) => new TheoryData<string?> { s };
+
+					[MemberData(nameof(NullableReferenceData), default(string))]
+					public void TestMethod1(string? _) { }
+
+					public static TheoryData<string> NonNullableReferenceData(string s) => new TheoryData<string> { s };
+
+					[MemberData(nameof(NonNullableReferenceData), {|#0:default(string)|})]
 					public void TestMethod(string _) { }
+
+				#nullable disable
+					public static TheoryData<string> MaybeNullableReferenceData(string s) => new TheoryData<string> { s };
+				#nullable enable
+
+					[MemberData(nameof(MaybeNullableReferenceData), default(string))]
+					public void TestMethod3(string? _) { }
+
+					public static TheoryData<int?> NullableStructData(int? n) => new TheoryData<int?> { n };
+
+					[MemberData(nameof(NullableStructData), new object[] { null })]
+					public void TestMethod4(int? _) { }
+
+					public static TheoryData<int> NonNullableStructData(int n) => new TheoryData<int> { n };
+
+					[MemberData(nameof(NonNullableStructData), new object[] { {|#1:null|} })]
+					public void TestMethod5(int _) { }
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1034").WithLocation(0).WithArguments("f", "string");
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1034").WithLocation(0).WithArguments("s", "string"),
+				Verify.Diagnostic("xUnit1034").WithLocation(1).WithArguments("n", "int"),
+			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
@@ -624,107 +496,49 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1035_MemberDataArgumentsMustMatchMethodParameters_IncompatibleValueType
 	{
-		// https://github.com/xunit/xunit/issues/2817
-		[Theory]
-		[InlineData(/* lang=c#-test */ "Foo.Bar")]
-		[InlineData(/* lang=c#-test */ "(Foo)42")]
-		public async Task ValidEnumValue_DoesNotTrigger(string enumValue)
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				using System;
 				using System.Collections.Generic;
 				using Xunit;
 
-				public class TestClass {{
-					[Theory]
-					[MemberData(nameof(SomeData), {0})]
-					public void TestMethod(int _) {{ }}
+				public enum Foo { Bar }
 
-					public enum Foo {{ Bar }}
-
-					public static Xunit.TheoryData<int> SomeData(Foo foo) => new Xunit.TheoryData<int>();
-				}}
-				""", enumValue);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		// https://github.com/xunit/xunit/issues/2852
-		[Theory]
-		[InlineData(/* lang=c#-test */ "")]
-		[InlineData(/* lang=c#-test */ "#nullable enable")]
-		public async Task ArrayInitializerWithCorrectType_DoesNotTrigger(string header)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				{0}
-
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
-
-					[Theory]
-					[MemberData(nameof(GetSequences), new int[] {{ 1, 2 }})]
-					public void Test(int value) {{ }}
-				}}
-				""", header);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "")]
-		[InlineData(/* lang=c#-test */ "#nullable enable")]
-		public async Task ArrayInitializerWithIncorrectType_Triggers(string header)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				{0}
-
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static TheoryData<int> GetSequences(IEnumerable<int> seq) => new TheoryData<int> {{ 42, 2112 }};
-
-					[Theory]
-					[MemberData(nameof(GetSequences), {{|#0:new char[] {{ 'a', 'b' }}|}})]
-					public void Test(int value) {{ }}
-				}}
-				""", header);
-			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("seq", "System.Collections.Generic.IEnumerable<int>");
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-		}
-
-		[Fact]
-		public async Task ValidMemberWithIncorrectArgumentTypes_Triggers()
-		{
-			var source = /* lang=c#-test */ """
 				public class TestClass {
-					public static Xunit.TheoryData<int> TestData(string n) => new Xunit.TheoryData<int> { n.Length };
+					public static TheoryData<int> StringData(string s) => new TheoryData<int> { s.Length };
 
-					[Xunit.MemberData(nameof(TestData), new object[] { {|#0:1|} })]
-					public void TestMethod(int n) { }
+					[MemberData(nameof(StringData), {|#0:1|})]
+					public void TestMethod1(int _) { }
+
+					public static TheoryData<int> ParamsIntData(params int[] n) => new TheoryData<int> { n[0] };
+
+					[MemberData(nameof(ParamsIntData), {|#1:"bob"|})]
+					public void TestMethod2(int _) { }
+
+					// https://github.com/xunit/xunit/issues/2817
+					public static TheoryData<int> EnumData(Foo foo) => new TheoryData<int> { (int)foo };
+
+					[Theory]
+					[MemberData(nameof(EnumData), Foo.Bar)]
+					[MemberData(nameof(EnumData), (Foo)42)]
+					public void TestMethod3(int _) { }
+
+					// https://github.com/xunit/xunit/issues/2852
+					public static TheoryData<int> IntegerSequenceData(IEnumerable<int> seq) => new TheoryData<int> { 42, 2112 };
+
+					[Theory]
+					[MemberData(nameof(IntegerSequenceData), new int[] { 1, 2 })]
+					[MemberData(nameof(IntegerSequenceData), {|#2:new char[] { 'a', 'b' }|})]
+					public void TestMethod4(int _) { }
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("n", "string");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Fact]
-		public async Task ValidMemberWithIncorrectArgumentTypesParams_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					public static Xunit.TheoryData<int> TestData(params int[] n) => new Xunit.TheoryData<int> { n[0] };
-
-					[Xunit.MemberData(nameof(TestData), new object[] { 1, {|#0:"bob"|} })]
-					public void TestMethod(int n) { }
-				}
-				""";
-			var expected = Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("n", "int");
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1035").WithLocation(0).WithArguments("s", "string"),
+				Verify.Diagnostic("xUnit1035").WithLocation(1).WithArguments("n", "int"),
+				Verify.Diagnostic("xUnit1035").WithLocation(2).WithArguments("seq", "System.Collections.Generic.IEnumerable<int>"),
+			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -732,58 +546,32 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1036_MemberDataArgumentsMustMatchMethodParameters_ExtraValue
 	{
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1")]
-		[InlineData(/* lang=c#-test */ "new object[] { 1 }")]
-		public async Task ValidArgumentCount_DoesNotTrigger(string parameter)
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					private static void TestData() {{ }}
+			var source = /* lang=c#-test */ """
+				using Xunit;
 
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
+				public class TestClass {
+					public static TheoryData<int> TestData(int n) => new TheoryData<int> { n };
 
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameter);
+					[MemberData(nameof(TestData), 1)]
+					public void TestMethod1(int _) { }
 
-			await Verify.VerifyAnalyzer(source);
-		}
+					[MemberData(nameof(TestData), new object[] { 1 })]
+					public void TestMethod2(int _) { }
 
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1")]
-		[InlineData(/* lang=c#-test */ "new object[] { 1 }")]
-		public async Task ValidArgumentCount_InNullableContext_DoesNotTrigger(string parameter)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
+					[MemberData(nameof(TestData), 1, {|#0:2|})]
+					public void TestMethod3(int _) { }
 
-				public class TestClass {{
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
-
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameter);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "1, {|#0:2|}")]
-		[InlineData(/* lang=c#-test */ "new object[] { 1, {|#0:2|} }")]
-		public async Task TooManyArguments_Triggers(string parameters)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					public static Xunit.TheoryData<int> TestData(int n) => new Xunit.TheoryData<int> {{ n }};
-
-					[Xunit.MemberData(nameof(TestData), {0})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", parameters);
-			var expected = Verify.Diagnostic("xUnit1036").WithLocation(0).WithArguments("2");
+					[MemberData(nameof(TestData), new object[] { 1, {|#1:2|} })]
+					public void TestMethod4(int _) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1036").WithLocation(0).WithArguments("2"),
+				Verify.Diagnostic("xUnit1036").WithLocation(1).WithArguments("2"),
+			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
@@ -791,819 +579,774 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
 	{
-		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			/* lang=c#-test */ { " = ", "" },              // Field
-			/* lang=c#-test */ { " => ", "" },             // Property
-			/* lang=c#-test */ { "() => ", "" },           // Method w/o args
-			/* lang=c#-test */ { "(int n) => ", ", 42" },  // Method w/ args
-		};
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				using Xunit;
 
-				public class TestClass {{
-					public static TheoryData<int> TestData{0}new TheoryData<int>();
+				public class DerivedTheoryData<T, U> : TheoryData<T> { }
 
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void TestMethod(int n, string f) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryData");
+				public class TestClass {
+					public static TheoryData<int> FieldData = new TheoryData<int>();
+					public static TheoryData<int> PropertyData => new TheoryData<int>();
+					public static TheoryData<int> MethodData() => new TheoryData<int>();
+					public static TheoryData<int> MethodDataWithArgs(int n) => new TheoryData<int>();
+
+					[{|#0:MemberData(nameof(FieldData))|}]
+					[{|#1:MemberData(nameof(PropertyData))|}]
+					[{|#2:MemberData(nameof(MethodData))|}]
+					[{|#3:MemberData(nameof(MethodDataWithArgs), 42)|}]
+					public void TestMethod1(int n, string f) { }
+
+					public static DerivedTheoryData<int, string> DerivedFieldData = new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> DerivedPropertyData => new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> DerivedMethodData() => new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> DerivedMethodDataWithArgs(int n) => new DerivedTheoryData<int, string>();
+
+					[{|#10:MemberData(nameof(DerivedFieldData))|}]
+					[{|#11:MemberData(nameof(DerivedPropertyData))|}]
+					[{|#12:MemberData(nameof(DerivedMethodData))|}]
+					[{|#13:MemberData(nameof(DerivedMethodDataWithArgs), 42)|}]
+					public void TestMethod3(int n, string f) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(1).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(2).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(3).WithArguments("Xunit.TheoryData"),
+
+				Verify.Diagnostic("xUnit1037").WithLocation(10).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(11).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(12).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1037").WithLocation(13).WithArguments("Xunit.TheoryData"),
+			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
 
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowMemberWithNotEnoughTypeParameters_Triggers(
-			string memberSyntax,
-			string memberArgs)
+		[Fact]
+		public async ValueTask V3_only()
 		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
 				using Xunit;
 
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<int>> TestData{0}null;
+				public class TestClass {
+					public static IEnumerable<TheoryDataRow<int>> NullFieldData = null;
+					public static IEnumerable<TheoryDataRow<int>> NullPropertyData => null;
+					public static IEnumerable<TheoryDataRow<int>> NullMethodData() => null;
+					public static IEnumerable<TheoryDataRow<int>> NullMethodDataWithArgs(int n) => null;
 
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void TestMethod(int n, string f) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
+					[{|#0:MemberData(nameof(NullFieldData))|}]
+					[{|#1:MemberData(nameof(NullPropertyData))|}]
+					[{|#2:MemberData(nameof(NullMethodData))|}]
+					[{|#3:MemberData(nameof(NullMethodDataWithArgs), 42)|}]
+					public void TestMethod2(int n, string f) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1037").WithLocation(1).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1037").WithLocation(2).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1037").WithLocation(3).WithArguments("Xunit.TheoryDataRow"),
+			};
 
 			await Verify.VerifyAnalyzerV3(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidSubclassedTheoryDataMemberWithNotEnoughTypeParameters_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
-
-				public class TestClass {{
-					public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
-
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void TestMethod(int n, string f) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1037").WithLocation(0).WithArguments("Xunit.TheoryData");
-
-			await Verify.VerifyAnalyzer(source, expected);
 		}
 	}
 
 	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
-		public static TheoryData<string, string> MemberSyntaxAndArgs() => new()
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			{ " = ", "" },              // Field
-			{ " => ", "" },             // Property
-			{ "() => ", "" },           // Method w/o args
-			{ "(int n) => ", ", 42" },  // Method w/ args
-		};
-
-		public static MatrixTheoryData<(string syntax, string args), string> MemberSyntaxAndArgs_WithTheoryDataType(string theoryDataTypes) => new(
-			[
-				(" = ", ""),              // Field
-				(" => ", ""),             // Property
-				("() => ", ""),           // Method w/o args
-				("(int n) => ", ", 42"),  // Method w/ args
-			],
-			[
-				$"TheoryData<{theoryDataTypes}>",
-				"DerivedTheoryData",
-				$"DerivedTheoryData<{theoryDataTypes}>"
-			]
-		);
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryData_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int> {{ }}
-				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRow_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataWithOptionalParameters_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int> {{ }}
-				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, int a = 0) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowWithOptionalParameters_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static TheoryDataRow<int>[] TestData{0}new TheoryDataRow<int>[0];
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, int a = 0) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataWithNoValuesForParamsArray_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int> {{ }}
-				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, params int[] a) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowWithNoValuesForParamsArray_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static ICollection<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, params int[] a) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataWithSingleValueForParamsArray_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int, int> {{ }}
-				public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, params int[] a) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowWithSingleValueForParamsArray_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<int, int>> TestData{0}new List<TheoryDataRow<int, int>>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n, params int[] a) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataWithGenericTestParameter_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int> {{ }}
-				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod<T>(T n) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowWithGenericTestParameter_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static ISet<TheoryDataRow<int>> TestData{0}new HashSet<TheoryDataRow<int>>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod<T>(T n) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int", DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataWithNullableGenericTestParameter_DoesNotTrigger(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				#nullable enable
 
 				using Xunit;
 
-				public class DerivedTheoryData : TheoryData<int> {{ }}
-				public class DerivedTheoryData<T> : TheoryData<T> {{ }}
+				public class DerivedTheoryData : TheoryData<int> { }
+				public class DerivedTheoryData<T> : TheoryData<T> { }
+				public class DerivedTheoryData<T, U> : TheoryData<T> { }
 
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
+				public class DerivedTheoryData2 : TheoryData<int, int> { }
+				public class DerivedTheoryData2<T1, T2> : TheoryData<T1, T2> { }
 
-					[Xunit.MemberData(nameof(TestData){1})]
-					public void TestMethod<T>(T? n) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
+				public class DerivedTheoryData3 : TheoryData<int, string[], string> { }
+				public class DerivedTheoryData3<T1, T2, T3> : TheoryData<T1, T2, T3> { }
 
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
-		}
+				public class TestClass {
+					// ===== Direct TheoryData<> usage =====
 
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowWithNullableGenericTestParameter_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
+					public static TheoryData<int> FieldTheoryData = new TheoryData<int>();
+					public static TheoryData<int> PropertyTheoryData => new TheoryData<int>();
+					public static TheoryData<int> MethodTheoryData() => new TheoryData<int>();
+					public static TheoryData<int> MethodWithArgsTheoryData(int _) => new TheoryData<int>();
 
-				using System.Collections.Generic;
-				using Xunit;
+					// Exact match
+					[MemberData(nameof(FieldTheoryData))]
+					[MemberData(nameof(PropertyTheoryData))]
+					[MemberData(nameof(MethodTheoryData))]
+					[MemberData(nameof(MethodWithArgsTheoryData), 42)]
+					public void TestMethod1a(int _) { }
 
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<int>> TestData{0}new List<TheoryDataRow<int>>();
+					// Optional paramter, no argument from data source
+					[MemberData(nameof(FieldTheoryData))]
+					[MemberData(nameof(PropertyTheoryData))]
+					[MemberData(nameof(MethodTheoryData))]
+					[MemberData(nameof(MethodWithArgsTheoryData), 42)]
+					public void TestMethod1b(int _1, int _2 = 0) { }
 
-					[Xunit.MemberData(nameof(TestData){1})]
-					public void TestMethod<T>(T? n) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
+					// Params array, no argument from data source
+					[MemberData(nameof(FieldTheoryData))]
+					[MemberData(nameof(PropertyTheoryData))]
+					[MemberData(nameof(MethodTheoryData))]
+					[MemberData(nameof(MethodWithArgsTheoryData), 42)]
+					public void TestMethod1c(int _1, params int[] _2) { }
 
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
-		}
+					// Generic match
+					[MemberData(nameof(FieldTheoryData))]
+					[MemberData(nameof(PropertyTheoryData))]
+					[MemberData(nameof(MethodTheoryData))]
+					[MemberData(nameof(MethodWithArgsTheoryData), 42)]
+					public void TestMethod1d<T>(T _) { }
 
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataDoubleGenericSubclassMember_DoesNotTrigger(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
+					// Generic nullable match
+					[MemberData(nameof(FieldTheoryData))]
+					[MemberData(nameof(PropertyTheoryData))]
+					[MemberData(nameof(MethodTheoryData))]
+					[MemberData(nameof(MethodWithArgsTheoryData), 42)]
+					public void TestMethod1e<T>(T? _) { }
 
-				public class DerivedTheoryData<T, U> : TheoryData<T> {{ }}
+					public static TheoryData<int, int> FieldTheoryData2 = new TheoryData<int, int>();
+					public static TheoryData<int, int> PropertyTheoryData2 => new TheoryData<int, int>();
+					public static TheoryData<int, int> MethodTheoryData2() => new TheoryData<int, int>();
+					public static TheoryData<int, int> MethodWithArgsTheoryData2(int _) => new TheoryData<int, int>();
 
-				public class TestClass {{
-					public static DerivedTheoryData<int, string> TestData{0}new DerivedTheoryData<int, string>();
+					// Params array, single non-array argument from data source
+					[MemberData(nameof(FieldTheoryData2))]
+					[MemberData(nameof(PropertyTheoryData2))]
+					[MemberData(nameof(MethodTheoryData2))]
+					[MemberData(nameof(MethodWithArgsTheoryData2), 42)]
+					public void TestMethod1f(int _1, params int[] _2) { }
 
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
+					// Too many arguments
+					[{|#0:MemberData(nameof(FieldTheoryData2))|}]
+					[{|#1:MemberData(nameof(PropertyTheoryData2))|}]
+					[{|#2:MemberData(nameof(MethodTheoryData2))|}]
+					[{|#3:MemberData(nameof(MethodWithArgsTheoryData2), 42)|}]
+					public void TestMethod1g(int _) { }
 
-			await Verify.VerifyAnalyzer(source);
+					public static TheoryData<int, string[], string> FieldTheoryData3 = new TheoryData<int, string[], string>();
+					public static TheoryData<int, string[], string> PropertyTheoryData3 => new TheoryData<int, string[], string>();
+					public static TheoryData<int, string[], string> MethodTheoryData3() => new TheoryData<int, string[], string>();
+					public static TheoryData<int, string[], string> MethodWithArgsTheoryData3(int _) => new TheoryData<int, string[], string>();
+
+					// Extra parameter type on data source
+					[{|#4:MemberData(nameof(FieldTheoryData3))|}]
+					[{|#5:MemberData(nameof(PropertyTheoryData3))|}]
+					[{|#6:MemberData(nameof(MethodTheoryData3))|}]
+					[{|#7:MemberData(nameof(MethodWithArgsTheoryData3), 42)|}]
+					public void TestMethod1h(int _1, params string[] _2) { }
+
+					// ===== Indirect TheoryData<> without generics =====
+
+					public static DerivedTheoryData FieldDerivedTheoryData = new DerivedTheoryData();
+					public static DerivedTheoryData PropertyDerivedTheoryData => new DerivedTheoryData();
+					public static DerivedTheoryData MethodDerivedTheoryData() => new DerivedTheoryData();
+					public static DerivedTheoryData MethodWithArgsDerivedTheoryData(int _) => new DerivedTheoryData();
+
+					// Exact match
+					[MemberData(nameof(FieldDerivedTheoryData))]
+					[MemberData(nameof(PropertyDerivedTheoryData))]
+					[MemberData(nameof(MethodDerivedTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData), 42)]
+					public void TestMethod2a(int _) { }
+
+					// Optional paramter, no argument from data source
+					[MemberData(nameof(FieldDerivedTheoryData))]
+					[MemberData(nameof(PropertyDerivedTheoryData))]
+					[MemberData(nameof(MethodDerivedTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData), 42)]
+					public void TestMethod2b(int _1, int _2 = 0) { }
+
+					// Params array, no argument from data source
+					[MemberData(nameof(FieldDerivedTheoryData))]
+					[MemberData(nameof(PropertyDerivedTheoryData))]
+					[MemberData(nameof(MethodDerivedTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData), 42)]
+					public void TestMethod2c(int _1, params int[] _2) { }
+
+					// Generic match
+					[MemberData(nameof(FieldDerivedTheoryData))]
+					[MemberData(nameof(PropertyDerivedTheoryData))]
+					[MemberData(nameof(MethodDerivedTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData), 42)]
+					public void TestMethod2d<T>(T _) { }
+
+					// Generic nullable match
+					[MemberData(nameof(FieldDerivedTheoryData))]
+					[MemberData(nameof(PropertyDerivedTheoryData))]
+					[MemberData(nameof(MethodDerivedTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData), 42)]
+					public void TestMethod2e<T>(T? _) { }
+
+					public static DerivedTheoryData2 FieldDerivedTheoryData2 = new DerivedTheoryData2();
+					public static DerivedTheoryData2 PropertyDerivedTheoryData2 => new DerivedTheoryData2();
+					public static DerivedTheoryData2 MethodDerivedTheoryData2() => new DerivedTheoryData2();
+					public static DerivedTheoryData2 MethodWithArgsDerivedTheoryData2(int _) => new DerivedTheoryData2();
+
+					// Params array, single non-array argument from data source
+					[MemberData(nameof(FieldDerivedTheoryData2))]
+					[MemberData(nameof(PropertyDerivedTheoryData2))]
+					[MemberData(nameof(MethodDerivedTheoryData2))]
+					[MemberData(nameof(MethodWithArgsDerivedTheoryData2), 42)]
+					public void TestMethod2f(int _1, params int[] _2) { }
+
+					// Too many arguments
+					[{|#10:MemberData(nameof(FieldDerivedTheoryData2))|}]
+					[{|#11:MemberData(nameof(PropertyDerivedTheoryData2))|}]
+					[{|#12:MemberData(nameof(MethodDerivedTheoryData2))|}]
+					[{|#13:MemberData(nameof(MethodWithArgsDerivedTheoryData2), 42)|}]
+					public void TestMethod2g(int _) { }
+
+					public static DerivedTheoryData3 FieldDerivedTheoryData3 = new DerivedTheoryData3();
+					public static DerivedTheoryData3 PropertyDerivedTheoryData3 => new DerivedTheoryData3();
+					public static DerivedTheoryData3 MethodDerivedTheoryData3() => new DerivedTheoryData3();
+					public static DerivedTheoryData3 MethodWithArgsDerivedTheoryData3(int _) => new DerivedTheoryData3();
+
+					// Extra parameter type on data source
+					[{|#14:MemberData(nameof(FieldDerivedTheoryData3))|}]
+					[{|#15:MemberData(nameof(PropertyDerivedTheoryData3))|}]
+					[{|#16:MemberData(nameof(MethodDerivedTheoryData3))|}]
+					[{|#17:MemberData(nameof(MethodWithArgsDerivedTheoryData3), 42)|}]
+					public void TestMethod2h(int _1, params string[] _2) { }
+
+					// ===== Indirect TheoryData<> with generics =====
+
+					public static DerivedTheoryData<int> FieldDerivedGenericTheoryData = new DerivedTheoryData<int>();
+					public static DerivedTheoryData<int> PropertyDerivedGenericTheoryData => new DerivedTheoryData<int>();
+					public static DerivedTheoryData<int> MethodDerivedGenericTheoryData() => new DerivedTheoryData<int>();
+					public static DerivedTheoryData<int> MethodWithArgsDerivedGenericTheoryData(int _) => new DerivedTheoryData<int>();
+
+					// Exact match
+					[MemberData(nameof(FieldDerivedGenericTheoryData))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData), 42)]
+					public void TestMethod3a(int _) { }
+
+					// Optional paramter, no argument from data source
+					[MemberData(nameof(FieldDerivedGenericTheoryData))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData), 42)]
+					public void TestMethod3b(int _1, int _2 = 0) { }
+
+					// Params array, no argument from data source
+					[MemberData(nameof(FieldDerivedGenericTheoryData))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData), 42)]
+					public void TestMethod3c(int _1, params int[] _2) { }
+
+					// Generic match
+					[MemberData(nameof(FieldDerivedGenericTheoryData))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData), 42)]
+					public void TestMethod3d<T>(T _) { }
+
+					// Generic nullable match
+					[MemberData(nameof(FieldDerivedGenericTheoryData))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData), 42)]
+					public void TestMethod3e<T>(T? _) { }
+
+					public static DerivedTheoryData2<int, int> FieldDerivedGenericTheoryData2 = new DerivedTheoryData2<int, int>();
+					public static DerivedTheoryData2<int, int> PropertyDerivedGenericTheoryData2 => new DerivedTheoryData2<int, int>();
+					public static DerivedTheoryData2<int, int> MethodDerivedGenericTheoryData2() => new DerivedTheoryData2<int, int>();
+					public static DerivedTheoryData2<int, int> MethodWithArgsDerivedGenericTheoryData2(int _) => new DerivedTheoryData2<int, int>();
+
+					// Params array, single non-array argument from data source
+					[MemberData(nameof(FieldDerivedGenericTheoryData2))]
+					[MemberData(nameof(PropertyDerivedGenericTheoryData2))]
+					[MemberData(nameof(MethodDerivedGenericTheoryData2))]
+					[MemberData(nameof(MethodWithArgsDerivedGenericTheoryData2), 42)]
+					public void TestMethod3f(int _1, params int[] _2) { }
+
+					// Too many arguments
+					[{|#20:MemberData(nameof(FieldDerivedGenericTheoryData2))|}]
+					[{|#21:MemberData(nameof(PropertyDerivedGenericTheoryData2))|}]
+					[{|#22:MemberData(nameof(MethodDerivedGenericTheoryData2))|}]
+					[{|#23:MemberData(nameof(MethodWithArgsDerivedGenericTheoryData2), 42)|}]
+					public void TestMethod3g(int _) { }
+
+					public static DerivedTheoryData3<int, string[], string> FieldDerivedGenericTheoryData3 = new DerivedTheoryData3<int, string[], string>();
+					public static DerivedTheoryData3<int, string[], string> PropertyDerivedGenericTheoryData3 => new DerivedTheoryData3<int, string[], string>();
+					public static DerivedTheoryData3<int, string[], string> MethodDerivedGenericTheoryData3() => new DerivedTheoryData3<int, string[], string>();
+					public static DerivedTheoryData3<int, string[], string> MethodWithArgsDerivedGenericTheoryData3(int _) => new DerivedTheoryData3<int, string[], string>();
+
+					// Extra parameter type on data source
+					[{|#24:MemberData(nameof(FieldDerivedGenericTheoryData3))|}]
+					[{|#25:MemberData(nameof(PropertyDerivedGenericTheoryData3))|}]
+					[{|#26:MemberData(nameof(MethodDerivedGenericTheoryData3))|}]
+					[{|#27:MemberData(nameof(MethodWithArgsDerivedGenericTheoryData3), 42)|}]
+					public void TestMethod3h(int _1, params string[] _2) { }
+
+					// ===== Indirect TheoryData<> with generic type reduction =====
+
+					public static DerivedTheoryData<int, string> FieldTheoryDataTypeReduced = new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> PropertyTheoryDataTypeReduced => new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> MethodTheoryDataTypeReduced() => new DerivedTheoryData<int, string>();
+					public static DerivedTheoryData<int, string> MethodWithArgsTheoryDataTypeReduced(int _) => new DerivedTheoryData<int, string>();
+
+					// Exact match
+					[MemberData(nameof(FieldTheoryDataTypeReduced))]
+					[MemberData(nameof(PropertyTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodWithArgsTheoryDataTypeReduced), 42)]
+					public void TestMethod4a(int _) { }
+
+					// Generic match
+					[MemberData(nameof(FieldTheoryDataTypeReduced))]
+					[MemberData(nameof(PropertyTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodWithArgsTheoryDataTypeReduced), 42)]
+					public void TestMethod4d<T>(T _) { }
+
+					// Generic nullable match
+					[MemberData(nameof(FieldTheoryDataTypeReduced))]
+					[MemberData(nameof(PropertyTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodTheoryDataTypeReduced))]
+					[MemberData(nameof(MethodWithArgsTheoryDataTypeReduced), 42)]
+					public void TestMethod4e<T>(T? _) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(1).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(2).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(3).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(4).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(5).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(6).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(7).WithArguments("Xunit.TheoryData"),
+
+				Verify.Diagnostic("xUnit1038").WithLocation(10).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(11).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(12).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(13).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(14).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(15).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(16).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(17).WithArguments("Xunit.TheoryData"),
+
+				Verify.Diagnostic("xUnit1038").WithLocation(20).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(21).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(22).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(23).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(24).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(25).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(26).WithArguments("Xunit.TheoryData"),
+				Verify.Diagnostic("xUnit1038").WithLocation(27).WithArguments("Xunit.TheoryData"),
+			};
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source, expected);
 		}
 
 		[Fact]
-		public async Task WithIntArrayArguments_DoesNotTrigger()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
+				#nullable enable
+
 				using System.Collections.Generic;
 				using Xunit;
 
 				public class TestClass {
-				    public static TheoryData<IEnumerable<int>> GetSequences(IEnumerable<int> seq) => new TheoryData<IEnumerable<int>> { seq };
+					public static TheoryDataRow<int>[] FieldData = new TheoryDataRow<int>[0];
+					public static TheoryDataRow<int>[] PropertyData => new TheoryDataRow<int>[0];
+					public static TheoryDataRow<int>[] MethodData() => new TheoryDataRow<int>[0];
+					public static TheoryDataRow<int>[] MethodWithArgsData(int _) => new TheoryDataRow<int>[0];
 
-				    [Theory]
-				    [MemberData(nameof(GetSequences), new[] { 1, 2 })]
-				    [MemberData(nameof(GetSequences), new[] { 3, 4, 5 })]
-				    public void Test(IEnumerable<int> seq) {
-						Assert.NotEmpty(seq);
-					}
+					// Exact match
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1a(int _) { }
+
+					// Optional paramter, no argument from data source
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1b(int _1, int _2 = 0) { }
+
+					// Params array, no argument from data source
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1c(int _1, params int[] _2) { }
+
+					// Generic match
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1d<T>(T _) { }
+
+					// Generic nullable match
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1e<T>(T? _) { }
+
+					public static TheoryDataRow<int, int>[] FieldData2 = new TheoryDataRow<int, int>[0];
+					public static TheoryDataRow<int, int>[] PropertyData2 => new TheoryDataRow<int, int>[0];
+					public static TheoryDataRow<int, int>[] MethodData2() => new TheoryDataRow<int, int>[0];
+					public static TheoryDataRow<int, int>[] MethodWithArgsData2(int _) => new TheoryDataRow<int, int>[0];
+
+					// Params array, single non-array argument from data source
+					[MemberData(nameof(FieldData2))]
+					[MemberData(nameof(PropertyData2))]
+					[MemberData(nameof(MethodData2))]
+					[MemberData(nameof(MethodWithArgsData2), 42)]
+					public void TestMethod1f(int _1, params int[] _2) { }
+
+					// Too many arguments
+					[{|#0:MemberData(nameof(FieldData2))|}]
+					[{|#1:MemberData(nameof(PropertyData2))|}]
+					[{|#2:MemberData(nameof(MethodData2))|}]
+					[{|#3:MemberData(nameof(MethodWithArgsData2), 42)|}]
+					public void TestMethod1g(int _) { }
+
+					public static TheoryDataRow<int, string[], string>[] FieldData3 = new TheoryDataRow<int, string[], string>[0];
+					public static TheoryDataRow<int, string[], string>[] PropertyData3 => new TheoryDataRow<int, string[], string>[0];
+					public static TheoryDataRow<int, string[], string>[] MethodData3() => new TheoryDataRow<int, string[], string>[0];
+					public static TheoryDataRow<int, string[], string>[] MethodWithArgsData3(int _) => new TheoryDataRow<int, string[], string>[0];
+
+					// Extra parameter type on data source
+					[{|#4:MemberData(nameof(FieldData3))|}]
+					[{|#5:MemberData(nameof(PropertyData3))|}]
+					[{|#6:MemberData(nameof(MethodData3))|}]
+					[{|#7:MemberData(nameof(MethodWithArgsData3), 42)|}]
+					public void TestMethod1h(int _1, params string[] _2) { }
 				}
 				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(1).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(2).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(3).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(4).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(5).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(6).WithArguments("Xunit.TheoryDataRow"),
+				Verify.Diagnostic("xUnit1038").WithLocation(7).WithArguments("Xunit.TheoryDataRow"),
+			};
 
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string", DisableDiscoveryEnumeration = true)]
-		public async Task ValidSubclassTheoryDataMemberWithTooManyTypeParameters_Triggers(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int, string> {{ }}
-				public class DerivedTheoryData<T1, T2> : TheoryData<T1, T2> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryData");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidSubclassTheoryDataRowMemberWithTooManyTypeParameters_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<int, string>> TestData{0}new List<TheoryDataRow<int, string>>();
-
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void TestMethod(int n) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
-
-			await Verify.VerifyAnalyzerV3(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs_WithTheoryDataType), "int, string[], string", DisableDiscoveryEnumeration = true)]
-		public async Task ExtraTheoryDataTypeExistsPastArrayForParamsArray_Triggers(
-			(string syntax, string args) member,
-			string theoryDataType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class DerivedTheoryData : TheoryData<int, string[], string> {{ }}
-				public class DerivedTheoryData<T1, T2, T3> : TheoryData<T1, T2, T3> {{ }}
-
-				public class TestClass {{
-					public static {2} TestData{0}new {2}();
-
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void PuzzleOne(int _1, params string[] _2) {{ }}
-				}}
-				""", member.syntax, member.args, theoryDataType);
-			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryData");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ExtraTheoryDataRowTypeExistsPastArrayForParamsArray_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static ICollection<TheoryDataRow<int, string[], string>> TestData{0}new TheoryDataRow<int, string[], string>[0];
-
-					[{{|#0:MemberData(nameof(TestData){1})|}}]
-					public void PuzzleOne(int _1, params string[] _2) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow");
-
-			await Verify.VerifyAnalyzerV3(source, expected);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);
 		}
 	}
 
 	public class X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
 	{
-		public static MatrixTheoryData<(string syntax, string args), string> TypeWithMemberSyntaxAndArgs = new(
-			[
-				(" = ", ""),              // Field
-				(" => ", ""),             // Property
-				("() => ", ""),           // Method w/o args
-				("(int n) => ", ", 42"),  // Method w/ args
-			],
-			[
-				"int",
-				"System.Exception",
-			]
-		);
-
 		[Fact]
-		public async Task WhenPassingMultipleValuesForParamsArray_TheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<int, string, string> TestData = new TheoryData<int, string, string>();
-
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params string[] _2) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task WhenPassingMultipleValuesForParamsArray_TheoryDataRow_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
 				using Xunit;
 
 				public class TestClass {
-					public static IEnumerable<TheoryDataRow<int, string, string>> TestData = new List<TheoryDataRow<int, string, string>>();
+					public static TheoryData<int, string[]> FieldData = new TheoryData<int, string[]>();
+					public static TheoryData<int, string[]> PropertyData => new TheoryData<int, string[]>();
+					public static TheoryData<int, string[]> MethodData() => new TheoryData<int, string[]>();
+					public static TheoryData<int, string[]> MethodWithArgsData(int _) => new TheoryData<int, string[]>();
 
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params string[] _2) { }
+					// Exact match
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1(int _1, params string[] _2) { }
+
+					public static TheoryData<int, string, string> FieldDataCollapse = new TheoryData<int, string, string>();
+					public static TheoryData<int, string, string> PropertyDataCollapse => new TheoryData<int, string, string>();
+					public static TheoryData<int, string, string> MethodDataCollapse() => new TheoryData<int, string, string>();
+					public static TheoryData<int, string, string> MethodWithArgsDataCollapse(int _) => new TheoryData<int, string, string>();
+
+					// Multiple values can be collapsed into the params array
+					[MemberData(nameof(FieldDataCollapse))]
+					[MemberData(nameof(PropertyDataCollapse))]
+					[MemberData(nameof(MethodDataCollapse))]
+					[MemberData(nameof(MethodWithArgsDataCollapse), 42)]
+					public void TestMethod2(int _1, params string[] _2) { }
+
+					public static TheoryData<(int, int)> FieldNamelessTupleData = new TheoryData<(int, int)>();
+					public static TheoryData<(int, int)> PropertyNamelessTupleData => new TheoryData<(int, int)>();
+					public static TheoryData<(int, int)> MethodNamelessTupleData() => new TheoryData<(int, int)>();
+					public static TheoryData<(int, int)> MethodWithArgsNamelessTupleData(int _) => new TheoryData<(int, int)>();
+
+					// Nameless anonymous tuples
+					[MemberData(nameof(FieldNamelessTupleData))]
+					[MemberData(nameof(PropertyNamelessTupleData))]
+					[MemberData(nameof(MethodNamelessTupleData))]
+					[MemberData(nameof(MethodWithArgsNamelessTupleData), 42)]
+					public void TestMethod3((int a, int b) _) { }
+
+					public static TheoryData<(int x, int y)> FieldNamedTupleData = new TheoryData<(int x, int y)>();
+					public static TheoryData<(int x, int y)> PropertyNamedTupleData => new TheoryData<(int x, int y)>();
+					public static TheoryData<(int x, int y)> MethodNamedTupleData() => new TheoryData<(int x, int y)>();
+					public static TheoryData<(int x, int y)> MethodWithArgsNamedTupleData(int _) => new TheoryData<(int x, int y)>();
+
+					// Named anonymous tuples (names don't need to match, just the shape)
+					[MemberData(nameof(FieldNamedTupleData))]
+					[MemberData(nameof(PropertyNamedTupleData))]
+					[MemberData(nameof(MethodNamedTupleData))]
+					[MemberData(nameof(MethodWithArgsNamedTupleData), 42)]
+					public void TestMethod4((int a, int b) _) { }
+
+					public static TheoryData<object[]> FieldArrayData = new TheoryData<object[]>();
+					public static TheoryData<object[]> PropertyArrayData => new TheoryData<object[]>();
+					public static TheoryData<object[]> MethodArrayData() => new TheoryData<object[]>();
+					public static TheoryData<object[]> MethodWithArgsArrayData(int _) => new TheoryData<object[]>();
+
+					// https://github.com/xunit/xunit/issues/3007
+					[MemberData(nameof(FieldArrayData))]
+					[MemberData(nameof(PropertyArrayData))]
+					[MemberData(nameof(MethodArrayData))]
+					[MemberData(nameof(MethodWithArgsArrayData), 42)]
+					public void TestMethod5a<T>(T[] _1) {{ }}
+
+					[MemberData(nameof(FieldArrayData))]
+					[MemberData(nameof(PropertyArrayData))]
+					[MemberData(nameof(MethodArrayData))]
+					[MemberData(nameof(MethodWithArgsArrayData), 42)]
+					public void TestMethod5b<T>(IEnumerable<T> _1) {{ }}
+
+					public static TheoryData<int, string, int> FieldWithExtraArgData = new TheoryData<int, string, int>();
+					public static TheoryData<int, string, int> PropertyWithExtraArgData => new TheoryData<int, string, int>();
+					public static TheoryData<int, string, int> MethodWithExtraArgData() => new TheoryData<int, string, int>();
+					public static TheoryData<int, string, int> MethodWithArgsWithExtraArgData(int _) => new TheoryData<int, string, int>();
+
+					// Extra argument does not match params array type
+					[MemberData(nameof(FieldWithExtraArgData))]
+					[MemberData(nameof(PropertyWithExtraArgData))]
+					[MemberData(nameof(MethodWithExtraArgData))]
+					[MemberData(nameof(MethodWithArgsWithExtraArgData))]
+					public void TestMethod6(int _1, params {|#0:string[]|} _2) { }
+
+					public static TheoryData<int> FieldIncompatibleData = new TheoryData<int>();
+					public static TheoryData<int> PropertyIncompatibleData => new TheoryData<int>();
+					public static TheoryData<int> MethodIncompatibleData() => new TheoryData<int>();
+					public static TheoryData<int> MethodWithArgsIncompatibleData(int _) => new TheoryData<int>();
+
+					// Incompatible data type
+					[MemberData(nameof(FieldIncompatibleData))]
+					[MemberData(nameof(PropertyIncompatibleData))]
+					[MemberData(nameof(MethodIncompatibleData))]
+					[MemberData(nameof(MethodWithArgsIncompatibleData))]
+					public void TestMethod7({|#1:string|} _) { }
 				}
 				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.FieldWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.PropertyWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.MethodWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.MethodWithArgsWithExtraArgData", "_2"),
 
-			await Verify.VerifyAnalyzerV3(source);
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.FieldIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.PropertyIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.MethodIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.MethodWithArgsIncompatibleData", "_"),
+			};
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp7, source, expected);
 		}
 
 		[Fact]
-		public async Task WhenPassingArrayForParamsArray_TheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<int, string[]> TestData = new TheoryData<int, string[]>();
-
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params string[] _2) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task WhenPassingArrayForParamsArray_TheoryDataRow_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryDataRow<int, string[]>[] TestData = new TheoryDataRow<int, string[]>[0];
-
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params string[] _2) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Fact]
-		public async Task WhenPassingTupleWithoutFieldNames_TheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<(int, int)> TestData = new TheoryData<(int, int)>();
-
-					[MemberData(nameof(TestData))]
-					public void TestMethod((int a, int b) x) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Fact]
-		public async Task WhenPassingTupleWithoutFieldNames_TheoryDataRow_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {
-					public static IList<TheoryDataRow<(int, int)>> TestData = new List<TheoryDataRow<(int, int)>>();
-
-					[MemberData(nameof(TestData))]
-					public void TestMethod((int a, int b) x) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
-		}
-
-		[Fact]
-		public async Task WhenPassingTupleWithDifferentFieldNames_TheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<(int c, int d)> TestData = new TheoryData<(int, int)>();
-
-					[MemberData(nameof(TestData))]
-					public void TestMethod((int a, int b) x) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Fact]
-		public async Task WhenPassingTupleWithDifferentFieldNames_TheoryDataRow_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {
-					public static IEnumerable<TheoryDataRow<(int c, int d)>> TestData = new List<TheoryDataRow<(int, int)>>();
-
-					[MemberData(nameof(TestData))]
-					public void TestMethod((int a, int b) x) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
-		}
-
-		// https://github.com/xunit/xunit/issues/3007
-		[Theory]
-		[InlineData("T[]")]
-		[InlineData("IEnumerable<T>")]
-		public async Task WhenPassingArrayToGenericTheory_TheoryData_DoesNotTrigger(string enumerable)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static TheoryData<object[]> TestData = new TheoryData<object[]>();
-		
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne<T>({0} _1) {{ }}
-				}}
-				""", enumerable);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task WithExtraValueNotCompatibleWithParamsArray_TheoryData_Triggers()
-		{
-			var source = /* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {
-					public static TheoryData<int, string, int> TestData = new TheoryData<int, string, int>();
-
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
-				}
-				""";
-			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.TestData", "_2");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Fact]
-		public async Task WithExtraValueNotCompatibleWithParamsArray_TheoryDataRow_Triggers()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
 				using Xunit;
 
 				public class TestClass {
-					public static IEnumerable<TheoryDataRow<int, string, int>> TestData = new List<TheoryDataRow<int, string, int>>();
+					public static IEnumerable<TheoryDataRow<int, string[]>> FieldData = new List<TheoryDataRow<int, string[]>>();
+					public static IEnumerable<TheoryDataRow<int, string[]>> PropertyData => new List<TheoryDataRow<int, string[]>>();
+					public static IEnumerable<TheoryDataRow<int, string[]>> MethodData() => new List<TheoryDataRow<int, string[]>>();
+					public static IEnumerable<TheoryDataRow<int, string[]>> MethodWithArgsData(int _) => new List<TheoryDataRow<int, string[]>>();
 
-					[MemberData(nameof(TestData))]
-					public void PuzzleOne(int _1, params {|#0:string[]|} _2) { }
+					// Exact match
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1(int _1, params string[] _2) { }
+
+					public static IEnumerable<TheoryDataRow<int, string, string>> FieldDataCollapse = new List<TheoryDataRow<int, string, string>>();
+					public static IEnumerable<TheoryDataRow<int, string, string>> PropertyDataCollapse => new List<TheoryDataRow<int, string, string>>();
+					public static IEnumerable<TheoryDataRow<int, string, string>> MethodDataCollapse() => new List<TheoryDataRow<int, string, string>>();
+					public static IEnumerable<TheoryDataRow<int, string, string>> MethodWithArgsDataCollapse(int _) => new List<TheoryDataRow<int, string, string>>();
+
+					// Multiple values can be collapsed into the params array
+					[MemberData(nameof(FieldDataCollapse))]
+					[MemberData(nameof(PropertyDataCollapse))]
+					[MemberData(nameof(MethodDataCollapse))]
+					[MemberData(nameof(MethodWithArgsDataCollapse), 42)]
+					public void TestMethod2(int _1, params string[] _2) { }
+
+					public static IEnumerable<TheoryDataRow<(int, int)>> FieldNamelessTupleData = new List<TheoryDataRow<(int, int)>>();
+					public static IEnumerable<TheoryDataRow<(int, int)>> PropertyNamelessTupleData => new List<TheoryDataRow<(int, int)>>();
+					public static IEnumerable<TheoryDataRow<(int, int)>> MethodNamelessTupleData() => new List<TheoryDataRow<(int, int)>>();
+					public static IEnumerable<TheoryDataRow<(int, int)>> MethodWithArgsNamelessTupleData(int _) => new List<TheoryDataRow<(int, int)>>();
+
+					// Nameless anonymous tuples
+					[MemberData(nameof(FieldNamelessTupleData))]
+					[MemberData(nameof(PropertyNamelessTupleData))]
+					[MemberData(nameof(MethodNamelessTupleData))]
+					[MemberData(nameof(MethodWithArgsNamelessTupleData), 42)]
+					public void TestMethod3((int a, int b) _) { }
+
+					public static IEnumerable<TheoryDataRow<(int x, int y)>> FieldNamedTupleData = new List<TheoryDataRow<(int x, int y)>>();
+					public static IEnumerable<TheoryDataRow<(int x, int y)>> PropertyNamedTupleData => new List<TheoryDataRow<(int x, int y)>>();
+					public static IEnumerable<TheoryDataRow<(int x, int y)>> MethodNamedTupleData() => new List<TheoryDataRow<(int x, int y)>>();
+					public static IEnumerable<TheoryDataRow<(int x, int y)>> MethodWithArgsNamedTupleData(int _) => new List<TheoryDataRow<(int x, int y)>>();
+
+					// Named anonymous tuples (names don't need to match, just the shape)
+					[MemberData(nameof(FieldNamedTupleData))]
+					[MemberData(nameof(PropertyNamedTupleData))]
+					[MemberData(nameof(MethodNamedTupleData))]
+					[MemberData(nameof(MethodWithArgsNamedTupleData), 42)]
+					public void TestMethod4((int a, int b) _) { }
+
+					public static IEnumerable<TheoryDataRow<object[]>> FieldArrayData = new List<TheoryDataRow<object[]>>();
+					public static IEnumerable<TheoryDataRow<object[]>> PropertyArrayData => new List<TheoryDataRow<object[]>>();
+					public static IEnumerable<TheoryDataRow<object[]>> MethodArrayData() => new List<TheoryDataRow<object[]>>();
+					public static IEnumerable<TheoryDataRow<object[]>> MethodWithArgsArrayData(int _) => new List<TheoryDataRow<object[]>>();
+
+					// https://github.com/xunit/xunit/issues/3007
+					[MemberData(nameof(FieldArrayData))]
+					[MemberData(nameof(PropertyArrayData))]
+					[MemberData(nameof(MethodArrayData))]
+					[MemberData(nameof(MethodWithArgsArrayData), 42)]
+					public void TestMethod5a<T>(T[] _1) {{ }}
+
+					[MemberData(nameof(FieldArrayData))]
+					[MemberData(nameof(PropertyArrayData))]
+					[MemberData(nameof(MethodArrayData))]
+					[MemberData(nameof(MethodWithArgsArrayData), 42)]
+					public void TestMethod5b<T>(IEnumerable<T> _1) {{ }}
+
+					public static IEnumerable<TheoryDataRow<int, string, int>> FieldWithExtraArgData = new List<TheoryDataRow<int, string, int>>();
+					public static IEnumerable<TheoryDataRow<int, string, int>> PropertyWithExtraArgData => new List<TheoryDataRow<int, string, int>>();
+					public static IEnumerable<TheoryDataRow<int, string, int>> MethodWithExtraArgData() => new List<TheoryDataRow<int, string, int>>();
+					public static IEnumerable<TheoryDataRow<int, string, int>> MethodWithArgsWithExtraArgData(int _) => new List<TheoryDataRow<int, string, int>>();
+
+					// Extra argument does not match params array type
+					[MemberData(nameof(FieldWithExtraArgData))]
+					[MemberData(nameof(PropertyWithExtraArgData))]
+					[MemberData(nameof(MethodWithExtraArgData))]
+					[MemberData(nameof(MethodWithArgsWithExtraArgData))]
+					public void TestMethod6(int _1, params {|#0:string[]|} _2) { }
+
+					public static IEnumerable<TheoryDataRow<int>> FieldIncompatibleData = new List<TheoryDataRow<int>>();
+					public static IEnumerable<TheoryDataRow<int>> PropertyIncompatibleData => new List<TheoryDataRow<int>>();
+					public static IEnumerable<TheoryDataRow<int>> MethodIncompatibleData() => new List<TheoryDataRow<int>>();
+					public static IEnumerable<TheoryDataRow<int>> MethodWithArgsIncompatibleData(int _) => new List<TheoryDataRow<int>>();
+
+					// Incompatible data type
+					[MemberData(nameof(FieldIncompatibleData))]
+					[MemberData(nameof(PropertyIncompatibleData))]
+					[MemberData(nameof(MethodIncompatibleData))]
+					[MemberData(nameof(MethodWithArgsIncompatibleData))]
+					public void TestMethod7({|#1:string|} _) { }
 				}
 				""";
-			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.TestData", "_2");
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.FieldWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.PropertyWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.MethodWithExtraArgData", "_2"),
+				Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("int", "TestClass.MethodWithArgsWithExtraArgData", "_2"),
 
-			await Verify.VerifyAnalyzerV3(source, expected);
-		}
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.FieldIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.PropertyIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.MethodIncompatibleData", "_"),
+				Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "TestClass.MethodWithArgsIncompatibleData", "_"),
+			};
 
-		[Theory]
-		[MemberData(nameof(TypeWithMemberSyntaxAndArgs), DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataMemberWithIncompatibleTypeParameters_Triggers(
-			(string syntax, string args) member,
-			string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using Xunit;
-
-				public class TestClass {{
-					public static TheoryData<{2}> TestData{0}new TheoryData<{2}>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod({{|#0:string|}} f) {{ }}
-				}}
-				""", member.syntax, member.args, type);
-			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments(type, "TestClass.TestData", "f");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(TypeWithMemberSyntaxAndArgs), DisableDiscoveryEnumeration = true)]
-		public async Task ValidTheoryDataRowMemberWithIncompatibleTypeParameters_Triggers(
-			(string syntax, string args) member,
-			string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static IList<TheoryDataRow<{2}>> TestData{0}new List<TheoryDataRow<{2}>>();
-
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod({{|#0:string|}} f) {{ }}
-				}}
-				""", member.syntax, member.args, type);
-			var expected = Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments(type, "TestClass.TestData", "f");
-
-			await Verify.VerifyAnalyzerV3(source, expected);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7, source, expected);
 		}
 	}
 
 	public class X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 	{
-		public static TheoryData<string, string> MemberSyntaxAndArgs = new()
+		[Fact]
+		public async ValueTask V2_and_V3()
 		{
-			/* lang=c#-test */ { " = ", "" },              // Field
-			/* lang=c#-test */ { " => ", "" },             // Property
-			/* lang=c#-test */ { "() => ", "" },           // Method w/o args
-			/* lang=c#-test */ { "(int n) => ", ", 42" },  // Method w/ args
-		};
-
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataMemberWithMismatchedNullability_Triggers(
-			string memberSyntax,
-			string memberArgs)
-		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				#nullable enable
 
 				using Xunit;
 
-				public class TestClass {{
-					public static TheoryData<string?> TestData{0}new TheoryData<string?>();
+				public class TestClass {
+					public static TheoryData<string?> FieldData = new TheoryData<string?>();
+					public static TheoryData<string?> PropertyData => new TheoryData<string?>();
+					public static TheoryData<string?> MethodData() => new TheoryData<string?>();
+					public static TheoryData<string?> MethodWithArgsData(int _) => new TheoryData<string?>();
 
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod({{|#0:string|}} f) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.TestData", "f");
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod({|#0:string|} _) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.FieldData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.PropertyData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.MethodData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.MethodWithArgsData", "_"),
+			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
-		[Theory]
-		[MemberData(nameof(MemberSyntaxAndArgs))]
-		public async Task ValidTheoryDataRowMemberWithMismatchedNullability_Triggers(
-			string memberSyntax,
-			string memberArgs)
+		[Fact]
+		public async ValueTask V3_only()
 		{
-			var source = string.Format(/* lang=c#-test */ """
+			var source = /* lang=c#-test */ """
 				#nullable enable
 
 				using System.Collections.Generic;
 				using Xunit;
 
-				public class TestClass {{
-					public static IEnumerable<TheoryDataRow<string?>> TestData{0}new List<TheoryDataRow<string?>>();
+				public class TestClass {
+					public static IEnumerable<TheoryDataRow<string?>> FieldData = new List<TheoryDataRow<string?>>();
+					public static IEnumerable<TheoryDataRow<string?>> PropertyData => new List<TheoryDataRow<string?>>();
+					public static IEnumerable<TheoryDataRow<string?>> MethodData() => new List<TheoryDataRow<string?>>();
+					public static IEnumerable<TheoryDataRow<string?>> MethodWithArgsData(int _) => new List<TheoryDataRow<string?>>();
 
-					[MemberData(nameof(TestData){1})]
-					public void TestMethod({{|#0:string|}} f) {{ }}
-				}}
-				""", memberSyntax, memberArgs);
-			var expected = Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.TestData", "f");
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod({|#0:string|} _) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.FieldData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.PropertyData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.MethodData", "_"),
+				Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "TestClass.MethodWithArgsData", "_"),
+			};
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 		}
@@ -1611,126 +1354,156 @@ public class MemberDataShouldReferenceValidMemberTests
 
 	public class X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
 	{
+		const string V2AllowedTypes = "TheoryData<>";
+		const string V3AllowedTypes = "TheoryData<> or IEnumerable<TheoryDataRow<>>";
+
 		[Fact]
-		public async Task TheoryData_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
 				using Xunit;
 
 				public class TestClass {
-					public static TheoryData<int> Data;
+					public static TheoryData<int> FieldData;
+					public static TheoryData<int> PropertyData { get; set; }
+					public static TheoryData<int> MethodData() => null;
+					public static TheoryData<int> MethodWithArgsData(int _) => null;
 
-					[MemberData(nameof(Data))]
-					public void TestMethod(int _) { }
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1(int _) { }
+
+					public static IEnumerable<object[]> FieldUntypedData;
+					public static IEnumerable<object[]> PropertyUntypedData { get; set; }
+					public static List<object[]> MethodUntypedData() => null;
+					public static object[][] MethodWithArgsUntypedData(int _) => null;
+
+					[{|#0:MemberData(nameof(FieldUntypedData))|}]
+					[{|#1:MemberData(nameof(PropertyUntypedData))|}]
+					[{|#2:MemberData(nameof(MethodUntypedData))|}]
+					[{|#3:MemberData(nameof(MethodWithArgsUntypedData), 42)|}]
+					public void TestMethod2(int _) { }
 				}
 				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MatrixTheoryData_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {
-					public static MatrixTheoryData<int, string> Data;
-
-					[MemberData(nameof(Data))]
-					public void TestMethod(int _1, string _2) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[InlineData(/* lang=c#-test */ "IEnumerable<TheoryDataRow<int>>")]
-		[InlineData(/* lang=c#-test */ "IAsyncEnumerable<TheoryDataRow<int>>")]
-		[InlineData(/* lang=c#-test */ "List<TheoryDataRow<int>>")]
-		[InlineData(/* lang=c#-test */ "TheoryDataRow<int>[]")]
-		public async Task GenericTheoryDataRow_DoesNotTrigger(string memberType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-				using Xunit.v3;
-
-				public class TestClass {{
-					public static {0} Data;
-
-					[MemberData(nameof(Data))]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", memberType);
-
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
-		[InlineData("IEnumerable<object[]>")]
-		[InlineData("List<object[]>")]
-		public async Task ValidTypesWhichAreNotTheoryData_Trigger(string memberType)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections.Generic;
-				using Xunit;
-
-				public class TestClass {{
-					public static {0} Data;
-
-					[{{|#0:MemberData(nameof(Data))|}}]
-					public void TestMethod(int _) {{ }}
-				}}
-				""", memberType);
-			var expectedV2 = Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments("TheoryData<>");
-			var expectedV3 = Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments("TheoryData<> or IEnumerable<TheoryDataRow<>>");
+			var expectedV2 = new[] {
+				Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments(V2AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(1).WithArguments(V2AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(2).WithArguments(V2AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(3).WithArguments(V2AllowedTypes),
+			};
+			var expectedV3 = new[] {
+				Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(1).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(2).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(3).WithArguments(V3AllowedTypes),
+			};
 
 			await Verify.VerifyAnalyzerV2(source, expectedV2);
 			await Verify.VerifyAnalyzerV3(source, expectedV3);
 		}
 
-		// For v2, we test for xUnit1019 above, since it's incompatible rather than "compatible,
-		// but you could do better".
-		[Theory]
-		[InlineData(/* lang=c#-test */ "IAsyncEnumerable<object[]>")]
-		[InlineData(/* lang=c#-test */ "Task<IEnumerable<object[]>>")]
-		[InlineData(/* lang=c#-test */ "ValueTask<List<object[]>>")]
-		[InlineData(/* lang=c#-test */ "IEnumerable<TheoryDataRow>")]
-		[InlineData(/* lang=c#-test */ "IAsyncEnumerable<TheoryDataRow>")]
-		[InlineData(/* lang=c#-test */ "Task<IEnumerable<TheoryDataRow>>")]
-		[InlineData(/* lang=c#-test */ "Task<IAsyncEnumerable<TheoryDataRow>>")]
-		[InlineData(/* lang=c#-test */ "ValueTask<List<TheoryDataRow>>")]
-		[InlineData(/* lang=c#-test */ "IEnumerable<ITheoryDataRow>")]
-		[InlineData(/* lang=c#-test */ "Task<IEnumerable<ITheoryDataRow>>")]
-		[InlineData(/* lang=c#-test */ "Task<IAsyncEnumerable<ITheoryDataRow>>")]
-		[InlineData(/* lang=c#-test */ "ValueTask<EnumerableOfITheoryDataRow>")]
-		public async Task ValidTypesWhichAreNotTheoryDataOrGenericTheoryDataRow_TriggersInV3(string memberType)
+		[Fact]
+		public async Task V3_only()
 		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System.Collections;
+			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
 				using System.Threading.Tasks;
 				using Xunit;
 
-				public class TestClass {{
-					public static {0} Data;
+				public class TestClass {
+					public static MatrixTheoryData<int, string> FieldData;
+					public static MatrixTheoryData<int, string> PropertyData { get; set; }
+					public static MatrixTheoryData<int, string> MethodData() => null;
+					public static MatrixTheoryData<int, string> MethodWithArgsData(int _) => null;
 
-					[{{|#0:MemberData(nameof(Data))|}}]
-					public void TestMethod(int _) {{ }}
-				}}
+					[MemberData(nameof(FieldData))]
+					[MemberData(nameof(PropertyData))]
+					[MemberData(nameof(MethodData))]
+					[MemberData(nameof(MethodWithArgsData), 42)]
+					public void TestMethod1(int _1, string _2) { }
 
-				public class EnumerableOfITheoryDataRow : IEnumerable<ITheoryDataRow> {{
-					public IEnumerator<ITheoryDataRow> GetEnumerator() => null;
-					IEnumerator IEnumerable.GetEnumerator() => null;
-				}}
-				""", memberType);
-			var expected = Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments("TheoryData<> or IEnumerable<TheoryDataRow<>>");
+					public static IEnumerable<TheoryDataRow<int>> FieldEnumerableData;
+					public static IAsyncEnumerable<TheoryDataRow<int>> PropertyEnumerableData { get; set; }
+					public static List<TheoryDataRow<int>> MethodEnumerableData() => null;
+					public static TheoryDataRow<int>[] MethodWithArgsEnumerableData(int _) => null;
 
-			await Verify.VerifyAnalyzerV3(source, expected);
+					[MemberData(nameof(FieldEnumerableData))]
+					[MemberData(nameof(PropertyEnumerableData))]
+					[MemberData(nameof(MethodEnumerableData))]
+					[MemberData(nameof(MethodWithArgsEnumerableData), 42)]
+					public void TestMethod2(int _) { }
+
+					public static Task<IEnumerable<object[]>> FieldUntypedTaskData;
+					public static Task<IAsyncEnumerable<object[]>> PropertyUntypedTaskData { get; set; }
+					public static Task<List<object[]>> MethodUntypedTaskData() => null;
+					public static Task<object[][]> MethodWithArgsUntypedTaskData(int _) => null;
+
+					[{|#0:MemberData(nameof(FieldUntypedTaskData))|}]
+					[{|#1:MemberData(nameof(PropertyUntypedTaskData))|}]
+					[{|#2:MemberData(nameof(MethodUntypedTaskData))|}]
+					[{|#3:MemberData(nameof(MethodWithArgsUntypedTaskData), 42)|}]
+					public void TestMethod3(int _) { }
+
+					public static ValueTask<IEnumerable<object[]>> FieldUntypedValueTaskData;
+					public static ValueTask<IAsyncEnumerable<object[]>> PropertyUntypedValueTaskData { get; set; }
+					public static ValueTask<List<object[]>> MethodUntypedValueTaskData() => default;
+					public static ValueTask<object[][]> MethodWithArgsUntypedValueTaskData(int _) => default;
+
+					[{|#10:MemberData(nameof(FieldUntypedValueTaskData))|}]
+					[{|#11:MemberData(nameof(PropertyUntypedValueTaskData))|}]
+					[{|#12:MemberData(nameof(MethodUntypedValueTaskData))|}]
+					[{|#13:MemberData(nameof(MethodWithArgsUntypedValueTaskData), 42)|}]
+					public void TestMethod4(int _) { }
+
+					public static Task<IEnumerable<ITheoryDataRow>> FieldUntypedTaskData2;
+					public static Task<IAsyncEnumerable<ITheoryDataRow>> PropertyUntypedTaskData2 { get; set; }
+					public static Task<List<TheoryDataRow>> MethodUntypedTaskData2() => null;
+					public static Task<TheoryDataRow[]> MethodWithArgsUntypedTaskData2(int _) => null;
+
+					[{|#20:MemberData(nameof(FieldUntypedTaskData2))|}]
+					[{|#21:MemberData(nameof(PropertyUntypedTaskData2))|}]
+					[{|#22:MemberData(nameof(MethodUntypedTaskData2))|}]
+					[{|#23:MemberData(nameof(MethodWithArgsUntypedTaskData2), 42)|}]
+					public void TestMethod5(int _) { }
+
+					public static ValueTask<IEnumerable<ITheoryDataRow>> FieldUntypedValueTaskData2;
+					public static ValueTask<IAsyncEnumerable<ITheoryDataRow>> PropertyUntypedValueTaskData2 { get; set; }
+					public static ValueTask<List<TheoryDataRow>> MethodUntypedValueTaskData2() => default;
+					public static ValueTask<TheoryDataRow[]> MethodWithArgsUntypedValueTaskData2(int _) => default;
+
+					[{|#30:MemberData(nameof(FieldUntypedValueTaskData2))|}]
+					[{|#31:MemberData(nameof(PropertyUntypedValueTaskData2))|}]
+					[{|#32:MemberData(nameof(MethodUntypedValueTaskData2))|}]
+					[{|#33:MemberData(nameof(MethodWithArgsUntypedValueTaskData2), 42)|}]
+					public void TestMethod6(int _) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1042").WithLocation(0).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(1).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(2).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(3).WithArguments(V3AllowedTypes),
+
+				Verify.Diagnostic("xUnit1042").WithLocation(10).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(11).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(12).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(13).WithArguments(V3AllowedTypes),
+
+				Verify.Diagnostic("xUnit1042").WithLocation(20).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(21).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(22).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(23).WithArguments(V3AllowedTypes),
+
+				Verify.Diagnostic("xUnit1042").WithLocation(30).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(31).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(32).WithArguments(V3AllowedTypes),
+				Verify.Diagnostic("xUnit1042").WithLocation(33).WithArguments(V3AllowedTypes),
+			};
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source, expected);
 		}
 	}
 }
