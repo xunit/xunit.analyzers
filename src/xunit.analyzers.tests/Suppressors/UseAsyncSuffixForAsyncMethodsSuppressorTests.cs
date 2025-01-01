@@ -28,9 +28,7 @@ public class UseAsyncSuffixForAsyncMethodsSuppressorTests
 		var expected = new[]
 		{
 			new DiagnosticResult("VSTHRD200", DiagnosticSeverity.Warning).WithLocation(0),
-#if !ROSLYN_LATEST
 			new DiagnosticResult("VSTHRD200", DiagnosticSeverity.Warning).WithLocation(1).WithIsSuppressed(true),
-#endif
 		};
 
 		await Verify.VerifySuppressor(code, VsThreadingAnalyzers.VSTHRD200(), expected);

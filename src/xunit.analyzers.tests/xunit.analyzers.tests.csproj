@@ -2,11 +2,6 @@
 
   <PropertyGroup>
     <AssemblyName>xunit.analyzers.tests.$(TargetFramework)</AssemblyName>
-    <!--
-    TODO: Temporarily disable security vulnerability detection because Microsoft.CodeAnalysis.CSharp.CodeFix.Testing
-    1.1.1 is out of date and 1.1.2 is broken.
-    -->
-    <NoWarn>$(NoWarn);NU1902;NU1903;NU1904</NoWarn>
     <OutputType>Exe</OutputType>
     <PackageId>xunit.analyzers.tests</PackageId>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
@@ -28,11 +23,11 @@
     <PackageDownload Include="xunit.extensibility.execution" Version="[2.9.3-pre.4]" />
     <PackageDownload Include="xunit.runner.utility" Version="[2.9.3-pre.4]" />
 
-    <PackageDownload Include="xunit.v3.assert" Version="[1.0.1-pre.8]" />
-    <PackageDownload Include="xunit.v3.common" Version="[1.0.1-pre.8]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[1.0.1-pre.8]" />
-    <PackageDownload Include="xunit.v3.runner.common" Version="[1.0.1-pre.8]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[1.0.1-pre.8]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[1.0.1-pre.11]" />
+    <PackageDownload Include="xunit.v3.common" Version="[1.0.1-pre.11]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[1.0.1-pre.11]" />
+    <PackageDownload Include="xunit.v3.runner.common" Version="[1.0.1-pre.11]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[1.0.1-pre.11]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24454.1]" />
