@@ -175,6 +175,7 @@ public class UseCancellationTokenTests
 			class TestClass {
 				[Fact]
 				public async ValueTask TestMethod() {
+					await Assert.CollectionAsync(Array.Empty<int>(), x => [|Task.Delay(x)|], x => [|Task.Delay(x)|]);
 					await Assert.ThrowsAsync<Exception>(() => [|Task.Delay(1)|]);
 					await Record.ExceptionAsync(() => [|Task.Delay(1)|]);
 				}

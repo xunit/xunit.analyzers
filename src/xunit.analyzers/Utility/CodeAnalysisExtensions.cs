@@ -92,10 +92,13 @@ static class CodeAnalysisExtensions
 				{
 					lambdaOwner = parent;
 
-					if (parent.Parent is IDelegateCreationOperation &&
-							parent.Parent.Parent is IArgumentOperation &&
-							parent.Parent.Parent.Parent is IInvocationOperation invocationOperation)
-						lambdaOwner = invocationOperation;
+					if (parent.Parent is IDelegateCreationOperation)
+						for (var target = parent.Parent.Parent; target is not null; target = target.Parent)
+							if (target is IArgumentOperation && target.Parent is IInvocationOperation invocationOperation)
+							{
+								lambdaOwner = invocationOperation;
+								break;
+							}
 				}
 
 				continue;
