@@ -49,6 +49,8 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("new Dictionary<string, List<string>>()", "Dictionary<string, List<string>>")]
 #if NET6_0_OR_GREATER
 	[InlineData("DateOnly.MinValue", "DateOnly")]
+	[InlineData("Index.Start", "Index")]
+	[InlineData("Range.All", "Range")]
 	[InlineData("TimeOnly.MinValue", "TimeOnly")]
 #endif
 	[InlineData("Guid.Empty", "Guid")]

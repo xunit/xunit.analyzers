@@ -12,7 +12,9 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> dateOnly;
 	readonly Lazy<INamedTypeSymbol?> dateTimeOffset;
 	readonly Lazy<INamedTypeSymbol?> guid;
+	readonly Lazy<INamedTypeSymbol?> index;
 	readonly Lazy<INamedTypeSymbol?> iXunitSerializable;
+	readonly Lazy<INamedTypeSymbol?> range;
 	readonly Lazy<INamedTypeSymbol?> theoryDataBaseType;
 	readonly Dictionary<int, INamedTypeSymbol> theoryDataTypes;
 	readonly Lazy<INamedTypeSymbol?> timeOnly;
@@ -37,7 +39,9 @@ public sealed class SerializableTypeSymbols
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
 		guid = new(() => TypeSymbolFactory.Guid(compilation));
+		index = new(() => TypeSymbolFactory.Index(compilation));
 		iXunitSerializable = new(() => xunitContext.Common.IXunitSerializableType);
+		range = new(() => TypeSymbolFactory.Range(compilation));
 		// For v2 and early versions of v3, the base type is "TheoryData" (non-generic). For later versions
 		// of v3, it's "TheoryDataBase<TTheoryDataRow, TRawDataRow>". In either case, getting "TheoryData<T>"
 		// and going up one layer gets us the type we want to be able to search for.
@@ -77,8 +81,10 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? DateOnly => dateOnly.Value;
 	public INamedTypeSymbol? DateTimeOffset => dateTimeOffset.Value;
 	public INamedTypeSymbol? Guid => guid.Value;
+	public INamedTypeSymbol? Index => index.Value;
 	public INamedTypeSymbol? IXunitSerializable => iXunitSerializable.Value;
 	public INamedTypeSymbol MemberDataAttribute { get; }
+	public INamedTypeSymbol? Range => range.Value;
 	public INamedTypeSymbol TheoryAttribute { get; }
 	public INamedTypeSymbol? TheoryDataBaseType => theoryDataBaseType.Value;
 	public INamedTypeSymbol? TimeOnly => timeOnly.Value;

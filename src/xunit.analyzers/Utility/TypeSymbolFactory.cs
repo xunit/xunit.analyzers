@@ -175,6 +175,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IMethodInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMethodInfo_V2);
 
+	public static INamedTypeSymbol? Index(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Index");
+
 	public static INamedTypeSymbol? InlineDataAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.InlineDataAttribute);
 
@@ -315,6 +318,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? OptionalAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.InteropServices.OptionalAttribute");
+
+	public static INamedTypeSymbol? Range(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Range");
 
 	public static INamedTypeSymbol? Record(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Record);

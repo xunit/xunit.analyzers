@@ -48,10 +48,10 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 
 		if (xunitContext.HasV3References)
 		{
-			if (type.Equals(typeSymbols.Guid, SymbolEqualityComparer.Default))
-				return Serializability.AlwaysSerializable;
-
-			if (type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default))
+			if (type.Equals(typeSymbols.Guid, SymbolEqualityComparer.Default)
+				|| type.Equals(typeSymbols.Index, SymbolEqualityComparer.Default)
+				|| type.Equals(typeSymbols.Range, SymbolEqualityComparer.Default)
+				|| type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default))
 				return Serializability.AlwaysSerializable;
 		}
 

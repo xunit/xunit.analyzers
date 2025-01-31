@@ -208,33 +208,6 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		}
 
 		[Theory]
-		[MemberData(nameof(TheoryDataMembers), "Guid")]
-		[MemberData(nameof(TheoryDataMembers), "Guid?")]
-		[MemberData(nameof(TheoryDataMembers), "Uri")]
-		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
-			string member,
-			string attribute,
-			string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				using System;
-				using Xunit;
-
-				public class TestClass {{
-					{0}
-
-					[Theory]
-					[{{|#0:{1}|}}]
-					public void TestMethod({2} parameter) {{ }}
-				}}
-				""", member, attribute, type);
-			var expectedV2 = Verify.Diagnostic(type == "Uri" ? "xUnit1045" : "xUnit1044").WithLocation(0).WithArguments(type);
-
-			await Verify.VerifyAnalyzerV2(source, expectedV2);
-			await Verify.VerifyAnalyzerV3(source);
-		}
-
-		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "IXunitSerializable")]
 		[MemberData(nameof(TheoryDataMembers), "IXunitSerializable[]")]
 		[MemberData(nameof(TheoryDataMembers), "ISerializableInterface")]
@@ -435,6 +408,36 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 	public sealed class X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Guid")]
+		[MemberData(nameof(TheoryDataMembers), "Guid?")]
+#if NET6_0_OR_GREATER
+		[MemberData(nameof(TheoryDataMembers), "Index")]
+		[MemberData(nameof(TheoryDataMembers), "Range")]
+#endif
+		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+
+				public class TestClass {{
+					{0}
+
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
+				}}
+				""", member, attribute, type);
+			var expectedV2 = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type);
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
+		}
+
+		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "Delegate")]
 		[MemberData(nameof(TheoryDataMembers), "Delegate[]")]
 		[MemberData(nameof(TheoryDataMembers), "Func<int>")]
@@ -492,6 +495,32 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 
 	public sealed class X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Uri")]
+		[MemberData(nameof(TheoryDataMembers), "Uri?")]
+		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+
+				public class TestClass {{
+					{0}
+
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
+				}}
+				""", member, attribute, type);
+			var expectedV2 = Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments(type);
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+		}
+
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "object")]
 		[MemberData(nameof(TheoryDataMembers), "object[]")]
