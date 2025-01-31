@@ -23,6 +23,7 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> type;
 	readonly Lazy<ImmutableArray<INamedTypeSymbol>> typesWithCustomSerializers;
 	readonly Lazy<INamedTypeSymbol?> uri;
+	readonly Lazy<INamedTypeSymbol?> version;
 
 	SerializableTypeSymbols(
 		Compilation compilation,
@@ -68,6 +69,7 @@ public sealed class SerializableTypeSymbols
 					.ToImmutableArray();
 		});
 		uri = new(() => TypeSymbolFactory.Uri(compilation));
+		version = new(() => TypeSymbolFactory.Version(compilation));
 
 		ClassDataAttribute = classDataAttribute;
 		DataAttribute = dataAttribute;
@@ -93,6 +95,7 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? Type => type.Value;
 	public ImmutableArray<INamedTypeSymbol> TypesWithCustomSerializers => typesWithCustomSerializers.Value;
 	public INamedTypeSymbol? Uri => uri.Value;
+	public INamedTypeSymbol? Version => version.Value;
 
 	public static SerializableTypeSymbols? Create(
 		Compilation compilation,

@@ -414,6 +414,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "Index")]
 		[MemberData(nameof(TheoryDataMembers), "Range")]
 #endif
+		[MemberData(nameof(TheoryDataMembers), "Version")]
+		[MemberData(nameof(TheoryDataMembers), "Version?")]
 		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
 			string member,
 			string attribute,
@@ -433,8 +435,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				""", member, attribute, type);
 			var expectedV2 = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type);
 
-			await Verify.VerifyAnalyzerV2(source, expectedV2);
-			await Verify.VerifyAnalyzerV3(source);
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 		}
 
 		[Theory]

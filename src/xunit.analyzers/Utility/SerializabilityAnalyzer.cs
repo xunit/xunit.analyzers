@@ -51,7 +51,8 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 			if (type.Equals(typeSymbols.Guid, SymbolEqualityComparer.Default)
 				|| type.Equals(typeSymbols.Index, SymbolEqualityComparer.Default)
 				|| type.Equals(typeSymbols.Range, SymbolEqualityComparer.Default)
-				|| type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default))
+				|| type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default)
+				|| type.Equals(typeSymbols.Version, SymbolEqualityComparer.Default))
 				return Serializability.AlwaysSerializable;
 		}
 

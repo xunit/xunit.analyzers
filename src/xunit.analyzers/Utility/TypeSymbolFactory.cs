@@ -424,6 +424,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ValueTaskOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1");
 
+	public static INamedTypeSymbol? Version(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Version");
+
 	public static INamedTypeSymbol Void(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Void);
 }
