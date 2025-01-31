@@ -124,6 +124,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		}
 
 		[Theory]
+		// Serializable via XunitSerializationInfo (v2) or SerializationHelper (v3)
+		[MemberData(nameof(TheoryDataMembers), "Type")]
+		[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
 		[MemberData(nameof(TheoryDataMembers), "string")]
 		[MemberData(nameof(TheoryDataMembers), "string[]")]
 		[MemberData(nameof(TheoryDataMembers), "string[][]")]
@@ -165,11 +168,6 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "TimeSpan?")]
 		[MemberData(nameof(TheoryDataMembers), "BigInteger")]
 		[MemberData(nameof(TheoryDataMembers), "BigInteger?")]
-		[MemberData(nameof(TheoryDataMembers), "Type")]
-		[MemberData(nameof(TheoryDataMembers), "Enum")]
-		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
-		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
-		[MemberData(nameof(TheoryDataMembers), "Dictionary<string, List<string>>")]
 #if NET6_0_OR_GREATER
 		[MemberData(nameof(TheoryDataMembers), "DateOnly")]
 		[MemberData(nameof(TheoryDataMembers), "DateOnly[]")]
@@ -180,6 +178,10 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "TimeOnly?")]
 		[MemberData(nameof(TheoryDataMembers), "TimeOnly?[]")]
 #endif
+		// Serializable via XunitSerializationInfo (v2) or via built-in IXunitSerializer (v3)
+		[MemberData(nameof(TheoryDataMembers), "Enum")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
+		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
 		public async Task GivenTheory_WithSerializableTheoryDataMember_DoesNotTrigger(
 			string member,
 			string attribute,
@@ -203,6 +205,33 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				""", member, attribute, type);
 
 			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Guid")]
+		[MemberData(nameof(TheoryDataMembers), "Guid?")]
+		[MemberData(nameof(TheoryDataMembers), "Uri")]
+		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+
+				public class TestClass {{
+					{0}
+
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
+				}}
+				""", member, attribute, type);
+			var expectedV2 = Verify.Diagnostic(type == "Uri" ? "xUnit1045" : "xUnit1044").WithLocation(0).WithArguments(type);
+
+			await Verify.VerifyAnalyzerV2(source, expectedV2);
+			await Verify.VerifyAnalyzerV3(source);
 		}
 
 		[Theory]

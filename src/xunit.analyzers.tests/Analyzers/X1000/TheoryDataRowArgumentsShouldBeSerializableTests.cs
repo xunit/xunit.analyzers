@@ -51,6 +51,8 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("DateOnly.MinValue", "DateOnly")]
 	[InlineData("TimeOnly.MinValue", "TimeOnly")]
 #endif
+	[InlineData("Guid.Empty", "Guid")]
+	[InlineData("new Uri(\"https://xunit.net/\")", "Uri")]
 	public async Task IntrinsicallySerializableValue_DoesNotTrigger(
 		string value,
 		string type)

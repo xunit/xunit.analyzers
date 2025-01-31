@@ -11,6 +11,7 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> bigInteger;
 	readonly Lazy<INamedTypeSymbol?> dateOnly;
 	readonly Lazy<INamedTypeSymbol?> dateTimeOffset;
+	readonly Lazy<INamedTypeSymbol?> guid;
 	readonly Lazy<INamedTypeSymbol?> iXunitSerializable;
 	readonly Lazy<INamedTypeSymbol?> theoryDataBaseType;
 	readonly Dictionary<int, INamedTypeSymbol> theoryDataTypes;
@@ -19,6 +20,7 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> traitDictionary;
 	readonly Lazy<INamedTypeSymbol?> type;
 	readonly Lazy<ImmutableArray<INamedTypeSymbol>> typesWithCustomSerializers;
+	readonly Lazy<INamedTypeSymbol?> uri;
 
 	SerializableTypeSymbols(
 		Compilation compilation,
@@ -34,6 +36,7 @@ public sealed class SerializableTypeSymbols
 		bigInteger = new(() => TypeSymbolFactory.BigInteger(compilation));
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
+		guid = new(() => TypeSymbolFactory.Guid(compilation));
 		iXunitSerializable = new(() => xunitContext.Common.IXunitSerializableType);
 		// For v2 and early versions of v3, the base type is "TheoryData" (non-generic). For later versions
 		// of v3, it's "TheoryDataBase<TTheoryDataRow, TRawDataRow>". In either case, getting "TheoryData<T>"
@@ -60,6 +63,7 @@ public sealed class SerializableTypeSymbols
 					.WhereNotNull()
 					.ToImmutableArray();
 		});
+		uri = new(() => TypeSymbolFactory.Uri(compilation));
 
 		ClassDataAttribute = classDataAttribute;
 		DataAttribute = dataAttribute;
@@ -72,6 +76,7 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol DataAttribute { get; }
 	public INamedTypeSymbol? DateOnly => dateOnly.Value;
 	public INamedTypeSymbol? DateTimeOffset => dateTimeOffset.Value;
+	public INamedTypeSymbol? Guid => guid.Value;
 	public INamedTypeSymbol? IXunitSerializable => iXunitSerializable.Value;
 	public INamedTypeSymbol MemberDataAttribute { get; }
 	public INamedTypeSymbol TheoryAttribute { get; }
@@ -81,6 +86,7 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? TraitDictionary => traitDictionary.Value;
 	public INamedTypeSymbol? Type => type.Value;
 	public ImmutableArray<INamedTypeSymbol> TypesWithCustomSerializers => typesWithCustomSerializers.Value;
+	public INamedTypeSymbol? Uri => uri.Value;
 
 	public static SerializableTypeSymbols? Create(
 		Compilation compilation,

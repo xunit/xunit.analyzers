@@ -13,15 +13,19 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 	/// The logic in this method corresponds to the logic in SerializationHelper.IsSerializable
 	/// and SerializationHelper.Serialize.
 	/// </remarks>
-	public Serializability AnalayzeSerializability(ITypeSymbol type)
+	public Serializability AnalayzeSerializability(
+		ITypeSymbol type,
+		XunitContext xunitContext)
 	{
+		Guard.ArgumentNotNull(xunitContext);
+
 		type = type.UnwrapNullable();
 
 		if (GetTypeKindSerializability(type.TypeKind) == Serializability.NeverSerializable)
 			return Serializability.NeverSerializable;
 
 		if (type.TypeKind == TypeKind.Array && type is IArrayTypeSymbol arrayType)
-			return AnalayzeSerializability(arrayType.ElementType);
+			return AnalayzeSerializability(arrayType.ElementType, xunitContext);
 
 		if (typeSymbols.Type.IsAssignableFrom(type))
 			return Serializability.AlwaysSerializable;
@@ -41,6 +45,15 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 			|| type.Equals(typeSymbols.DateOnly, SymbolEqualityComparer.Default)
 			|| type.Equals(typeSymbols.TimeOnly, SymbolEqualityComparer.Default))
 			return Serializability.AlwaysSerializable;
+
+		if (xunitContext.HasV3References)
+		{
+			if (type.Equals(typeSymbols.Guid, SymbolEqualityComparer.Default))
+				return Serializability.AlwaysSerializable;
+
+			if (type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default))
+				return Serializability.AlwaysSerializable;
+		}
 
 		if (typeSymbols.TypesWithCustomSerializers.Any(t => t.IsAssignableFrom(type)))
 			return Serializability.AlwaysSerializable;

@@ -74,6 +74,9 @@ public static class TypeSymbolFactory
 		int arity = 1) =>
 			Guard.ArgumentNotNull(compilation).GetTypeByMetadataName($"System.Func`{ValidateArity(arity, min: 1, max: 17)}");
 
+	public static INamedTypeSymbol? Guid(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Guid");
+
 	public static INamedTypeSymbol? IAssemblyInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IAssemblyInfo_V2);
 
@@ -405,6 +408,9 @@ public static class TypeSymbolFactory
 
 		throw new ArgumentOutOfRangeException(nameof(arity), $"Arity {arity} must be between {min} and {max}.");
 	}
+
+	public static INamedTypeSymbol? Uri(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Uri");
 
 	public static INamedTypeSymbol? ValueTask(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.ValueTask");
