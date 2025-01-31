@@ -181,12 +181,6 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? IParameterInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IParameterInfo_V2);
 
-	public static INamedTypeSymbol? IValueTaskSource(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource");
-
-	public static INamedTypeSymbol? IValueTaskSourceOfT(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource`1");
-
 	public static INamedTypeSymbol IReadOnlyCollectionOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T);
 
@@ -279,6 +273,12 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? ITypeInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITypeInfo_V2);
+
+	public static INamedTypeSymbol? IValueTaskSource(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource");
+
+	public static INamedTypeSymbol? IValueTaskSourceOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Threading.Tasks.Sources.IValueTaskSource`1");
 
 	public static INamedTypeSymbol? IXunitSerializable_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IXunitSerializable_V2);
