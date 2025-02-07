@@ -54,6 +54,13 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 				|| type.Equals(typeSymbols.Uri, SymbolEqualityComparer.Default)
 				|| type.Equals(typeSymbols.Version, SymbolEqualityComparer.Default))
 				return Serializability.AlwaysSerializable;
+
+			if (typeSymbols.IFormattable.IsAssignableFrom(type) && typeSymbols.IParsableOfT is not null)
+			{
+				var iParsableOfSelf = typeSymbols.IParsableOfT.Construct(type);
+				if (iParsableOfSelf.IsAssignableFrom(type))
+					return Serializability.AlwaysSerializable;
+			}
 		}
 
 		if (typeSymbols.TypesWithCustomSerializers.Any(t => t.IsAssignableFrom(type)))

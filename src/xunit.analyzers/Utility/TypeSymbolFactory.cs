@@ -163,6 +163,9 @@ public static class TypeSymbolFactory
 		return IEnumerableOfT(compilation).Construct(iTuple);
 	}
 
+	public static INamedTypeSymbol? IFormattable(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.IFormattable");
+
 	public static INamedTypeSymbol? IMessageSink_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IMessageSink_V2);
 
@@ -183,6 +186,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? IParameterInfo_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IParameterInfo_V2);
+
+	public static INamedTypeSymbol? IParsableOfT(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.IParsable`1");
 
 	public static INamedTypeSymbol IReadOnlyCollectionOfT(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_Collections_Generic_IReadOnlyCollection_T);

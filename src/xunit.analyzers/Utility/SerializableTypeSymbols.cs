@@ -12,7 +12,9 @@ public sealed class SerializableTypeSymbols
 	readonly Lazy<INamedTypeSymbol?> dateOnly;
 	readonly Lazy<INamedTypeSymbol?> dateTimeOffset;
 	readonly Lazy<INamedTypeSymbol?> guid;
+	readonly Lazy<INamedTypeSymbol?> iFormattable;
 	readonly Lazy<INamedTypeSymbol?> index;
+	readonly Lazy<INamedTypeSymbol?> iParsableOfT;
 	readonly Lazy<INamedTypeSymbol?> iXunitSerializable;
 	readonly Lazy<INamedTypeSymbol?> range;
 	readonly Lazy<INamedTypeSymbol?> theoryDataBaseType;
@@ -40,7 +42,9 @@ public sealed class SerializableTypeSymbols
 		dateOnly = new(() => TypeSymbolFactory.DateOnly(compilation));
 		dateTimeOffset = new(() => TypeSymbolFactory.DateTimeOffset(compilation));
 		guid = new(() => TypeSymbolFactory.Guid(compilation));
+		iFormattable = new(() => TypeSymbolFactory.IFormattable(compilation));
 		index = new(() => TypeSymbolFactory.Index(compilation));
+		iParsableOfT = new(() => TypeSymbolFactory.IParsableOfT(compilation));
 		iXunitSerializable = new(() => xunitContext.Common.IXunitSerializableType);
 		range = new(() => TypeSymbolFactory.Range(compilation));
 		// For v2 and early versions of v3, the base type is "TheoryData" (non-generic). For later versions
@@ -83,7 +87,9 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? DateOnly => dateOnly.Value;
 	public INamedTypeSymbol? DateTimeOffset => dateTimeOffset.Value;
 	public INamedTypeSymbol? Guid => guid.Value;
+	public INamedTypeSymbol? IFormattable => iFormattable.Value;
 	public INamedTypeSymbol? Index => index.Value;
+	public INamedTypeSymbol? IParsableOfT => iParsableOfT.Value;
 	public INamedTypeSymbol? IXunitSerializable => iXunitSerializable.Value;
 	public INamedTypeSymbol MemberDataAttribute { get; }
 	public INamedTypeSymbol? Range => range.Value;

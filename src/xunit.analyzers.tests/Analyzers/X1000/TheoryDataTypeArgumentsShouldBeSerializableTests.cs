@@ -523,6 +523,76 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 		}
 
+		[Fact]
+		public async Task IFormattableAndIParseable_TriggersInV2_DoesNotTriggerInV3()
+		{
+			var source = /* lang=c#-test */ """
+				#nullable enable
+
+				using System;
+				using System.Diagnostics.CodeAnalysis;
+				using Xunit;
+
+				public class Formattable : IFormattable
+				{
+					public string ToString(string? format, IFormatProvider? formatProvider) => string.Empty;
+				}
+
+				public class Parsable : IParsable<Parsable>
+				{
+					public static Parsable Parse(string s, IFormatProvider? provider) => new();
+					public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Parsable result)
+					{
+						result = new();
+						return true;
+					}
+				}
+
+				public class FormattableAndParsable : IFormattable, IParsable<FormattableAndParsable>
+				{
+					public static FormattableAndParsable Parse(string s, IFormatProvider? provider) => new();
+					public string ToString(string? format, IFormatProvider? formatProvider) => string.Empty;
+					public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out FormattableAndParsable result)
+					{
+						result = new();
+						return true;
+					}
+				}
+
+				public class TestClass {
+					public static readonly TheoryData<Formattable> FormattableData = new TheoryData<Formattable>() { };
+					public static readonly TheoryData<Parsable> ParsableData = new TheoryData<Parsable>() { };
+					public static readonly TheoryData<FormattableAndParsable> FormattableAndParsableData = new TheoryData<FormattableAndParsable>() { };
+
+					[Theory]
+					[{|#0:MemberData(nameof(FormattableData))|}]
+					[{|#1:MemberData(nameof(ParsableData))|}]
+					[{|#2:MemberData(nameof(FormattableAndParsableData))|}]
+					public void TestMethod(object parameter) { }
+				}
+				""";
+#if ROSLYN_LATEST && NET8_0_OR_GREATER
+			var expectedV2 = new[] {
+				Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments("Formattable"),
+				Verify.Diagnostic("xUnit1045").WithLocation(1).WithArguments("Parsable"),
+				Verify.Diagnostic("xUnit1045").WithLocation(2).WithArguments("FormattableAndParsable"),
+			};
+			var expectedV3 = new[] {
+				Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments("Formattable"),
+				Verify.Diagnostic("xUnit1045").WithLocation(1).WithArguments("Parsable"),
+			};
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp11, source, expectedV2);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expectedV3);
+#else
+			// For some reason, 'dotnet format' complains about the indenting of #nullable enable in the source code line
+			// above if the #if statement surrounds the whole method, so we use this "workaround" to do nothing in that case.
+			Assert.NotEqual(string.Empty, source);
+			await Task.Yield();
+#endif
+		}
+
+
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "object")]
 		[MemberData(nameof(TheoryDataMembers), "object[]")]

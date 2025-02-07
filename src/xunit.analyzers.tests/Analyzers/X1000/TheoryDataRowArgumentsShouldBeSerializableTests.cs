@@ -301,6 +301,103 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 	}
 
+	[Fact]
+	public async Task IFormattableAndIParseable_DoesNotTrigger()
+	{
+		var source = /* lang=c#-test */ """
+			#nullable enable
+
+			using System;
+			using System.Collections.Generic;
+			using System.Diagnostics.CodeAnalysis;
+			using Xunit;
+
+			public class Formattable : IFormattable
+			{
+				public string ToString(string? format, IFormatProvider? formatProvider) => string.Empty;
+			}
+
+			public class Parsable : IParsable<Parsable>
+			{
+				public static Parsable Parse(string s, IFormatProvider? provider) => new();
+				public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Parsable result)
+				{
+					result = new();
+					return true;
+				}
+			}
+
+			public class FormattableAndParsable : IFormattable, IParsable<FormattableAndParsable>
+			{
+				public static FormattableAndParsable Parse(string s, IFormatProvider? provider) => new();
+				public string ToString(string? format, IFormatProvider? formatProvider) => string.Empty;
+				public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out FormattableAndParsable result)
+				{
+					result = new();
+					return true;
+				}
+			}
+
+			public class FormattableData {
+				public IEnumerable<TheoryDataRowBase> MyMethod() {
+					var defaultValue = default(Formattable);
+					var nullValue = default(Formattable?);
+					var arrayValue = new Formattable[0];
+				
+					yield return new TheoryDataRow({|#0:defaultValue|}, {|#1:nullValue|}, {|#2:arrayValue|});
+					yield return new TheoryDataRow<Formattable, Formattable, Formattable[]>({|#3:default(Formattable)|}, {|#4:default(Formattable?)|}, {|#5:new Formattable[0]|});
+				}
+			}
+
+			public class ParsableData {
+				public IEnumerable<TheoryDataRowBase> MyMethod() {
+					var defaultValue = default(Parsable);
+					var nullValue = default(Parsable?);
+					var arrayValue = new Parsable[0];
+				
+					yield return new TheoryDataRow({|#10:defaultValue|}, {|#11:nullValue|}, {|#12:arrayValue|});
+					yield return new TheoryDataRow<Parsable, Parsable, Parsable[]>({|#13:default(Parsable)|}, {|#14:default(Parsable?)|}, {|#15:new Parsable[0]|});
+				}
+			}
+
+			public class FormattableAndParsableData {
+				public IEnumerable<TheoryDataRowBase> MyMethod() {
+					var defaultValue = default(FormattableAndParsable);
+					var nullValue = default(FormattableAndParsable?);
+					var arrayValue = new FormattableAndParsable[0];
+				
+					yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
+					yield return new TheoryDataRow<FormattableAndParsable, FormattableAndParsable, FormattableAndParsable[]>(default(FormattableAndParsable), default(FormattableAndParsable?), new FormattableAndParsable[0]);
+				}
+			}
+			""";
+#if ROSLYN_LATEST && NET8_0_OR_GREATER
+		var expected = new[] {
+			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("defaultValue", "Formattable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments("nullValue", "Formattable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("arrayValue", "Formattable[]"),
+			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments("default(Formattable)", "Formattable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(4).WithArguments("default(Formattable?)", "Formattable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(5).WithArguments("new Formattable[0]", "Formattable[]"),
+
+			Verify.Diagnostic("xUnit1047").WithLocation(10).WithArguments("defaultValue", "Parsable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(11).WithArguments("nullValue", "Parsable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(12).WithArguments("arrayValue", "Parsable[]"),
+			Verify.Diagnostic("xUnit1047").WithLocation(13).WithArguments("default(Parsable)", "Parsable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(14).WithArguments("default(Parsable?)", "Parsable?"),
+			Verify.Diagnostic("xUnit1047").WithLocation(15).WithArguments("new Parsable[0]", "Parsable[]"),
+		};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
+#else
+		// For some reason, 'dotnet format' complains about the indenting of #nullable enable in the source code line
+		// above if the #if statement surrounds the whole method, so we use this "workaround" to do nothing in that case.
+		Assert.NotEqual(string.Empty, source);
+		await Task.Yield();
+#endif
+	}
+
+
 	[Theory]
 	[InlineData("object")]
 	[InlineData("Dictionary<int, string>")]
