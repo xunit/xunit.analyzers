@@ -16,7 +16,7 @@ public partial class BuildContext
 
 	partial void Initialize()
 	{
-		consoleRunner = Path.Combine(NuGetPackageCachePath, "xunit.v3.runner.console", "1.0.2-pre.3", "tools", "net472", "xunit.v3.runner.console.exe");
+		consoleRunner = Path.Combine(NuGetPackageCachePath, "xunit.v3.runner.console", "1.1.0-pre.12", "tools", "net472", "xunit.v3.runner.console.exe");
 		if (!File.Exists(consoleRunner))
 			throw new InvalidOperationException($"Cannot find console runner at '{consoleRunner}'");
 	}
