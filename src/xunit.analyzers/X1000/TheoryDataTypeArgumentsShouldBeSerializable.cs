@@ -214,7 +214,10 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			string name,
 			AttributeData memberDataAttribute)
 		{
-			var arguments = memberDataAttribute.ConstructorArguments[1].Values;
+			var arguments =
+				memberDataAttribute.ConstructorArguments.Length > 1
+					? memberDataAttribute.ConstructorArguments[1].Values
+					: ImmutableArray<TypedConstant>.Empty;
 			var method = GetCompatibleMethod(type, name, arguments);
 
 			if (method is not null && method.IsStatic)
