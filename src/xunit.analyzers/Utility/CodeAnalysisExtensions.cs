@@ -102,7 +102,7 @@ static class CodeAnalysisExtensions
 				}
 
 				continue;
-			};
+			}
 			if (parent is ILocalFunctionOperation)
 			{
 				lambdaOwner = parent;
