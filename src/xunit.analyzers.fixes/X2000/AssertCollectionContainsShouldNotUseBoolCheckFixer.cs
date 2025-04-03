@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -63,11 +64,18 @@ public class AssertCollectionContainsShouldNotUseBoolCheckFixer : BatchedCodeFix
 				if (invocationExpressionSyntax.Expression is MemberAccessExpressionSyntax anyMethodInvocation)
 				{
 					var anyTarget = anyMethodInvocation.Expression;
+					var isTrailingNull =
+						invocationExpressionSyntax.ArgumentList.Arguments.Count == 2
+						&& invocationExpressionSyntax.ArgumentList.Arguments[1].Expression.Kind() == SyntaxKind.NullLiteralExpression;
+					var existingArguments =
+						isTrailingNull
+							? SeparatedList([invocationExpressionSyntax.ArgumentList.Arguments[0]])
+							: invocationExpressionSyntax.ArgumentList.Arguments;
 
 					editor.ReplaceNode(
 						invocation,
 						invocation
-							.WithArgumentList(ArgumentList(SeparatedList(invocationExpressionSyntax.ArgumentList.Arguments.Insert(1, Argument(anyTarget)))))
+							.WithArgumentList(ArgumentList(SeparatedList(existingArguments.Insert(1, Argument(anyTarget)))))
 							.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 					);
 				}

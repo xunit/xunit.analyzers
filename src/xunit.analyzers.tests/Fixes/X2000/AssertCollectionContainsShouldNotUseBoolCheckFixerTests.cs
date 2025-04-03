@@ -28,11 +28,17 @@ public class AssertCollectionContainsShouldNotUseBoolCheckFixerTests
 		/* lang=c#-test */ @"[|Assert.True(items.Contains(""b"", StringComparer.Ordinal))|]",
 		/* lang=c#-test */ @"Assert.Contains(""b"", items, StringComparer.Ordinal)")]
 	[InlineData(
+		/* lang=c#-test */ @"[|Assert.True(items.Contains(""b"", null))|]",
+		/* lang=c#-test */ @"Assert.Contains(""b"", items)")]
+	[InlineData(
 		/* lang=c#-test */ @"[|Assert.False(items.Contains(""b""))|]",
 		/* lang=c#-test */ @"Assert.DoesNotContain(""b"", items)")]
 	[InlineData(
 		/* lang=c#-test */ @"[|Assert.False(items.Contains(""b"", StringComparer.Ordinal))|]",
 		/* lang=c#-test */ @"Assert.DoesNotContain(""b"", items, StringComparer.Ordinal)")]
+	[InlineData(
+		/* lang=c#-test */ @"[|Assert.False(items.Contains(""b"", null))|]",
+		/* lang=c#-test */ @"Assert.DoesNotContain(""b"", items)")]
 	public async Task ReplacesBooleanAssert(
 		string beforeAssert,
 		string afterAssert)
