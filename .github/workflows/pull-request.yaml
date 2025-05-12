@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macOS-12]
+        os: [windows-latest, ubuntu-latest, macOS-latest]
     steps:
       - name: Clone source
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
 
       - name: Get Mono information
         run: mono --version
-        if: ${{ matrix.os != 'windows-2022' }}
+        if: ${{ matrix.os != 'windows-latest' }}
 
       - name: "Build target: BuildAll"
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll
