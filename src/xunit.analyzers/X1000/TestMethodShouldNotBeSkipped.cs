@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,8 +25,21 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 				return;
 			if (context.Node is not AttributeSyntax attribute)
 				return;
+			if (attribute.ArgumentList is null)
+				return;
 
-			var skipArgument = attribute.ArgumentList?.Arguments.FirstOrDefault(arg => arg.NameEquals?.Name?.Identifier.ValueText == "Skip");
+			var skipArgument = default(AttributeArgumentSyntax);
+			foreach (var argument in attribute.ArgumentList.Arguments)
+			{
+				var valueText = argument.NameEquals?.Name?.Identifier.ValueText;
+
+				if (valueText == "SkipWhen" || valueText == "SkipUnless")
+					return;
+
+				if (valueText == "Skip")
+					skipArgument = argument;
+			}
+
 			if (skipArgument is null)
 				return;
 
