@@ -107,6 +107,29 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 				public void TestMethod(int _) { }
 			}
 			""";
+#if ROSLYN_LATEST  // They seem to have removed the extra blank line somewhere between 4.11 and 4.14
+		var afterV2 = """
+			using System.Collections;
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestData : IEnumerable<object[]> {
+				TestData(int _) { }
+
+				public IEnumerator<object[]> GetEnumerator() => null;
+				IEnumerator IEnumerable.GetEnumerator() => null;
+				public TestData()
+				{
+				}
+			}
+
+			public class TestClass {
+				[Theory]
+				[ClassData(typeof(TestData))]
+				public void TestMethod(int _) { }
+			}
+			""";
+#else
 		var afterV2 = """
 			using System.Collections;
 			using System.Collections.Generic;
@@ -129,6 +152,7 @@ public class ClassDataAttributeMustPointAtValidClassFixerTests
 				public void TestMethod(int _) { }
 			}
 			""";
+#endif
 		var afterV3 = afterV2.Replace("ClassData(typeof(TestData))", "{|xUnit1050:ClassData(typeof(TestData))|}");
 
 		await Verify.VerifyCodeFixV2(before, afterV2, ClassDataAttributeMustPointAtValidClassFixer.Key_FixDataClass);
