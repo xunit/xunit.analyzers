@@ -33,7 +33,14 @@ public static partial class Descriptors
 			"Class {0} is JSON serializable and should not be tested for its concrete type. Test for its primary interface instead."
 		);
 
-	// Placeholder for rule X3003
+	public static DiagnosticDescriptor X3003_ProvideConstructorForFactAttributeOverride { get; } =
+		Diagnostic(
+			"xUnit3003",
+			"Classes which extend FactAttribute (directly or indirectly) should provide a public constructor for source information",
+			Extensibility,
+			Warning,
+			"Class {0} extends FactAttribute. It should include a public constructor for source information."
+		);
 
 	// Placeholder for rule X3004
 
