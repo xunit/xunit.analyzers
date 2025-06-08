@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers;
@@ -54,7 +55,8 @@ public class FactAttributeDerivedClassesShouldProvideSourceInformationConstructo
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X3003_ProvideConstructorForFactAttributeOverride,
-					type.Locations.First()
+					type.Locations.First(),
+					SymbolDisplay.ToDisplayString(type)
 				)
 			);
 		}, SymbolKind.NamedType);
