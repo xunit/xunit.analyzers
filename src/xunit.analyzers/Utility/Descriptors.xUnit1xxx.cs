@@ -474,7 +474,13 @@ public static partial class Descriptors
 			"Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken to allow test cancellation to be more responsive."
 		);
 
-	// Placeholder for rule X1052
+	public static DiagnosticDescriptor X1052_TheoryDataShouldNotUseITheoryDataRow { get; } =
+		Diagnostic(
+			"xUnit1052",
+			"Using 'TheoryData<ITheoryDataRow>' or stronger typed variants is not an expected usage.",
+			Usage,
+			Warning,
+			"Using 'TheoryData<ITheoryDataRow>' or stronger typed variants is not an expected usage, and does not work as expected. Consider using either 'TheoryData' or an type of 'ITheoryDataRow' exclusively.");
 
 	// Placeholder for rule X1053
 
@@ -489,4 +495,6 @@ public static partial class Descriptors
 	// Placeholder for rule X1058
 
 	// Placeholder for rule X1059
+
+	// Placeholder for rule X1060
 }
