@@ -477,10 +477,10 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X1052_TheoryDataShouldNotUseITheoryDataRow { get; } =
 		Diagnostic(
 			"xUnit1052",
-			"Using 'TheoryData<ITheoryDataRow>' or stronger typed variants is not an expected usage.",
+			"Avoid using 'TheoryData<T>' with types that implement 'ITheoryDataRow'.",
 			Usage,
 			Warning,
-			"Using 'TheoryData<ITheoryDataRow>' or stronger typed variants is not an expected usage, and does not work as expected. Consider using either 'TheoryData' or an type of 'ITheoryDataRow' exclusively.");
+			"'TheoryData<...>' should not be used with one or more type arguments that implement 'ITheoryDataRow' or a derived variant. This usage is not supported. Use either 'TheoryData' or a type of 'ITheoryDataRow' exclusively.");
 
 	// Placeholder for rule X1053
 
