@@ -131,6 +131,7 @@ public static class Constants
 			public const string AssemblyFixtureAttribute_V3 = "Xunit.AssemblyFixtureAttribute";
 			public const string Assert = "Xunit.Assert";
 			public const string ClassDataAttribute = "Xunit.ClassDataAttribute";
+			public const string ClassDataAttributeOfT_V3 = "Xunit.ClassDataAttribute`1";
 			public const string CollectionAttribute = "Xunit.CollectionAttribute";
 			public const string CollectionAttributeOfT_V3 = "Xunit.CollectionAttribute`1";
 			public const string CollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";

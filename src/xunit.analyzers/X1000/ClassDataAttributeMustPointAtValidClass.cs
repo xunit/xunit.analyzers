@@ -52,18 +52,31 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			{
 				context.CancellationToken.ThrowIfCancellationRequested();
 
-				// Only work against ClassDataAttribute
-				if (!SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(attributeSyntax).Type, xunitContext.Core.ClassDataAttributeType))
+				var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type as INamedTypeSymbol;
+				if (attributeType is null)
 					continue;
 
-				// Need the referenced type to do anything
-				if (attributeSyntax.ArgumentList is null)
-					continue;
-				if (attributeSyntax.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
-					continue;
-				if (semanticModel.GetTypeInfo(typeOfExpression.Type).Type is not INamedTypeSymbol classType)
-					continue;
-				if (classType.Kind == SymbolKind.ErrorType)
+				var classType = default(INamedTypeSymbol);
+
+				// [ClassData(typeof(...))]
+				if (SymbolEqualityComparer.Default.Equals(attributeType, xunitContext.Core.ClassDataAttributeType))
+				{
+					if (attributeSyntax.ArgumentList is null)
+						continue;
+					if (attributeSyntax.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
+						continue;
+
+					classType = semanticModel.GetTypeInfo(typeOfExpression.Type).Type as INamedTypeSymbol;
+				}
+				// [ClassData<...>]
+				else if (attributeType.IsGenericType)
+				{
+					var classDataOfTType = xunitContext.V3Core?.ClassDataAttributeOfTType?.ConstructUnboundGenericType();
+					if (classDataOfTType is not null && SymbolEqualityComparer.Default.Equals(attributeType.ConstructUnboundGenericType(), classDataOfTType))
+						classType = attributeType.TypeArguments[0] as INamedTypeSymbol;
+				}
+
+				if (classType is null || classType.Kind == SymbolKind.ErrorType)
 					continue;
 
 				// Make sure the class implements a compatible interface

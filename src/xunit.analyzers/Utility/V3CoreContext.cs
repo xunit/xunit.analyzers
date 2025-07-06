@@ -8,6 +8,7 @@ public class V3CoreContext : ICoreContext
 {
 	readonly Lazy<INamedTypeSymbol?> lazyAssemblyFixtureAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeOfTType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeOfTType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
@@ -30,6 +31,7 @@ public class V3CoreContext : ICoreContext
 
 		lazyAssemblyFixtureAttributeType = new(() => TypeSymbolFactory.AssemblyFixtureAttribute_V3(compilation));
 		lazyClassDataAttributeType = new(() => TypeSymbolFactory.ClassDataAttribute(compilation));
+		lazyClassDataAttributeOfTType = new(() => TypeSymbolFactory.ClassDataAttributeOfT_V3(compilation));
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionAttributeOfTType = new(() => TypeSymbolFactory.CollectionAttributeOfT_V3(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
@@ -54,6 +56,12 @@ public class V3CoreContext : ICoreContext
 	/// <inheritdoc/>
 	public INamedTypeSymbol? ClassDataAttributeType =>
 		lazyClassDataAttributeType.Value;
+
+	/// <summary>
+	/// Gets a reference to type <c>ClassDataAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	public INamedTypeSymbol? ClassDataAttributeOfTType =>
+		lazyClassDataAttributeOfTType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionAttributeType =>
