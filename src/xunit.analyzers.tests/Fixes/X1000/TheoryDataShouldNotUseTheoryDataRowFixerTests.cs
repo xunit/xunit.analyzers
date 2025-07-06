@@ -192,6 +192,29 @@ public class TheoryDataShouldNotUseTheoryDataRowFixerTests
 	[Theory]
 	[InlineData("ITheoryDataRow")]
 	[InlineData("MyRow")]
+	public async Task LocalVariableDeclaration_WithMultipleGenericArguments_DoesNotFix(string type)
+	{
+		var before = string.Format(/* lang=c#-test */ """
+			using Xunit;
+			using System;
+			using System.Collections.Generic;
+
+			public class TestClass {{
+				public TestClass()
+				{{
+					[|TheoryData<{0}, int>|] data;
+				}}
+			}}
+
+			{1}
+			""", type, strongerType);
+
+		await Verify.VerifyCodeFixV3(LanguageVersion.CSharp8, before, after: before, TheoryDataShouldNotUseTheoryDataRowFixer.Key_UseIEnumerable);
+	}
+
+	[Theory]
+	[InlineData("ITheoryDataRow")]
+	[InlineData("MyRow")]
 	public async Task VariableDeclaration_WithAssignment_DoesNotFix(string type)
 	{
 		var before = string.Format(/* lang=c#-test */ """

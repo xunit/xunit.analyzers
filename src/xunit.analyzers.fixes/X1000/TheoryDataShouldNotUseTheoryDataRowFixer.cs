@@ -36,6 +36,11 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
 				return;
 			}
 
+			if (genericNameNode.TypeArgumentList.Arguments.Count != 1)
+			{
+				return;
+			}
+
 			if (!IsPartOfOnlyTypeDeclaration(genericNameNode))
 			{
 				return;

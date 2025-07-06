@@ -222,4 +222,25 @@ public class TheoryDataShouldNotUseTheoryDataRowTests
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 	}
+
+	[Theory]
+	[InlineData("ITheoryDataRow")]
+	[InlineData("MyRow")]
+	public async Task InvalidCombination_ConstructorParameter_WithMultipleGenericArguments(string type)
+	{
+		var source = string.Format(/* lang=C#-test */ """
+		using Xunit;
+		using System;
+		using System.Collections.Generic;
+
+		class Test {{
+			public Test([|TheoryData<{0}, int, int>|] data) {{
+			}}
+		}}
+
+		{1}
+		""", type, strongerType);
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+	}
 }
