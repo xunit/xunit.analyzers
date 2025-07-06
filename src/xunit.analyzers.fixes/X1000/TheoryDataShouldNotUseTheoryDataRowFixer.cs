@@ -26,26 +26,30 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
 		if (root is null)
 			return;
 
-		var node = root.FindNode(context.Span);
-
-		if (node is not GenericNameSyntax genericNameNode)
+		foreach (var diagnostic in context.Diagnostics)
 		{
-			return;
-		}
+			var span = diagnostic.Location.SourceSpan;
+			var node = root.FindNode(span);
 
-		if (!IsPartOfOnlyTypeDeclaration(genericNameNode))
-		{
-			return;
-		}
+			if (node is not GenericNameSyntax genericNameNode)
+			{
+				return;
+			}
 
-		context.RegisterCodeFix(
-			CodeAction.Create(
-				"Use IEnumerable instead of TheoryData",
-				ct => ConvertToIEnumerable(context.Document, genericNameNode, ct),
-				Key_UseIEnumerable
-			),
-			context.Diagnostics
-		);
+			if (!IsPartOfOnlyTypeDeclaration(genericNameNode))
+			{
+				return;
+			}
+
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					"Use IEnumerable instead of TheoryData",
+					ct => ConvertToIEnumerable(context.Document, genericNameNode, ct),
+					Key_UseIEnumerable
+				),
+				diagnostic
+			);
+		}
 	}
 
 	static bool IsPartOfOnlyTypeDeclaration(GenericNameSyntax genericName)
