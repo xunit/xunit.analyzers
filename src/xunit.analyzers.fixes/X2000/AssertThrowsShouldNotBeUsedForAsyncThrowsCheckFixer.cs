@@ -16,7 +16,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : BatchedCodeFixProvider
+public class AssertThrowsShouldNotBeUsedForAsyncThrowsCheckFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2014_UseAlternateAssert";
 

@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class InlineDataShouldBeUniqueWithinTheoryFixer : BatchedCodeFixProvider
+public class InlineDataShouldBeUniqueWithinTheoryFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveDuplicateInlineData = "xUnit1025_RemoveDuplicateInlineData";
 

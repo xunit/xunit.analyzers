@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer : BatchedCodeFixProvider
+public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer : XunitCodeFixProvider
 {
 	public const string Key_UseSuggestedAssert = "xUnit2025_SimplifyBooleanAssert";
 

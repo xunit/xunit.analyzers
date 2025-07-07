@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class UseCancellationTokenFixer : BatchedCodeFixProvider
+public class UseCancellationTokenFixer : XunitCodeFixProvider
 {
 	public const string Key_UseCancellationTokenArgument = "xUnit1051_UseCancellationTokenArgument";
 

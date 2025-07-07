@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertSameShouldNotBeCalledOnValueTypesFixer : BatchedCodeFixProvider
+public class AssertSameShouldNotBeCalledOnValueTypesFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2005_UseAlternateAssert";
 

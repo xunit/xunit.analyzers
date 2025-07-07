@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class ConvertToFactFix : BatchedCodeFixProvider
+public class ConvertToFactFix : XunitCodeFixProvider
 {
 	public const string Key_ConvertToFact = "xUnit1003_xUnit1006_ConvertToFact";
 

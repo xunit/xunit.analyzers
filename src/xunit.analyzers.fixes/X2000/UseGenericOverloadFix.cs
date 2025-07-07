@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class UseGenericOverloadFix : BatchedCodeFixProvider
+public class UseGenericOverloadFix : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2007_xUnit2015_UseAlternateAssert";
 

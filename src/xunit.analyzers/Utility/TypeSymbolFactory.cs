@@ -42,11 +42,14 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ClassDataAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ClassDataAttribute);
 
+	public static INamedTypeSymbol? ClassDataAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ClassDataAttributeOfT_V3);
+
 	public static INamedTypeSymbol? CollectionAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttribute);
 
-	public static INamedTypeSymbol? CollectionAttributeOfT(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttributeOfT);
+	public static INamedTypeSymbol? CollectionAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionAttributeOfT_V3);
 
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionDefinitionAttribute);

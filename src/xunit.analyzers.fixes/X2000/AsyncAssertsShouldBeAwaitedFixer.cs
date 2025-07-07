@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AsyncAssertsShouldBeAwaitedFixer : BatchedCodeFixProvider
+public class AsyncAssertsShouldBeAwaitedFixer : XunitCodeFixProvider
 {
 	public const string Key_AddAwait = "xUnit2021_AddAwait";
 

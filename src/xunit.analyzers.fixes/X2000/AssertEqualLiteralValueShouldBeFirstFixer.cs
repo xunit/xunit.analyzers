@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEqualLiteralValueShouldBeFirstFixer : BatchedCodeFixProvider
+public class AssertEqualLiteralValueShouldBeFirstFixer : XunitCodeFixProvider
 {
 	public const string Key_SwapArguments = "xUnit2000_SwapArguments";
 

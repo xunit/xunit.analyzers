@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class FactMethodShouldNotHaveTestDataFixer : BatchedCodeFixProvider
+public class FactMethodShouldNotHaveTestDataFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveDataAttributes = "xUnit1005_RemoveDataAttributes";
 

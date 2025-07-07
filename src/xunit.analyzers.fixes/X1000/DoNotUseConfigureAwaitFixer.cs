@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class DoNotUseConfigureAwaitFixer : BatchedCodeFixProvider
+public class DoNotUseConfigureAwaitFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveConfigureAwait = "xUnit1030_RemoveConfigureAwait";
 	public const string Key_ReplaceArgumentValue = "xUnit1030_ReplaceArgumentValue";

@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class RemoveMethodParameterFix : BatchedCodeFixProvider
+public class RemoveMethodParameterFix : XunitCodeFixProvider
 {
 	public const string Key_RemoveParameter = "xUnit1022_xUnit1026_RemoveParameter";
 

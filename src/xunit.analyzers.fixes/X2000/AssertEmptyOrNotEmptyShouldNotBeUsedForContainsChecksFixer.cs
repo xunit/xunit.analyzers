@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : BatchedCodeFixProvider
+public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : XunitCodeFixProvider
 {
 	public const string Key_UseDoesNotContain = "xUnit2029_UseDoesNotContain";
 	public const string Key_UseContains = "xUnit2030_UseContains";

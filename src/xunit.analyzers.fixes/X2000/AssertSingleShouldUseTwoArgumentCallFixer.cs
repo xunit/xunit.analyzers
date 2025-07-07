@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertSingleShouldUseTwoArgumentCallFixer : BatchedCodeFixProvider
+public class AssertSingleShouldUseTwoArgumentCallFixer : XunitCodeFixProvider
 {
 	public const string Key_UseTwoArguments = "xUnit2031_UseSingleTwoArgumentCall";
 

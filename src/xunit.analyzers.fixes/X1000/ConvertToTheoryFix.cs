@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class ConvertToTheoryFix : BatchedCodeFixProvider
+public class ConvertToTheoryFix : XunitCodeFixProvider
 {
 	public const string Key_ConvertToTheory = "xUnit1001_xUnit1005_ConvertToTheory";
 

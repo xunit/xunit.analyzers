@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class MemberDataShouldReferenceValidMember_NameOfFixer : BatchedCodeFixProvider
+public class MemberDataShouldReferenceValidMember_NameOfFixer : XunitCodeFixProvider
 {
 	public const string Key_UseNameof = "xUnit1014_UseNameof";
 

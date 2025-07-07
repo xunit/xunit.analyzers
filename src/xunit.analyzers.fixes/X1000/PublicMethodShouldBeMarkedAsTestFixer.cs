@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class PublicMethodShouldBeMarkedAsTestFixer : BatchedCodeFixProvider
+public class PublicMethodShouldBeMarkedAsTestFixer : XunitCodeFixProvider
 {
 	public const string Key_ConvertToFact = "xUnit1013_ConvertToFact";
 	public const string Key_ConvertToTheory = "xUnit1013_ConvertToTheory";

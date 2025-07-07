@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class DataAttributeShouldBeUsedOnATheoryFixer : BatchedCodeFixProvider
+public class DataAttributeShouldBeUsedOnATheoryFixer : XunitCodeFixProvider
 {
 	public const string Key_MarkAsTheory = "xUnit1008_MarkAsTheory";
 	public const string Key_RemoveDataAttributes = "xUnit1008_RemoveDataAttributes";

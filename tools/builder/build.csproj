@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="xunit.v3.runner.console" Version="[3.0.0-pre.14]" />
+    <PackageDownload Include="xunit.v3.runner.console" Version="[3.0.0-pre.40]" />
   </ItemGroup>
 
 </Project>

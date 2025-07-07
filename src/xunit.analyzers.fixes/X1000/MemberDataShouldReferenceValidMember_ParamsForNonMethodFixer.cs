@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : BatchedCodeFixProvider
+public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveArgumentsFromMemberData = "xUnit1021_RemoveArgumentsFromMemberData";
 

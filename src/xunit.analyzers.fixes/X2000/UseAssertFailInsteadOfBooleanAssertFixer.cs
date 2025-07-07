@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class UseAssertFailInsteadOfBooleanAssertFixer : BatchedCodeFixProvider
+public class UseAssertFailInsteadOfBooleanAssertFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAssertFail = "xUnit2020_UseAssertFail";
 

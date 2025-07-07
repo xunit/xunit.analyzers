@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class SerializableClassMustHaveParameterlessConstructorFixer : BatchedCodeFixProvider
+public class SerializableClassMustHaveParameterlessConstructorFixer : XunitCodeFixProvider
 {
 	public const string Key_GenerateOrUpdateConstructor = "xUnit3001_GenerateOrUpdateConstructor";
 

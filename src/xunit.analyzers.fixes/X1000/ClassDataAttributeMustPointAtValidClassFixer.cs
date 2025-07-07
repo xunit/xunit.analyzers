@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class ClassDataAttributeMustPointAtValidClassFixer : BatchedCodeFixProvider
+public class ClassDataAttributeMustPointAtValidClassFixer : XunitCodeFixProvider
 {
 	public const string Key_FixDataClass = "xUnit1007_FixDataClass";
 

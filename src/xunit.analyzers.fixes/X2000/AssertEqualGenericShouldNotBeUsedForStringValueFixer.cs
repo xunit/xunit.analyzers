@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEqualGenericShouldNotBeUsedForStringValueFixer : BatchedCodeFixProvider
+public class AssertEqualGenericShouldNotBeUsedForStringValueFixer : XunitCodeFixProvider
 {
 	public const string Key_UseStringAssertEqual = "xUnit2006_UseStringAssertEqual";
 

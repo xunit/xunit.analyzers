@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEmptyCollectionCheckShouldNotBeUsedFixer : BatchedCodeFixProvider
+public class AssertEmptyCollectionCheckShouldNotBeUsedFixer : XunitCodeFixProvider
 {
 	public const string Key_AddElementInspector = "xUnit2011_AddElementInspector";
 	public const string Key_UseAssertEmpty = "xUnit2011_UseAssertEmpty";

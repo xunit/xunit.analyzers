@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Xunit.Analyzers.Fixes;
 
-public abstract class BatchedMemberFixProvider(params string[] diagnostics) :
-	BatchedCodeFixProvider(diagnostics)
+public abstract class XunitMemberFixProvider(params string[] diagnostics) :
+	XunitCodeFixProvider(diagnostics)
 {
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

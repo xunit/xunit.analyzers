@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssignableFromAssertionIsConfusinglyNamedFixer : BatchedCodeFixProvider
+public class AssignableFromAssertionIsConfusinglyNamedFixer : XunitCodeFixProvider
 {
 	public const string Key_UseIsType = "xUnit2032_UseIsType";
 
