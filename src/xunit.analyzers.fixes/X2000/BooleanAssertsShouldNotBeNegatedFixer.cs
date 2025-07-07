@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class BooleanAssertsShouldNotBeNegatedFixer : BatchedCodeFixProvider
+public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 {
 	public const string Key_UseSuggestedAssert = "xUnit2022_UseSuggestedAssert";
 

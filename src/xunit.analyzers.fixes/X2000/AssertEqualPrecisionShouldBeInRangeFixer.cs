@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEqualPrecisionShouldBeInRangeFixer : BatchedCodeFixProvider
+public class AssertEqualPrecisionShouldBeInRangeFixer : XunitCodeFixProvider
 {
 	public const string Key_UsePrecision = "xUnit2016_UsePrecision";
 

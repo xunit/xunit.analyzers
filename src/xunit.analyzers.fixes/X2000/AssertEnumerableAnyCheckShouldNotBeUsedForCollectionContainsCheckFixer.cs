@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFixer : BatchedCodeFixProvider
+public class AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2012_UseAlternateAssert";
 

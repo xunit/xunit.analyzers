@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : BatchedMemberFixProvider
+public sealed class MemberDataShouldReferenceValidMember_ReturnTypeFixer : XunitMemberFixProvider
 {
 	public const string Key_ChangeMemberReturnType_ObjectArray = "xUnit1019_ChangeMemberReturnType_ObjectArray";
 	public const string Key_ChangeMemberReturnType_ITheoryDataRow = "xUnit1019_ChangeMemberReturnType_ITheoryDataRow";

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public sealed class MemberDataShouldReferenceValidMember_StaticFixer : BatchedMemberFixProvider
+public sealed class MemberDataShouldReferenceValidMember_StaticFixer : XunitMemberFixProvider
 {
 	public const string Key_MakeMemberStatic = "xUnit1017_MakeMemberStatic";
 

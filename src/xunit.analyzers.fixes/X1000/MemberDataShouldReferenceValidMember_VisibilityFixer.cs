@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : BatchedMemberFixProvider
+public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : XunitMemberFixProvider
 {
 	public const string Key_MakeMemberPublic = "xUnit1016_MakeMemberPublic";
 

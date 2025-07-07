@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class CollectionDefinitionClassesMustBePublicFixer : BatchedCodeFixProvider
+public class CollectionDefinitionClassesMustBePublicFixer : XunitCodeFixProvider
 {
 	public const string Key_MakeCollectionDefinitionClassPublic = "xUnit1027_MakeCollectionDefinitionClassPublic";
 

@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class FactMethodMustNotHaveParametersFixer : BatchedCodeFixProvider
+public class FactMethodMustNotHaveParametersFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveParameters = "xUnit1001_RemoveParameters";
 

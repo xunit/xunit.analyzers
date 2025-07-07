@@ -18,7 +18,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertSingleShouldBeUsedForSingleParameterFixer : BatchedCodeFixProvider
+public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvider
 {
 	private const string DefaultParameterName = "item";
 	public const string Key_UseSingleMethod = "xUnit2023_UseSingleMethod";

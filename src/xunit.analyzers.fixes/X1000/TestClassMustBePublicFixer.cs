@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestClassMustBePublicFixer : BatchedCodeFixProvider
+public class TestClassMustBePublicFixer : XunitCodeFixProvider
 {
 	public const string Key_MakeTestClassPublic = "xUnit1000_MakeTestClassPublic";
 

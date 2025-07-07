@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : BatchedCodeFixProvider
+public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2018_UseAlternateAssert";
 

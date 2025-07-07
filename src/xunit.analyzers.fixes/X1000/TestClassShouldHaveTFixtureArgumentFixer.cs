@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestClassShouldHaveTFixtureArgumentFixer : BatchedCodeFixProvider
+public class TestClassShouldHaveTFixtureArgumentFixer : XunitCodeFixProvider
 {
 	public const string Key_GenerateConstructor = "xUnit1033_GenerateConstructor";
 

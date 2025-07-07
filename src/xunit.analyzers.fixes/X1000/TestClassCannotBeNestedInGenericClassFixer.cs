@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestClassCannotBeNestedInGenericClassFixer : BatchedCodeFixProvider
+public class TestClassCannotBeNestedInGenericClassFixer : XunitCodeFixProvider
 {
 	public const string Key_ExtractTestClass = "xUnit1032_TestClassCannotBeNestedInGenericClass";
 

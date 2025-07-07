@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : BatchedCodeFixProvider
+public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : XunitCodeFixProvider
 {
 	public const string Key_AddDefaultValues = "xUnit1009_AddDefaultValues";
 

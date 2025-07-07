@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class AssertCollectionContainsShouldNotUseBoolCheckFixer : BatchedCodeFixProvider
+public class AssertCollectionContainsShouldNotUseBoolCheckFixer : XunitCodeFixProvider
 {
 	public const string Key_UseAlternateAssert = "xUnit2017_UseAlternateAssert";
 

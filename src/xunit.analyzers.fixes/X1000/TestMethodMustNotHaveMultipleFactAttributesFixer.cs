@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestMethodMustNotHaveMultipleFactAttributesFixer : BatchedCodeFixProvider
+public class TestMethodMustNotHaveMultipleFactAttributesFixer : XunitCodeFixProvider
 {
 	public TestMethodMustNotHaveMultipleFactAttributesFixer() :
 		base(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id)

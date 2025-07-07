@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer : BatchedCodeFixProvider
+public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer : XunitCodeFixProvider
 {
 	public const string Key_MakeParameterNullable = "xUnit1012_MakeParameterNullable";
 

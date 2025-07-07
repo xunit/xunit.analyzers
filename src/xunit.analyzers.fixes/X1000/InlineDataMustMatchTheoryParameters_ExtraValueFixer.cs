@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : BatchedCodeFixProvider
+public class InlineDataMustMatchTheoryParameters_ExtraValueFixer : XunitCodeFixProvider
 {
 	public const string Key_AddTheoryParameter = "xUnit1011_AddTheoryParameter";
 	public const string Key_RemoveExtraDataValue = "xUnit1011_RemoveExtraDataValue";

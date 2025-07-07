@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class LocalFunctionsCannotBeTestFunctionsFixer : BatchedCodeFixProvider
+public class LocalFunctionsCannotBeTestFunctionsFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveAttribute = "xUnit1029_RemoveAttribute";
 

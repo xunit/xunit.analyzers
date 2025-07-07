@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TheoryMethodCannotHaveDefaultParameterFixer : BatchedCodeFixProvider
+public class TheoryMethodCannotHaveDefaultParameterFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveParameterDefault = "xUnit1023_RemoveParameterDefault";
 

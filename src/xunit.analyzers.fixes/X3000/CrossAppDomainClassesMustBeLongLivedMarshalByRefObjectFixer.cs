@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixer : BatchedCodeFixProvider
+public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixer : XunitCodeFixProvider
 {
 	public const string Key_SetBaseType = "xUnit3000_SetBaseType";
 

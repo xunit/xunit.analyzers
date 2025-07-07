@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class DoNotUseAsyncVoidForTestMethodsFixer : BatchedMemberFixProvider
+public class DoNotUseAsyncVoidForTestMethodsFixer : XunitMemberFixProvider
 {
 	public const string Key_ConvertToTask = "xUnit1048_xUnit1049_ConvertToTask";
 	public const string Key_ConvertToValueTask = "xUnit1049_ConvertToValueTask";

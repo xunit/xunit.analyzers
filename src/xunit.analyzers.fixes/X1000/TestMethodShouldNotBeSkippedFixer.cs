@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TestMethodShouldNotBeSkippedFixer : BatchedCodeFixProvider
+public class TestMethodShouldNotBeSkippedFixer : XunitCodeFixProvider
 {
 	public const string Key_RemoveSkipArgument = "xUnit1004_RemoveSkipArgument";
 

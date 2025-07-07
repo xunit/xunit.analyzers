@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class MemberDataShouldReferenceValidMember_ExtraValueFixer : BatchedCodeFixProvider
+public class MemberDataShouldReferenceValidMember_ExtraValueFixer : XunitCodeFixProvider
 {
 	public const string Key_AddMethodParameter = "xUnit1036_AddMethodParameter";
 	public const string Key_RemoveExtraDataValue = "xUnit1036_RemoveExtraDataValue";
