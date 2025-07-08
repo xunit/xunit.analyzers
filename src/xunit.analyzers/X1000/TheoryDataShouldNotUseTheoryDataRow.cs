@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,80 +7,59 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class TheoryDataShouldNotUseTheoryDataRow : XunitV3DiagnosticAnalyzer
+public class TheoryDataShouldNotUseTheoryDataRow() :
+	XunitV3DiagnosticAnalyzer(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow)
 {
-	public TheoryDataShouldNotUseTheoryDataRow() : base(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow) { }
-
-	public override void AnalyzeCompilation(CompilationStartAnalysisContext context, XunitContext xunitContext)
+	public override void AnalyzeCompilation(
+		CompilationStartAnalysisContext context,
+		XunitContext xunitContext)
 	{
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		Dictionary<int, INamedTypeSymbol> theoryDataDict = TypeSymbolFactory.TheoryData_ByGenericArgumentCount(context.Compilation);
-		INamedTypeSymbol? itheoryDataRowSymbol = TypeSymbolFactory.ITheoryDataRow_V3(context.Compilation);
-
-		if (itheoryDataRowSymbol is null)
-		{
+		var iTheoryDataRowSymbol = TypeSymbolFactory.ITheoryDataRow_V3(context.Compilation);
+		if (iTheoryDataRowSymbol is null)
 			return;
-		}
+
+		var theoryDataTypes = TypeSymbolFactory.TheoryData_ByGenericArgumentCount(context.Compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
 			var genericName = (GenericNameSyntax)context.Node;
-			ISymbol? symbol = context.SemanticModel.GetSymbolInfo(genericName).Symbol;
 
-			if (symbol is null)
-			{
+			if (context.SemanticModel.GetSymbolInfo(genericName).Symbol is not INamedTypeSymbol typeSymbol)
 				return;
-			}
 
-			if (symbol is not INamedTypeSymbol typeSymbol)
-			{
+			if (!theoryDataTypes.TryGetValue(typeSymbol.TypeArguments.Length, out var expectedSymbol))
 				return;
-			}
-
-			if (!theoryDataDict.TryGetValue(typeSymbol.TypeArguments.Length, out var expectedSymbol))
-			{
-				return;
-			}
 
 			if (!SymbolEqualityComparer.Default.Equals(expectedSymbol, typeSymbol.OriginalDefinition))
-			{
 				return;
-			}
 
 			foreach (var typeArg in typeSymbol.TypeArguments)
-			{
-				if (IsOrImplementsITheoryDataRow(typeArg, itheoryDataRowSymbol))
-				{
+				if (IsOrImplementsITheoryDataRow(typeArg, iTheoryDataRowSymbol))
 					context.ReportDiagnostic(
-							Diagnostic.Create(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow, genericName.GetLocation()));
-				}
-			}
-
+						Diagnostic.Create(
+							Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow,
+							genericName.GetLocation()
+						)
+					);
 		}, SyntaxKind.GenericName);
 	}
 
-
-	private static bool IsOrImplementsITheoryDataRow(ITypeSymbol typeArg, INamedTypeSymbol itheoryDataSymbol)
+	static bool IsOrImplementsITheoryDataRow(
+		ITypeSymbol typeArg,
+		INamedTypeSymbol iTheoryDataSymbol)
 	{
-		if (SymbolEqualityComparer.Default.Equals(typeArg, itheoryDataSymbol) ||
-		   typeArg.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, itheoryDataSymbol)))
-		{
+		if (SymbolEqualityComparer.Default.Equals(typeArg, iTheoryDataSymbol) ||
+				typeArg.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iTheoryDataSymbol)))
 			return true;
-		}
 
 		if (typeArg is ITypeParameterSymbol typeParameter)
-		{
 			foreach (var constraint in typeParameter.ConstraintTypes)
-			{
-				if (SymbolEqualityComparer.Default.Equals(constraint, itheoryDataSymbol) ||
-					constraint.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, itheoryDataSymbol)))
-				{
+				if (SymbolEqualityComparer.Default.Equals(constraint, iTheoryDataSymbol) ||
+						constraint.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iTheoryDataSymbol)))
 					return true;
-				}
-			}
-		}
 
 		return false;
 	}

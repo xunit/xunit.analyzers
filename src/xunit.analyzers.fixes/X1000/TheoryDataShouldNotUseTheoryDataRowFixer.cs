@@ -12,13 +12,10 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
+public class TheoryDataShouldNotUseTheoryDataRowFixer() :
+	XunitCodeFixProvider(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow.Id)
 {
 	public const string Key_UseIEnumerable = "xUnit1052_UseIEnumerable";
-
-	public TheoryDataShouldNotUseTheoryDataRowFixer() :
-		base(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow.Id)
-	{ }
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
@@ -32,19 +29,13 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
 			var node = root.FindNode(span);
 
 			if (node is not GenericNameSyntax genericNameNode)
-			{
 				return;
-			}
 
 			if (genericNameNode.TypeArgumentList.Arguments.Count != 1)
-			{
 				return;
-			}
 
 			if (!IsPartOfOnlyTypeDeclaration(genericNameNode))
-			{
 				return;
-			}
 
 			context.RegisterCodeFix(
 				CodeAction.Create(
@@ -62,14 +53,10 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
 		var parent = genericName.Parent;
 
 		if (parent is VariableDeclarationSyntax variableDeclaration)
-		{
 			return variableDeclaration.Variables.All(v => v.Initializer is null);
-		}
 
 		if (parent is PropertyDeclarationSyntax propertyDeclaration)
-		{
 			return propertyDeclaration.Initializer is null;
-		}
 
 		return parent is ParameterSyntax or MethodDeclarationSyntax;
 	}
@@ -80,9 +67,8 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer : BatchedCodeFixProvider
 		CancellationToken ct)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, ct).ConfigureAwait(false);
-
-		SyntaxToken token = SyntaxFactory.IdentifierName("IEnumerable").Identifier;
-		GenericNameSyntax newGenericName = SyntaxFactory.GenericName(token, node.TypeArgumentList);
+		var token = SyntaxFactory.IdentifierName("IEnumerable").Identifier;
+		var newGenericName = SyntaxFactory.GenericName(token, node.TypeArgumentList);
 
 		editor.ReplaceNode(node, newGenericName);
 
