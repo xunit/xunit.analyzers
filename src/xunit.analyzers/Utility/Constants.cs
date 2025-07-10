@@ -143,6 +143,7 @@ public static class Constants
 			public const string IAttributeInfo_V2 = "Xunit.Abstractions.IAttributeInfo";
 			public const string IClassFixtureOfT = "Xunit.IClassFixture`1";
 			public const string ICollectionFixtureOfT = "Xunit.ICollectionFixture`1";
+			public const string IDataAttribute_V3 = "Xunit.v3.IDataAttribute";
 			public const string IMessageSink_V2 = "Xunit.Abstractions.IMessageSink";
 			public const string IMessageSink_V3 = "Xunit.Sdk.IMessageSink";
 			public const string IMessageSinkMessage_V2 = "Xunit.Abstractions.IMessageSinkMessage";

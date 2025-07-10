@@ -145,6 +145,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ICriticalNotifyCompletion(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.CompilerServices.ICriticalNotifyCompletion");
 
+	public static INamedTypeSymbol? IDataAttribute_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.IDataAttribute_V3);
+
 	public static INamedTypeSymbol IDisposable(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetSpecialType(SpecialType.System_IDisposable);
 

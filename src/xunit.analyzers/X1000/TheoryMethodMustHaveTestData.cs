@@ -27,16 +27,20 @@ public class TheoryMethodMustHaveTestData : XunitDiagnosticAnalyzer
 				return;
 
 			var attributes = symbol.GetAttributes();
-			if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
-				(attributes.Length == 1 || !attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType)))
-			{
+			if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+				return;
+
+			var hasData = attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType);
+			if (!hasData && xunitContext.V3Core?.IDataAttributeType is not null)
+				hasData = attributes.ContainsAttributeType(xunitContext.V3Core.IDataAttributeType);
+
+			if (!hasData)
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1003_TheoryMethodMustHaveTestData,
 						symbol.Locations.First()
 					)
 				);
-			}
 		}, SymbolKind.Method);
 	}
 }
