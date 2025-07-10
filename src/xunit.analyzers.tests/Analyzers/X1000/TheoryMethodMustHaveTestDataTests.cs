@@ -8,8 +8,10 @@ public class TheoryMethodMustHaveTestDataTests
 	public async Task FactMethod_DoesNotTrigger()
 	{
 		var source = /* lang=c#-test */ """
+			using Xunit;
+
 			public class TestClass {
-				[Xunit.Fact]
+				[Fact]
 				public void TestMethod() { }
 			}
 			""";
@@ -17,19 +19,26 @@ public class TheoryMethodMustHaveTestDataTests
 		await Verify.VerifyAnalyzer(source);
 	}
 
-	[Theory]
-	[InlineData("InlineData")]
-	[InlineData("MemberData(\"\")")]
-	[InlineData("ClassData(typeof(string))")]
-	public async Task TheoryMethodWithDataAttributes_DoesNotTrigger(string dataAttribute)
+	[Fact]
+	public async Task TheoryMethodWithDataAttributes_DoesNotTrigger()
 	{
-		var source = string.Format(/* lang=c#-test */ """
-			public class TestClass {{
-				[Xunit.Theory]
-				[Xunit.{0}]
-				public void TestMethod() {{ }}
-			}}
-			""", dataAttribute);
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[InlineData]
+				public void TestMethod1() { }
+
+				[Theory]
+				[MemberData("")]
+				public void TestMethod2() { }
+
+				[Theory]
+				[ClassData(typeof(string))]
+				public void TestMethod3() { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzer(source);
 	}
@@ -38,8 +47,10 @@ public class TheoryMethodMustHaveTestDataTests
 	public async Task TheoryMethodMissingData_Triggers()
 	{
 		var source = /* lang=c#-test */ """
+			using Xunit;
+
 			class TestClass {
-				[Xunit.Theory]
+				[Theory]
 				public void [|TestMethod|]() { }
 			}
 			""";
