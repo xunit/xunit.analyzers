@@ -16,6 +16,12 @@ public interface IAssertContext
 	bool SupportsAssertFail { get; }
 
 	/// <summary>
+	/// Gets a flag indicating whether <c>Assert.Null</c> and <c>Assert.NotNull</c> supports
+	/// unsafe pointers.
+	/// </summary>
+	bool SupportsAssertNullWithPointers { get; }
+
+	/// <summary>
 	/// Gets a flag indicating whether <c>Assert.IsType</c> and <c>Assert.IsNotType</c>
 	/// support inexact matches (soft-deprecating <c>Assert.IsAssignableFrom</c>
 	/// and <c>Assert.IsNotAssignableFrom</c>).

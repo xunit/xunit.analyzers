@@ -51,7 +51,7 @@ public class AssertNullShouldNotBeCalledOnValueTypes : AssertUsageAnalyzerBase
 		var isNullableOfT = argumentType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
 		var isUnconstrainedGenericType = !argumentType.IsReferenceType && !argumentType.IsValueType;
 
-		return argumentType.IsReferenceType || isNullableOfT || isUnconstrainedGenericType;
+		return argumentType.IsReferenceType || argumentType.TypeKind == TypeKind.Pointer || isNullableOfT || isUnconstrainedGenericType;
 	}
 
 	static string GetDisplayString(ISymbol method)

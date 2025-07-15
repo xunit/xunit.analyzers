@@ -133,6 +133,11 @@ static class CodeAnalysisExtensions
 		return (false, null);
 	}
 
+	public static bool IsPointer(
+		this ExpressionSyntax expression,
+		SemanticModel? semanticModel) =>
+			semanticModel?.GetTypeInfo(expression).Type?.TypeKind == TypeKind.Pointer;
+
 	public static bool IsTestClass(
 		this ITypeSymbol? type,
 		XunitContext xunitContext,

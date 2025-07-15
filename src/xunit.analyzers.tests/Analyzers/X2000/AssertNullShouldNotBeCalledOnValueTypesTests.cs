@@ -59,6 +59,26 @@ public class AssertNullShouldNotBeCalledOnValueTypesTests
 		await Verify.VerifyAnalyzer(source);
 	}
 
+	[Fact]
+	public async Task ForPointerType_v3_DoesNotTrigger()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			class TestClass {
+				unsafe void TestMethod() {
+					var value = 42;
+					var ptr = &value;
+
+					Assert.Null(ptr);
+					Assert.NotNull(ptr);
+				}
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3(source);
+	}
+
 	[Theory]
 	[MemberData(nameof(Methods))]
 	public async Task ForClassConstrainedGenericTypes_DoesNotTrigger(string method)

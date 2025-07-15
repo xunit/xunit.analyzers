@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck>;
+using Verify_v3_Pre_301 = CSharpVerifier<BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests.Analyzer_v3_Pre301>;
 
 public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 {
@@ -173,6 +175,73 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
+
+		[Fact]
+		public async Task ComparingAgainstNullPointer_DoesNotTrigger()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					public unsafe void TestMethod() {
+						var value = 42;
+						var ptr = &value;
+
+						Assert.True(ptr == null);
+						Assert.True(null == ptr);
+						Assert.True(ptr != null);
+						Assert.True(null != ptr);
+
+						Assert.False(ptr == null);
+						Assert.False(null == ptr);
+						Assert.False(ptr != null);
+						Assert.False(null != ptr);
+					}
+				}
+				""";
+
+			await Verify.VerifyAnalyzerV2(source);
+			await Verify_v3_Pre_301.VerifyAnalyzerV3(source);
+		}
+
+		[Fact]
+		public async Task ComparingAgainstNullPointer_v3_301_Triggers()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					public unsafe void TestMethod() {
+						var value = 42;
+						var ptr = &value;
+
+						{|#0:Assert.True(ptr == null)|};
+						{|#1:Assert.True(null == ptr)|};
+						{|#2:Assert.True(ptr != null)|};
+						{|#3:Assert.True(null != ptr)|};
+
+						{|#10:Assert.False(ptr == null)|};
+						{|#11:Assert.False(null == ptr)|};
+						{|#12:Assert.False(ptr != null)|};
+						{|#13:Assert.False(null != ptr)|};
+					}
+				}
+				""";
+			var expected = new[]
+			{
+				Verify.Diagnostic("xUnit2024").WithLocation(0).WithArguments("True", "Null"),
+				Verify.Diagnostic("xUnit2024").WithLocation(1).WithArguments("True", "Null"),
+				Verify.Diagnostic("xUnit2024").WithLocation(2).WithArguments("True", "NotNull"),
+				Verify.Diagnostic("xUnit2024").WithLocation(3).WithArguments("True", "NotNull"),
+
+				Verify.Diagnostic("xUnit2024").WithLocation(10).WithArguments("False", "NotNull"),
+				Verify.Diagnostic("xUnit2024").WithLocation(11).WithArguments("False", "NotNull"),
+				Verify.Diagnostic("xUnit2024").WithLocation(12).WithArguments("False", "Null"),
+				Verify.Diagnostic("xUnit2024").WithLocation(13).WithArguments("False", "Null"),
+			};
+
+			await Verify.VerifyAnalyzerV3(source, expected);
+		}
 	}
 
 	public class X2025_BooleanAssertionCanBeSimplified
@@ -215,5 +284,11 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
+	}
+
+	public class Analyzer_v3_Pre301 : BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV3(compilation, new(3, 0, 0));
 	}
 }

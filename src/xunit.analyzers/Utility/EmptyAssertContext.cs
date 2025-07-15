@@ -14,6 +14,8 @@ public class EmptyAssertContext : IAssertContext
 
 	public bool SupportsAssertFail => false;
 
+	public bool SupportsAssertNullWithPointers => false;
+
 	public bool SupportsInexactTypeAssertions => false;
 
 	public Version Version { get; } = new();

@@ -42,9 +42,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		if (arguments[0].Expression is not BinaryExpressionSyntax binaryArgument)
 			return;
 
+		var semanticModel = context.Operation.SemanticModel;
 		var trueMethod = method.Name == Constants.Asserts.True;
-		var leftKind = LiteralReferenceKind(binaryArgument.Left, context.Operation.SemanticModel);
-		var rightKind = LiteralReferenceKind(binaryArgument.Right, context.Operation.SemanticModel);
+		var leftKind = LiteralReferenceKind(binaryArgument.Left, semanticModel);
+		var rightKind = LiteralReferenceKind(binaryArgument.Right, semanticModel);
 		var literalKind = leftKind ?? rightKind;
 		if (literalKind is null)
 			return;
@@ -79,6 +80,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 				// Can't rewrite exactly if there is a "message" (second) argument
 				if (arguments.Count > 1)
 					return;
+				// Can't rewrite if we're using a pointer and don't support pointers in Null assertions
+				if (!xunitContext.Assert.SupportsAssertNullWithPointers)
+					if (binaryArgument.Left.IsPointer(semanticModel) || binaryArgument.Right.IsPointer(semanticModel))
+						return;
 				var nullReplacement = trueMethod == isEqualsOperator ? Constants.Asserts.Null : Constants.Asserts.NotNull;
 				builder[Constants.Properties.Replacement] = nullReplacement;
 				ReportShouldReplaceBooleanOperationWithEquality(context, invocationOperation, builder.ToImmutable(), method.Name, nullReplacement);

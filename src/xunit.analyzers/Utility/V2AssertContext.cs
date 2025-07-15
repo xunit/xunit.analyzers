@@ -29,6 +29,10 @@ public class V2AssertContext : IAssertContext
 		Version >= Version_2_5_0;
 
 	/// <inheritdoc/>
+	public bool SupportsAssertNullWithPointers =>
+		false;
+
+	/// <inheritdoc/>
 	public bool SupportsInexactTypeAssertions =>
 		Version >= Version_2_9_3;
 
