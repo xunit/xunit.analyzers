@@ -30,7 +30,7 @@
     <PackageDownload Include="xunit.v3.runner.utility" Version="[3.0.0]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
-    <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0-preview.24454.1]" />
+    <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[9.0.0]" />
     <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[3.11.0]" />
 
     <!-- Download packages referenced by VsThreadingAnalyzers -->
