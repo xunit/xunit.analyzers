@@ -11,6 +11,7 @@
     <!-- We may not be able to upgrade Bullseye easily because we are leveraging internal APIs -->
     <PackageReference Include="Bullseye" Version="[3.3.0]" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Security.Extensions" Version="1.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SimpleExec" Version="11.0.0" />
   </ItemGroup>
