@@ -99,9 +99,18 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement) || replacement is null)
 			return;
 
+		// We want to remove the 'await' in front of 'Assert.CollectionAsync' since 'Assert.Single' doesn't need it
+		var nodeToReplace = invocation.Parent;
+		if (assertMethodName == Constants.Asserts.CollectionAsync && nodeToReplace is AwaitExpressionSyntax)
+			nodeToReplace = nodeToReplace.Parent;
+
+		// Can't replace something that's not a standlone expression
+		if (nodeToReplace is not ExpressionStatementSyntax)
+			return;
+
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
-				ct => UseSingleMethod(context.Document, invocation, assertMethodName, replacement, ct),
+				ct => UseSingleMethod(context.Document, invocation, nodeToReplace, assertMethodName, replacement, ct),
 				Key_UseSingleMethod,
 				"Use Assert.{0}", replacement
 			),
@@ -112,6 +121,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 	static async Task<Document> UseSingleMethod(
 		Document document,
 		InvocationExpressionSyntax invocation,
+		SyntaxNode nodeToReplace,
 		string assertMethodName,
 		string replacementMethod,
 		CancellationToken cancellationToken)
@@ -130,10 +140,6 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 					invocation
 						.WithArgumentList(ArgumentList(SeparatedList([Argument(invocation.ArgumentList.Arguments[0].Expression)])))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
-
-				// We want to replace the whole expression, because it may include an unnecessary await, as we may be
-				// converting from Assert.CollectionAsync (which needs await) to Assert.Single (which does not).
-				var nodeToReplace = invocation.FirstAncestorOrSelf<ExpressionStatementSyntax>() ?? invocation.Parent;
 
 				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
 				{

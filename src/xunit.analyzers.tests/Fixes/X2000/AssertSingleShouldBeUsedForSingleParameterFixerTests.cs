@@ -7,6 +7,28 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleP
 public class AssertSingleShouldBeUsedForSingleParameterFixerTests
 {
 	[Fact]
+	public async ValueTask CannotFixInsideLambda()
+	{
+		var source = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using System.Threading.Tasks;
+			using Xunit;
+			
+			public class TestClass {
+				[Fact]
+				public static void TestMethod()
+				{
+					Record.Exception(
+						() => [|Assert.Collection(default(IEnumerable<object>), item => Assert.True(false))|]
+					);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, source, source, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
+	}
+
+	[Fact]
 	public async ValueTask EnumerableAcceptanceTest()
 	{
 		var before = /* lang=c#-test */ """
