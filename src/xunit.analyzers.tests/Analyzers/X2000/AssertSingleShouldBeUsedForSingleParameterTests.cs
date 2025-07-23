@@ -1,51 +1,93 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertSingleShouldBeUsedForSingleParameter>;
 
 public class AssertSingleShouldBeUsedForSingleParameterTests
 {
-	[Theory]
-	[InlineData("default(IEnumerable<int>)")]
-#if NETCOREAPP3_0_OR_GREATER
-	[InlineData("default(IAsyncEnumerable<int>)")]
-#endif
-	public async Task ForSingleItemCollectionCheck_Triggers(string collection)
+	[Fact]
+	public async ValueTask EnumerableAcceptanceTest()
 	{
-		var code = string.Format(/* lang=c#-test */ """
-			using Xunit;
+		var code = /* lang=c#-test */ """
 			using System.Collections.Generic;
+			using System.Threading.Tasks;
+			using Xunit;
 
-			public class TestClass {{
+			public class TestClass {
 				[Fact]
-				public void TestMethod() {{
-					{{|#0:Assert.Collection({0}, item => Assert.NotNull(item))|}};
-				}}
-			}}
-			""", collection);
-		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Collection");
+				public async Task TestMethod() {
+					{|#0:Assert.Collection(
+						default(IEnumerable<object>),
+						item => Assert.NotNull(item)
+					)|};
+					Assert.Collection(
+						default(IEnumerable<object>),
+						item => Assert.NotNull(item),
+						item => Assert.NotNull(item)
+					);
+
+					await {|#1:Assert.CollectionAsync(
+						default(IEnumerable<Task<int>>),
+						async item => Assert.NotNull(item)
+					)|};
+					await Assert.CollectionAsync(
+						default(IEnumerable<Task<int>>),
+						async item => Assert.Equal(42, await item),
+						async item => Assert.Equal(2112, await item)
+					);
+				}
+			}
+			""";
+		var expected = new DiagnosticResult[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("Collection"),
+			Verify.Diagnostic().WithLocation(1).WithArguments("CollectionAsync"),
+		};
 
 		await Verify.VerifyAnalyzer(code, expected);
 	}
 
-	[Theory]
-	[InlineData("default(IEnumerable<int>)")]
 #if NETCOREAPP3_0_OR_GREATER
-	[InlineData("default(IAsyncEnumerable<int>)")]
-#endif
-	public async Task ForMultipleItemCollectionCheck_DoesNotTrigger(string collection)
+
+	[Fact]
+	public async ValueTask AsyncEnumerableAcceptanceTest()
 	{
-		var code = string.Format(/* lang=c#-test */ """
-			using Xunit;
+		var code = /* lang=c#-test */ """
 			using System.Collections.Generic;
+			using System.Threading.Tasks;
+			using Xunit;
 
-			public class TestClass {{
+			public class TestClass {
 				[Fact]
-				public void TestMethod() {{
-					Assert.Collection({0}, item1 => Assert.NotNull(item1), item2 => Assert.NotNull(item2));
-				}}
-			}}
-			""", collection);
+				public async Task TestMethod() {
+					{|#0:Assert.Collection(
+						default(IAsyncEnumerable<object>),
+						item => Assert.NotNull(item)
+					)|};
+					Assert.Collection(
+						default(IAsyncEnumerable<object>),
+						item => Assert.NotNull(item),
+						item => Assert.NotNull(item)
+					);
 
-		await Verify.VerifyAnalyzer(code);
+					await {|#1:Assert.CollectionAsync(
+						default(IAsyncEnumerable<Task<int>>),
+						async item => Assert.NotNull(item)
+					)|};
+					await Assert.CollectionAsync(
+						default(IAsyncEnumerable<Task<int>>),
+						async item => Assert.Equal(42, await item),
+						async item => Assert.Equal(2112, await item)
+					);
+				}
+			}
+			""";
+		var expected = new DiagnosticResult[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("Collection"),
+			Verify.Diagnostic().WithLocation(1).WithArguments("CollectionAsync"),
+		};
+
+		await Verify.VerifyAnalyzer(code, expected);
 	}
+
+#endif  // NETCOREAPP3_0_OR_GREATER
 }

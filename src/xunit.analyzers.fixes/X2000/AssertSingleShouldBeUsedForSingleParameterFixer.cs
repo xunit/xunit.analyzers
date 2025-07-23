@@ -20,7 +20,7 @@ namespace Xunit.Analyzers.Fixes;
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvider
 {
-	private const string DefaultParameterName = "item";
+	const string DefaultParameterName = "item";
 	public const string Key_UseSingleMethod = "xUnit2023_UseSingleMethod";
 
 	public AssertSingleShouldBeUsedForSingleParameterFixer() :
@@ -51,13 +51,19 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 
 	static SyntaxNode GetMethodInvocation(
 		IdentifierNameSyntax methodExpression,
-		string parameterName) =>
-			ExpressionStatement(
-				InvocationExpression(
-					methodExpression,
-					ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
-				)
-			);
+		string parameterName,
+		bool needAwait)
+	{
+		ExpressionSyntax invocation = InvocationExpression(
+			methodExpression,
+			ArgumentList(SingletonSeparatedList(Argument(IdentifierName(parameterName))))
+		);
+
+		if (needAwait)
+			invocation = AwaitExpression(invocation);
+
+		return ExpressionStatement(invocation);
+	}
 
 	static LocalDeclarationStatementSyntax OneItemVariableStatement(
 		string parameterName,
@@ -86,17 +92,16 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		if (invocation is null)
 			return;
 
-		var diagnostic = context.Diagnostics.FirstOrDefault();
-		if (diagnostic is null)
+		if (context.Diagnostics.FirstOrDefault() is not Diagnostic diagnostic)
 			return;
-		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement))
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.AssertMethodName, out var assertMethodName) || assertMethodName is null)
 			return;
-		if (replacement is null)
+		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement) || replacement is null)
 			return;
 
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
-				ct => UseSingleMethod(context.Document, invocation, replacement, ct),
+				ct => UseSingleMethod(context.Document, invocation, assertMethodName, replacement, ct),
 				Key_UseSingleMethod,
 				"Use Assert.{0}", replacement
 			),
@@ -107,13 +112,13 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 	static async Task<Document> UseSingleMethod(
 		Document document,
 		InvocationExpressionSyntax invocation,
+		string assertMethodName,
 		string replacementMethod,
 		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
-			invocation.ArgumentList.Arguments[0].Expression is IdentifierNameSyntax collectionVariable)
+		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 			if (semanticModel is not null && invocation.Parent is not null)
@@ -123,8 +128,12 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 				var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
 				var replacementNode =
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList([Argument(collectionVariable)])))
+						.WithArgumentList(ArgumentList(SeparatedList([Argument(invocation.ArgumentList.Arguments[0].Expression)])))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
+
+				// We want to replace the whole expression, because it may include an unnecessary await, as we may be
+				// converting from Assert.CollectionAsync (which needs await) to Assert.Single (which does not).
+				var nodeToReplace = invocation.FirstAncestorOrSelf<ExpressionStatementSyntax>() ?? invocation.Parent;
 
 				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
 				{
@@ -139,11 +148,12 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 								.DescendantTokens()
 								.Where(t => t.IsKind(SyntaxKind.IdentifierToken) && t.Text == originalParameterName)
 								.ToArray();
+
 						body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
 						lambdaExpression = lambdaExpression.WithBody(body);
 					}
 
-					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(invocation.Parent));
+					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(nodeToReplace));
 					statements.AddRange(GetLambdaStatements(lambdaExpression));
 				}
 				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
@@ -153,17 +163,13 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 					{
 						var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);
 
-						var oneItemVariableStatement =
-							OneItemVariableStatement(parameterName, replacementNode)
-								.WithLeadingTrivia(invocation.Parent.GetLeadingTrivia());
-
-						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(invocation.Parent));
-						statements.Add(GetMethodInvocation(identifierExpression, parameterName));
+						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(nodeToReplace));
+						statements.Add(GetMethodInvocation(identifierExpression, parameterName, needAwait: assertMethodName == Constants.Asserts.CollectionAsync));
 					}
 				}
 
-				editor.InsertBefore(invocation.Parent, statements);
-				editor.RemoveNode(invocation.Parent);
+				editor.InsertBefore(nodeToReplace, statements);
+				editor.RemoveNode(nodeToReplace);
 			}
 		}
 

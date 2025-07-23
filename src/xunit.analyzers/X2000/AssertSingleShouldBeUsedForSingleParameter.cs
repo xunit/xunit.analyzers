@@ -10,7 +10,8 @@ public class AssertSingleShouldBeUsedForSingleParameter : AssertUsageAnalyzerBas
 {
 	static readonly string[] targetMethods =
 	[
-		Constants.Asserts.Collection
+		Constants.Asserts.Collection,
+		Constants.Asserts.CollectionAsync,
 	];
 
 	public AssertSingleShouldBeUsedForSingleParameter() :
@@ -41,6 +42,7 @@ public class AssertSingleShouldBeUsedForSingleParameter : AssertUsageAnalyzerBas
 			return;
 
 		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+		builder[Constants.Properties.AssertMethodName] = method.Name;
 		builder[Constants.Properties.Replacement] = Constants.Asserts.Single;
 
 		context.ReportDiagnostic(
