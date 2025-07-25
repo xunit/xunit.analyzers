@@ -1,7 +1,7 @@
-name: xUnit.net Analyzers CI Build
+name: xUnit.net Analyzers CI Build (unsigned)
 on:
   push:
-    branches:
+    branches-ignore:
       - main
       - 'rel/**'
   workflow_dispatch:
@@ -33,19 +33,6 @@ jobs:
       - name: "Build target: BuildAll"
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
-      - name: "Build target: PublishPackages"
-        env:
-          PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
-          PUSH_URI: ${{ secrets.PUSH_URI }}
-          SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
-          SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
-          SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
-          SIGN_SUBSCRIPTION: ${{ secrets.SIGN_SUBSCRIPTION }}
-          SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
-          SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
-          SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- PublishPackages --timing
-
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v4
         with:
@@ -66,6 +53,5 @@ jobs:
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: './artifacts/test/*.ctrf'
-          summary-report: true
           github-report: true
         if: always()
