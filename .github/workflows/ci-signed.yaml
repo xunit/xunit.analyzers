@@ -11,6 +11,8 @@ jobs:
     name: "Build"
     runs-on: windows-latest
     environment: signing
+    permissions:
+      id-token: write  # Required for Azure CLI Login
     env:
       DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: true
       DOTNET_NOLOGO: true
