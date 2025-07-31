@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -6,6 +7,8 @@ namespace Xunit.Analyzers;
 
 public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 {
+	static readonly Version Version_3_0_1 = new(3, 0, 1);
+
 	/// <summary>
 	/// Analyze the given type to determine whether it is always, possibly, or never serializable.
 	/// </summary>
@@ -61,6 +64,9 @@ public sealed class SerializabilityAnalyzer(SerializableTypeSymbols typeSymbols)
 				if (iParsableOfSelf.IsAssignableFrom(type))
 					return Serializability.AlwaysSerializable;
 			}
+
+			if (xunitContext.V3Core?.Version >= Version_3_0_1 && typeSymbols.ITuple is not null && typeSymbols.ITuple.IsAssignableFrom(type))
+				return Serializability.AlwaysSerializable;
 		}
 
 		if (typeSymbols.TypesWithCustomSerializers.Any(t => t.IsAssignableFrom(type)))

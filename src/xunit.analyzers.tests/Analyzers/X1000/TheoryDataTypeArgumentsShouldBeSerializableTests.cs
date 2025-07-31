@@ -1,7 +1,11 @@
+using System;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataTypeArgumentsShouldBeSerializable>;
+using Verify_v3_Pre301 = CSharpVerifier<TheoryDataTypeArgumentsShouldBeSerializableTests.Analyzer_v3_Pre301>;
 
 public class TheoryDataTypeArgumentsShouldBeSerializableTests
 {
@@ -493,6 +497,33 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
+
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "ValueTuple<string, int>")]
+		[MemberData(nameof(TheoryDataMembers), "ValueTuple<string, int>?")]
+		public async Task GivenTheory_WithValueTuple_OnlySupportedInV3_3_0_1(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+
+				public class TestClass {{
+					{0}
+
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
+				}}
+				""", member, attribute, type);
+			var expectedUnsupported = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type.Replace("ValueTuple<string, int>", "(string, int)"));
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+		}
 	}
 
 	public sealed class X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable : TheoryDataTypeArgumentsShouldBeSerializableTests
@@ -592,6 +623,32 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 #endif
 		}
 
+		[Theory]
+		[MemberData(nameof(TheoryDataMembers), "Tuple<string, int>")]
+		[MemberData(nameof(TheoryDataMembers), "Tuple<string, int>?")]
+		public async Task GivenTheory_WithTuple_OnlySupportedInV3_3_0_1(
+			string member,
+			string attribute,
+			string type)
+		{
+			var source = string.Format(/* lang=c#-test */ """
+				using System;
+				using Xunit;
+
+				public class TestClass {{
+					{0}
+
+					[Theory]
+					[{{|#0:{1}|}}]
+					public void TestMethod({2} parameter) {{ }}
+				}}
+				""", member, attribute, type);
+			var expectedUnsupported = Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments(type);
+
+			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+		}
 
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "object")]
@@ -654,5 +711,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
+	}
+
+	internal class Analyzer_v3_Pre301 : TheoryDataTypeArgumentsShouldBeSerializable
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV3(compilation, new Version(3, 0, 0));
 	}
 }

@@ -1,7 +1,11 @@
+using System;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TheoryDataRowArgumentsShouldBeSerializable>;
+using Verify_v3_Pre301 = CSharpVerifier<TheoryDataRowArgumentsShouldBeSerializableTests.Analyzer_v3_Pre301>;
 
 public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 {
@@ -138,7 +142,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			using Xunit.Sdk;
 
 			[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
-			
+
 			public class MyClass {{
 				public IEnumerable<TheoryDataRowBase> MyMethod() {{
 					var value = new {0}();
@@ -152,21 +156,21 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			}}
 
 			public interface ICustomSerialized {{ }}
-			
+
 			public class CustomSerialized : ICustomSerialized {{ }}
-			
+
 			public class CustomSerializedDerived : CustomSerialized {{ }}
-			
+
 			public class CustomSerializer : IXunitSerializer {{
 				public object Deserialize(Type type, string serializedValue) =>
 					throw new NotImplementedException();
-			
+
 				public bool IsSerializable(Type type, object? value, out string? failureReason)
 				{{
 					failureReason = null;
 					return true;
 				}}
-			
+
 				public string Serialize(object value) =>
 					throw new NotImplementedException();
 			}}
@@ -301,6 +305,41 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
 	}
 
+	[Theory]
+	[InlineData("object")]
+	[InlineData("Dictionary<int, string>")]
+	[InlineData("PossiblySerializableUnsealedClass")]
+	public async Task MaybeNonSerializableValue_Constructable_Triggers1047(string type)
+	{
+		var source = string.Format(/* lang=c#-test */ """
+			#nullable enable
+
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class MyClass {{
+				public IEnumerable<TheoryDataRowBase> MyMethod() {{
+					var value = new {0}();
+
+					yield return new TheoryDataRow({{|#0:value|}});
+					yield return new TheoryDataRow({{|#1:new {0}()|}});
+					yield return new TheoryDataRow<{0}>({{|#2:value|}});
+					yield return new TheoryDataRow<{0}>({{|#3:new {0}()|}});
+				}}
+			}}
+
+			public class PossiblySerializableUnsealedClass {{ }}
+			""", type);
+		var expected = new[] {
+			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments($"new {type}()", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("value", type),
+			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments($"new {type}()", type),
+		};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+	}
+
 	[Fact]
 	public async Task IFormattableAndIParseable_DoesNotTrigger()
 	{
@@ -343,7 +382,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 					var defaultValue = default(Formattable);
 					var nullValue = default(Formattable?);
 					var arrayValue = new Formattable[0];
-				
+
 					yield return new TheoryDataRow({|#0:defaultValue|}, {|#1:nullValue|}, {|#2:arrayValue|});
 					yield return new TheoryDataRow<Formattable, Formattable, Formattable[]>({|#3:default(Formattable)|}, {|#4:default(Formattable?)|}, {|#5:new Formattable[0]|});
 				}
@@ -354,7 +393,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 					var defaultValue = default(Parsable);
 					var nullValue = default(Parsable?);
 					var arrayValue = new Parsable[0];
-				
+
 					yield return new TheoryDataRow({|#10:defaultValue|}, {|#11:nullValue|}, {|#12:arrayValue|});
 					yield return new TheoryDataRow<Parsable, Parsable, Parsable[]>({|#13:default(Parsable)|}, {|#14:default(Parsable?)|}, {|#15:new Parsable[0]|});
 				}
@@ -365,7 +404,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 					var defaultValue = default(FormattableAndParsable);
 					var nullValue = default(FormattableAndParsable?);
 					var arrayValue = new FormattableAndParsable[0];
-				
+
 					yield return new TheoryDataRow(defaultValue, nullValue, arrayValue);
 					yield return new TheoryDataRow<FormattableAndParsable, FormattableAndParsable, FormattableAndParsable[]>(default(FormattableAndParsable), default(FormattableAndParsable?), new FormattableAndParsable[0]);
 				}
@@ -397,39 +436,57 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 #endif
 	}
 
-
-	[Theory]
-	[InlineData("object")]
-	[InlineData("Dictionary<int, string>")]
-	[InlineData("PossiblySerializableUnsealedClass")]
-	public async Task MaybeNonSerializableValue_Constructable_Triggers1047(string type)
+	[Fact]
+	public async Task Tuples_OnlySupportedByV3_3_0_1()
 	{
-		var source = string.Format(/* lang=c#-test */ """
+		var source = /* lang=c#-test */ """
 			#nullable enable
 
+			using System;
 			using System.Collections.Generic;
 			using Xunit;
 
-			public class MyClass {{
-				public IEnumerable<TheoryDataRowBase> MyMethod() {{
-					var value = new {0}();
+			public class MyClass {
+				public IEnumerable<TheoryDataRowBase> MyTupleMethod() {
+					var value = Tuple.Create("Hello world", 42);
 
-					yield return new TheoryDataRow({{|#0:value|}});
-					yield return new TheoryDataRow({{|#1:new {0}()|}});
-					yield return new TheoryDataRow<{0}>({{|#2:value|}});
-					yield return new TheoryDataRow<{0}>({{|#3:new {0}()|}});
-				}}
-			}}
+					yield return new TheoryDataRow({|#0:value|});
+					yield return new TheoryDataRow({|#1:Tuple.Create("Hello world", 42)|});
+					yield return new TheoryDataRow<Tuple<string, int>>({|#2:value|});
+					yield return new TheoryDataRow<Tuple<string, int>>({|#3:Tuple.Create("Hello world", 42)|});
+				}
 
-			public class PossiblySerializableUnsealedClass {{ }}
-			""", type);
-		var expected = new[] {
-			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("value", type),
-			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments($"new {type}()", type),
-			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("value", type),
-			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments($"new {type}()", type),
+				public IEnumerable<TheoryDataRowBase> MyValueTupleMethod() {
+					var value = ValueTuple.Create("Hello world", 42);
+
+					yield return new TheoryDataRow({|#10:value|});
+					yield return new TheoryDataRow({|#11:ValueTuple.Create("Hello world", 42)|});
+					yield return new TheoryDataRow<ValueTuple<string, int>>({|#12:value|});
+					yield return new TheoryDataRow<ValueTuple<string, int>>({|#13:ValueTuple.Create("Hello world", 42)|});
+				}
+			}
+
+			public class PossiblySerializableUnsealedClass { }
+			""";
+		var expectedUnsupported = new[] {
+			Verify.Diagnostic("xUnit1047").WithLocation(0).WithArguments("value", "Tuple<string, int>"),
+			Verify.Diagnostic("xUnit1047").WithLocation(1).WithArguments("Tuple.Create(\"Hello world\", 42)", "Tuple<string, int>"),
+			Verify.Diagnostic("xUnit1047").WithLocation(2).WithArguments("value", "Tuple<string, int>"),
+			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments("Tuple.Create(\"Hello world\", 42)", "Tuple<string, int>"),
+
+			Verify.Diagnostic("xUnit1046").WithLocation(10).WithArguments("value", "(string, int)"),
+			Verify.Diagnostic("xUnit1046").WithLocation(11).WithArguments("ValueTuple.Create(\"Hello world\", 42)", "(string, int)"),
+			Verify.Diagnostic("xUnit1046").WithLocation(12).WithArguments("value", "(string, int)"),
+			Verify.Diagnostic("xUnit1046").WithLocation(13).WithArguments("ValueTuple.Create(\"Hello world\", 42)", "(string, int)"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expectedUnsupported);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+	}
+
+	internal class Analyzer_v3_Pre301 : TheoryDataRowArgumentsShouldBeSerializable
+	{
+		protected override XunitContext CreateXunitContext(Compilation compilation) =>
+			XunitContext.ForV3(compilation, new Version(3, 0, 0));
 	}
 }
