@@ -14,7 +14,7 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-				public static TheoryData<int> DataSource;
+				public static TheoryData<int> DataSource = new TheoryData<int>();
 
 				[Theory]
 				[MemberData({|xUnit1014:"DataSource"|})]
@@ -27,7 +27,7 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-				public static TheoryData<int> DataSource;
+				public static TheoryData<int> DataSource = new TheoryData<int>();
 
 				[Theory]
 				[MemberData(nameof(DataSource))]
