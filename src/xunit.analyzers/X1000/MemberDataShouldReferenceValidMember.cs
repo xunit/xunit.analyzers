@@ -138,7 +138,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (!memberSymbol.IsStatic)
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
-				if (!IsInitialized(memberSymbol, compilation, context))
+				if (!IsInitialized(memberSymbol, context))
 					ReportMemberMustBeWrittenTo(context, memberSymbol);
 
 				// Unwrap Task or ValueTask, but only for v3
@@ -201,7 +201,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 	static bool IsInitialized(
 		ISymbol memberSymbol,
-		Compilation compilation,
 		SyntaxNodeAnalysisContext context
 	)
 	{
@@ -222,15 +221,23 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			&& field.Initializer != null)
 			return true;
 
-		var declarationContainer = declarationReference.SyntaxTree.GetCompilationUnitRoot();
+		var declarationContainer = declarationSyntax.FirstAncestorOrSelf<TypeDeclarationSyntax>()!;
 		var staticConstructors = declarationContainer.DescendantNodes()
-			.OfType<MethodDeclarationSyntax>()
-			.Where(mds => semantics.GetDeclaredSymbol(mds)?.MethodKind == MethodKind.StaticConstructor);
+			.OfType<ConstructorDeclarationSyntax>()
+			.Where(ctor => ctor.Modifiers.Any(SyntaxKind.StaticKeyword));
 
 		foreach (var ctor in staticConstructors)
 		{
-			var analysis = semantics.AnalyzeDataFlow(ctor);
-			if (analysis.WrittenInside.Contains(memberSymbol))
+			// Look for direct assignments to the member
+			var assignments = ctor.DescendantNodes(descendIntoChildren: _ => true, descendIntoTrivia: false)
+				.OfType<AssignmentExpressionSyntax>()
+				.Where(assignment =>
+				{
+					var assignedSymbol = semantics.GetSymbolInfo(assignment.Left).Symbol;
+					return SymbolEqualityComparer.Default.Equals(assignedSymbol?.OriginalDefinition, memberSymbol);
+				});
+
+			if (assignments.Any())
 				return true;
 		}
 		return false;

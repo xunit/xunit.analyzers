@@ -1528,12 +1528,22 @@ public class MemberDataShouldReferenceValidMemberTests
 					public static TheoryData<int> Property { get; } = null;
 					public static TheoryData<int> PropertyWithGetBody { get { return null; } }
 					public static TheoryData<int> PropertyWithGetExpression => null;
+					public static TheoryData<int> FieldWrittenInStaticConstructor;
+					public static TheoryData<int> PropertyWrittenInStaticConstructor { get; set; }
+
+					static TestClass()
+					{
+						FieldWrittenInStaticConstructor = null;
+						PropertyWrittenInStaticConstructor = null;
+					}
 
 					[Theory]
 					[MemberData(nameof(Field))]
 					[MemberData(nameof(Property))]
 					[MemberData(nameof(PropertyWithGetBody))]
 					[MemberData(nameof(PropertyWithGetExpression))]
+					[MemberData(nameof(FieldWrittenInStaticConstructor))]
+					[MemberData(nameof(PropertyWrittenInStaticConstructor))]
 					public void TestCase(int _) {}
 				}
 			""";
