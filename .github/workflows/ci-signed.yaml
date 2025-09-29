@@ -33,15 +33,15 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
+      - name: "Build target: BuildAll"
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
+
       - name: Login to Azure CLI
         uses: azure/login@v2
         with:
           client-id: ${{ vars.KEYVAULT_APP_ID }}
           tenant-id: ${{ vars.KEYVAULT_TENANT_ID }}
           subscription-id: ${{ vars.KEYVAULT_SUBSCRIPTION_ID }}
-
-      - name: "Build target: BuildAll"
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
 
       - name: "Build target: PublishPackages"
         env:
@@ -52,6 +52,14 @@ jobs:
           SIGN_TIMESTAMP_URI: ${{ vars.KEYVAULT_TIMESTAMP_URL }}
           SIGN_VAULT_URI: ${{ vars.KEYVAULT_URL }}
         run: dotnet run --project tools/builder --no-launch-profile -- PublishPackages --timing
+
+      - name: "Upload artifact: build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: artifacts/build
+          compression-level: 9
+        if: always()
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v4
