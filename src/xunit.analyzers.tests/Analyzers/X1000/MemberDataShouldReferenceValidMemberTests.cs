@@ -1533,7 +1533,7 @@ public class MemberDataShouldReferenceValidMemberTests
 
 					static TestClass()
 					{
-						FieldWrittenInStaticConstructor = null;
+						TestClass.FieldWrittenInStaticConstructor = null;
 						PropertyWrittenInStaticConstructor = null;
 					}
 
@@ -1563,16 +1563,54 @@ public class MemberDataShouldReferenceValidMemberTests
 
 					public TestClass()
 					{
-						Field = null;
+						TestClass.Field = null;
 						Property = null;
 					}
 
 					[Theory]
-					[MemberData(nameof(Field)), MemberData(nameof(Property))]
+					[MemberData(nameof(Field))]
+					[MemberData(nameof(Property))]
 					public void TestCase(int _) {}
 				}
 			""";
 
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1053").WithLocation(0).WithArguments("Field"),
+				Verify.Diagnostic("xUnit1053").WithLocation(1).WithArguments("Property"),
+			};
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Fact]
+		public async ValueTask OutOfScopeCase_GeneratesResult()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TheoryInitializer {
+					static TheoryInitializer()
+					{
+						TestClass.Field = null;
+						TestClass.Property = null;
+					}
+				}
+
+				public class TestClass {
+					public static TheoryData<int> {|#0:Field|};
+					public static TheoryData<int> {|#1:Property|} { get; set; }
+
+					static TestClass()
+					{
+						new TheoryInitializer();
+					}
+
+					[Theory]
+					[MemberData(nameof(Field))]
+					[MemberData(nameof(Property))]
+					public void TestCase(int _) {}
+				}
+			""";
 			var expected = new[] {
 				Verify.Diagnostic("xUnit1053").WithLocation(0).WithArguments("Field"),
 				Verify.Diagnostic("xUnit1053").WithLocation(1).WithArguments("Property"),
