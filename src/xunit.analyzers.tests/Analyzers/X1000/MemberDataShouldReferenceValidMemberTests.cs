@@ -11,6 +11,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using Xunit;
 
@@ -149,6 +151,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using System;
 				using System.Collections.Generic;
 				using Xunit;
@@ -196,6 +200,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1042
+				#pragma warning disable xUnit1053
 
 				using System;
 				using System.Collections.Generic;
@@ -319,6 +324,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1042
+				#pragma warning disable xUnit1053
 
 				using System.Collections.Generic;
 				using System.Threading.Tasks;
@@ -371,6 +377,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using Xunit;
 
 				public class TestClass {
@@ -399,6 +407,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using Xunit;
 
 				public class TestClassBase {
@@ -1361,6 +1371,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using Xunit;
 
@@ -1409,6 +1421,8 @@ public class MemberDataShouldReferenceValidMemberTests
 		public async Task V3_only()
 		{
 			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using System.Threading.Tasks;
 				using Xunit;
@@ -1504,6 +1518,111 @@ public class MemberDataShouldReferenceValidMemberTests
 			};
 
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source, expected);
+		}
+	}
+
+	public class X1053_MemberDataMemberMustBeStaticallyWrittenTo
+	{
+		[Fact]
+		public async ValueTask Initializers_AndGetExpressions_MarkAsWrittenTo()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					public static TheoryData<int> Field = null;
+					public static TheoryData<int> Property { get; } = null;
+					public static TheoryData<int> PropertyWithGetBody { get { return null; } }
+					public static TheoryData<int> PropertyWithGetExpression => null;
+					public static TheoryData<int> FieldWrittenInStaticConstructor;
+					public static TheoryData<int> PropertyWrittenInStaticConstructor { get; set; }
+
+					static TestClass()
+					{
+						TestClass.FieldWrittenInStaticConstructor = null;
+						PropertyWrittenInStaticConstructor = null;
+					}
+
+					[Theory]
+					[MemberData(nameof(Field))]
+					[MemberData(nameof(Property))]
+					[MemberData(nameof(PropertyWithGetBody))]
+					[MemberData(nameof(PropertyWithGetExpression))]
+					[MemberData(nameof(FieldWrittenInStaticConstructor))]
+					[MemberData(nameof(PropertyWrittenInStaticConstructor))]
+					public void TestCase(int _) {}
+				}
+			""";
+
+			await Verify.VerifyAnalyzer(source, []);
+		}
+
+		[Fact]
+		public async ValueTask SimpleCase_GeneratesResult()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					public static TheoryData<int> {|#0:Field|};
+					public static TheoryData<int> {|#1:Property|} { get; set; }
+
+					public TestClass()
+					{
+						TestClass.Field = null;
+						Property = null;
+					}
+
+					[Theory]
+					[MemberData(nameof(Field))]
+					[MemberData(nameof(Property))]
+					public void TestCase(int _) {}
+				}
+			""";
+
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1053").WithLocation(0).WithArguments("Field"),
+				Verify.Diagnostic("xUnit1053").WithLocation(1).WithArguments("Property"),
+			};
+
+			await Verify.VerifyAnalyzer(source, expected);
+		}
+
+		[Fact]
+		public async ValueTask OutOfScopeCase_GeneratesResult()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TheoryInitializer {
+					static TheoryInitializer()
+					{
+						TestClass.Field = null;
+						TestClass.Property = null;
+					}
+				}
+
+				public class TestClass {
+					public static TheoryData<int> {|#0:Field|};
+					public static TheoryData<int> {|#1:Property|} { get; set; }
+
+					static TestClass()
+					{
+						new TheoryInitializer();
+					}
+
+					[Theory]
+					[MemberData(nameof(Field))]
+					[MemberData(nameof(Property))]
+					public void TestCase(int _) {}
+				}
+			""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1053").WithLocation(0).WithArguments("Field"),
+				Verify.Diagnostic("xUnit1053").WithLocation(1).WithArguments("Property"),
+			};
+
+			await Verify.VerifyAnalyzer(source, expected);
 		}
 	}
 }

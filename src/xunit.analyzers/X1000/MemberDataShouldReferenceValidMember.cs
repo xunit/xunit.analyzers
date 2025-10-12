@@ -33,7 +33,8 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			Descriptors.X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 			Descriptors.X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
 			Descriptors.X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
-			Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis
+			Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
+			Descriptors.X1053_MemberDataMemberMustBeStaticallyWrittenTo
 		)
 	{ }
 
@@ -137,6 +138,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				if (!memberSymbol.IsStatic)
 					ReportNonStatic(context, attributeSyntax, memberProperties);
 
+				if (!IsInitialized(memberSymbol, context))
+					ReportMemberMustBeWrittenTo(context, memberSymbol);
+
 				// Unwrap Task or ValueTask, but only for v3
 				if (xunitContext.HasV3References &&
 					memberReturnType is INamedTypeSymbol namedMemberReturnType &&
@@ -193,6 +197,53 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 				}
 			}
 		}, SyntaxKind.MethodDeclaration);
+	}
+
+	static bool IsInitialized(
+		ISymbol memberSymbol,
+		SyntaxNodeAnalysisContext context)
+	{
+		if (!memberSymbol.IsStatic || memberSymbol is IMethodSymbol)
+			// assume initialized, if nonstatic or method to avoid spurious results
+			return true;
+
+		var semantics = context.SemanticModel;
+		var declarationReference = memberSymbol.DeclaringSyntaxReferences.First();
+		var declarationSyntax = declarationReference.GetSyntax();
+		if (declarationSyntax is PropertyDeclarationSyntax prop
+			&& (prop.Initializer != null
+				|| prop.AccessorList?.Accessors.FirstOrDefault(decl => decl.Kind() == SyntaxKind.GetAccessorDeclaration)?.Body != null
+				|| prop.ExpressionBody != null))
+			return true;
+
+		if (declarationSyntax is VariableDeclaratorSyntax field && field.Initializer != null)
+			return true;
+
+		var declarationContainer = declarationSyntax.FirstAncestorOrSelf<TypeDeclarationSyntax>()!;
+		var staticConstructors =
+			declarationContainer
+				.DescendantNodes()
+				.OfType<ConstructorDeclarationSyntax>()
+				.Where(ctor => ctor.Modifiers.Any(SyntaxKind.StaticKeyword));
+
+		foreach (var ctor in staticConstructors)
+		{
+			// Look for direct assignments to the member
+			var assignments =
+				ctor
+					.DescendantNodes(descendIntoChildren: _ => true, descendIntoTrivia: false)
+					.OfType<AssignmentExpressionSyntax>()
+					.Where(assignment =>
+					{
+						var assignedSymbol = semantics.GetSymbolInfo(assignment.Left).Symbol;
+						return SymbolEqualityComparer.Default.Equals(assignedSymbol?.OriginalDefinition, memberSymbol);
+					});
+
+			if (assignments.Any())
+				return true;
+		}
+
+		return false;
 	}
 
 	static ISymbol? FindMemberSymbol(
@@ -511,6 +562,17 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 					location,
 					builder.ToImmutable(),
 					SymbolDisplay.ToDisplayString(theoryDataType)
+				)
+			);
+
+	static void ReportMemberMustBeWrittenTo(
+		SyntaxNodeAnalysisContext context,
+		ISymbol memberSymbol) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1053_MemberDataMemberMustBeStaticallyWrittenTo,
+					memberSymbol.Locations.First(),
+					memberSymbol.Name
 				)
 			);
 

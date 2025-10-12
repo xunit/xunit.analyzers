@@ -483,7 +483,14 @@ public static partial class Descriptors
 			"'TheoryData<...>' should not be used with one or more type arguments that implement 'ITheoryDataRow' or a derived variant. This usage is not supported. Use either 'TheoryData' or a type of 'ITheoryDataRow' exclusively."
 		);
 
-	// Placeholder for rule X1053
+	public static DiagnosticDescriptor X1053_MemberDataMemberMustBeStaticallyWrittenTo { get; } =
+		Diagnostic(
+			"xUnit1053",
+			"The static member used as theory data must be statically initialized.",
+			Usage,
+			Warning,
+			"The member {0} referenced by MemberData is not initialized before use. Add an inline initializer or initialize the value in the static constructor."
+		);
 
 	// Placeholder for rule X1054
 
