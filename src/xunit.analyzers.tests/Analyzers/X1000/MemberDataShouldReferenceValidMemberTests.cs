@@ -12,6 +12,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using Xunit;
 
@@ -151,6 +152,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using System;
 				using System.Collections.Generic;
 				using Xunit;
@@ -376,6 +378,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using Xunit;
 
 				public class TestClass {
@@ -405,6 +408,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using Xunit;
 
 				public class TestClassBase {
@@ -1368,6 +1372,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using Xunit;
 
@@ -1417,6 +1422,7 @@ public class MemberDataShouldReferenceValidMemberTests
 		{
 			var source = /* lang=c#-test */ """
 				#pragma warning disable xUnit1053
+
 				using System.Collections.Generic;
 				using System.Threading.Tasks;
 				using Xunit;
