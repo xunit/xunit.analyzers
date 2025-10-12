@@ -489,7 +489,7 @@ public static partial class Descriptors
 			"The static member used as theory data must be statically initialized.",
 			Usage,
 			Warning,
-			"The member {0} referenced by MemberData is not initialized before use."
+			"The member {0} referenced by MemberData is not initialized before use. Add an inline initializer or initialize the value in the static constructor."
 		);
 
 	// Placeholder for rule X1054
