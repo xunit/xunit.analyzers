@@ -25,6 +25,8 @@ public class SerializableClassMustHaveParameterlessConstructor : XunitDiagnostic
 				return;
 			if (namedType.TypeKind != TypeKind.Class)
 				return;
+			if (namedType.IsAbstract)
+				return;
 
 			var serializableTargetDisplay = GetSerializableTargetDisplay(xunitContext, namedType);
 			if (serializableTargetDisplay is null)
