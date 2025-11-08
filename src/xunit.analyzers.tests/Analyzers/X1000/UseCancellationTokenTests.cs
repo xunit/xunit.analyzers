@@ -41,27 +41,31 @@ public class UseCancellationTokenTests
 		await Verify.VerifyAnalyzerV3(source);
 	}
 
-	[Theory]
-	[InlineData("TestContext.Current.CancellationToken")]
-	[InlineData("new CancellationTokenSource().Token")]
-	public async Task WithAnyCancellationToken_DoesNotTrigger(string token)
+	[Fact]
+	public async Task WithAnyCancellationToken_DoesNotTrigger()
 	{
-		var source = string.Format(/* lang=c#-test */ """
+		var source = /* lang=c#-test */ """
 			using System.Threading;
 			using System.Threading.Tasks;
 			using Xunit;
 
-			class TestClass {{
+			class TestClass {
 				[Fact]
-				public void TestMethod() {{
-					FunctionWithDefaults(42, {0});
-					FunctionWithDefaults(42, cancellationToken: {0});
-					FunctionWithDefaults(cancellationToken: {0});
-				}}
+				public void TestMethod() {
+					FunctionWithDefaults(42, TestContext.Current.CancellationToken);
+					FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken);
+					FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
 
-				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) {{ }}
-			}}
-			""", token);
+					var token = new CancellationTokenSource().Token;
+
+					FunctionWithDefaults(42, token);
+					FunctionWithDefaults(42, cancellationToken: token);
+					FunctionWithDefaults(cancellationToken: token);
+				}
+
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzerV3(source);
 	}
@@ -107,35 +111,35 @@ public class UseCancellationTokenTests
 		await Verify.VerifyAnalyzerV3(source);
 	}
 
-	[Theory]
-	[InlineData("FunctionWithDefaults()")]
-	[InlineData("FunctionWithDefaults(42)")]
-	[InlineData("FunctionWithDefaults(42, default)")]
-	[InlineData("FunctionWithDefaults(42, default(CancellationToken))")]
-	[InlineData("FunctionWithDefaults(cancellationToken: default)")]
-	[InlineData("FunctionWithDefaults(cancellationToken: default(CancellationToken))")]
-	[InlineData("FunctionWithOverload(42)")]
-	[InlineData("FunctionWithOverload(42, default)")]
-	[InlineData("FunctionWithOverload(42, default(CancellationToken))")]
-	public async Task WithoutCancellationToken_V3_Triggers(string invocation)
+	[Fact]
+	public async Task WithoutCancellationToken_V3_Triggers()
 	{
-		var source = string.Format(/* lang=c#-test */ """
+		var source = /* lang=c#-test */ """
 			using System.Threading;
 			using System.Threading.Tasks;
 			using Xunit;
 
-			class TestClass {{
+			class TestClass {
 				[Fact]
-				public void TestMethod() {{
-					[|{0}|];
-				}}
+				public void TestMethod() {
+					[|FunctionWithDefaults()|];
+					[|FunctionWithDefaults(42)|];
+					[|FunctionWithDefaults(42, default)|];
+					[|FunctionWithDefaults(42, default(CancellationToken))|];
+					[|FunctionWithDefaults(cancellationToken: default)|];
+					[|FunctionWithDefaults(cancellationToken: default(CancellationToken))|];
 
-				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default) {{ }}
+					[|FunctionWithOverload(42)|];
+					[|FunctionWithOverload(42, default)|];
+					[|FunctionWithOverload(42, default(CancellationToken))|];
+				}
 
-				void FunctionWithOverload(int _) {{ }}
-				void FunctionWithOverload(int _1, CancellationToken _2) {{ }}
-			}}
-			""", invocation);
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default) { }
+
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(int _1, CancellationToken _2) { }
+			}
+			""";
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source);
 	}
