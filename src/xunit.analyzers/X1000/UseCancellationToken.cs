@@ -33,6 +33,9 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			TypeSymbolFactory.Record(context.Compilation),
 		}.WhereNotNull().ToImmutableHashSet(SymbolEqualityComparer.Default);
 
+		var attributeUsageAttribute = TypeSymbolFactory.AttributeUsageAttribute(context.Compilation);
+		var obsoleteAttribute = TypeSymbolFactory.ObsoleteAttribute(context.Compilation);
+
 		context.RegisterOperationAction(context =>
 		{
 			if (context.Operation is not IInvocationOperation invocationOperation)
@@ -82,6 +85,13 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 				foreach (var member in invokedMethod.ContainingType.GetMembers(invokedMethod.Name))
 					if (member is IMethodSymbol method)
 					{
+						if (attributeUsageAttribute is not null && obsoleteAttribute is not null)
+						{
+							var attributes = method.GetAttributesWithInheritance(attributeUsageAttribute);
+							if (attributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, obsoleteAttribute)))
+								continue;
+						}
+
 						var methodParameterTypes = method.Parameters.Select(p => p.Type).ToArray();
 						if (methodParameterTypes.Length != targetParameterTypes.Length)
 							continue;
