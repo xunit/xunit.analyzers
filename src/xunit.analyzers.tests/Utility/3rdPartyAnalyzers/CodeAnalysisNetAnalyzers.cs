@@ -23,12 +23,12 @@ public class CodeAnalysisNetAnalyzers : AnalyzerLoaderBase
 		// Make sure we load the dependencies first
 		var _ = assemblyNetAnalyzers.Value;
 
-		return LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.netanalyzers", "9.0.0", "analyzers", "dotnet", "cs", "Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll"));
+		return LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.netanalyzers", "10.0.100", "analyzers", "dotnet", "cs", "Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll"));
 	}
 
 	static Assembly LoadNetAnalyzers()
 	{
 		LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.workspaces.common", "3.11.0", "lib", "netcoreapp3.1", "Microsoft.CodeAnalysis.Workspaces.dll"));
-		return LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.netanalyzers", "9.0.0", "analyzers", "dotnet", "cs", "Microsoft.CodeAnalysis.NetAnalyzers.dll"));
+		return LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.netanalyzers", "10.0.100", "analyzers", "dotnet", "Microsoft.CodeAnalysis.NetAnalyzers.dll"));
 	}
 }
