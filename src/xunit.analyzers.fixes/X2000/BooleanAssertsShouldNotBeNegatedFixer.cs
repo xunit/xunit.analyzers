@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -57,13 +58,26 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+		{
 			if (invocation.ArgumentList.Arguments[0].Expression is PrefixUnaryExpressionSyntax prefixUnaryExpression)
+			{
+				var originalArguments = invocation.ArgumentList.Arguments;
+				var newFirstArgument = Argument(prefixUnaryExpression.Operand);
+
+				var newArguments = new List<ArgumentSyntax> { newFirstArgument };
+				if (originalArguments.Count > 1)
+				{
+					newArguments.AddRange(originalArguments.Skip(1));
+				}
+
 				editor.ReplaceNode(
 					invocation,
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList([Argument(prefixUnaryExpression.Operand)])))
+						.WithArgumentList(ArgumentList(SeparatedList(newArguments)))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 				);
+			}
+		}
 
 		return editor.GetChangedDocument();
 	}

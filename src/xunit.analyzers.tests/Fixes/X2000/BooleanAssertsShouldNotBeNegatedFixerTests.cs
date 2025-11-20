@@ -30,4 +30,52 @@ public class BooleanAssertsShouldNotBeNegatedFixerTests
 
 		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
 	}
+
+	[Theory]
+	[InlineData("False", "True")]
+	[InlineData("True", "False")]
+	public async Task PreservesUserMessageNamedParameter(
+		string assertion,
+		string replacement)
+	{
+		var before = string.Format(template, $"[|Assert.{assertion}(!condition, userMessage: \"test message\")|]");
+		var after = string.Format(template, $"Assert.{replacement}(condition, userMessage: \"test message\")");
+
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
+	}
+
+	[Theory]
+	[InlineData("False", "True")]
+	[InlineData("True", "False")]
+	public async Task PreservesUserMessagePositionalParameter(
+		string assertion,
+		string replacement)
+	{
+		var before = string.Format(template, $"[|Assert.{assertion}(!condition, \"test message\")|]");
+		var after = string.Format(template, $"Assert.{replacement}(condition, \"test message\")");
+
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
+	}
+
+	[Theory]
+	[InlineData("False", "True")]
+	[InlineData("True", "False")]
+	public async Task PreservesUserMessageWithEmptyString(
+		string assertion,
+		string replacement)
+	{
+		var before = string.Format(template, $"[|Assert.{assertion}(!condition, userMessage: \"\")|]");
+		var after = string.Format(template, $"Assert.{replacement}(condition, userMessage: \"\")");
+
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
+	}
+
+	[Fact]
+	public async Task PreservesUserMessageWithComplexExpression()
+	{
+		var before = string.Format(template, "[|Assert.True(!false, userMessage: \"test\")|]");
+		var after = string.Format(template, "Assert.False(false, userMessage: \"test\")");
+
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
+	}
 }
