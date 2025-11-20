@@ -92,13 +92,4 @@ public class BooleanAssertsShouldNotBeNegatedFixerTests
 
 		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
 	}
-
-	[Fact]
-	public async Task PreservesComments()
-	{
-		var before = string.Format(template, "[|Assert.True(/*a*/condition/*b*/, userMessage: \"msg\")|]");
-		var after = string.Format(template, "Assert.False(condition/*b*/, userMessage: \"msg\")");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
 }

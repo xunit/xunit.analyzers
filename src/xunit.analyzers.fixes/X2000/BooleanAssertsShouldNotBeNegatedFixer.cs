@@ -50,30 +50,25 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 	}
 
 	static async Task<Document> UseSuggestedAssert(
-	Document document,
-	InvocationExpressionSyntax invocation,
-	string replacement,
-	CancellationToken cancellationToken)
+		Document document,
+		InvocationExpressionSyntax invocation,
+		string replacement,
+		CancellationToken cancellationToken)
 	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 		{
-			var originalArguments = invocation.ArgumentList.Arguments;
-
-			var firstArg = originalArguments[0];
-			if (firstArg.Expression is PrefixUnaryExpressionSyntax prefixUnaryExpression &&
-				prefixUnaryExpression.Kind() == Microsoft.CodeAnalysis.CSharp.SyntaxKind.LogicalNotExpression)
+			if (invocation.ArgumentList.Arguments[0].Expression is PrefixUnaryExpressionSyntax prefixUnaryExpression)
 			{
-				var newFirstArg = firstArg.WithExpression(
-					prefixUnaryExpression.Operand
-						.WithLeadingTrivia(firstArg.Expression.GetLeadingTrivia())
-						.WithTrailingTrivia(firstArg.Expression.GetTrailingTrivia())
-				);
+				var originalArguments = invocation.ArgumentList.Arguments;
+				var newFirstArgument = Argument(prefixUnaryExpression.Operand);
 
-				var newArguments = new List<ArgumentSyntax> { newFirstArg };
+				var newArguments = new List<ArgumentSyntax> { newFirstArgument };
 				if (originalArguments.Count > 1)
+				{
 					newArguments.AddRange(originalArguments.Skip(1));
+				}
 
 				editor.ReplaceNode(
 					invocation,
@@ -86,5 +81,4 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 
 		return editor.GetChangedDocument();
 	}
-
 }
