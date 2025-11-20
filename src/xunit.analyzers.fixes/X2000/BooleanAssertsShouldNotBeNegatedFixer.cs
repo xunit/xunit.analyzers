@@ -58,12 +58,20 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 
 		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
 			if (invocation.ArgumentList.Arguments[0].Expression is PrefixUnaryExpressionSyntax prefixUnaryExpression)
+			{
+				var newArguments = invocation.ArgumentList.Arguments
+					.Select((arg, index) => index == 0
+						? Argument(prefixUnaryExpression.Operand).WithTriviaFrom(arg)
+						: arg)
+					.ToArray();
+
 				editor.ReplaceNode(
 					invocation,
 					invocation
-						.WithArgumentList(ArgumentList(SeparatedList([Argument(prefixUnaryExpression.Operand)])))
+						.WithArgumentList(ArgumentList(SeparatedList(newArguments)))
 						.WithExpression(memberAccess.WithName(IdentifierName(replacement)))
 				);
+			}
 
 		return editor.GetChangedDocument();
 	}
