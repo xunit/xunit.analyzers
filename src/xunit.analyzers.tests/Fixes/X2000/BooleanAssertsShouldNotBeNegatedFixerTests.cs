@@ -5,90 +5,101 @@ using Verify = CSharpVerifier<Xunit.Analyzers.BooleanAssertsShouldNotBeNegated>;
 
 public class BooleanAssertsShouldNotBeNegatedFixerTests
 {
-	const string template = /* lang=c#-test */ """
-	using Xunit;
-
-	public class TestClass {{
-		[Fact]
-		public void TestMethod() {{
-			bool condition = true;
-
-			{0};
-		}}
-	}}
-	""";
-
-	[Theory]
-	[InlineData("False", "True")]
-	[InlineData("True", "False")]
-	public async Task ReplacesBooleanAssert(
-		string assertion,
-		string replacement)
-	{
-		var before = string.Format(template, $"[|Assert.{assertion}(!condition)|]");
-		var after = string.Format(template, $"Assert.{replacement}(condition)");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData("False", "True")]
-	[InlineData("True", "False")]
-	public async Task PreservesUserMessageNamedParameter(
-		string assertion,
-		string replacement)
-	{
-		var before = string.Format(template, $"[|Assert.{assertion}(!condition, userMessage: \"test message\")|]");
-		var after = string.Format(template, $"Assert.{replacement}(condition, userMessage: \"test message\")");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
-
-	[Theory]
-	[InlineData("False", "True")]
-	[InlineData("True", "False")]
-	public async Task PreservesUserMessagePositionalParameter(
-		string assertion,
-		string replacement)
-	{
-		var before = string.Format(template, $"[|Assert.{assertion}(!condition, \"test message\")|]");
-		var after = string.Format(template, $"Assert.{replacement}(condition, \"test message\")");
-
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
-
 	[Fact]
-	public async Task PreservesWhitespace()
+	public async Task AcceptanceTest()
 	{
-		var before = string.Format(template, "[|Assert.True(   !condition   )|]");
-		var after = string.Format(template, "Assert.False(condition)");
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					bool condition = true;
 
-	[Fact]
-	public async Task NegatedLiteral()
-	{
-		var before = string.Format(template, "[|Assert.True(!false)|]");
-		var after = string.Format(template, "Assert.False(false)");
+					// Not negated
+					Assert.True(false);
+					Assert.False(false);
+					Assert.True(condition);
+					Assert.False(condition);
 
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
+					// Negated
+					[|Assert.True(!false)|];
+					[|Assert.False(!false)|];
+					[|Assert.True(!condition)|];
+					[|Assert.False(!condition)|];
 
-	[Fact]
-	public async Task NegatedPropertyAccess()
-	{
-		var before = string.Format(template, "[|Assert.True(!condition)|]");
-		var after = string.Format(template, "Assert.False(condition)");
+					// Not negated, with message
+					Assert.True(false, "test message");
+					Assert.False(false, "test message");
+					Assert.True(condition, "test message");
+					Assert.False(condition, "test message");
 
-		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
-	}
+					// Negated, with message
+					[|Assert.True(!false, "test message")|];
+					[|Assert.False(!false, "test message")|];
+					[|Assert.True(!condition, "test message")|];
+					[|Assert.False(!condition, "test message")|];
 
-	[Fact]
-	public async Task PreservesUserMessageWithComplexExpression()
-	{
-		var before = string.Format(template, "[|Assert.True(!false, userMessage: \"test\")|]");
-		var after = string.Format(template, "Assert.False(false, userMessage: \"test\")");
+					// Not negated, with named parameter message
+					Assert.True(false, userMessage: "test message");
+					Assert.False(false, userMessage: "test message");
+					Assert.True(condition, userMessage: "test message");
+					Assert.False(condition, userMessage: "test message");
+
+					// Negated, with named parameter message
+					[|Assert.True(!false, userMessage: "test message")|];
+					[|Assert.False(!false, userMessage: "test message")|];
+					[|Assert.True(!condition, userMessage: "test message")|];
+					[|Assert.False(!condition, userMessage: "test message")|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					bool condition = true;
+
+					// Not negated
+					Assert.True(false);
+					Assert.False(false);
+					Assert.True(condition);
+					Assert.False(condition);
+
+					// Negated
+					Assert.False(false);
+					Assert.True(false);
+					Assert.False(condition);
+					Assert.True(condition);
+
+					// Not negated, with message
+					Assert.True(false, "test message");
+					Assert.False(false, "test message");
+					Assert.True(condition, "test message");
+					Assert.False(condition, "test message");
+
+					// Negated, with message
+					Assert.False(false, "test message");
+					Assert.True(false, "test message");
+					Assert.False(condition, "test message");
+					Assert.True(condition, "test message");
+
+					// Not negated, with named parameter message
+					Assert.True(false, userMessage: "test message");
+					Assert.False(false, userMessage: "test message");
+					Assert.True(condition, userMessage: "test message");
+					Assert.False(condition, userMessage: "test message");
+
+					// Negated, with named parameter message
+					Assert.False(false, userMessage: "test message");
+					Assert.True(false, userMessage: "test message");
+					Assert.False(condition, userMessage: "test message");
+					Assert.True(condition, userMessage: "test message");
+				}
+			}
+			""";
 
 		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
 	}
