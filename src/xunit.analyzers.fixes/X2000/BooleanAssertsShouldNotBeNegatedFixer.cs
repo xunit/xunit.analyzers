@@ -66,9 +66,7 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 
 				var newArguments = new List<ArgumentSyntax> { newFirstArgument };
 				if (originalArguments.Count > 1)
-				{
 					newArguments.AddRange(originalArguments.Skip(1));
-				}
 
 				editor.ReplaceNode(
 					invocation,
