@@ -51,7 +51,7 @@ public class XunitVerifier : IVerifier
 			return;
 
 		if (message is null && Context.IsEmpty)
-			throw EqualException.ForMismatchedValues(expected, actual);
+			throw EqualException.ForMismatchedValues(ArgumentFormatter.Format(expected), ArgumentFormatter.Format(actual));
 		else
 			throw EqualException.ForMismatchedValuesWithMessage(expected, actual, CreateMessage(message));
 	}
