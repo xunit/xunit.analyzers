@@ -884,12 +884,10 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		var valid = iEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
 
-		// Special‑case handling for IEnumerable<T> where T is not object[]. If T is any array type, it is assignable to object[] and therefore valid.
+		// Special-case handling for IEnumerable<T> where T is not object[]. If T is any array type, it is assignable to object[] and therefore valid.
 		var memberEnumerableType = memberType.GetEnumerableType();
 		if (!valid && memberEnumerableType is not null)
-		{
 			valid = memberEnumerableType.TypeKind == TypeKind.Array;
-		}
 
 		if (!valid && v3 && iAsyncEnumerableOfObjectArrayType is not null)
 			valid = iAsyncEnumerableOfObjectArrayType.IsAssignableFrom(memberType);
