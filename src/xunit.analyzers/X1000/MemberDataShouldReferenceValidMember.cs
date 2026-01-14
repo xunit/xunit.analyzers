@@ -291,6 +291,42 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return null;
 	}
 
+	static ITypeSymbol? FindTypeArgumentFromIEnumerable(
+		ITypeSymbol? start,
+		Compilation compilation)
+	{
+		if (start is not INamedTypeSymbol namedStart)
+			return null;
+
+		var iEnumerableOfT = TypeSymbolFactory.IEnumerableOfT(compilation);
+		if (iEnumerableOfT is null)
+			return null;
+
+		var current = namedStart;
+		while (current != null)
+		{
+			// If this class implements IEnumerable<T>, return T type argument
+			foreach (var iface in current.AllInterfaces)
+				if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, iEnumerableOfT))
+					return iface.TypeArguments.FirstOrDefault();
+
+			// Navigate to its Base types to investigate if they implement IEnumerable,
+			// attempt to resolve the base type from the source syntax (handles `: ValidExamples`).
+			var declaredBase = ResolveDeclaredBaseTypeFromSyntax(current, compilation) as INamedTypeSymbol;
+
+			// Prefer declaredBase when available; otherwise fall back to the BaseType symbol.
+			var next = declaredBase ?? current.BaseType;
+
+			// Stop if we reached object
+			if (next?.SpecialType == SpecialType.System_Object)
+				break;
+
+			current = next;
+		}
+
+		return null;
+	}
+
 	public static (INamedTypeSymbol? TestClass, ITypeSymbol? MemberClass) GetClassTypesForAttribute(
 		AttributeArgumentListSyntax attributeList,
 		SemanticModel semanticModel,
@@ -319,7 +355,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		List<AttributeArgumentSyntax> arguments, SemanticModel semanticModel)
 	{
 		if (arguments.Count > 1)
-			return arguments.Select(a => a.Expression).ToList();
+			return [.. arguments.Select(a => a.Expression)];
 		if (arguments.Count != 1)
 			return null;
 
@@ -673,6 +709,52 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		);
 	}
 
+	/// <summary>
+	/// Resolve declared base type and find the first base class that implements IEnumerable
+	/// (e.g. "ValidExample" from "class SubtypeValidExample : ValidExample {}")
+	/// </summary>
+	static ITypeSymbol? ResolveDeclaredBaseTypeFromSyntax(
+		ITypeSymbol type,
+		Compilation compilation)
+	{
+		if (type is null)
+			return null;
+
+		// Look through source declarations for an explicit base type in the syntax.
+		foreach (var declaringReference in type.DeclaringSyntaxReferences)
+		{
+			var syntax = declaringReference.GetSyntax();
+			if (syntax is ClassDeclarationSyntax cls && cls.BaseList is not null && cls.BaseList.Types.Count > 0)
+			{
+				var baseTypeSyntax = cls.BaseList.Types.First().Type;
+				var baseTypeName = baseTypeSyntax.ToString(); // may be qualified
+
+				// Try direct metadata lookup first (works for namespace-qualified names)
+				var byMetadata = compilation.GetTypeByMetadataName(baseTypeName);
+				if (byMetadata is not null)
+					return byMetadata;
+
+				// Fallback: search symbols by the simple name and try to match fully-qualified textual form.
+				var simpleName = baseTypeName.Split('.').Last();
+				var candidates =
+					compilation
+						.GetSymbolsWithName(n => n == simpleName, SymbolFilter.Type)
+						.OfType<INamedTypeSymbol>()
+						.ToList();
+
+				// Prefer exact textual match of declared name (handles namespace-qualified baseTypeSyntax)
+				var exact = candidates.FirstOrDefault(c => string.Equals(c.ToDisplayString(), baseTypeName, StringComparison.Ordinal));
+				if (exact is not null)
+					return exact;
+
+				// Otherwise return the first candidate in the current compilation with the simple name
+				return candidates.FirstOrDefault();
+			}
+		}
+
+		return null;
+	}
+
 	static void VerifyDataMethodParameterUsage(
 		SemanticModel semanticModel,
 		SyntaxNodeAnalysisContext context,
@@ -830,9 +912,7 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		{
 			var resolvedIEnumerableTypeArgument = FindTypeArgumentFromIEnumerable(memberType, compilation);
 			if (resolvedIEnumerableTypeArgument is not null)
-			{
 				valid = (resolvedIEnumerableTypeArgument.TypeKind == TypeKind.Array);
-			}
 		}
 
 		if (!valid)
@@ -947,86 +1027,5 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 			ReportMemberMethodTheoryDataExtraTypeArguments(context, attributeSyntax.GetLocation(), builder, theoryDataType);
 		}
-	}
-
-	/// <summary>
-	/// Resolve declared base type and find the first base class that implements IEnumerable
-	/// (e.g. "ValidExample" from "class SubtypeValidExample : ValidExample {}")
-	/// </summary>
-	static ITypeSymbol? ResolveDeclaredBaseTypeFromSyntax(ITypeSymbol type, Compilation compilation)
-	{
-		if (type is null)
-			return null;
-
-		// Look through source declarations for an explicit base type in the syntax.
-		foreach (var declaringReference in type.DeclaringSyntaxReferences)
-		{
-			var syntax = declaringReference.GetSyntax();
-			if (syntax is ClassDeclarationSyntax cls && cls.BaseList is not null && cls.BaseList.Types.Count > 0)
-			{
-				var baseTypeSyntax = cls.BaseList.Types.First().Type;
-				var baseTypeName = baseTypeSyntax.ToString(); // may be qualified
-
-				// Try direct metadata lookup first (works for namespace-qualified names)
-				var byMetadata = compilation.GetTypeByMetadataName(baseTypeName);
-				if (byMetadata is not null)
-					return byMetadata;
-
-				// Fallback: search symbols by the simple name and try to match fully-qualified textual form.
-				var simpleName = baseTypeName.Split('.').Last();
-				var candidates = compilation.GetSymbolsWithName(n => n == simpleName, SymbolFilter.Type)
-					.OfType<INamedTypeSymbol>();
-
-				// In ResolveDeclaredBaseTypeFromSyntax, avoid multiple enumerations of 'candidates'
-				var candidatesList = candidates.ToList();
-
-				// Prefer exact textual match of declared name (handles namespace-qualified baseTypeSyntax)
-				var exact = candidatesList.FirstOrDefault(c => string.Equals(c.ToDisplayString(), baseTypeName, StringComparison.Ordinal));
-				if (exact is not null)
-					return exact;
-
-				// Otherwise return the first candidate in the current compilation with the simple name
-				return candidatesList.FirstOrDefault();
-			}
-		}
-		return null;
-	}
-
-	static ITypeSymbol? FindTypeArgumentFromIEnumerable(ITypeSymbol? start, Compilation compilation)
-	{
-		if (start is not INamedTypeSymbol namedStart)
-			return null;
-
-		var iEnumerableDef = compilation.GetTypeByMetadataName("System.Collections.Generic.IEnumerable`1");
-		if (iEnumerableDef is null)
-			return null;
-
-		var current = namedStart;
-		while (current != null)
-		{
-			// If this class implements IEnumerable<T>, return T type argument
-			foreach (var iface in current.AllInterfaces)
-			{
-				if (SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, iEnumerableDef))
-				{
-					return iface.TypeArguments.FirstOrDefault();
-				}
-			}
-
-			// Navigate to its Base types to investigate if they implement IEnumerable,
-			// attempt to resolve the base type from the source syntax (handles `: ValidExamples`).
-			var declaredBase = ResolveDeclaredBaseTypeFromSyntax(current, compilation) as INamedTypeSymbol;
-
-			// Prefer declaredBase when available; otherwise fall back to the BaseType symbol.
-			var next = declaredBase ?? (current.BaseType as INamedTypeSymbol);
-
-			// Stop if we reached object
-			if (next?.SpecialType == SpecialType.System_Object)
-				break;
-
-			current = next;
-		}
-
-		return null;
 	}
 }

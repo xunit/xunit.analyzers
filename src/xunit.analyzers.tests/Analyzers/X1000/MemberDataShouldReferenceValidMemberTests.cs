@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
@@ -197,26 +195,6 @@ public class MemberDataShouldReferenceValidMemberTests
 		const string V2AllowedTypes = "'System.Collections.Generic.IEnumerable<object[]>'";
 		const string V3AllowedTypes = "'System.Collections.Generic.IEnumerable<object[]>', 'System.Collections.Generic.IAsyncEnumerable<object[]>', 'System.Collections.Generic.IEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IAsyncEnumerable<Xunit.ITheoryDataRow>', 'System.Collections.Generic.IEnumerable<System.Runtime.CompilerServices.ITuple>', or 'System.Collections.Generic.IAsyncEnumerable<System.Runtime.CompilerServices.ITuple>'";
 
-		public sealed class ValidExamples : IEnumerable<string[]>
-		{
-			private readonly List<string[]> _items = [];
-
-			public void Add(string sdl)
-			{
-				_items.Add([sdl]);
-			}
-
-			public IEnumerator<string[]> GetEnumerator()
-			{
-				return _items.GetEnumerator();
-			}
-
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return GetEnumerator();
-			}
-		}
-
 		[Fact]
 		public async ValueTask V2_and_V3()
 		{
@@ -229,7 +207,7 @@ public class MemberDataShouldReferenceValidMemberTests
 				using System.Collections.Generic;
 				using System.Threading.Tasks;
 				using Xunit;
-				
+
 				public class NamedTypeForIEnumerableStringArray : IEnumerable<string[]>
 				{
 				    private readonly List<string[]> _items = new List<string[]>();
@@ -238,18 +216,18 @@ public class MemberDataShouldReferenceValidMemberTests
 				    {
 				        _items.Add(new string[] { sdl });
 				    }
-				
+
 				    public IEnumerator<string[]> GetEnumerator()
 				    {
 				        return _items.GetEnumerator();
 				    }
-				
+
 				    IEnumerator IEnumerable.GetEnumerator()
 				    {
 				        return GetEnumerator();
 				    }
 				}
-				
+
 				public class NamedSubtypeForIEnumerableStringArray : NamedTypeForIEnumerableStringArray {}
 
 				public class TestClass {
@@ -257,7 +235,7 @@ public class MemberDataShouldReferenceValidMemberTests
 					public static object NakedObjectSource;
 					public static object[] NakedObjectArraySource;
 					public static object[][] NakedObjectMatrixSource;
-				
+
 					public static IEnumerable<object[]> ObjectArraySource;
 					public static IEnumerable<string[]> StringArraySource;
 					public static NamedTypeForIEnumerableStringArray NamedTypeForIEnumerableStringArraySource;
@@ -1452,7 +1430,7 @@ public class MemberDataShouldReferenceValidMemberTests
 					[{|#1:MemberData(nameof(PropertyUntypedData))|}]
 					[{|#2:MemberData(nameof(MethodUntypedData))|}]
 					[{|#3:MemberData(nameof(MethodWithArgsUntypedData), 42)|}]
-					
+
 					public void TestMethod2(int _) { }
 				}
 				""";
