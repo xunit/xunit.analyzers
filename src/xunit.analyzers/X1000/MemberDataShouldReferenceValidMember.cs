@@ -208,6 +208,9 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 			// assume initialized, if nonstatic or method to avoid spurious results
 			return true;
 
+		if (memberSymbol.DeclaringSyntaxReferences.IsEmpty)
+			return true;
+
 		var semantics = context.SemanticModel;
 		var declarationReference = memberSymbol.DeclaringSyntaxReferences.First();
 		var declarationSyntax = declarationReference.GetSyntax();
