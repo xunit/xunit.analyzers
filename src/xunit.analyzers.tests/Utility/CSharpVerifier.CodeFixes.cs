@@ -5,6 +5,46 @@ using Microsoft.CodeAnalysis.Testing;
 
 public partial class CSharpVerifier<TAnalyzer>
 {
+	// ----- Fix All -----
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v3, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static Task VerifyCodeFixV3FixAll(
+		string before,
+		string after,
+		string fixerActionKey) =>
+			VerifyCodeFixV3FixAll(LanguageVersion.CSharp6, before, after, fixerActionKey);
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static Task VerifyCodeFixV3FixAll(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey)
+	{
+		var newLine = FormattingOptions.NewLine.DefaultValue;
+		var test = new TestV3(languageVersion)
+		{
+			TestCode = before.Replace("\n", newLine),
+			CodeActionEquivalenceKey = fixerActionKey,
+		};
+		test.FixedState.Sources.Add(after.Replace("\n", newLine));
+		test.BatchFixedState.Sources.Add(after.Replace("\n", newLine));
+		return test.RunAsync();
+	}
+
 	// ----- Multi-version -----
 
 	/// <summary>
