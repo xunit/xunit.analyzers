@@ -1452,6 +1452,30 @@ public class MemberDataShouldReferenceValidMemberTests
 		}
 
 		[Fact]
+		public async ValueTask TheoryData_With11Parameters_ShouldNotTrigger1042()
+		{
+			var source = /* lang=c#-test */ """
+				#pragma warning disable xUnit1053
+				using Xunit;
+
+				// IMPORTANT: namespace Xunit block should be used so that the Factory can find it!
+				namespace Xunit 
+				{
+					public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> : TheoryData { }
+				}
+
+				public class TestClass {
+					public static TheoryData<int, int, int, int, int, int, int, int, int, int, int> Data11;
+
+					[MemberData(nameof(Data11))]
+					public void TestMethod(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k) { }
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(source);
+		}
+
+		[Fact]
 		public async Task V3_only()
 		{
 			var source = /* lang=c#-test */ """
