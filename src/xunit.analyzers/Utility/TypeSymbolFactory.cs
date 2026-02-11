@@ -380,11 +380,13 @@ public static class TypeSymbolFactory
 		if (type is not null)
 			result[0] = type;
 
-		for (var i = 1; i <= 10; i++)
+		for (var i = 1; ; i++)
 		{
 			type = compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryData + "`" + i.ToString(CultureInfo.InvariantCulture));
 			if (type is not null)
 				result[i] = type;
+			else
+				break;
 		}
 
 		return result;
@@ -403,11 +405,13 @@ public static class TypeSymbolFactory
 		if (type is not null)
 			result[0] = type;
 
-		for (var i = 1; i <= 10; i++)
+		for (var i = 1; ; i++)
 		{
 			type = compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryDataRow_V3 + "`" + i.ToString(CultureInfo.InvariantCulture));
 			if (type is not null)
 				result[i] = type;
+			else
+				break;
 		}
 
 		return result;
