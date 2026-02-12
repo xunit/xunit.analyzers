@@ -5,26 +5,32 @@ using Verify = CSharpVerifier<Xunit.Analyzers.UseAssertFailInsteadOfBooleanAsser
 
 public class UseAssertFailInsteadOfBooleanAssertFixerTests
 {
-	const string template = /* lang=c#-test */ """
-
-		using Xunit;
-
-		public class TestClass {{
-			[Fact]
-			public void TestMethod() {{
-				{0};
-			}}
-		}}
-		""";
-
-	[Theory]
-	[InlineData(/* lang=c#-test */ @"[|Assert.True(false, ""message"")|]")]
-	[InlineData(/* lang=c#-test */ @"[|Assert.False(true, ""message"")|]")]
-	public async Task ReplacesBooleanAssert(string badAssert)
+	[Fact]
+	public async Task FixAll_ReplacesAllBooleanAssertsWithFail()
 	{
-		var before = string.Format(template, badAssert);
-		var after = string.Format(template, @"Assert.Fail(""message"")");
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					[|Assert.True(false, "message one")|];
+					[|Assert.False(true, "message two")|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					Assert.Fail("message one");
+					Assert.Fail("message two");
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
 	}
 }
