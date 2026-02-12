@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -16,6 +17,8 @@ public class AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer : XunitC
 {
 	public const string Key_UseDoesNotContain = "xUnit2029_UseDoesNotContain";
 	public const string Key_UseContains = "xUnit2030_UseContains";
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	static readonly string[] targetDiagnostics =
 	[
