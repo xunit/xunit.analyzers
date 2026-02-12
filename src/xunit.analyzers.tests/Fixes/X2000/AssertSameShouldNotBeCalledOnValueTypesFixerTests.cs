@@ -5,33 +5,36 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertSameShouldNotBeCalledOnValue
 
 public class AssertSameShouldNotBeCalledOnValueTypesFixerTests
 {
-	const string template = /* lang=c#-test */ """
-		using Xunit;
-
-		public class TestClass {{
-			[Fact]
-			public void TestMethod() {{
-				var data = 1;
-
-				{0};
-			}}
-		}}
-		""";
-
-	[Theory]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.Same(1, data)|]",
-		/* lang=c#-test */ "Assert.Equal(1, data)")]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.NotSame(1, data)|]",
-		/* lang=c#-test */ "Assert.NotEqual(1, data)")]
-	public async Task ConvertsSameToEqual(
-		string beforeAssert,
-		string afterAssert)
+	[Fact]
+	public async Task FixAll_ReplacesAllSameCallsWithEqual()
 	{
-		var before = string.Format(template, beforeAssert);
-		var after = string.Format(template, afterAssert);
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, AssertSameShouldNotBeCalledOnValueTypesFixer.Key_UseAlternateAssert);
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var data = 1;
+
+					[|Assert.Same(1, data)|];
+					[|Assert.NotSame(1, data)|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var data = 1;
+
+					Assert.Equal(1, data);
+					Assert.NotEqual(1, data);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, AssertSameShouldNotBeCalledOnValueTypesFixer.Key_UseAlternateAssert);
 	}
 }
