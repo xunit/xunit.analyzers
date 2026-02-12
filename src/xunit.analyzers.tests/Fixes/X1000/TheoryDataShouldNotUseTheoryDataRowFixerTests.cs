@@ -22,7 +22,7 @@ public class TheoryDataShouldNotUseTheoryDataRowFixerTests
 		""";
 
 	[Fact]
-	public async Task AcceptanceTest_Fixable()
+	public async Task FixAll_ConvertsFixableTheoryDataToIEnumerable()
 	{
 		var before = /* lang=c#-test */ """
 			using System;
@@ -63,7 +63,7 @@ public class TheoryDataShouldNotUseTheoryDataRowFixerTests
 			}
 			""" + myRowSource;
 
-		await Verify.VerifyCodeFixV3(LanguageVersion.CSharp9, before, after, TheoryDataShouldNotUseTheoryDataRowFixer.Key_UseIEnumerable);
+		await Verify.VerifyCodeFixV3FixAll(LanguageVersion.CSharp9, before, after, TheoryDataShouldNotUseTheoryDataRowFixer.Key_UseIEnumerable);
 	}
 
 	[Fact]
