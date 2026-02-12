@@ -5,6 +5,88 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DoNotUseConfigureAwait>;
 
 public class DoNotUseConfigureAwaitFixerTests
 {
+	[Fact]
+	public async Task FixAll_RemovesAllConfigureAwaitCalls()
+	{
+		var before = /* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1() {
+					await Task.Delay(1).[|ConfigureAwait(false)|];
+				}
+
+				[Fact]
+				public async Task TestMethod2() {
+					var task = Task.FromResult(42);
+					await task.[|ConfigureAwait(false)|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1() {
+					await Task.Delay(1);
+				}
+
+				[Fact]
+				public async Task TestMethod2() {
+					var task = Task.FromResult(42);
+					await task;
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, DoNotUseConfigureAwaitFixer.Key_RemoveConfigureAwait);
+	}
+
+	[Fact]
+	public async Task FixAll_ReplacesAllConfigureAwaitArguments()
+	{
+		var before = /* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1() {
+					await Task.Delay(1).[|ConfigureAwait(false)|];
+				}
+
+				[Fact]
+				public async Task TestMethod2() {
+					var task = Task.FromResult(42);
+					await task.[|ConfigureAwait(false)|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1() {
+					await Task.Delay(1).ConfigureAwait(true);
+				}
+
+				[Fact]
+				public async Task TestMethod2() {
+					var task = Task.FromResult(42);
+					await task.ConfigureAwait(true);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, DoNotUseConfigureAwaitFixer.Key_ReplaceArgumentValue);
+	}
+
 	public class ConfigureAwait_Boolean
 	{
 		public static TheoryData<string> InvalidValues =
