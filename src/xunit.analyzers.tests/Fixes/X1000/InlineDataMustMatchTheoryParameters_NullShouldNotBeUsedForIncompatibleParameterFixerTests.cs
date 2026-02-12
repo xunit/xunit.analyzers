@@ -7,32 +7,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameter
 public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixerTests
 {
 	[Fact]
-	public async Task MakesParameterNullable()
-	{
-		var before = /* lang=c#-test */ """
-			using Xunit;
-
-			public class TestClass {
-				[Theory]
-				[InlineData(42, {|xUnit1012:null|})]
-				public void TestMethod(int a, int b) { }
-			}
-			""";
-		var after = /* lang=c#-test */ """
-			using Xunit;
-
-			public class TestClass {
-				[Theory]
-				[InlineData(42, null)]
-				public void TestMethod(int a, int? b) { }
-			}
-			""";
-
-		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
-	}
-
-	[Fact]
-	public async Task MakesReferenceParameterNullable()
+	public async Task FixAll_MakesMultipleParametersNullable()
 	{
 		var before = /* lang=c#-test */ """
 			#nullable enable
@@ -41,8 +16,12 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 
 			public class TestClass {
 				[Theory]
+				[InlineData({|xUnit1012:null|}, {|xUnit1012:null|})]
+				public void TestMethod1(int a, int b) { }
+
+				[Theory]
 				[InlineData(42, {|xUnit1012:null|})]
-				public void TestMethod(int a, object b) { }
+				public void TestMethod2(int a, object b) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -52,11 +31,15 @@ public class InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompati
 
 			public class TestClass {
 				[Theory]
+				[InlineData(null, null)]
+				public void TestMethod1(int? a, int? b) { }
+
+				[Theory]
 				[InlineData(42, null)]
-				public void TestMethod(int a, object? b) { }
+				public void TestMethod2(int a, object? b) { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp8, before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 }
