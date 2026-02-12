@@ -9,6 +9,78 @@ public partial class CSharpVerifier<TAnalyzer>
 
 	/// <summary>
 	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v2 and v3, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static async Task VerifyCodeFixFixAll(
+		string before,
+		string after,
+		string fixerActionKey)
+	{
+		await VerifyCodeFixV2FixAll(LanguageVersion.CSharp6, before, after, fixerActionKey);
+		await VerifyCodeFixV3FixAll(LanguageVersion.CSharp6, before, after, fixerActionKey);
+	}
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v2 and v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static async Task VerifyCodeFixFixAll(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey)
+	{
+		await VerifyCodeFixV2FixAll(languageVersion, before, after, fixerActionKey);
+		await VerifyCodeFixV3FixAll(languageVersion, before, after, fixerActionKey);
+	}
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v2, using C# 6.
+	/// </summary>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static Task VerifyCodeFixV2FixAll(
+		string before,
+		string after,
+		string fixerActionKey) =>
+			VerifyCodeFixV2FixAll(LanguageVersion.CSharp6, before, after, fixerActionKey);
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
+	/// Runs against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
+	/// <param name="after">The expected code after all fixes are applied</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	public static Task VerifyCodeFixV2FixAll(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey)
+	{
+		var newLine = FormattingOptions.NewLine.DefaultValue;
+		var test = new TestV2(languageVersion)
+		{
+			TestCode = before.Replace("\n", newLine),
+			CodeActionEquivalenceKey = fixerActionKey,
+		};
+		test.FixedState.Sources.Add(after.Replace("\n", newLine));
+		test.BatchFixedState.Sources.Add(after.Replace("\n", newLine));
+		return test.RunAsync();
+	}
+
+	/// <summary>
+	/// Verify that "Fix All" correctly applies fixes to all diagnostics in a document.
 	/// Runs against xUnit.net v3, using C# 6.
 	/// </summary>
 	/// <param name="before">The code before the fix (should contain multiple diagnostics)</param>
