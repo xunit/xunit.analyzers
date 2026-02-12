@@ -25,6 +25,26 @@ public class MemberDataShouldReferenceValidMember_VisibilityFixerTests
 				public void TestMethod2(string x) { }
 			}
 			""";
+		// Roslyn 3.11 inserts a blank line after a member whose accessibility modifiers are changed
+#if ROSLYN_LATEST
+		var after = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestClass {
+				public static TheoryData<int> TestData1 => null;
+				public static TheoryData<string> TestData2 => null;
+
+				[Theory]
+				[MemberData(nameof(TestData1))]
+				public void TestMethod1(int x) { }
+
+				[Theory]
+				[MemberData(nameof(TestData2))]
+				public void TestMethod2(string x) { }
+			}
+			""";
+#else
 		var after = /* lang=c#-test */ """
 			using System.Collections.Generic;
 			using Xunit;
@@ -43,6 +63,7 @@ public class MemberDataShouldReferenceValidMember_VisibilityFixerTests
 				public void TestMethod2(string x) { }
 			}
 			""";
+#endif
 
 		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_VisibilityFixer.Key_MakeMemberPublic);
 	}
