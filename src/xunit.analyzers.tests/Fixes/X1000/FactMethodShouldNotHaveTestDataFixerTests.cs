@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 public class FactMethodShouldNotHaveTestDataFixerTests
 {
 	[Fact]
-	public async Task RemovesDataAttribute()
+	public async Task FixAll_RemovesDataAttributesFromAllMethods()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
@@ -14,7 +14,11 @@ public class FactMethodShouldNotHaveTestDataFixerTests
 			public class TestClass {
 				[Fact]
 				[InlineData(1)]
-				public void [|TestMethod|](int x) { }
+				public void [|TestMethod1|](int x) { }
+
+				[Fact]
+				[InlineData("a")]
+				public void [|TestMethod2|](string s) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -22,10 +26,13 @@ public class FactMethodShouldNotHaveTestDataFixerTests
 
 			public class TestClass {
 				[Fact]
-				public void TestMethod(int x) { }
+				public void TestMethod1(int x) { }
+
+				[Fact]
+				public void TestMethod2(string s) { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, FactMethodShouldNotHaveTestDataFixer.Key_RemoveDataAttributes);
+		await Verify.VerifyCodeFixFixAll(before, after, FactMethodShouldNotHaveTestDataFixer.Key_RemoveDataAttributes);
 	}
 }
