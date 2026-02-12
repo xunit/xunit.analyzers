@@ -10,12 +10,15 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class MemberDataShouldReferenceValidMember_ExtraValueFixer : XunitCodeFixProvider
 {
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
+
 	public const string Key_AddMethodParameter = "xUnit1036_AddMethodParameter";
 	public const string Key_RemoveExtraDataValue = "xUnit1036_RemoveExtraDataValue";
 

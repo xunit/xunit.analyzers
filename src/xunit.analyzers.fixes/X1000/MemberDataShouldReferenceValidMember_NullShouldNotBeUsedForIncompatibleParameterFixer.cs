@@ -8,12 +8,15 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer : XunitCodeFixProvider
 {
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
+
 	public const string Key_MakeParameterNullable = "xUnit1034_MakeParameterNullable";
 
 	public MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer() :
