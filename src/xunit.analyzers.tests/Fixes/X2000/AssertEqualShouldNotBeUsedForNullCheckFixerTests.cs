@@ -5,39 +5,36 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualShouldNotBeUsedForNullC
 
 public class AssertEqualShouldNotBeUsedForNullCheckFixerTests
 {
-	const string template = /* lang=c#-test */ """
-		using Xunit;
-
-		public class TestClass {{
-			[Fact]
-			public void TestMethod() {{
-				int? data = 1;
-
-				{0};
-			}}
-		}}
-		""";
-
-	[Theory]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.Equal(null, data)|]",
-		/* lang=c#-test */ "Assert.Null(data)")]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.StrictEqual(null, data)|]",
-		/* lang=c#-test */ "Assert.Null(data)")]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.NotEqual(null, data)|]",
-		/* lang=c#-test */ "Assert.NotNull(data)")]
-	[InlineData(
-		/* lang=c#-test */ "[|Assert.NotStrictEqual(null, data)|]",
-		/* lang=c#-test */ "Assert.NotNull(data)")]
-	public async Task ConvertsToAppropriateNullAssert(
-		string beforeAssert,
-		string afterAssert)
+	[Fact]
+	public async Task FixAll_ReplacesAllNullChecks()
 	{
-		var before = string.Format(template, beforeAssert);
-		var after = string.Format(template, afterAssert);
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, AssertEqualShouldNotBeUsedForNullCheckFixer.Key_UseAlternateAssert);
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					int? data = 1;
+
+					[|Assert.Equal(null, data)|];
+					[|Assert.NotEqual(null, data)|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					int? data = 1;
+
+					Assert.Null(data);
+					Assert.NotNull(data);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualShouldNotBeUsedForNullCheckFixer.Key_UseAlternateAssert);
 	}
 }
