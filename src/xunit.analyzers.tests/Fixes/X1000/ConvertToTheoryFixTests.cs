@@ -7,14 +7,17 @@ using Verify_X1005 = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestD
 public class ConvertToTheoryFixTests
 {
 	[Fact]
-	public async Task From_X1001()
+	public async Task FixAll_From_X1001()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Fact]
-				public void [|TestMethod|](int a) { }
+				public void [|TestMethod1|](int a) { }
+
+				[Fact]
+				public void [|TestMethod2|](string b) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -22,23 +25,30 @@ public class ConvertToTheoryFixTests
 
 			public class TestClass {
 				[Theory]
-				public void TestMethod(int a) { }
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				public void TestMethod2(string b) { }
 			}
 			""";
 
-		await Verify_X1001.VerifyCodeFix(before, after, ConvertToTheoryFix.Key_ConvertToTheory);
+		await Verify_X1001.VerifyCodeFixFixAll(before, after, ConvertToTheoryFix.Key_ConvertToTheory);
 	}
 
 	[Fact]
-	public async Task From_X1005()
+	public async Task FixAll_From_X1005()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Fact]
-				[InlineData(42)]
-				public void [|TestMethod|]() { }
+				[InlineData(1)]
+				public void [|TestMethod1|]() { }
+
+				[Fact]
+				[InlineData("hello")]
+				public void [|TestMethod2|]() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -46,11 +56,15 @@ public class ConvertToTheoryFixTests
 
 			public class TestClass {
 				[Theory]
-				[InlineData(42)]
-				public void TestMethod() { }
+				[InlineData(1)]
+				public void TestMethod1() { }
+
+				[Theory]
+				[InlineData("hello")]
+				public void TestMethod2() { }
 			}
 			""";
 
-		await Verify_X1005.VerifyCodeFix(before, after, ConvertToTheoryFix.Key_ConvertToTheory);
+		await Verify_X1005.VerifyCodeFixFixAll(before, after, ConvertToTheoryFix.Key_ConvertToTheory);
 	}
 }
