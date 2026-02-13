@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -16,6 +17,8 @@ public class TheoryDataShouldNotUseTheoryDataRowFixer() :
 	XunitCodeFixProvider(Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow.Id)
 {
 	public const string Key_UseIEnumerable = "xUnit1052_UseIEnumerable";
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

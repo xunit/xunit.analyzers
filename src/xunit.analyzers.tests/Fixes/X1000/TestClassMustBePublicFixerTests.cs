@@ -5,25 +5,33 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestClassMustBePublic>;
 
 public class TestClassMustBePublicFixerTests
 {
-	[Theory]
-	[InlineData("")]
-	[InlineData("internal ")]
-	public async Task MakesClassPublic(string nonPublicAccessModifier)
+	[Fact]
+	public async Task FixAll_MakesAllClassesPublic()
 	{
-		var before = string.Format(/* lang=c#-test */ """
-			{0}class [|TestClass|] {{
+		var before = /* lang=c#-test */ """
+			class [|TestClass1|] {
 				[Xunit.Fact]
-				public void TestMethod() {{ }}
-			}}
-			""", nonPublicAccessModifier);
+				public void TestMethod() { }
+			}
+
+			internal class [|TestClass2|] {
+				[Xunit.Fact]
+				public void TestMethod() { }
+			}
+			""";
 		var after = /* lang=c#-test */ """
-			public class TestClass {
+			public class TestClass1 {
+				[Xunit.Fact]
+				public void TestMethod() { }
+			}
+
+			public class TestClass2 {
 				[Xunit.Fact]
 				public void TestMethod() { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
+		await Verify.VerifyCodeFixFixAll(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 
 	[Fact]

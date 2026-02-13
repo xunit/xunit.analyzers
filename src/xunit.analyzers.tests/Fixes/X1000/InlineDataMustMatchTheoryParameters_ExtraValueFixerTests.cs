@@ -6,6 +6,39 @@ using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataMustMatchTheoryParameter
 public class InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 {
 	[Fact]
+	public async Task FixAll_RemovesMultipleUnusedDataValues()
+	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[InlineData(42, {|xUnit1011:21.12|})]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[InlineData(1, {|xUnit1011:"extra"|})]
+				public void TestMethod2(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[InlineData(42)]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[InlineData(1)]
+				public void TestMethod2(int a) { }
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
+	}
+
+	[Fact]
 	public async Task RemovesUnusedData()
 	{
 		var before = /* lang=c#-test */ """

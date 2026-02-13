@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 {
 	[Fact]
-	public async Task ConvertStringToNameOf()
+	public async Task FixAll_ConvertsAllStringsToNameOf()
 	{
 		var before = /* lang=c#-test */ """
 			using System;
@@ -14,11 +14,16 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-				public static TheoryData<int> DataSource = new TheoryData<int>();
+				public static TheoryData<int> DataSource1 = new TheoryData<int>();
+				public static TheoryData<int> DataSource2 = new TheoryData<int>();
 
 				[Theory]
-				[MemberData({|xUnit1014:"DataSource"|})]
-				public void TestMethod(int a) { }
+				[MemberData({|xUnit1014:"DataSource1"|})]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[MemberData({|xUnit1014:"DataSource2"|})]
+				public void TestMethod2(int a) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -27,14 +32,19 @@ public class MemberDataShouldReferenceValidMember_NameOfFixerTests
 			using Xunit;
 
 			public class TestClass {
-				public static TheoryData<int> DataSource = new TheoryData<int>();
+				public static TheoryData<int> DataSource1 = new TheoryData<int>();
+				public static TheoryData<int> DataSource2 = new TheoryData<int>();
 
 				[Theory]
-				[MemberData(nameof(DataSource))]
-				public void TestMethod(int a) { }
+				[MemberData(nameof(DataSource1))]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[MemberData(nameof(DataSource2))]
+				public void TestMethod2(int a) { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
+		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
 	}
 }

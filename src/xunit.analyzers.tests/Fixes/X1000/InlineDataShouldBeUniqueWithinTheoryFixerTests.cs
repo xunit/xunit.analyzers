@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.InlineDataShouldBeUniqueWithinTheo
 public class InlineDataShouldBeUniqueWithinTheoryFixerTests
 {
 	[Fact]
-	public async Task RemovesDuplicateData()
+	public async Task FixAll_RemovesDuplicateData()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
@@ -15,7 +15,12 @@ public class InlineDataShouldBeUniqueWithinTheoryFixerTests
 				[Theory]
 				[InlineData(1)]
 				[[|InlineData(1)|]]
-				public void TestMethod(int x) { }
+				public void TestMethod1(int x) { }
+
+				[Theory]
+				[InlineData("a")]
+				[[|InlineData("a")|]]
+				public void TestMethod2(string s) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -24,10 +29,14 @@ public class InlineDataShouldBeUniqueWithinTheoryFixerTests
 			public class TestClass {
 				[Theory]
 				[InlineData(1)]
-				public void TestMethod(int x) { }
+				public void TestMethod1(int x) { }
+
+				[Theory]
+				[InlineData("a")]
+				public void TestMethod2(string s) { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
+		await Verify.VerifyCodeFixFixAll(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
 	}
 }

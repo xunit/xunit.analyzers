@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -17,6 +18,8 @@ public class InlineDataShouldBeUniqueWithinTheoryFixer : XunitCodeFixProvider
 	public InlineDataShouldBeUniqueWithinTheoryFixer() :
 		base(Descriptors.X1025_InlineDataShouldBeUniqueWithinTheory.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

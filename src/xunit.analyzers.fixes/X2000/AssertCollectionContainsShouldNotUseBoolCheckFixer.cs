@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -20,6 +21,8 @@ public class AssertCollectionContainsShouldNotUseBoolCheckFixer : XunitCodeFixPr
 	public AssertCollectionContainsShouldNotUseBoolCheckFixer() :
 		base(Descriptors.X2017_AssertCollectionContainsShouldNotUseBoolCheck.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

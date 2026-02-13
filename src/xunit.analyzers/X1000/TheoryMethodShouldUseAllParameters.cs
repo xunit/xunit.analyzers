@@ -64,7 +64,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		{
 			var parameterSymbol = methodSymbol.Parameters[i];
 
-			if (!usedParameters.Contains(parameterSymbol) && !discardRegex.Match(parameterSymbol.Name).Success)
+			if (!usedParameters.Contains(parameterSymbol) && !discardRegex.IsMatch(parameterSymbol.Name))
 			{
 				var parameterSyntax = methodSyntax.ParameterList.Parameters[i];
 

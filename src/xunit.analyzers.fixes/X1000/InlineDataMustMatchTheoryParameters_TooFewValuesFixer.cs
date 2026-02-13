@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -20,6 +21,8 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : XunitCodeFi
 	public InlineDataMustMatchTheoryParameters_TooFewValuesFixer() :
 		base(Descriptors.X1009_InlineDataMustMatchTheoryParameters_TooFewValues.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

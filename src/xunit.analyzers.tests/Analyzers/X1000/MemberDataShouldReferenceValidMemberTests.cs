@@ -1527,6 +1527,11 @@ public class MemberDataShouldReferenceValidMemberTests
 					[{|#32:MemberData(nameof(MethodUntypedValueTaskData2))|}]
 					[{|#33:MemberData(nameof(MethodWithArgsUntypedValueTaskData2), 42)|}]
 					public void TestMethod6(int _) { }
+
+					public static TheoryData<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int> LongData;
+
+					[MemberData(nameof(LongData))]
+					public void TestMethod7(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n, int o) { }
 				}
 				""";
 			var expected = new[] {

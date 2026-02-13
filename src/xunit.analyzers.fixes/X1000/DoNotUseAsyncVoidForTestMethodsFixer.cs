@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -18,6 +19,8 @@ public class DoNotUseAsyncVoidForTestMethodsFixer : XunitMemberFixProvider
 			Descriptors.X1049_DoNotUseAsyncVoidForTestMethods_V3.Id
 		)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public override async Task RegisterCodeFixesAsync(
 		CodeFixContext context,

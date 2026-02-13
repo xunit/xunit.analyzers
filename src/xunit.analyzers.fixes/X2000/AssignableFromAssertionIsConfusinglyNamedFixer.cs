@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -18,6 +19,8 @@ public class AssignableFromAssertionIsConfusinglyNamedFixer : XunitCodeFixProvid
 	public AssignableFromAssertionIsConfusinglyNamedFixer() :
 		base(Descriptors.X2032_AssignableFromAssertionIsConfusinglyNamed.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

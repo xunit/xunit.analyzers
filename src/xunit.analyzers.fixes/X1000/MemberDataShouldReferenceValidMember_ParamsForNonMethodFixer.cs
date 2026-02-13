@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Text;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -19,6 +20,8 @@ public class MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer : Xuni
 	public MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer() :
 		base(Descriptors.X1021_MemberDataNonMethodShouldNotHaveParameters.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

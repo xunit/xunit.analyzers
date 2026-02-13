@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -20,6 +21,8 @@ public class UseCancellationTokenFixer : XunitCodeFixProvider
 	public UseCancellationTokenFixer() :
 		base(Descriptors.X1051_UseCancellationToken.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

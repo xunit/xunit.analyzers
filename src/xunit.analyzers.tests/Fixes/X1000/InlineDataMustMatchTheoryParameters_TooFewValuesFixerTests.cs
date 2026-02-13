@@ -43,4 +43,37 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
 
 		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
 	}
+
+	[Fact]
+	public async Task FixAll_AddsDefaultValuesToMultipleAttributes()
+	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[{|xUnit1009:InlineData|}]
+				public void TestMethod1(int x) { }
+
+				[Theory]
+				[{|xUnit1009:InlineData|}]
+				public void TestMethod2(string a, bool b) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[InlineData(0)]
+				public void TestMethod1(int x) { }
+
+				[Theory]
+				[InlineData("", false)]
+				public void TestMethod2(string a, bool b) { }
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
+	}
 }

@@ -6,33 +6,38 @@ using Verify = CSharpVerifier<Xunit.Analyzers.LocalFunctionsCannotBeTestFunction
 
 public class LocalFunctionsCannotBeTestFunctionsFixerTests
 {
-	[Theory]
-	[InlineData("Fact")]
-	[InlineData("Theory")]
-	public async Task LocalFunctionsCannotHaveTestAttributes(string attribute)
+	[Fact]
+	public async Task FixAll_RemovesAttributesFromAllLocalFunctions()
 	{
-		var before = string.Format(/* lang=c#-test */ """
+		var before = /* lang=c#-test */ """
 			using Xunit;
 
-			public class TestClass {{
-				public void Method() {{
-					[[|{0}|]]
-					void LocalFunction() {{
-					}}
-				}}
-			}}
-			""", attribute);
+			public class TestClass {
+				public void Method() {
+					[[|Fact|]]
+					void LocalFunction1() {
+					}
+
+					[[|Theory|]]
+					void LocalFunction2() {
+					}
+				}
+			}
+			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				public void Method() {
-					void LocalFunction() {
+					void LocalFunction1() {
+					}
+
+					void LocalFunction2() {
 					}
 				}
 			}
 			""";
 
-		await Verify.VerifyCodeFix(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
+		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
 	}
 }

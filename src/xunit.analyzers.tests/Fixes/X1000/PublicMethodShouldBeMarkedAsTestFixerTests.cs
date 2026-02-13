@@ -5,30 +5,21 @@ using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 
 public class PublicMethodShouldBeMarkedAsTestFixerTests
 {
-	const string beforeNoParams = /* lang=c#-test */ """
-		using Xunit;
-
-		public class TestClass {
-			[Fact]
-			public void TestMethod() { }
-
-			public void [|TestMethod2|]() { }
-		}
-		""";
-	const string beforeWithParams = /* lang=c#-test */ """
-		using Xunit;
-
-		public class TestClass {
-			[Fact]
-			public void TestMethod() { }
-
-			public void [|TestMethod2|](int _) { }
-		}
-		""";
-
 	[Fact]
-	public async Task AddsFactToPublicMethodWithoutParameters()
+	public async Task FixAll_AddsFactToAllPublicMethodsWithoutParameters()
 	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() { }
+
+				public void [|TestMethod2|]() { }
+
+				public void [|TestMethod3|]() { }
+			}
+			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
@@ -38,15 +29,30 @@ public class PublicMethodShouldBeMarkedAsTestFixerTests
 
 				[Fact]
 				public void TestMethod2() { }
+
+				[Fact]
+				public void TestMethod3() { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(beforeNoParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact);
+		await Verify.VerifyCodeFixFixAll(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact);
 	}
 
 	[Fact]
-	public async Task AddsFactToPublicMethodWithParameters()
+	public async Task FixAll_AddsTheoryToAllPublicMethodsWithParameters()
 	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() { }
+
+				public void [|TestMethod2|](int _) { }
+
+				public void [|TestMethod3|](string _) { }
+			}
+			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
@@ -56,19 +62,43 @@ public class PublicMethodShouldBeMarkedAsTestFixerTests
 
 				[Theory]
 				public void TestMethod2(int _) { }
+
+				[Theory]
+				public void TestMethod3(string _) { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(beforeWithParams, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
+		await Verify.VerifyCodeFixFixAll(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
 	}
 
-	[Theory]
-	[InlineData(beforeNoParams)]
-	[InlineData(beforeWithParams)]
-	public async Task MarksMethodAsInternal(string before)
+	[Fact]
+	public async Task FixAll_MakesAllMethodsInternal()
 	{
-		var after = before.Replace(/* lang=c#-test */ "public void [|TestMethod2|]", /* lang=c#-test */ "internal void TestMethod2");
+		var before = /* lang=c#-test */ """
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
+			public class TestClass {
+				[Fact]
+				public void TestMethod() { }
+
+				public void [|TestMethod2|]() { }
+
+				public void [|TestMethod3|]() { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() { }
+
+				internal void TestMethod2() { }
+
+				internal void TestMethod3() { }
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
 	}
 }

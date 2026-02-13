@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -23,6 +24,8 @@ public class SerializableClassMustHaveParameterlessConstructorFixer : XunitCodeF
 	public SerializableClassMustHaveParameterlessConstructorFixer() :
 		base(Descriptors.X3001_SerializableClassMustHaveParameterlessConstructor.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

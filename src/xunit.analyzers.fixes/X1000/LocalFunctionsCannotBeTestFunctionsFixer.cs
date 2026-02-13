@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -14,6 +15,8 @@ public class LocalFunctionsCannotBeTestFunctionsFixer : XunitCodeFixProvider
 	public LocalFunctionsCannotBeTestFunctionsFixer() :
 		base(Descriptors.X1029_LocalFunctionsCannotBeTestFunctions.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

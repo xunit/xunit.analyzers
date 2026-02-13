@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -19,6 +20,8 @@ public class DataAttributeShouldBeUsedOnATheoryFixer : XunitCodeFixProvider
 	public DataAttributeShouldBeUsedOnATheoryFixer() :
 		base(Descriptors.X1008_DataAttributeShouldBeUsedOnATheory.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

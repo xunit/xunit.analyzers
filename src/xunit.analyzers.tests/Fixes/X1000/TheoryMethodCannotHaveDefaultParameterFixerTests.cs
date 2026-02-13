@@ -9,15 +9,19 @@ using Verify_v2_Pre220 = CSharpVerifier<TheoryMethodCannotHaveDefaultParameterFi
 public class TheoryMethodCannotHaveDefaultParameterFixerTests
 {
 	[Fact]
-	public async Task RemovesDefaultParameterValue()
+	public async Task FixAll_RemovesDefaultParameterValues()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Theory]
-				[InlineData(1)]
-				public void TestMethod(int _ [|= 0|]) { }
+				[InlineData(1, "a")]
+				public void TestMethod1(int x [|= 0|], string y [|= "default"|]) { }
+
+				[Theory]
+				[InlineData(true)]
+				public void TestMethod2(bool b [|= false|]) { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -25,12 +29,16 @@ public class TheoryMethodCannotHaveDefaultParameterFixerTests
 
 			public class TestClass {
 				[Theory]
-				[InlineData(1)]
-				public void TestMethod(int _) { }
+				[InlineData(1, "a")]
+				public void TestMethod1(int x, string y) { }
+
+				[Theory]
+				[InlineData(true)]
+				public void TestMethod2(bool b) { }
 			}
 			""";
 
-		await Verify_v2_Pre220.VerifyCodeFix(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
+		await Verify_v2_Pre220.VerifyCodeFixV2FixAll(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
 	}
 
 	internal class Analyzer : TheoryMethodCannotHaveDefaultParameter
