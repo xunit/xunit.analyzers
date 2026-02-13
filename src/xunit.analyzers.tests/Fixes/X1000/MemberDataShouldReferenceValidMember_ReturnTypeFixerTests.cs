@@ -6,6 +6,47 @@ using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMemb
 public class MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 {
 	[Fact]
+	public async Task FixAll_ChangesReturnTypeOnMultipleMembers()
+	{
+		var before = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestClass {
+				public static IEnumerable<object> Data1 => null;
+				public static IEnumerable<object> Data2 => null;
+
+				[Theory]
+				[{|xUnit1019:MemberData(nameof(Data1))|}]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[{|xUnit1019:MemberData(nameof(Data2))|}]
+				public void TestMethod2(int a) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestClass {
+				public static IEnumerable<object[]> Data1 => null;
+				public static IEnumerable<object[]> Data2 => null;
+
+				[Theory]
+				[{|xUnit1042:MemberData(nameof(Data1))|}]
+				public void TestMethod1(int a) { }
+
+				[Theory]
+				[{|xUnit1042:MemberData(nameof(Data2))|}]
+				public void TestMethod2(int a) { }
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_ReturnTypeFixer.Key_ChangeMemberReturnType_ObjectArray);
+	}
+
+	[Fact]
 	public async Task ChangesReturnType_ObjectArray()
 	{
 		var before = /* lang=c#-test */ """

@@ -5,54 +5,73 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertEmptyCollectionCheckShouldNo
 
 public class AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 {
-	const string before = /* lang=c#-test */ """
-		using Xunit;
-
-		public class TestClass {
-			[Fact]
-			public void TestMethod() {
-				var collection = new[] { 1, 2, 3 };
-
-				[|Assert.Collection(collection)|];
-			}
-		}
-		""";
-
 	[Fact]
-	public async Task UseEmptyCheck()
+	public async Task FixAll_UsesEmptyCheck()
 	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var collection1 = new[] { 1, 2, 3 };
+					var collection2 = new[] { 4, 5, 6 };
+
+					[|Assert.Collection(collection1)|];
+					[|Assert.Collection(collection2)|];
+				}
+			}
+			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Fact]
 				public void TestMethod() {
-					var collection = new[] { 1, 2, 3 };
+					var collection1 = new[] { 1, 2, 3 };
+					var collection2 = new[] { 4, 5, 6 };
 
-					Assert.Empty(collection);
+					Assert.Empty(collection1);
+					Assert.Empty(collection2);
 				}
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
+		await Verify.VerifyCodeFixFixAll(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
 	}
 
 	[Fact]
-	public async Task AddElementInspector()
+	public async Task FixAll_AddsElementInspector()
 	{
+		var before = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var collection1 = new[] { 1, 2, 3 };
+					var collection2 = new[] { 4, 5, 6 };
+
+					[|Assert.Collection(collection1)|];
+					[|Assert.Collection(collection2)|];
+				}
+			}
+			""";
 		var after = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Fact]
 				public void TestMethod() {
-					var collection = new[] { 1, 2, 3 };
+					var collection1 = new[] { 1, 2, 3 };
+					var collection2 = new[] { 4, 5, 6 };
 
-					Assert.Collection(collection, x => { });
+					Assert.Collection(collection1, x => { });
+					Assert.Collection(collection2, x => { });
 				}
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
+		await Verify.VerifyCodeFixFixAll(before, after, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
 	}
 }

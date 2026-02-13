@@ -49,6 +49,35 @@ public class CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixerTests
 			public class {0}: {1} {{ }}
 			""";
 
+		[Fact]
+		public async Task FixAll_AddsBaseClassToMultipleClasses()
+		{
+			var before = /* lang=c#-test */ """
+				using Xunit;
+				using Xunit.Abstractions;
+
+				public class [|MyClass1|]: IMessageSink {
+					public bool OnMessage(IMessageSinkMessage message) => true;
+				}
+				public class [|MyClass2|]: IMessageSink {
+					public bool OnMessage(IMessageSinkMessage message) => true;
+				}
+				""";
+			var after = /* lang=c#-test */ """
+				using Xunit;
+				using Xunit.Abstractions;
+
+				public class MyClass1: LongLivedMarshalByRefObject, IMessageSink {
+					public bool OnMessage(IMessageSinkMessage message) => true;
+				}
+				public class MyClass2: LongLivedMarshalByRefObject, IMessageSink {
+					public bool OnMessage(IMessageSinkMessage message) => true;
+				}
+				""";
+
+			await Verify_WithExecution.VerifyCodeFixV2FixAll(before, after, CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectFixer.Key_SetBaseType);
+		}
+
 		[Theory]
 		[MemberData(nameof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution.Interfaces), MemberType = typeof(CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.WithExecution))]
 		public async Task WithNoBaseClass_WithoutUsing_AddsBaseClass(string @interface)

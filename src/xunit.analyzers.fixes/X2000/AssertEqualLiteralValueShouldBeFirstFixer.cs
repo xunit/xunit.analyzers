@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -18,6 +19,8 @@ public class AssertEqualLiteralValueShouldBeFirstFixer : XunitCodeFixProvider
 	public AssertEqualLiteralValueShouldBeFirstFixer() :
 		base(Descriptors.X2000_AssertEqualLiteralValueShouldBeFirst.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

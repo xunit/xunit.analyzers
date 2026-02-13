@@ -6,6 +6,77 @@ using Verify = CSharpVerifier<Xunit.Analyzers.UseCancellationToken>;
 public class UseCancellationTokenFixerTests
 {
 	[Fact]
+	public async Task FixAll_AppliesAllFixesInDocument()
+	{
+		var before = /* lang=c#-test */ """
+			using System.Threading;
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1()
+				{
+					await [|Task.Delay(1)|];
+				}
+
+				[Fact]
+				public async Task TestMethod2()
+				{
+					await [|Task.Delay(1)|];
+					await [|Task.Delay(2)|];
+				}
+
+				[Fact]
+				public void TestMethod3()
+				{
+					[|FunctionWithOverload(42)|];
+					[|FunctionWithDefaults()|];
+				}
+
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(int _1, CancellationToken _2) { }
+
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Threading;
+			using System.Threading.Tasks;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public async Task TestMethod1()
+				{
+					await Task.Delay(1, TestContext.Current.CancellationToken);
+				}
+
+				[Fact]
+				public async Task TestMethod2()
+				{
+					await Task.Delay(1, TestContext.Current.CancellationToken);
+					await Task.Delay(2, TestContext.Current.CancellationToken);
+				}
+
+				[Fact]
+				public void TestMethod3()
+				{
+					FunctionWithOverload(42, TestContext.Current.CancellationToken);
+					FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
+				}
+
+				void FunctionWithOverload(int _) { }
+				void FunctionWithOverload(int _1, CancellationToken _2) { }
+
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+			}
+			""";
+
+		await Verify.VerifyCodeFixV3FixAll(before, after, UseCancellationTokenFixer.Key_UseCancellationTokenArgument);
+	}
+
+	[Fact]
 	public async Task UseCancellationTokenArgument()
 	{
 		var before = /* lang=c#-test */ """

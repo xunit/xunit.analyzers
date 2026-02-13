@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -20,6 +21,8 @@ public class BooleanAssertsShouldNotBeNegatedFixer : XunitCodeFixProvider
 	public BooleanAssertsShouldNotBeNegatedFixer() :
 		base(Descriptors.X2022_BooleanAssertionsShouldNotBeNegated.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

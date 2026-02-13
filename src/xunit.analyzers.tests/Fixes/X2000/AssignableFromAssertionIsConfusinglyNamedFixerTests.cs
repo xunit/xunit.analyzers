@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssignableFromAssertionIsConfusing
 public class AssignableFromAssertionIsConfusinglyNamedFixerTests
 {
 	[Fact]
-	public async Task Conversions()
+	public async Task FixAll_ReplacesAllAssignableFromAssertions()
 	{
 		var before = /* lang=c#-test */ """
 			using System;
@@ -16,7 +16,7 @@ public class AssignableFromAssertionIsConfusinglyNamedFixerTests
 				[Fact]
 				public void TestMethod() {
 					var data = "Hello world";
-			
+
 					[|Assert.IsAssignableFrom(typeof(object), data)|];
 					[|Assert.IsAssignableFrom<object>(data)|];
 				}
@@ -37,6 +37,6 @@ public class AssignableFromAssertionIsConfusinglyNamedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, AssignableFromAssertionIsConfusinglyNamedFixer.Key_UseIsType);
+		await Verify.VerifyCodeFixFixAll(before, after, AssignableFromAssertionIsConfusinglyNamedFixer.Key_UseIsType);
 	}
 }

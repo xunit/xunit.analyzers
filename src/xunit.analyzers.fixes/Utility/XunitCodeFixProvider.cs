@@ -10,6 +10,6 @@ public abstract class XunitCodeFixProvider(params string[] diagnostics) :
 	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = diagnostics.ToImmutableArray();
 #pragma warning restore IDE0305
 
-	public sealed override FixAllProvider? GetFixAllProvider() =>
+	public override FixAllProvider? GetFixAllProvider() =>
 		null;
 }

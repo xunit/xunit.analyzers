@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -16,6 +17,8 @@ public class AssertSameShouldNotBeCalledOnValueTypesFixer : XunitCodeFixProvider
 	public AssertSameShouldNotBeCalledOnValueTypesFixer() :
 		base(Descriptors.X2005_AssertSameShouldNotBeCalledOnValueTypes.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{

@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
@@ -19,6 +20,8 @@ public class TestMethodMustNotHaveMultipleFactAttributesFixer : XunitCodeFixProv
 	public TestMethodMustNotHaveMultipleFactAttributesFixer() :
 		base(Descriptors.X1002_TestMethodMustNotHaveMultipleFactAttributes.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public static string Key_KeepAttribute(string simpleTypeName) =>
 		string.Format(CultureInfo.InvariantCulture, "xUnit1002_KeepAttribute_{0}", simpleTypeName);

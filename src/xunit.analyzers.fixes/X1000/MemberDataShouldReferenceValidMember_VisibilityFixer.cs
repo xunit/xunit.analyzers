@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 
 namespace Xunit.Analyzers.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
 public sealed class MemberDataShouldReferenceValidMember_VisibilityFixer : XunitMemberFixProvider
 {
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
+
 	public const string Key_MakeMemberPublic = "xUnit1016_MakeMemberPublic";
 
 	public MemberDataShouldReferenceValidMember_VisibilityFixer() :

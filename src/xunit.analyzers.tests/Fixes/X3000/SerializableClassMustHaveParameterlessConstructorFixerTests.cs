@@ -173,6 +173,57 @@ public class SerializableClassMustHaveParameterlessConstructorFixerTests
 	public class XunitSerializable
 	{
 		[Fact]
+		public async Task FixAll_AddsConstructorsToMultipleClasses()
+		{
+			var before = /* lang=c#-test */ """
+				using Xunit.Sdk;
+
+				public class [|MyTestCase1|]: IXunitSerializable {
+					public MyTestCase1(int x) { }
+
+					void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
+					void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
+				}
+
+				public class [|MyTestCase2|]: IXunitSerializable {
+					public MyTestCase2(string s) { }
+
+					void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
+					void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
+				}
+				""";
+			var after = /* lang=c#-test */ """
+				using Xunit.Sdk;
+
+				public class MyTestCase1: IXunitSerializable {
+					[System.Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+					public MyTestCase1()
+					{
+					}
+
+					public MyTestCase1(int x) { }
+
+					void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
+					void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
+				}
+
+				public class MyTestCase2: IXunitSerializable {
+					[System.Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+					public MyTestCase2()
+					{
+					}
+
+					public MyTestCase2(string s) { }
+
+					void IXunitSerializable.Deserialize(IXunitSerializationInfo _) { }
+					void IXunitSerializable.Serialize(IXunitSerializationInfo _) { }
+				}
+				""";
+
+			await Verify.VerifyCodeFixV3FixAll(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		}
+
+		[Fact]
 		public async Task WithPublicParameteredConstructor_AddsNewConstructor()
 		{
 			var beforeTemplate = /* lang=c#-test */ """

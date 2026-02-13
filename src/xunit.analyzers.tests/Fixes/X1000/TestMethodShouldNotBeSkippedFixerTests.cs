@@ -6,14 +6,17 @@ using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodShouldNotBeSkipped>;
 public class TestMethodShouldNotBeSkippedFixerTests
 {
 	[Fact]
-	public async Task RemovesSkipProperty()
+	public async Task FixAll_RemovesSkipFromAllMethods()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
 
 			public class TestClass {
 				[Fact([|Skip = "Don't run this"|])]
-				public void TestMethod() { }
+				public void TestMethod1() { }
+
+				[Fact([|Skip = "Also skipped"|])]
+				public void TestMethod2() { }
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -21,10 +24,13 @@ public class TestMethodShouldNotBeSkippedFixerTests
 
 			public class TestClass {
 				[Fact]
-				public void TestMethod() { }
+				public void TestMethod1() { }
+
+				[Fact]
+				public void TestMethod2() { }
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
+		await Verify.VerifyCodeFixFixAll(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
 	}
 }

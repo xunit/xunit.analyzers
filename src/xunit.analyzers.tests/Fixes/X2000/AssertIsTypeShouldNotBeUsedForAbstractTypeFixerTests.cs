@@ -21,7 +21,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 				[Fact]
 				public void TestMethod() {
 					var data = new object();
-			
+
 					[|Assert.IsType<IDisposable>(data)|];
 					[|Assert.IsType<TestClass>(data)|];
 					[|Assert.IsNotType<IDisposable>(data)|];
@@ -61,7 +61,7 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 				[Fact]
 				public void TestMethod() {
 					var data = new object();
-			
+
 					[|Assert.IsType<IDisposable>(data)|];
 					[|Assert.IsType<IDisposable>(data, true)|];
 					[|Assert.IsType<IDisposable>(data, exactMatch: true)|];
@@ -103,6 +103,45 @@ public class AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			""";
 
 		await Verify.VerifyCodeFix(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
+	}
+
+	[Fact]
+	public async Task FixAll_ReplacesAllAbstractTypeChecks()
+	{
+		var before = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+
+			public abstract class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
+
+					[|Assert.IsType<IDisposable>(data)|];
+					[|Assert.IsType<TestClass>(data, true)|];
+					[|Assert.IsNotType<IDisposable>(data)|];
+					[|Assert.IsNotType<TestClass>(data, exactMatch: true)|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+
+			public abstract class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var data = new object();
+
+					Assert.IsType<IDisposable>(data, exactMatch: false);
+					Assert.IsType<TestClass>(data, exactMatch: false);
+					Assert.IsNotType<IDisposable>(data, exactMatch: false);
+					Assert.IsNotType<TestClass>(data, exactMatch: false);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
 	}
 
 	internal class Analyzer_v2_Pre2_9_3 : AssertIsTypeShouldNotBeUsedForAbstractType

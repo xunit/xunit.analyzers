@@ -5,34 +5,38 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertRegexMatchShouldNotUseBoolLi
 
 public class AssertRegexMatchShouldNotUseBoolLiteralCheckFixerTests
 {
-	const string template = /* lang=c#-test */ """
-		using System.Text.RegularExpressions;
-		using Xunit;
-
-		public class TestClass {{
-			[Fact]
-			public void TestMethod() {{
-				var result = "foo bar baz";
-
-				{0};
-			}}
-		}}
-		""";
-
-	[Theory]
-	[InlineData(
-		/* lang=c#-test */ @"[|Assert.True(Regex.IsMatch(result, ""foo (.*?) baz""))|]",
-		/* lang=c#-test */ @"Assert.Matches(""foo (.*?) baz"", result)")]
-	[InlineData(
-		/* lang=c#-test */ @"[|Assert.False(Regex.IsMatch(result, ""foo (.*?) baz""))|]",
-		/* lang=c#-test */ @"Assert.DoesNotMatch(""foo (.*?) baz"", result)")]
-	public async Task ConvertsBooleanAssertToRegexAssert(
-		string beforeAssert,
-		string afterAssert)
+	[Fact]
+	public async Task FixAll_ReplacesAllBooleanRegexChecks()
 	{
-		var before = string.Format(template, beforeAssert);
-		var after = string.Format(template, afterAssert);
+		var before = /* lang=c#-test */ """
+			using System.Text.RegularExpressions;
+			using Xunit;
 
-		await Verify.VerifyCodeFix(before, after, AssertRegexMatchShouldNotUseBoolLiteralCheckFixer.Key_UseAlternateAssert);
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var result = "foo bar baz";
+
+					[|Assert.True(Regex.IsMatch(result, "foo (.*?) baz"))|];
+					[|Assert.False(Regex.IsMatch(result, "foo (.*?) baz"))|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Text.RegularExpressions;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void TestMethod() {
+					var result = "foo bar baz";
+
+					Assert.Matches("foo (.*?) baz", result);
+					Assert.DoesNotMatch("foo (.*?) baz", result);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFixFixAll(before, after, AssertRegexMatchShouldNotUseBoolLiteralCheckFixer.Key_UseAlternateAssert);
 	}
 }
