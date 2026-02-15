@@ -3,6 +3,10 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
+/// <summary>
+/// Context for types that that originated in <c>xunit.core</c> in v2,
+/// and moved in v3 to one of <c>xunit.v3.core</c> or <c>xunit.v3.core.aot</c>.
+/// </summary>
 public interface ICoreContext
 {
 	/// <summary>

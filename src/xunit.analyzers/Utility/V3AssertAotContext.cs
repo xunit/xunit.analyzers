@@ -4,14 +4,11 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V3AssertContext : IAssertContextV3
+public class V3AssertAotContext : IAssertContextV3
 {
-	internal static readonly Version Version_0_6_0 = new("0.6.0");
-	internal static readonly Version Version_3_0_1 = new("3.0.1");
-
 	readonly Lazy<INamedTypeSymbol?> lazyAssertType;
 
-	V3AssertContext(
+	V3AssertAotContext(
 		Compilation compilation,
 		Version version)
 	{
@@ -28,12 +25,10 @@ public class V3AssertContext : IAssertContextV3
 	public bool SupportsAssertFail => true;
 
 	/// <inheritdoc/>
-	public bool SupportsAssertNullWithPointers =>
-		Version >= Version_3_0_1;
+	public bool SupportsAssertNullWithPointers => true;
 
 	/// <inheritdoc/>
-	public bool SupportsInexactTypeAssertions =>
-		Version >= Version_0_6_0;
+	public bool SupportsInexactTypeAssertions => true;
 
 	/// <inheritdoc/>
 	public Version Version { get; }
@@ -48,9 +43,9 @@ public class V3AssertContext : IAssertContextV3
 			versionOverride ??
 			compilation
 				.ReferencedAssemblyNames
-				.FirstOrDefault(a => a.Name.Equals("xunit.v3.assert", StringComparison.OrdinalIgnoreCase) || a.Name.Equals("xunit.v3.assert.source", StringComparison.OrdinalIgnoreCase))
+				.FirstOrDefault(a => a.Name.Equals("xunit.v3.assert.aot", StringComparison.OrdinalIgnoreCase))
 				?.Version;
 
-		return version is null ? null : new V3AssertContext(compilation, version);
+		return version is null ? null : new V3AssertAotContext(compilation, version);
 	}
 }

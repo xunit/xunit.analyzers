@@ -3,6 +3,10 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
+/// <summary>
+/// Context for types that that originated in <c>xunit.assert</c> or <c>xunit.assert.source</c> in v2,
+/// and moved in v3 to one of <c>xunit.v3.assert</c>, <c>xunit.v3.assert.aot</c>, or <c>xunit.v3.assert.source</c>.
+/// </summary>
 public interface IAssertContext
 {
 	/// <summary>

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V3CommonContext : ICommonContextV3
+public class V3CommonAotContext : ICommonContextV3
 {
 	readonly Lazy<INamedTypeSymbol?> lazyIMessageSinkType;
 	readonly Lazy<INamedTypeSymbol?> lazyISourceInformationProviderType;
@@ -20,7 +20,7 @@ public class V3CommonContext : ICommonContextV3
 	readonly Lazy<INamedTypeSymbol?> lazyIXunitSerializableType;
 	readonly Lazy<INamedTypeSymbol?> lazyIXunitSerializerType;
 
-	V3CommonContext(
+	V3CommonAotContext(
 		Compilation compilation,
 		Version version)
 	{
@@ -42,72 +42,72 @@ public class V3CommonContext : ICommonContextV3
 	}
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? IMessageSinkType =>
 		lazyIMessageSinkType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.runner.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.runner.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ISourceInformationProviderType =>
 		lazyISourceInformationProviderType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestAssemblyType =>
 		lazyITestAssemblyType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestCaseType =>
 		lazyITestCaseType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestClassType =>
 		lazyITestClassType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestCollectionType =>
 		lazyITestCollectionType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.core</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.core.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestFrameworkDiscovererType =>
 		lazyITestFrameworkDiscovererType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.core</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.core.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestFrameworkExecutorType =>
 		lazyITestFrameworkExecutorType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.core</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.core.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestFrameworkType =>
 		lazyITestFrameworkType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestMethodType =>
 		lazyITestMethodType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? ITestType =>
 		lazyITestType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? IXunitSerializableType =>
 		lazyIXunitSerializableType.Value;
 
 	/// <inheritdoc/>
-	/// <remarks>This type lives in <c>xunit.v3.common</c>.</remarks>
+	/// <remarks>This type lives in <c>xunit.v3.common.aot</c>.</remarks>
 	public INamedTypeSymbol? IXunitSerializerType =>
 		lazyIXunitSerializerType.Value;
 
 	/// <summary>
-	/// Gets the version number of the <c>xunit.v3.common</c> assembly.
+	/// Gets the version number of the <c>xunit.v3.common.aot</c> assembly.
 	/// </summary>
 	public Version Version { get; }
 
@@ -121,9 +121,9 @@ public class V3CommonContext : ICommonContextV3
 			versionOverride ??
 			compilation
 				.ReferencedAssemblyNames
-				.FirstOrDefault(a => a.Name.Equals("xunit.v3.common", StringComparison.OrdinalIgnoreCase))
+				.FirstOrDefault(a => a.Name.Equals("xunit.v3.common.aot", StringComparison.OrdinalIgnoreCase))
 				?.Version;
 
-		return version is null ? null : new V3CommonContext(compilation, version);
+		return version is null ? null : new V3CommonAotContext(compilation, version);
 	}
 }
