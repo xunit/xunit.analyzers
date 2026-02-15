@@ -30,7 +30,7 @@ public class XunitContext
 		V2Execution = V2ExecutionContext.Get(compilation);
 		V2RunnerUtility = V2RunnerUtilityContext.Get(compilation);
 
-		V3Assert = V3AssertContext.Get(compilation);
+		V3Assert = V3AssertAotContext.Get(compilation) ?? V3AssertContext.Get(compilation);
 		V3Common = V3CommonContext.Get(compilation);
 		V3Core = V3CoreContext.Get(compilation);
 		V3RunnerCommon = V3RunnerCommonContext.Get(compilation);
@@ -134,39 +134,40 @@ public class XunitContext
 	public V2RunnerUtilityContext? V2RunnerUtility { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to <c>xunit.v3.assert</c> or <c>xunit.v3.assert.source</c>
-	/// (v3). If the project does not reference the v3 assertion library, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.assert</c>, <c>xunit.v3.assert.aot</c>,
+	/// or <c>xunit.v3.assert.source</c> (v3).
+	/// If the project does not reference a v3 assertion library, then returns <c>null</c>.
 	/// </summary>
-	public V3AssertContext? V3Assert { get; private set; }
+	public IAssertContextV3? V3Assert { get; private set; }
 
 	/// <summary>
-	/// Gets types that exist in <c>xunit.v3.common</c> (v3). If the project does not reference
-	/// the v3 common library, then returns <c>null</c>.
+	/// Gets types that exist in <c>xunit.v3.common</c> or <c>xunit.v3.common.aot</c> (v3).
+	/// If the project does not reference a v3 common library, then returns <c>null</c>.
 	/// </summary>
 	/// <remarks>
 	/// This also contains a few selected types from <c>xunit.v3.core</c> and <c>xunit.v3.runner.common</c>
-	/// to align with the types that were all originally in <c>xunit.abstractions</c> in v2, to support
-	/// the composite view from <see cref="ICommonContext"/>.
+	/// (or <c>xunit.v3.core.aot</c> and <c>xunit.v3.runner.common.aot</c>) to align with the types that were
+	/// all originally in <c>xunit.abstractions</c> in v2, to support the composite view from <see cref="ICommonContext"/>.
 	/// </remarks>
-	public V3CommonContext? V3Common { get; private set; }
+	public ICommonContextV3? V3Common { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to <c>xunit.v3.core</c> (v3). If the project does not
-	/// reference the v3 core library, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.core</c> or <c>xunit.v3.core.aot</c> (v3).
+	/// If the project does not reference a v3 core library, then returns <c>null</c>.
 	/// </summary>
-	public V3CoreContext? V3Core { get; private set; }
+	public ICoreContextV3? V3Core { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to <c>xunit.v3.runner.common</c> (v3). If the project does
-	/// not reference the v3 runner common library, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.runner.common</c> or <c>xunit.v3.runner.common.aot</c> (v3).
+	/// If the project does not reference a v3 runner common library, then returns <c>null</c>.
 	/// </summary>
-	public V3RunnerCommonContext? V3RunnerCommon { get; private set; }
+	public IRunnerCommonContextV3? V3RunnerCommon { get; private set; }
 
 	/// <summary>
-	/// Gets information about the reference to <c>xunit.v3.runner.utility</c> (v3). If the project does
-	/// not reference the v3 runner utility library, then returns <c>null</c>.
+	/// Gets information about the reference to <c>xunit.v3.runner.utility</c> or <c>xunit.v3.runner.utility.aot</c> (v3).
+	/// If the project does not reference a v3 runner utility library, then returns <c>null</c>.
 	/// </summary>
-	public V3RunnerUtilityContext? V3RunnerUtility { get; private set; }
+	public IRunnerUtilityContextV3? V3RunnerUtility { get; private set; }
 
 	/// <summary>
 	/// Used to create a context object for testing v2 analyzers and fixers. This includes references
@@ -258,6 +259,24 @@ public class XunitContext
 
 	/// <summary>
 	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
+	/// for <c>xunit.v3.assert.aot</c>, <c>xunit.v3.common.aot</c>, <c>xunit.v3.core.aot</c>, and
+	/// <c>xunit.v3.runner.common.aot</c>.
+	/// </summary>
+	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+	/// <param name="versionOverride">The overridden version for all libraries</param>
+	public static XunitContext ForV3Aot(
+		Compilation compilation,
+		Version? versionOverride = null) =>
+			new()
+			{
+				V3Assert = V3AssertContext.Get(compilation, versionOverride),
+				V3Common = V3CommonContext.Get(compilation, versionOverride),
+				V3Core = V3CoreContext.Get(compilation, versionOverride),
+				V3RunnerCommon = V3RunnerCommonContext.Get(compilation, versionOverride),
+			};
+
+	/// <summary>
+	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
 	/// for <c>xunit.v3.assert</c>.
 	/// </summary>
 	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
@@ -268,5 +287,19 @@ public class XunitContext
 			new()
 			{
 				V3Assert = V3AssertContext.Get(compilation, versionOverride),
+			};
+
+	/// <summary>
+	/// Used to create a context object for testing v3 analyzers and fixers. This includes references
+	/// for <c>xunit.v3.assert.aot</c>.
+	/// </summary>
+	/// <param name="compilation">The Roslyn compilation object used to look up types</param>
+	/// <param name="versionOverride">The overridden version for <c>xunit.v3.assert</c></param>
+	public static XunitContext ForV3AssertAot(
+		Compilation compilation,
+		Version? versionOverride = null) =>
+			new()
+			{
+				V3Assert = V3AssertAotContext.Get(compilation, versionOverride),
 			};
 }

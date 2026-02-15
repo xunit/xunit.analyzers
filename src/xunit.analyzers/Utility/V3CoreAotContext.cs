@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V3CoreContext : ICoreContextV3
+public class V3CoreAotContext : ICoreContextV3
 {
 	readonly Lazy<INamedTypeSymbol?> lazyAssemblyFixtureAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeType;
@@ -24,7 +24,7 @@ public class V3CoreContext : ICoreContextV3
 	readonly Lazy<INamedTypeSymbol?> lazyMemberDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyTheoryAttributeType;
 
-	V3CoreContext(
+	V3CoreAotContext(
 		Compilation compilation,
 		Version version)
 	{
@@ -139,9 +139,9 @@ public class V3CoreContext : ICoreContextV3
 			versionOverride ??
 			compilation
 				.ReferencedAssemblyNames
-				.FirstOrDefault(a => a.Name.Equals("xunit.v3.core", StringComparison.OrdinalIgnoreCase))
+				.FirstOrDefault(a => a.Name.Equals("xunit.v3.core.aot", StringComparison.OrdinalIgnoreCase))
 				?.Version;
 
-		return version is null ? null : new V3CoreContext(compilation, version);
+		return version is null ? null : new V3CoreAotContext(compilation, version);
 	}
 }

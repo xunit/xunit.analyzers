@@ -4,17 +4,14 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V3RunnerUtilityContext : IRunnerUtilityContextV3
+public class V3RunnerUtilityAotContext : IRunnerUtilityContextV3
 {
-	const string assemblyPrefix = "xunit.v3.runner.utility.";
 	readonly Lazy<INamedTypeSymbol?> lazyLongLivedMarshalByRefObjectType;
 
-	V3RunnerUtilityContext(
+	V3RunnerUtilityAotContext(
 		Compilation compilation,
-		string platform,
 		Version version)
 	{
-		Platform = platform;
 		Version = version;
 
 		lazyLongLivedMarshalByRefObjectType = new(() => TypeSymbolFactory.LongLivedMarshalByRefObject_RunnerUtility(compilation));
@@ -25,7 +22,7 @@ public class V3RunnerUtilityContext : IRunnerUtilityContextV3
 		lazyLongLivedMarshalByRefObjectType.Value;
 
 	/// <inheritdoc/>
-	public string Platform { get; }
+	public string Platform => "aot";
 
 	/// <inheritdoc/>
 	public Version Version { get; }
@@ -39,14 +36,13 @@ public class V3RunnerUtilityContext : IRunnerUtilityContextV3
 		var assembly =
 			compilation
 				.ReferencedAssemblyNames
-				.FirstOrDefault(a => a.Name.StartsWith(assemblyPrefix, StringComparison.OrdinalIgnoreCase));
+				.FirstOrDefault(a => a.Name.Equals("xunit.v3.runner.utility.aot", StringComparison.OrdinalIgnoreCase));
 
 		if (assembly is null)
 			return null;
 
 		var version = versionOverride ?? assembly.Version;
-		var platform = assembly.Name.Substring(assemblyPrefix.Length);
 
-		return version is null ? null : new V3RunnerUtilityContext(compilation, platform, version);
+		return version is null ? null : new V3RunnerUtilityAotContext(compilation, version);
 	}
 }

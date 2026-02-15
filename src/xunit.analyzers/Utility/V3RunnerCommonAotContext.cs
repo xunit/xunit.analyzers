@@ -4,11 +4,11 @@ using Microsoft.CodeAnalysis;
 
 namespace Xunit.Analyzers;
 
-public class V3RunnerCommonContext : IRunnerCommonContextV3
+public class V3RunnerCommonAotContext : IRunnerCommonContextV3
 {
 	readonly Lazy<INamedTypeSymbol?> lazyIRunnerReporterType;
 
-	V3RunnerCommonContext(
+	V3RunnerCommonAotContext(
 		Compilation compilation,
 		Version version)
 	{
@@ -33,13 +33,13 @@ public class V3RunnerCommonContext : IRunnerCommonContextV3
 		var assembly =
 			compilation
 				.ReferencedAssemblyNames
-				.FirstOrDefault(a => a.Name.Equals("xunit.v3.runner.common", StringComparison.OrdinalIgnoreCase));
+				.FirstOrDefault(a => a.Name.Equals("xunit.v3.runner.common.aot", StringComparison.OrdinalIgnoreCase));
 
 		if (assembly is null)
 			return null;
 
 		var version = versionOverride ?? assembly.Version;
 
-		return version is null ? null : new V3RunnerCommonContext(compilation, version);
+		return version is null ? null : new V3RunnerCommonAotContext(compilation, version);
 	}
 }
