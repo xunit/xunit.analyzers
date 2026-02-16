@@ -60,6 +60,23 @@ public partial class CSharpVerifier<TAnalyzer>
 		await VerifySuppressorV3(languageVersion, sources, suppressedAnalyzers, diagnostics);
 	}
 
+	/// <summary>
+	/// Verify that an analyzer was used to suppress a compiler warning. Runs against
+	/// xUnit.net v2 and v3, using the provided version of C#. Sets CompilerDiagnostics
+	/// to Warnings so that compiler warnings (like CS8618) are included in the analysis.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the suppression</param>
+	public static async Task VerifyCompilerWarningSuppressor(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyCompilerWarningSuppressorV2(languageVersion, sources, diagnostics);
+		await VerifyCompilerWarningSuppressorV3(languageVersion, sources, diagnostics);
+	}
+
 	// ----- v2 -----
 
 	/// <summary>
@@ -118,6 +135,39 @@ public partial class CSharpVerifier<TAnalyzer>
 		return test.RunAsync();
 	}
 
+	/// <summary>
+	/// Verify that an analyzer was used to suppress a compiler warning. Runs against
+	/// xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the suppression</param>
+	public static Task VerifyCompilerWarningSuppressorV2(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		var test = new TestV2(languageVersion);
+
+		foreach (var source in sources)
+			test.TestState.Sources.Add(source);
+
+		test.CompilerDiagnostics = CompilerDiagnostics.Warnings;
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		test.TestState.OutputKind = OutputKind.ConsoleApplication;
+		test.TestState.Sources.Add("internal class Program { public static void Main() { } }");
+		test.SolutionTransforms.Add((solution, projectId) =>
+		{
+			var project = solution.GetProject(projectId)!;
+			var compilationOptions = project.CompilationOptions!;
+			compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(
+				compilationOptions.SpecificDiagnosticOptions.SetItem("CS1701", ReportDiagnostic.Suppress)
+			);
+			return solution.WithProjectCompilationOptions(projectId, compilationOptions);
+		});
+		return test.RunAsync();
+	}
+
 	// ----- v3 -----
 
 	/// <summary>
@@ -170,6 +220,30 @@ public partial class CSharpVerifier<TAnalyzer>
 		foreach (var source in sources)
 			test.TestState.Sources.Add(source);
 
+		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		test.TestState.OutputKind = OutputKind.ConsoleApplication;
+		test.TestState.Sources.Add("internal class Program { public static void Main() { } }");
+		return test.RunAsync();
+	}
+
+	/// <summary>
+	/// Verify that an analyzer was used to suppress a compiler warning. Runs against
+	/// xUnit.net v3, using the provided version of C#.
+	/// </summary>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the suppression</param>
+	public static Task VerifyCompilerWarningSuppressorV3(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		var test = new TestV3(languageVersion);
+
+		foreach (var source in sources)
+			test.TestState.Sources.Add(source);
+
+		test.CompilerDiagnostics = CompilerDiagnostics.Warnings;
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		test.TestState.OutputKind = OutputKind.ConsoleApplication;
 		test.TestState.Sources.Add("internal class Program { public static void Main() { } }");
