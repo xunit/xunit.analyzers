@@ -61,7 +61,7 @@ public sealed class SerializableTypeSymbols
 		{
 			var registerXunitSerializer = TypeSymbolFactory.RegisterXunitSerializerAttribute_V3(compilation);
 			if (registerXunitSerializer is null)
-#pragma warning disable IDE0301  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+#pragma warning disable IDE0301  // Cannot convert this due to Roslyn 3.11
 				return ImmutableArray<INamedTypeSymbol>.Empty;
 #pragma warning restore IDE0301
 
