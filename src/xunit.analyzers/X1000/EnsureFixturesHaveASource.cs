@@ -130,6 +130,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 				);
 
 			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional
+					&& !p.IsParams
 					&& !validConstructorArgumentTypes.Contains(p.Type)
 					&& (xunitContext.HasV2References || p.Type is not INamedTypeSymbol nts || !nts.IsGenericType || !validConstructorArgumentTypes.Contains(nts.ConstructedFrom))))
 				context.ReportDiagnostic(

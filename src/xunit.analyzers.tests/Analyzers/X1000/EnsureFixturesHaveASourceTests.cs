@@ -75,6 +75,22 @@ public class EnsureFixturesHaveASourceTests
 
 			await Verify.VerifyAnalyzer(source);
 		}
+
+		[Fact]
+		public async Task ParamsParameter_DoesNotTrigger()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					public TestClass(params object[] _) { }
+						
+					[Fact] public void TestMethod() { }
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(source);
+		}
 	}
 
 	public class ClassFixtures
