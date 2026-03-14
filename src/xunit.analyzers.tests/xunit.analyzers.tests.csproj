@@ -16,17 +16,17 @@
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
 
     <PackageDownload Include="xunit.abstractions" Version="[2.0.3]" />
-    <PackageDownload Include="xunit.assert" Version="[2.9.3-pre.4]" />
-    <PackageDownload Include="xunit.core" Version="[2.9.3-pre.4]" />
-    <PackageDownload Include="xunit.extensibility.core" Version="[2.9.3-pre.4]" />
-    <PackageDownload Include="xunit.extensibility.execution" Version="[2.9.3-pre.4]" />
-    <PackageDownload Include="xunit.runner.utility" Version="[2.9.3-pre.4]" />
+    <PackageDownload Include="xunit.assert" Version="[2.9.4-pre.6]" />
+    <PackageDownload Include="xunit.core" Version="[2.9.4-pre.6]" />
+    <PackageDownload Include="xunit.extensibility.core" Version="[2.9.4-pre.6]" />
+    <PackageDownload Include="xunit.extensibility.execution" Version="[2.9.4-pre.6]" />
+    <PackageDownload Include="xunit.runner.utility" Version="[2.9.4-pre.6]" />
 
-    <PackageDownload Include="xunit.v3.assert" Version="[3.2.2-pre.18]" />
-    <PackageDownload Include="xunit.v3.common" Version="[3.2.2-pre.18]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[3.2.2-pre.18]" />
-    <PackageDownload Include="xunit.v3.runner.common" Version="[3.2.2-pre.18]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[3.2.2-pre.18]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.common" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.runner.common" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[4.0.0-pre.25]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[10.0.100]" />

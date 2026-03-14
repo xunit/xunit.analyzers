@@ -39,8 +39,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.assert", "2.9.3-pre.4"),
-				new PackageIdentity("xunit.core", "2.9.3-pre.4")
+				new PackageIdentity("xunit.assert", "2.9.4-pre.6"),
+				new PackageIdentity("xunit.core", "2.9.4-pre.6")
 			)
 		);
 
@@ -51,7 +51,7 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
-				new PackageIdentity("xunit.runner.utility", "2.9.3-pre.4")
+				new PackageIdentity("xunit.runner.utility", "2.9.4-pre.6")
 			)
 		);
 
@@ -60,10 +60,10 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
 				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("xunit.v3.assert", "3.2.2-pre.18"),
-				new PackageIdentity("xunit.v3.common", "3.2.2-pre.18"),
-				new PackageIdentity("xunit.v3.extensibility.core", "3.2.2-pre.18"),
-				new PackageIdentity("xunit.v3.runner.common", "3.2.2-pre.18")
+				new PackageIdentity("xunit.v3.assert", "4.0.0-pre.25"),
+				new PackageIdentity("xunit.v3.common", "4.0.0-pre.25"),
+				new PackageIdentity("xunit.v3.extensibility.core", "4.0.0-pre.25"),
+				new PackageIdentity("xunit.v3.runner.common", "4.0.0-pre.25")
 			)
 		);
 
@@ -72,8 +72,8 @@ static class CodeAnalyzerHelper
 				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
 				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("xunit.v3.common", "3.2.2-pre.18"),
-				new PackageIdentity("xunit.v3.runner.utility", "3.2.2-pre.18")
+				new PackageIdentity("xunit.v3.common", "4.0.0-pre.25"),
+				new PackageIdentity("xunit.v3.runner.utility", "4.0.0-pre.25")
 			)
 		);
 	}
