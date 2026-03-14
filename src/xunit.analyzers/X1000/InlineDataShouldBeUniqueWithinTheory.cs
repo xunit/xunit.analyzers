@@ -260,7 +260,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 				}
 			}
 
-#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11
 			return results.ToImmutableArray();
 #pragma warning restore IDE0305
 		}
@@ -274,7 +274,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			// special case InlineData(null): the compiler will treat the whole data array as being initialized to null
 			var inlineDataArguments =
 				inlineDataObjectArrayArgument.IsNull
-#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11
 					? ImmutableArray.Create(inlineDataObjectArrayArgument)
 #pragma warning restore IDE0303
 					: inlineDataObjectArrayArgument.Values;

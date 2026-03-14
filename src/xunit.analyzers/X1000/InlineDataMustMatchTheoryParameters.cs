@@ -76,7 +76,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 
 				var dataArrayArgument = attribute.ConstructorArguments.Single();
 				// Need to special case InlineData(null) as the compiler will treat the whole data array as being initialized to null
-#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+#pragma warning disable IDE0303  // Cannot convert this due to Roslyn 3.11
 				var values = dataArrayArgument.IsNull ? ImmutableArray.Create(dataArrayArgument) : dataArrayArgument.Values;
 #pragma warning restore IDE0303
 				if (values.Length < method.Parameters.Count(p => RequiresMatchingValue(p, xunitSupportsParameterArrays, xunitSupportsDefaultParameterValues, systemRuntimeInteropServicesOptionalAttribute)))

@@ -34,8 +34,8 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV2 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
-				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
@@ -46,8 +46,8 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV2RunnerUtility = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
-				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Collections.Immutable", "1.6.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
 				new PackageIdentity("xunit.abstractions", "2.0.3"),
@@ -57,10 +57,9 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV3 = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
-				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("System.Text.Json", "8.0.0"),
 				new PackageIdentity("xunit.v3.assert", "3.2.2-pre.18"),
 				new PackageIdentity("xunit.v3.common", "3.2.2-pre.18"),
 				new PackageIdentity("xunit.v3.extensibility.core", "3.2.2-pre.18"),
@@ -70,10 +69,9 @@ static class CodeAnalyzerHelper
 
 		CurrentXunitV3RunnerUtility = defaultAssemblies.AddPackages(
 			ImmutableArray.Create(
-				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "8.0.0"),
-				new PackageIdentity("Microsoft.Extensions.Primitives", "8.0.0"),
+				new PackageIdentity("Microsoft.Bcl.AsyncInterfaces", "6.0.0"),
+				new PackageIdentity("Microsoft.Extensions.Primitives", "6.0.0"),
 				new PackageIdentity("System.Threading.Tasks.Extensions", "4.5.4"),
-				new PackageIdentity("System.Text.Json", "8.0.0"),
 				new PackageIdentity("xunit.v3.common", "3.2.2-pre.18"),
 				new PackageIdentity("xunit.v3.runner.utility", "3.2.2-pre.18")
 			)

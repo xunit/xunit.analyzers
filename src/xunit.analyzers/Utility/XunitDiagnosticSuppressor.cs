@@ -14,7 +14,7 @@ public abstract class XunitDiagnosticSuppressor(SuppressionDescriptor descriptor
 	protected SuppressionDescriptor Descriptor => SupportedSuppressions[0];
 
 	/// <inheritdoc/>
-#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11 vs. 4.11 dependencies
+#pragma warning disable IDE0305  // Cannot convert this due to Roslyn 3.11
 	public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } = new[] { descriptor }.ToImmutableArray();
 #pragma warning restore IDE0305
 

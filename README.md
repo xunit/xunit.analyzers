@@ -2,9 +2,7 @@
 
 This project contains source code analysis and cleanup rules for xUnit.net. Analysis and fixes are only supported with C#.
 
-**Requirements**: xUnit.net v2 or v3. Supported in Visual Studio 2019 16.11+ or 2022 17.4+ (as well as via command line builds with Roslyn 3.11+).
-Other environments (such as Mono or JetBrains Rider) may be able to use these analyzers as well; support and issue resolution will be provided by
-those third parties and not by xUnit.net itself.
+**Requirements**: xUnit.net v2 or v3. Supported in Visual Studio 2019, 2022, and 2026 (as well as via command line builds with Roslyn 3.11+). Other environments (such as Mono or JetBrains Rider) may be able to use these analyzers as well; support and issue resolution will be provided by those third parties and not by xUnit.net itself.
 
 **Documentation**: a list of supported rules is available at https://xunit.net/xunit.analyzers/rules/
 
@@ -12,27 +10,21 @@ those third parties and not by xUnit.net itself.
 
 **Building**: see [BUILDING.md](https://github.com/xunit/xunit.analyzers/blob/main/BUILDING.md).
 
+> _**Note:** Our minimum supported versions of Visual Studio 2019, 2022, and 2026 align with the "Baseline" column of the "Support for Older Versions" table of [Visual Studio Product Lifecycle and Servicing](https://learn.microsoft.com/visualstudio/releases/2026/servicing-vs#support-for-older-versions), as these are the minimum versions supported by Microsoft. If you are experiencing issues with an older version of Visual Studio, please upgrade and verify the issue still exists before opening issues._
+
 ## How to install
 
-- xUnit.net v3: the analyzer package is referenced by the main [`xunit.v3` NuGet package](https://www.nuget.org/packages/xunit.v3) out of the box.
-If you choose to reference [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core) instead, you can reference
-[`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
+- xUnit.net v3: the analyzer package is referenced by the main [`xunit.v3` NuGet package](https://www.nuget.org/packages/xunit.v3) out of the box. If you choose to reference [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core) instead, you can reference [`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
-- xUnit.net v2 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box.
-If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.core) instead, you can reference
-[`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
+- xUnit.net v2 2.3.0 and higher: the analyzer package is referenced by the main [`xunit` NuGet package](https://www.nuget.org/packages/xunit) out of the box. If you choose to reference [`xunit.core`](https://www.nuget.org/packages/xunit.core) instead, you can reference [`xunit.analyzers`](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
 - xUnit.net v2 2.2.0 and earlier: you have to install the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers) explicitly.
 
 ## How to uninstall
 
-- If you are using xUnit.net v3 and do not wish to use the analyzers package, replace the package reference
-to [`xunit.v3`](https://www.nuget.org/packages/xunit.v3) with the corresponding versions of [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core)
-and [`xunit.v3.assert`](https://www.nuget.org/packages/xunit.v3.assert).
+- If you are using xUnit.net v3 and do not wish to use the analyzers package, replace the package reference to [`xunit.v3`](https://www.nuget.org/packages/xunit.v3) with the corresponding versions of [`xunit.v3.core`](https://www.nuget.org/packages/xunit.v3.core) and [`xunit.v3.assert`](https://www.nuget.org/packages/xunit.v3.assert).
 
-- If you are using xUnit.net v2 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference
-to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core`](https://www.nuget.org/packages/xunit.core)
-and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert).
+- If you are using xUnit.net v2 2.3.0 or higher and do not wish to use the analyzers package, replace the package reference to [`xunit`](https://www.nuget.org/packages/xunit) with the corresponding versions of [`xunit.core`](https://www.nuget.org/packages/xunit.core) and [`xunit.assert`](https://www.nuget.org/packages/xunit.assert).
 
 - If you are using xUnit.net v2 v2.2.0 or earlier: remove the reference to the [`xunit.analyzers` NuGet package](https://www.nuget.org/packages/xunit.analyzers).
 
