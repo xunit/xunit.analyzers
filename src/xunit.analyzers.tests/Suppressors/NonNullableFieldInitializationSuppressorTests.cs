@@ -46,7 +46,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -74,7 +74,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -128,7 +128,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -157,7 +157,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -186,7 +186,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -242,7 +242,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV2(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -287,7 +287,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV3(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -315,7 +315,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV3(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -368,7 +368,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV3(LanguageVersion.CSharp8, [code], expected);
 	}
@@ -422,7 +422,7 @@ public sealed class NonNullableFieldInitializationSuppressorTests
 				public void Test1() { }
 			}
 			""";
-		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true);
+		var expected = DiagnosticResult.CompilerWarning("CS8618").WithLocation(0).WithIsSuppressed(true).WithOptions(DiagnosticOptions.IgnoreAdditionalLocations);
 
 		await Verify.VerifyCompilerWarningSuppressorV3(LanguageVersion.CSharp8, [code], expected);
 	}
