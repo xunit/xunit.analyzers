@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.MemberDataShouldReferenceValidMember>;
-using Microsoft.CodeAnalysis.Testing;
+
 public class MemberDataShouldReferenceValidMemberTests
 {
 	public class X1014_MemberDataShouldUseNameOfOperator
@@ -75,30 +75,30 @@ public class MemberDataShouldReferenceValidMemberTests
 		}
 
 		[Fact]
-			public async ValueTask DoesNotTrigger_WhenMemberExistsOnDerivedType_AndBaseTypeIsAbstract()
-			{
-			    var source = /* lang=c#-test */ """
-			        using System.Collections.Generic;
-			        using Xunit;
-			
-			        public abstract class BaseClassWithTestWithoutData
-			        {
-			            [Theory]
-			            [MemberData(nameof(SubClassWithTestData.TestData))]
-			            public void Test(int x) { }
-			        }
-			
-			        public class SubClassWithTestData : BaseClassWithTestWithoutData
-			        {
-			            public static IEnumerable<object?[]> TestData()
-			            {
-			                yield return new object?[] { 42 };
-			            }
-			        }
-			        """;
-			
-			    await Verify.VerifyAnalyzer(source, Array.Empty<DiagnosticResult>());
-}
+		public async ValueTask DoesNotTrigger_WhenMemberExistsOnDerivedType_AndBaseTypeIsAbstract()
+		{
+			var source = /* lang=c#-test */ """
+				using System.Collections.Generic;
+				using Xunit;
+
+				public abstract class BaseClassWithTestWithoutData
+				{
+					[Theory]
+					[MemberData(nameof(SubClassWithTestData.TestData))]
+					public void Test(int x) { }
+				}
+
+				public class SubClassWithTestData : BaseClassWithTestWithoutData
+				{
+					public static IEnumerable<object?[]> TestData()
+					{
+						yield return new object?[] { 42 };
+					}
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
 	}
 
 	public class X1016_MemberDataMustReferencePublicMember
