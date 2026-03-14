@@ -443,6 +443,68 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return true;
 	}
 
+	static bool ShouldSuppressX1015BecauseAllDerivedConcreteTypesHaveMember(
+		SyntaxNodeAnalysisContext context,
+		ITypeSymbol declaredMemberTypeSymbol,
+		string memberName)
+	{
+		if (declaredMemberTypeSymbol is not INamedTypeSymbol baseType)
+			return false;
+
+		// Only consider the special-case from the issue:
+		// - the declared type is an abstract class
+		if (baseType.TypeKind != TypeKind.Class || !baseType.IsAbstract)
+			return false;
+
+		var compilation = context.SemanticModel.Compilation;
+
+		static IEnumerable<INamedTypeSymbol> GetAllTypesFromNamespace(INamespaceSymbol @namespace)
+		{
+			foreach (var member in @namespace.GetMembers())
+				if (member is INamespaceSymbol childNs)
+					foreach (var t in GetAllTypesFromNamespace(childNs))
+						yield return t;
+				else if (member is INamedTypeSymbol namedType)
+					foreach (var t in GetAllTypesFromType(namedType))
+						yield return t;
+		}
+
+		static IEnumerable<INamedTypeSymbol> GetAllTypesFromType(INamedTypeSymbol type)
+		{
+			yield return type;
+
+			foreach (var nested in type.GetTypeMembers())
+				foreach (var t in GetAllTypesFromType(nested))
+					yield return t;
+		}
+
+		static bool IsDerivedFrom(INamedTypeSymbol type, INamedTypeSymbol baseType)
+		{
+			for (var current = type.BaseType; current is not null; current = current.BaseType)
+				if (SymbolEqualityComparer.Default.Equals(current, baseType))
+					return true;
+
+			return false;
+		}
+
+		var derivedConcreteTypes =
+			GetAllTypesFromNamespace(compilation.Assembly.GlobalNamespace)
+				.Where(t => t.TypeKind == TypeKind.Class && !t.IsAbstract && IsDerivedFrom(t, baseType))
+				.ToList();
+
+		// If we can't find any derived concrete types in this compilation,
+		// we can't prove it's safe - do not suppress.
+		if (derivedConcreteTypes.Count == 0)
+			return false;
+
+		// Suppress only if ALL derived concrete types contain the member.
+		foreach (var derived in derivedConcreteTypes)
+			if (derived.GetMembers(memberName).Length == 0)
+				return false;
+
+		return true;
+	}
+
 	static void ReportIllegalNonMethodArguments(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -620,15 +682,22 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
 		string memberName,
-		ITypeSymbol declaredMemberTypeSymbol) =>
-			context.ReportDiagnostic(
-				Diagnostic.Create(
-					Descriptors.X1015_MemberDataMustReferenceExistingMember,
-					attribute.GetLocation(),
-					memberName,
-					SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)
-				)
-			);
+		ITypeSymbol declaredMemberTypeSymbol)
+	{
+		// Special case: abstract base class references MemberData member that exists only on derived types.
+		// If ALL derived concrete types in this compilation contain the member, don't warn.
+		if (ShouldSuppressX1015BecauseAllDerivedConcreteTypesHaveMember(context, declaredMemberTypeSymbol, memberName))
+			return;
+
+		context.ReportDiagnostic(
+			Diagnostic.Create(
+				Descriptors.X1015_MemberDataMustReferenceExistingMember,
+				attribute.GetLocation(),
+				memberName,
+				SymbolDisplay.ToDisplayString(declaredMemberTypeSymbol)
+			)
+		);
+	}
 
 	static void ReportNonPublicAccessibility(
 		SyntaxNodeAnalysisContext context,

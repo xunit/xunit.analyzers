@@ -73,6 +73,32 @@ public class MemberDataShouldReferenceValidMemberTests
 
 			await Verify.VerifyAnalyzer([source1, source2], expected);
 		}
+
+		[Fact]
+		public async ValueTask DoesNotTrigger_WhenMemberExistsOnDerivedType_AndBaseTypeIsAbstract()
+		{
+			var source = /* lang=c#-test */ """
+				using System.Collections.Generic;
+				using Xunit;
+
+				public abstract class BaseClassWithTestWithoutData
+				{
+					[Theory]
+					[MemberData(nameof(SubClassWithTestData.TestData))]
+					public void Test(int x) { }
+				}
+
+				public class SubClassWithTestData : BaseClassWithTestWithoutData
+				{
+					public static IEnumerable<object?[]> TestData()
+					{
+						yield return new object?[] { 42 };
+					}
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
 	}
 
 	public class X1016_MemberDataMustReferencePublicMember
