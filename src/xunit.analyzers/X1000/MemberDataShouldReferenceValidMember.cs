@@ -443,7 +443,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 		return true;
 	}
 
-
 	static bool ShouldSuppressX1015BecauseAllDerivedConcreteTypesHaveMember(
 		SyntaxNodeAnalysisContext context,
 		ITypeSymbol declaredMemberTypeSymbol,
@@ -505,7 +504,6 @@ public class MemberDataShouldReferenceValidMember : XunitDiagnosticAnalyzer
 
 		return true;
 	}
-
 
 	static void ReportIllegalNonMethodArguments(
 		SyntaxNodeAnalysisContext context,
