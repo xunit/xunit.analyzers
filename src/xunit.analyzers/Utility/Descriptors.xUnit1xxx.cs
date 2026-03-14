@@ -4,6 +4,8 @@ using static Xunit.Analyzers.Category;
 
 namespace Xunit.Analyzers;
 
+// NOTE: Don't update messages here without updating the Native AOT generator projects as well  (must have identical messages so we don't double up)
+
 public static partial class Descriptors
 {
 	public static DiagnosticDescriptor X1000_TestClassMustBePublic { get; } =
@@ -75,7 +77,7 @@ public static partial class Descriptors
 			"ClassData must point at a valid class",
 			Usage,
 			Error,
-			"ClassData must point at a valid class. The class {0} must be public, not sealed, with an empty constructor, and implement {1}."
+			"ClassData must point at a valid class. The class {0} must be public, not abstract, with an empty constructor, and implement {1}."
 		);
 
 	public static DiagnosticDescriptor X1008_DataAttributeShouldBeUsedOnATheory { get; } =
