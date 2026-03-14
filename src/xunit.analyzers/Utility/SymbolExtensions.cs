@@ -121,16 +121,37 @@ public static class SymbolExtensions
 					return SymbolEqualityComparer.Default.Equals(sourceTupleType, targetTupleType);
 				}
 
-				// Special handling when the target type is an open generic, we need to get the open
-				// generic of the source type for the compatibility test
-				if (targetType is INamedTypeSymbol namedTargetType && namedTargetType.IsUnboundGenericType)
+				// Special handling for generic types, possibly with type constraints
+				if (targetType is INamedTypeSymbol namedTargetType && namedTargetType.IsGenericType &&
+					sourceType is INamedTypeSymbol namedSourceType && namedSourceType.IsGenericType)
 				{
-					var namedSourceType = sourceType as INamedTypeSymbol;
-					if (namedSourceType is not null &&
-							namedSourceType.IsGenericType &&
-							!namedSourceType.IsUnboundGenericType &&
-							IsAssignableFrom(targetType, namedSourceType.ConstructUnboundGenericType()))
-						return true;
+					if (SymbolEqualityComparer.Default.Equals(namedTargetType.OriginalDefinition, namedSourceType.OriginalDefinition))
+					{
+						// Unbound generic types (e.g., List<>) are assignable from any open/closed generic of the same definition (e.g., List<int> or List<T>)
+						if (namedTargetType.IsUnboundGenericType)
+							return true;
+
+						// Open/closed generic types must have compatible type arguments
+						bool argumentsMatch = true;
+						for (int i = 0; i < namedTargetType.TypeArguments.Length; i++)
+						{
+							var tArg = namedTargetType.TypeArguments[i];
+							var sArg = namedSourceType.TypeArguments[i];
+
+							if (tArg.TypeKind == TypeKind.TypeParameter)
+								continue;
+
+							// Recursively verify nested arguments (e.g., IEnumerable<string> inside Task<IEnumerable<string>>)
+							if (!IsAssignableFrom(tArg, sArg, exactMatch))
+							{
+								argumentsMatch = false;
+								break;
+							}
+						}
+
+						if (argumentsMatch)
+							return true;
+					}
 				}
 
 				if (targetType.TypeKind == TypeKind.Interface)

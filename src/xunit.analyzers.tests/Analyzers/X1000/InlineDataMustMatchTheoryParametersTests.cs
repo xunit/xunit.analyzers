@@ -988,6 +988,32 @@ public class InlineDataMustMatchTheoryParametersTests
 				await Verify.VerifyAnalyzer(source);
 			}
 
+#if ROSLYN_LATEST && NET8_0_OR_GREATER
+			[Fact]
+			public async Task TypeConstraint_WithCRTP() // CRTP: Curiously Recurring Template Pattern or T: Interface<T>
+			{
+				var source = /* lang=c#-test */ """
+				using Xunit;
+				using System.Numerics;
+
+				public class TestClass {
+					[Theory]
+					[InlineData(0U)]
+					[InlineData(2U)]
+					[InlineData(5294967295U)] // ulong value
+					[InlineData({|xUnit1010:-1U|})]
+					[InlineData({|xUnit1010:2|})]
+					[InlineData({|xUnit1010:0|})]
+					[InlineData({|xUnit1010:"A"|})]
+					public void UnsignedNumberIsAtLeastZero<T>(T number)
+						where T : IUnsignedNumber<T> => Assert.False(T.IsNegative(number));
+				}
+				""";
+
+				await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
+			}
+#endif
+
 			[Theory]
 #if NETFRAMEWORK
 			[InlineData("'a'")]
