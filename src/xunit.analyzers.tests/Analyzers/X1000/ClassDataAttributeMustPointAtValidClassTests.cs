@@ -34,7 +34,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 		}
 
 		[Fact]
-		public async ValueTask v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				#nullable enable
@@ -164,7 +164,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 		}
 
 		[Fact]
-		public async ValueTask v2_and_v3()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections;
@@ -231,7 +231,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 #if ROSLYN_LATEST && !NETFRAMEWORK
 
 		[Fact]
-		public async ValueTask v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections;
@@ -293,7 +293,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 	public class X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters
 	{
 		[Fact]
-		public async Task v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
@@ -319,7 +319,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 	public class X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters
 	{
 		[Fact]
-		public async Task v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
@@ -357,7 +357,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 	public class X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes
 	{
 		[Fact]
-		public async Task v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections.Generic;
@@ -394,7 +394,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 	public class X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability
 	{
 		[Fact]
-		public async Task v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				#nullable enable
@@ -422,7 +422,7 @@ public class ClassDataAttributeMustPointAtValidClassTests
 	public class X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis
 	{
 		[Fact]
-		public async Task v3_only()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System.Collections;

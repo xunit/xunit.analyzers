@@ -14,6 +14,10 @@ public class EmptyCoreContext : ICoreContext
 
 	public INamedTypeSymbol? CollectionDefinitionAttributeType => null;
 
+	public INamedTypeSymbol? CulturedFactAttributeType => null;
+
+	public INamedTypeSymbol? CulturedTheoryAttributeType => null;
+
 	public INamedTypeSymbol? DataAttributeType => null;
 
 	public INamedTypeSymbol? FactAttributeType => null;

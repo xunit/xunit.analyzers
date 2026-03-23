@@ -10,7 +10,7 @@ using Verify_v3_Pre301 = CSharpVerifier<TheoryDataRowArgumentsShouldBeSerializab
 public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 {
 	[Fact]
-	public async Task ParamArrayArguments_NotUsingTheoryDataRow_DoesNotTrigger()
+	public async ValueTask ParamArrayArguments_NotUsingTheoryDataRow_DoesNotTrigger()
 	{
 		var source = /* lang=c#-test */ """
 			#nullable enable
@@ -26,7 +26,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			}
 			""";
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
 	[Theory]
@@ -60,7 +60,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("Guid.Empty", "Guid")]
 	[InlineData("new Uri(\"https://xunit.net/\")", "Uri")]
 	[InlineData("new Version(\"1.2.3\")", "Version")]
-	public async Task IntrinsicallySerializableValue_DoesNotTrigger(
+	public async ValueTask IntrinsicallySerializableValue_DoesNotTrigger(
 		string value,
 		string type)
 	{
@@ -85,13 +85,13 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			}}
 			""", value, type);
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
 	[Theory]
 	[InlineData("SerializableClass")]
 	[InlineData("SerializableStruct")]
-	public async Task IXunitSerializableValue_DoesNotTrigger(string type)
+	public async ValueTask IXunitSerializableValue_DoesNotTrigger(string type)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			#nullable enable
@@ -125,13 +125,13 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			}}
 			""", type);
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
 	[Theory]
 	[InlineData("CustomSerialized")]
 	[InlineData("CustomSerializedDerived")]
-	public async Task IXunitSerializerValue_DoesNotTrigger(string type)
+	public async ValueTask IXunitSerializerValue_DoesNotTrigger(string type)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			#nullable enable
@@ -176,7 +176,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			}}
 			""", type);
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
 	[Theory]
@@ -184,7 +184,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("Func<int>", "Func<int>?", "Func<int>?")]
 	[InlineData("NonSerializableSealedClass", "NonSerializableSealedClass?", "NonSerializableSealedClass?")]
 	[InlineData("NonSerializableStruct", "NonSerializableStruct", "NonSerializableStruct?")]
-	public async Task KnownNonSerializableValue_Triggers1046(
+	public async ValueTask KnownNonSerializableValue_Triggers1046(
 		string type,
 		string defaultValueType,
 		string nullValueType)
@@ -220,13 +220,13 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1046").WithLocation(5).WithArguments($"new {type}[0]", $"{type}[]"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Theory]
 	[InlineData("NonSerializableSealedClass")]
 	[InlineData("NonSerializableStruct")]
-	public async Task KnownNonSerializableValue_Constructable_Triggers1046(string type)
+	public async ValueTask KnownNonSerializableValue_Constructable_Triggers1046(string type)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			#nullable enable
@@ -256,7 +256,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1046").WithLocation(3).WithArguments($"new {type}()", type),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Theory]
@@ -268,7 +268,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	[InlineData("Dictionary<int, string>")]
 	[InlineData("IPossiblySerializableInterface")]
 	[InlineData("PossiblySerializableUnsealedClass")]
-	public async Task MaybeNonSerializableValue_Triggers1047(string type)
+	public async ValueTask MaybeNonSerializableValue_Triggers1047(string type)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			#nullable enable
@@ -302,14 +302,14 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1047").WithLocation(5).WithArguments($"new {type}[0]", $"{type}[]"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Theory]
 	[InlineData("object")]
 	[InlineData("Dictionary<int, string>")]
 	[InlineData("PossiblySerializableUnsealedClass")]
-	public async Task MaybeNonSerializableValue_Constructable_Triggers1047(string type)
+	public async ValueTask MaybeNonSerializableValue_Constructable_Triggers1047(string type)
 	{
 		var source = string.Format(/* lang=c#-test */ """
 			#nullable enable
@@ -337,11 +337,11 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1047").WithLocation(3).WithArguments($"new {type}()", type),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expected);
 	}
 
 	[Fact]
-	public async Task IFormattableAndIParseable_DoesNotTrigger()
+	public async ValueTask IFormattableAndIParseable_DoesNotTrigger()
 	{
 		var source = /* lang=c#-test */ """
 			#nullable enable
@@ -427,7 +427,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1047").WithLocation(15).WithArguments("new Parsable[0]", "Parsable[]"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source, expected);
 #else
 		// For some reason, 'dotnet format' complains about the indenting of #nullable enable in the source code line
 		// above if the #if statement surrounds the whole method, so we use this "workaround" to do nothing in that case.
@@ -437,7 +437,7 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 	}
 
 	[Fact]
-	public async Task Tuples_OnlySupportedByV3_3_0_1()
+	public async ValueTask Tuples_OnlySupportedByV3_3_0_1()
 	{
 		var source = /* lang=c#-test */ """
 			#nullable enable
@@ -480,8 +480,8 @@ public sealed class TheoryDataRowArgumentsShouldBeSerializableTests
 			Verify.Diagnostic("xUnit1046").WithLocation(13).WithArguments("ValueTuple.Create(\"Hello world\", 42)", "(string, int)"),
 		};
 
-		await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expectedUnsupported);
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+		await Verify_v3_Pre301.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expectedUnsupported);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
 	internal class Analyzer_v3_Pre301 : TheoryDataRowArgumentsShouldBeSerializable

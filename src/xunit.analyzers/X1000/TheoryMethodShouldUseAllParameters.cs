@@ -24,10 +24,12 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var theoryAttributeTypes = xunitContext.Core.TheoryAttributeTypes;
+		if (theoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
-			if (xunitContext.Core.TheoryAttributeType is null)
-				return;
 			if (context.Node is not MethodDeclarationSyntax methodSyntax)
 				return;
 			if (methodSyntax.ParameterList.Parameters.Count == 0)
@@ -38,7 +40,7 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 				return;
 
 			var attributes = methodSymbol.GetAttributes();
-			if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+			if (!attributes.ContainsAttributeType(theoryAttributeTypes))
 				return;
 
 			AnalyzeTheoryParameters(context, methodSyntax, methodSymbol);
@@ -58,7 +60,12 @@ public class TheoryMethodShouldUseAllParameters : XunitDiagnosticAnalyzer
 		if (!flowAnalysis.Succeeded)
 			return;
 
-		var usedParameters = new HashSet<ISymbol>(flowAnalysis.ReadInside.Concat(flowAnalysis.Captured).Distinct(SymbolEqualityComparer.Default), SymbolEqualityComparer.Default);
+		var usedParameters = new HashSet<ISymbol>(
+			flowAnalysis
+				.ReadInside
+				.Concat(flowAnalysis.Captured)
+				.Distinct(SymbolEqualityComparer.Default), SymbolEqualityComparer.Default
+		);
 
 		for (var i = 0; i < methodSymbol.Parameters.Length; i++)
 		{

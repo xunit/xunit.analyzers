@@ -10,6 +10,37 @@ namespace Xunit.Analyzers;
 
 static class CodeAnalysisExtensions
 {
+	extension(ICoreContext coreContext)
+	{
+		public ImmutableHashSet<INamedTypeSymbol> DataAttributeTypes =>
+			new[] {
+				coreContext.DataAttributeType,
+				coreContext.ClassDataAttributeType,
+				coreContext.InlineDataAttributeType,
+				coreContext.MemberDataAttributeType,
+			}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+		public ImmutableHashSet<INamedTypeSymbol> FactAndTheoryAttributeTypes =>
+			new[] {
+				coreContext.FactAttributeType,
+				coreContext.CulturedFactAttributeType,
+				coreContext.TheoryAttributeType,
+				coreContext.CulturedTheoryAttributeType,
+			}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+		public ImmutableHashSet<INamedTypeSymbol> FactAttributeTypes =>
+			new[] {
+				coreContext.FactAttributeType,
+				coreContext.CulturedFactAttributeType,
+			}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+		public ImmutableHashSet<INamedTypeSymbol> TheoryAttributeTypes =>
+			new[] {
+				coreContext.TheoryAttributeType,
+				coreContext.CulturedTheoryAttributeType
+			}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+	}
+
 	public static INamedTypeSymbol? FindNamedType(
 		this IAssemblySymbol assembly,
 		Func<INamedTypeSymbol, bool> selector)
@@ -75,7 +106,8 @@ static class CodeAnalysisExtensions
 		Guard.ArgumentNotNull(operation);
 		Guard.ArgumentNotNull(xunitContext);
 
-		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
 			return (false, null);
 
 		var semanticModel = operation.SemanticModel;
@@ -119,9 +151,7 @@ static class CodeAnalysisExtensions
 				if (typeInfo.Type is null)
 					return false;
 
-				return
-					SymbolEqualityComparer.Default.Equals(typeInfo.Type, xunitContext.Core.FactAttributeType) ||
-					SymbolEqualityComparer.Default.Equals(typeInfo.Type, xunitContext.Core.TheoryAttributeType);
+				return factAndTheoryAttributeTypes.Any(f => SymbolEqualityComparer.Default.Equals(typeInfo.Type, f));
 			});
 
 			if (!insideTestMethod)
@@ -158,8 +188,8 @@ static class CodeAnalysisExtensions
 		ITypeSymbol type,
 		XunitContext xunitContext)
 	{
-		var factAttributeType = xunitContext.Core.FactAttributeType;
-		if (factAttributeType is null)
+		var factAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAttributeTypes.Count == 0)
 			return false;
 
 		return
@@ -170,7 +200,8 @@ static class CodeAnalysisExtensions
 					method
 						.GetAttributes()
 						.Select(a => a.AttributeClass)
-						.Any(t => factAttributeType.IsAssignableFrom(t))
+						.WhereNotNull()
+						.Any(t => factAttributeTypes.Any(f => f.IsAssignableFrom(t)))
 				);
 	}
 
@@ -178,14 +209,9 @@ static class CodeAnalysisExtensions
 		ITypeSymbol type,
 		XunitContext xunitContext)
 	{
-		var factAttributeType = xunitContext.Core.FactAttributeType;
-		var theoryAttributeType = xunitContext.Core.TheoryAttributeType;
-		if (factAttributeType is null || theoryAttributeType is null)
+		var factAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAttributeTypes.Count == 0)
 			return false;
-
-		var testMethodAttributes =
-			new[] { factAttributeType, theoryAttributeType }
-				.ToImmutableHashSet(SymbolEqualityComparer.Default);
 
 		return
 			type
@@ -195,7 +221,8 @@ static class CodeAnalysisExtensions
 					method
 						.GetAttributes()
 						.Select(a => a.AttributeClass)
-						.Any(t => testMethodAttributes.Contains(t, SymbolEqualityComparer.Default))
+						.WhereNotNull()
+						.Any(t => factAttributeTypes.Contains(t))
 				);
 	}
 

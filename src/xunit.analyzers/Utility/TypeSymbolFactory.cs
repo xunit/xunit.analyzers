@@ -60,6 +60,12 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ConfiguredTaskAwaitable(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("System.Runtime.CompilerServices.ConfiguredTaskAwaitable");
 
+	public static INamedTypeSymbol? CulturedFactAttribute_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.CulturedFactAttribute");
+
+	public static INamedTypeSymbol? CulturedTheoryAttribute_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName("Xunit.CulturedTheoryAttribute");
+
 	public static INamedTypeSymbol? DataAttribute_V2(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.DataAttribute_V2);
 

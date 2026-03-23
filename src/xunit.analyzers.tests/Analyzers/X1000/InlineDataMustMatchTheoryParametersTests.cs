@@ -14,366 +14,316 @@ public class InlineDataMustMatchTheoryParametersTests
 	public class NonErrors
 	{
 		[Fact]
-		public async Task MethodUsingParamsArgument()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc", "xyz")]
-					public void TestMethod(params string[] args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNullParamsArgument_NonNullable()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(null)]
-					public void TestMethod(params string[] args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNullParamsArgument_Nullable()
-		{
-			var source = /* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(null)]
-					public void TestMethod(params string[]? args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNormalAndParamsArgument()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc", "xyz")]
-					public void TestMethod(string first, params string[] args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNormalAndNullParamsArgument_NonNullable()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc", null)]
-					public void TestMethod(string first, params string[] args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNormalAndNullParamsArgument_Nullable()
-		{
-			var source = /* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc", null)]
-					public void TestMethod(string first, params string[]? args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNormalAndUnusedParamsArgument()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc")]
-					public void TestMethod(string first, params string[] args) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingEmptyArrayForParams()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(new int[] { })]
-					public void VariableArgumentsTest(params int[] sq) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingMixedArgumentsAndEmptyArrayForParams()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(21.12, new int[] { })]
-					public void VariableArgumentsTest(double d, params int[] sq) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingNonEmptyArrayForParams()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(new int[] { 1, 2, 3 })]
-					public void VariableArgumentsTest(params int[] sq) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task MethodUsingMixedArgumentsAndNonEmptyArrayForParams()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(21.12, new int[] { 1, 2, 3 })]
-					public void VariableArgumentsTest(double d, params int[] sq) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingParameters()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc", 1, null)]
-					public void TestMethod(string a, int b, object c) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingParametersWithDefaultValues()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc")]
-					public void TestMethod(string a, string b = "default", string c = null) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingParametersWithDefaultValuesAndParamsArgument()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc")]
-					public void TestMethod(string a, string b = "default", string c = null, params string[] d) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingParameterWithOptionalAttribute()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData("abc")]
-					public void TestMethod(string a, [System.Runtime.InteropServices.Optional] string b) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingMultipleParametersWithOptionalAttributes()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData]
-					[Xunit.InlineData("abc")]
-					[Xunit.InlineData("abc", "def")]
-					public void TestMethod(
-						[System.Runtime.InteropServices.Optional] string a,
-						[System.Runtime.InteropServices.Optional] string b) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingExplicitArray()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(new object[] { "abc", 1, null })]
-					public void TestMethod(string a, int b, object c) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingExplicitNamedArray()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(data: new object[] { "abc", 1, null })]
-					public void TestMethod(string a, int b, object c) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingImplicitArray()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(new[] { (object)"abc", 1, null })]
-					public void TestMethod(string a, int b, object c) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task UsingImplicitNamedArray()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(data: new[] { (object)"abc", 1, null })]
-					public void TestMethod(string a, int b, object c) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task EmptyArray()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(new byte[0])]
-					public void TestMethod(byte[] input) { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		// https://github.com/xunit/xunit/issues/3000
-		[Fact]
-		public async Task DecimalValue()
-		{
-			var source = /* lang=c#-test */ """
+				using System.Runtime.InteropServices;
 				using Xunit;
 
-				public sealed class ReproClass {
+				public class TestClass {
+					[Theory]
+					[InlineData("abc", 1, null)]
+					public void MethodWithImplicitParameters(string a, int b, object c) { }
+
+					[Theory]
+					[InlineData(new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters(string a, int b, object c) { }
+
+					[Theory]
+					[InlineData(data: new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters_Named(string a, int b, object c) { }
+
+					[Theory]
+					[InlineData(new byte[0])]
+					public void MethodWithEmptyArray(byte[] input) { }
+
+					// https://github.com/xunit/xunit/issues/3000
 					[Theory]
 					[InlineData({|CS0182:0.1m|})]
-					public void ReproMethod(decimal m)
+					public void MethodWithDecimalValue(decimal m)
 					{ }
+
+					// Optional parameters
+
+					[Theory]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					[InlineData("abc", "def", "ghi")]
+					public void MethodWithDefaultParameterValues(string a, string b = "default", string c = null) { }
+
+					[Theory]
+					[InlineData]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					public void MethodWithOptionalAttribute([Optional] string a, [Optional] string b) { }
+
+					// Params parameter
+
+					[Theory]
+					[InlineData("abc", "xyz")]
+					public void MethodWithImplicitParams(params string[] args) { }
+
+					[Theory]
+					[InlineData(new object[] { new string[] { "abc", "xyz" } })]
+					public void MethodWithExplicitParams(params string[] args) { }
+
+					[Theory]
+					[InlineData]
+					public void MethodWithImplicitEmptyParams(params string[] args) { }
+
+					[Theory]
+					[InlineData(new object[] { new string[0] })]
+					public void MethodWithExplicitEmptyParams(params string[] args) { }
+
+					[Theory]
+					[InlineData(null)]
+					public void MethodWithNullParams(params string[] args) { }
+
+					[Theory]
+					[InlineData("abc", "xyz")]
+					public void MethodWithMixedNormalAndImplicitParams(string first, params string[] args) { }
+
+					[Theory]
+					[InlineData("abc", new[] { "xyz" })]
+					public void MethodWithMixedNormalAndExplicitParams(string first, params string[] args) { }
+
+					[Theory]
+					[InlineData("abc")]
+					public void MethodWithMixedNormalAndImplicitEmptyParams(string first, params string[] args) { }
+
+					[Theory]
+					[InlineData("abc", new string[] { })]
+					public void MethodWithMixedNormalAndExplicitEmptyParams(string first, params string[] args) { }
+
+					[Theory]
+					[InlineData("abc", null)]
+					public void MethodWithMixedNormalAndNullParams(string first, params string[] args) { }
+
+					// Mixed optional and params parameters
+
+					[Theory]
+					[InlineData("abc")]
+					public void MethodWithOptionalParametersWithDefaultValuesAndParamsParameter(string a, string b = "default", string c = null, params string[] d) { }
+				}
+
+				#nullable enable
+
+				public class NullableTestClass {
+					[Theory]
+					[InlineData("abc", 1, null)]
+					public void MethodWithImplicitParameters(string a, int b, object? c) { }
+
+					[Theory]
+					[InlineData(new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters(string a, int b, object? c) { }
+
+					[Theory]
+					[InlineData(data: new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters_Named(string a, int b, object? c) { }
+
+					// Optional parameters
+
+					[Theory]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					[InlineData("abc", "def", "ghi")]
+					public void MethodWithDefaultParameterValues(string a, string b = "default", string? c = null) { }
+
+					[Theory]
+					[InlineData]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					public void MethodWithOptionalAttribute([Optional] string? a, [Optional] string? b) { }
+
+					// Params parameter
+
+					[Theory]
+					[InlineData(null)]
+					public void MethodWithNullParams(params string[]? args) { }
+
+					[Theory]
+					[InlineData("abc", null)]
+					public void MethodWithMixedNormalAndNullParams(string first, params string[]? args) { }
+
+					// Mixed optional and params parameters
+
+					[Theory]
+					[InlineData("abc")]
+					public void MethodWithOptionalParametersWithDefaultValuesAndParamsParameter(string a, string b = "default", string? c = null, params string[] d) { }
 				}
 				""";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
+		}
+
+		[Fact]
+		public async ValueTask V3_only()
+		{
+			var source = /* lang=c#-test */ """
+				using System.Runtime.InteropServices;
+				using Xunit;
+
+				public class TestClass {
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", 1, null)]
+					public void MethodWithImplicitParameters(string a, int b, object c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters(string a, int b, object c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(data: new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters_Named(string a, int b, object c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(new byte[0])]
+					public void MethodWithEmptyArray(byte[] input) { }
+
+					// https://github.com/xunit/xunit/issues/3000
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData({|CS0182:0.1m|})]
+					public void MethodWithDecimalValue(decimal m)
+					{ }
+
+					// Optional parameters
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					[InlineData("abc", "def", "ghi")]
+					public void MethodWithDefaultParameterValues(string a, string b = "default", string c = null) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					public void MethodWithOptionalAttribute([Optional] string a, [Optional] string b) { }
+
+					// Params parameter
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", "xyz")]
+					public void MethodWithImplicitParams(params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(new object[] { new string[] { "abc", "xyz" } })]
+					public void MethodWithExplicitParams(params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData]
+					public void MethodWithImplicitEmptyParams(params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(new object[] { new string[0] })]
+					public void MethodWithExplicitEmptyParams(params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(null)]
+					public void MethodWithNullParams(params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", "xyz")]
+					public void MethodWithMixedNormalAndImplicitParams(string first, params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", new[] { "xyz" })]
+					public void MethodWithMixedNormalAndExplicitParams(string first, params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc")]
+					public void MethodWithMixedNormalAndImplicitEmptyParams(string first, params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", new string[] { })]
+					public void MethodWithMixedNormalAndExplicitEmptyParams(string first, params string[] args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", null)]
+					public void MethodWithMixedNormalAndNullParams(string first, params string[] args) { }
+
+					// Mixed optional and params parameters
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc")]
+					public void MethodWithOptionalParametersWithDefaultValuesAndParamsParameter(string a, string b = "default", string c = null, params string[] d) { }
+				}
+
+				#nullable enable
+
+				public class NullableTestClass {
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", 1, null)]
+					public void MethodWithImplicitParameters(string a, int b, object? c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters(string a, int b, object? c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(data: new object[] { "abc", 1, null })]
+					public void MethodWithExplicitParameters_Named(string a, int b, object? c) { }
+
+					// Optional parameters
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					[InlineData("abc", "def", "ghi")]
+					public void MethodWithDefaultParameterValues(string a, string b = "default", string? c = null) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData]
+					[InlineData("abc")]
+					[InlineData("abc", "def")]
+					public void MethodWithOptionalAttribute([Optional] string? a, [Optional] string? b) { }
+
+					// Params parameter
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(null)]
+					public void MethodWithNullParams(params string[]? args) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc", null)]
+					public void MethodWithMixedNormalAndNullParams(string first, params string[]? args) { }
+
+					// Mixed optional and params parameters
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData("abc")]
+					public void MethodWithOptionalParametersWithDefaultValuesAndParamsParameter(string a, string b = "default", string? c = null, params string[] d) { }
+				}
+				""";
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 		}
 	}
 
 	public class X1009_TooFewValues
 	{
 		[Fact]
-		public async Task IgnoresFact()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					[Xunit.Fact]
-					[Xunit.InlineData]
-					public void TestMethod(string a) { }
-				}
-				""";
+					[Fact]
+					[InlineData]
+					public void Fact_DoesNotTrigger(string a) { }
 
-			await Verify.VerifyAnalyzer(source);
-		}
+					[Theory]
+					[{|xUnit1009:InlineData|}]
+					public void Theory_NoArguments_Triggers(string a) { }
 
-		[Theory]
-		[InlineData("Xunit.InlineData()")]
-		[InlineData("Xunit.InlineData")]
-		public async Task NoArguments(string attribute)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[Xunit.Theory]
-					[{{|xUnit1009:{0}|}}]
-					public void TestMethod(int a) {{ }}
-				}}
-				""", attribute);
+					[Theory]
+					[{|xUnit1009:InlineData(1)|}]
+					public void Theory_TooFewArguments_Triggers(int a, int b, string c) { }
 
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task TooFewArguments()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[{|xUnit1009:Xunit.InlineData(1)|}]
-					public void TestMethod(int a, int b, string c) { }
+					[Theory]
+					[{|xUnit1009:InlineData(1)|}]
+					public void Theory_TooFewArgumentsWithParams_Triggers(int a, int b, params string[] value) { }
 				}
 				""";
 
@@ -381,37 +331,68 @@ public class InlineDataMustMatchTheoryParametersTests
 		}
 
 		[Fact]
-		public async Task TooFewArguments_WithParams()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					[Xunit.Theory]
-					[{|xUnit1009:Xunit.InlineData(1)|}]
-					public void TestMethod(int a, int b, params string[] value) { }
+					[CulturedTheory(new[] { "en-US" })]
+					[{|xUnit1009:InlineData|}]
+					public void Theory_NoArguments_Triggers(string a) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[{|xUnit1009:InlineData(1)|}]
+					public void Theory_TooFewArguments_Triggers(int a, int b, string c) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[{|xUnit1009:InlineData(1)|}]
+					public void Theory_TooFewArgumentsWithParams_Triggers(int a, int b, params string[] value) { }
 				}
 				""";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzerV3(source);
 		}
 	}
 
 	public class X1010_IncompatibleValueType
 	{
-		[Fact]
-		public async Task MethodUsingIncompatibleExplicitArrayForParams()
+		public class IncorrectParamsArrayType
 		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(21.12, {|xUnit1010:new object[] { }|})]
-					public void VariableArgumentsTest(double d, params int[] sq) { }
-				}
-				""";
+			[Fact]
+			public async ValueTask V2_and_V3()
+			{
+				var source = /* lang=c#-test */ """
+					using Xunit;
 
-			await Verify.VerifyAnalyzer(source);
+					public class TestClass {
+						[Theory]
+						[InlineData(21.12, {|xUnit1010:new object[] { }|})]
+						public void TestMethod(double d, params int[] sq) { }
+					}
+					""";
+
+				await Verify.VerifyAnalyzer(source);
+			}
+
+			[Fact]
+			public async ValueTask V3_only()
+			{
+				var source = /* lang=c#-test */ """
+					using Xunit;
+
+					public class TestClass {
+						[CulturedTheory(new[] { "en-US" })]
+						[InlineData(21.12, {|xUnit1010:new object[] { }|})]
+						public void TestMethod(double d, params int[] sq) { }
+					}
+					""";
+
+				await Verify.VerifyAnalyzerV3(source);
+			}
 		}
 
-		public class NumericParameter : X1010_IncompatibleValueType
+		public class NumericParameter
 		{
 			public static readonly IEnumerable<TheoryDataRow<string>> NumericTypes =
 			[
@@ -436,7 +417,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
-			public async Task CompatibleNumericValue_NonNullableType(
+			public async ValueTask CompatibleNumericValue_NonNullableType(
 				string value,
 				string type)
 			{
@@ -453,7 +434,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(NumericValuesAndNumericTypes))]
-			public async Task CompatibleNumericValue_NullableType(
+			public async ValueTask CompatibleNumericValue_NullableType(
 				string value,
 				string type)
 			{
@@ -470,7 +451,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(BoolValuesAndNumericTypes))]
-			public async Task BooleanValue_NumericType(
+			public async ValueTask BooleanValue_NumericType(
 				string value,
 				string type)
 			{
@@ -488,7 +469,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(NumericTypes))]
-			public async Task CharValue_NumericType(string type)
+			public async ValueTask CharValue_NumericType(string type)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -503,7 +484,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(NumericTypes))]
-			public async Task EnumValue_NumericType(string type)
+			public async ValueTask EnumValue_NumericType(string type)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -518,11 +499,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class BooleanParameter : X1010_IncompatibleValueType
+		public class BooleanParameter
 		{
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			public async Task FromBooleanValue_ToNonNullable(string value)
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromBooleanValue_ToNonNullable(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -536,8 +517,8 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			public async Task FromBooleanValue_ToNullable(string value)
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromBooleanValue_ToNullable(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -551,12 +532,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async Task FromIncompatibleValue(string value)
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -571,12 +552,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class CharParameter : X1010_IncompatibleValueType
+		public class CharParameter
 		{
 			[Theory]
 			[InlineData("'a'")]
-			[MemberData(nameof(IntegerValues))]
-			public async Task FromCharOrIntegerValue_ToNonNullable(string value)
+			[MemberData(nameof(IntegerValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromCharOrIntegerValue_ToNonNullable(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -591,8 +572,8 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[InlineData("'a'")]
-			[MemberData(nameof(IntegerValues))]
-			public async Task FromCharOrIntegerValue_ToNullable(string value)
+			[MemberData(nameof(IntegerValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromCharOrIntegerValue_ToNullable(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -606,12 +587,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(FloatingPointValues))]
-			[MemberData(nameof(BoolValues))]
+			[MemberData(nameof(FloatingPointValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("typeof(string)")]
-			public async Task FromIncompatibleValue(string value)
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -626,10 +607,10 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class EnumParameter : X1010_IncompatibleValueType
+		public class EnumParameter
 		{
 			[Fact]
-			public async Task FromEnumValue_ToNonNullable()
+			public async ValueTask FromEnumValue_ToNonNullable()
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
@@ -643,7 +624,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Fact]
-			public async Task FromEnumValue_ToNullable()
+			public async ValueTask FromEnumValue_ToNullable()
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
@@ -657,12 +638,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(NumericValues))]
-			[MemberData(nameof(BoolValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async Task FromIncompatibleValue(string value)
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -677,12 +658,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class TypeParameter : X1010_IncompatibleValueType
+		public class TypeParameter
 		{
 			[Theory]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async Task FromTypeValue(string value)
+			public async ValueTask FromTypeValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -698,7 +679,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			[Theory]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async Task FromTypeValue_ToParams(string value)
+			public async ValueTask FromTypeValue_ToParams(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -712,12 +693,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(NumericValues))]
-			[MemberData(nameof(BoolValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
-			public async Task FromIncompatibleValue(string value)
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -732,12 +713,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(NumericValues))]
-			[MemberData(nameof(BoolValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("System.StringComparison.Ordinal")]
-			public async Task FromIncompatibleValue_ToParams(string value)
+			public async ValueTask FromIncompatibleValue_ToParams(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -752,12 +733,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class StringParameter : X1010_IncompatibleValueType
+		public class StringParameter
 		{
 			[Theory]
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
-			public async Task FromStringValue(string value)
+			public async ValueTask FromStringValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -771,12 +752,12 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(NumericValues))]
-			[MemberData(nameof(BoolValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("typeof(string)")]
-			public async Task FromIncompatibleValue(string value)
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -791,13 +772,13 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class InterfaceParameter : X1010_IncompatibleValueType
+		public class InterfaceParameter
 		{
 			[Theory]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("null")]
-			public async Task FromTypeImplementingInterface(string value)
+			public async ValueTask FromTypeImplementingInterface(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -816,8 +797,8 @@ public class InlineDataMustMatchTheoryParametersTests
 #endif
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			[MemberData(nameof(BoolValues))]
-			public async Task FromIncompatibleValue(string value)
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromIncompatibleValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -832,17 +813,17 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class ObjectParameter : X1010_IncompatibleValueType
+		public class ObjectParameter
 		{
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async Task FromAnyValue(string value)
+			public async ValueTask FromAnyValue(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -856,14 +837,14 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async Task FromAnyValue_ToParams(string value)
+			public async ValueTask FromAnyValue_ToParams(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -877,17 +858,17 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class GenericParameter : X1010_IncompatibleValueType
+		public class GenericParameter
 		{
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
 			[InlineData("\"abc\"")]
 			[InlineData("null")]
 			[InlineData("typeof(string)")]
-			public async Task FromAnyValue_NoConstraint(string value)
+			public async ValueTask FromAnyValue_NoConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -901,11 +882,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
-			public async Task FromValueTypeValue_WithStructConstraint(string value)
+			public async ValueTask FromValueTypeValue_WithStructConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -921,7 +902,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			[Theory]
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			public async Task FromReferenceTypeValue_WithStructConstraint(string value)
+			public async ValueTask FromReferenceTypeValue_WithStructConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -939,7 +920,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
 			[InlineData("null")]
-			public async Task FromReferenceTypeValue_WithClassConstraint(string value)
+			public async ValueTask FromReferenceTypeValue_WithClassConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -953,11 +934,11 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(BoolValues))]
-			[MemberData(nameof(NumericValues))]
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("System.StringComparison.Ordinal")]
 			[InlineData("'a'")]
-			public async Task FromValueTypeValue_WithClassConstraint(string value)
+			public async ValueTask FromValueTypeValue_WithClassConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -974,8 +955,8 @@ public class InlineDataMustMatchTheoryParametersTests
 			[Theory]
 			[InlineData("null")]
 			[InlineData("System.StringComparison.Ordinal")]
-			[MemberData(nameof(NumericValues))]
-			public async Task FromCompatibleValue_WithTypeConstraint(string value)
+			[MemberData(nameof(NumericValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromCompatibleValue_WithTypeConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -989,8 +970,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 #if ROSLYN_LATEST && NET8_0_OR_GREATER
+
 			[Fact]
-			public async Task TypeConstraint_WithCRTP() // CRTP: Curiously Recurring Template Pattern or T: Interface<T>
+			public async ValueTask TypeConstraint_WithCRTP() // CRTP: Curiously Recurring Template Pattern or T: Interface<T>
 			{
 				var source = /* lang=c#-test */ """
 				using Xunit;
@@ -1012,7 +994,8 @@ public class InlineDataMustMatchTheoryParametersTests
 
 				await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 			}
-#endif
+
+#endif  // ROSLYN_LATEST && NET8_0_OR_GREATER
 
 			[Theory]
 #if NETFRAMEWORK
@@ -1020,8 +1003,8 @@ public class InlineDataMustMatchTheoryParametersTests
 #endif
 			[InlineData("\"abc\"")]
 			[InlineData("typeof(string)")]
-			[MemberData(nameof(BoolValues))]
-			public async Task FromIncompatibleValue_WithTypeConstraint(string value)
+			[MemberData(nameof(BoolValues), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromIncompatibleValue_WithTypeConstraint(string value)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 
@@ -1037,7 +1020,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Fact]
-			public async Task FromIncompatibleArray()
+			public async ValueTask FromIncompatibleArray()
 			{
 				var source =/* lang=c#-test */ """
 					public class TestClass {
@@ -1052,7 +1035,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Fact]
-			public async Task FromCompatibleArray()
+			public async ValueTask FromCompatibleArray()
 			{
 				var source = /* lang=c#-test */ """
 					public class TestClass {
@@ -1066,8 +1049,8 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(SignedIntAndUnsignedInt))]
-			public async Task FromNegativeInteger_ToUnsignedInteger(
+			[MemberData(nameof(SignedIntAndUnsignedInt), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromNegativeInteger_ToUnsignedInteger(
 				string signedType,
 				string unsignedType)
 			{
@@ -1084,8 +1067,8 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 
 			[Theory]
-			[MemberData(nameof(UnsignedIntegralTypes))]
-			public async Task FromLongMinValue_ToUnsignedInteger(string unsignedType)
+			[MemberData(nameof(UnsignedIntegralTypes), MemberType = typeof(X1010_IncompatibleValueType))]
+			public async ValueTask FromLongMinValue_ToUnsignedInteger(string unsignedType)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -1100,7 +1083,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			}
 		}
 
-		public class DateTimeLikeParameter : X1010_IncompatibleValueType
+		public class DateTimeLikeParameter
 		{
 			public static readonly IEnumerable<TheoryDataRow<string>> ValidDateTimeStrings =
 			[
@@ -1118,7 +1101,7 @@ public class InlineDataMustMatchTheoryParametersTests
 			[MemberData(nameof(ValueTypedArgumentsCombinedWithDateTimeLikeTypes))]
 			[InlineData("MyConstInt", "System.DateTime")]
 			[InlineData("MyConstInt", "System.DateTimeOffset")]
-			public async Task NonStringValue(
+			public async ValueTask NonStringValue(
 				string data,
 				string parameterType)
 			{
@@ -1138,7 +1121,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async Task StringValue_ToDateTime(string data)
+			public async ValueTask StringValue_ToDateTime(string data)
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTime");
 
@@ -1147,7 +1130,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async Task StringValue_ToDateTimeOffset(string data)
+			public async ValueTask StringValue_ToDateTimeOffset(string data)
 			{
 				var source = CreateSourceWithStringConst(data, "System.DateTimeOffset");
 
@@ -1156,7 +1139,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(ValidDateTimeStrings))]
-			public async Task StringValue_ToDateTimeOffset_Pre240(string data)
+			public async ValueTask StringValue_ToDateTimeOffset_Pre240(string data)
 			{
 				var source = CreateSourceWithStringConst("{|#0:" + data + "|}", "System.DateTimeOffset");
 				var expected = Verify_v2_Pre240.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.DateTimeOffset");
@@ -1177,7 +1160,7 @@ public class InlineDataMustMatchTheoryParametersTests
 				""", data, parameterType);
 		}
 
-		public class GuidParameter : X1010_IncompatibleValueType
+		public class GuidParameter
 		{
 			public static IEnumerable<TheoryDataRow<string>> ValidGuidStrings =
 			[
@@ -1189,9 +1172,9 @@ public class InlineDataMustMatchTheoryParametersTests
 			];
 
 			[Theory]
-			[MemberData(nameof(ValueTypedValues))]
+			[MemberData(nameof(ValueTypedValues), MemberType = typeof(X1010_IncompatibleValueType))]
 			[InlineData("MyConstInt")]
-			public async Task NonStringValue(string data)
+			public async ValueTask NonStringValue(string data)
 			{
 				var source = string.Format(/* lang=c#-test */ """
 					public class TestClass {{
@@ -1209,7 +1192,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(ValidGuidStrings))]
-			public async Task StringValue(string inlineData)
+			public async ValueTask StringValue(string inlineData)
 			{
 				var source = CreateSource(inlineData);
 
@@ -1218,7 +1201,7 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			[Theory]
 			[MemberData(nameof(ValidGuidStrings))]
-			public async Task StringValue_Pre240(string data)
+			public async ValueTask StringValue_Pre240(string data)
 			{
 				var source = CreateSource("{|#0:" + data + "|}");
 				var expected = Verify_v2_Pre240.Diagnostic("xUnit1010").WithLocation(0).WithArguments("parameter", "System.Guid");
@@ -1235,10 +1218,10 @@ public class InlineDataMustMatchTheoryParametersTests
 				""", data);
 		}
 
-		public class UserDefinedConversionOperators : X1010_IncompatibleValueType
+		public class UserDefinedConversionOperators
 		{
 			[Fact]
-			public async Task SupportsImplicitConversion()
+			public async ValueTask V2_and_V3()
 			{
 				var source = /* lang=c#-test */ """
 					using Xunit;
@@ -1253,19 +1236,7 @@ public class InlineDataMustMatchTheoryParametersTests
 							public static implicit operator Implicit(string value) => new Implicit() { Value = value };
 							public static implicit operator string(Implicit i) => i.Value;
 						}
-					}
-					""";
 
-				await Verify.VerifyAnalyzer(source);
-			}
-
-			[Fact]
-			public async Task SupportsExplicitConversion()
-			{
-				var source = /* lang=c#-test */ """
-					using Xunit;
-
-					public class TestClass {
 						[Theory]
 						[InlineData("abc")]
 						public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal("abc", i.Value);
@@ -1278,8 +1249,48 @@ public class InlineDataMustMatchTheoryParametersTests
 					}
 					""";
 
-				await Verify.VerifyAnalyzer(source);
+				await Verify.VerifyAnalyzerNonAot(source);
 			}
+
+#if NETCOREAPP && ROSLYN_LATEST
+
+			[Fact]
+			public async ValueTask V3_only_AOT()
+			{
+				var source = /* lang=c#-test */ """
+					using Xunit;
+
+					public class TestClass {
+						[Theory]
+						[InlineData({|#0:"abc"|})]
+						public void ParameterDeclaredImplicitConversion(Implicit i) => Assert.Equal("abc", i.Value);
+
+						public class Implicit {
+							public string Value { get; set; }
+							public static implicit operator Implicit(string value) => new Implicit() { Value = value };
+							public static implicit operator string(Implicit i) => i.Value;
+						}
+
+						[Theory]
+						[InlineData({|#1:"abc"|})]
+						public void ParameterDeclaredExplicitConversion(Explicit i) => Assert.Equal("abc", i.Value);
+
+						public class Explicit {
+							public string Value { get; set; }
+							public static explicit operator Explicit(string value) => new Explicit() { Value = value };
+							public static explicit operator string(Explicit i) => i.Value;
+						}
+					}
+					""";
+				var expected = new[] {
+					Verify.Diagnostic("xUnit1010").WithLocation(0).WithArguments("i", "TestClass.Implicit"),
+					Verify.Diagnostic("xUnit1010").WithLocation(1).WithArguments("i", "TestClass.Explicit"),
+				};
+
+				await Verify.VerifyAnalyzerV3Aot(source, expected);
+			}
+
+#endif  // NETCOREAPP && ROSLYN_LATEST
 		}
 
 		// Note: decimal literal 42M is not valid as an attribute argument
@@ -1330,226 +1341,165 @@ public class InlineDataMustMatchTheoryParametersTests
 	public class X1011_ExtraValue
 	{
 		[Fact]
-		public async Task IgnoresFact()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					[Xunit.Fact]
-					[Xunit.InlineData(1, 2, "abc")]
-					public void TestMethod(int a) { }
+					[Fact]
+					[InlineData(1, 2, "abc")]
+					public void Fact_DoesNotTrigger(int a) { }
+
+					[Theory]
+					[InlineData(1, {|#0:2|}, {|#1:"abc"|})]
+					public void Theory_ExtraArguments_Triggers(int a) { }
 				}
 				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task ExtraArguments()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Theory]
-					[Xunit.InlineData(1, {|#0:2|}, {|#1:"abc"|})]
-					public void TestMethod(int a) { }
-				}
-				""";
-			var expected = new[]
-			{
+			var expected = new[] {
 				Verify.Diagnostic("xUnit1011").WithLocation(0).WithArguments("2"),
 				Verify.Diagnostic("xUnit1011").WithLocation(1).WithArguments("\"abc\""),
 			};
 
 			await Verify.VerifyAnalyzer(source, expected);
 		}
+
+		[Fact]
+		public async ValueTask V3_only()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, {|#0:2|}, {|#1:"abc"|})]
+					public void CulturedTheory_ExtraArguments_Triggers(int a) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1011").WithLocation(0).WithArguments("2"),
+				Verify.Diagnostic("xUnit1011").WithLocation(1).WithArguments("\"abc\""),
+			};
+
+			await Verify.VerifyAnalyzerV3(source, expected);
+		}
 	}
 
 	public class X1012_NullShouldNotBeUsedForIncompatibleParameter
 	{
 		[Fact]
-		public async Task IgnoresFact()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				using Xunit;
+
 				public class TestClass {
-					[Xunit.Fact]
-					[Xunit.InlineData(null)]
-					public void TestMethod(int a) { }
+					[Fact]
+					[InlineData(null)]
+					public void Fact_DoesNotTrigger(int a) { }
+
+					[Theory]
+					[InlineData({|#0:null|})]
+					public void NullValue_Triggers(int a) { }
+
+					[Theory]
+					[InlineData({|#1:null|})]
+					public void NullForParamsValue_Triggers(params int[] a) { }
+
+					[Theory]
+					[InlineData(1, null)]
+					public void NullableValueType_DoesNotTrigger(int a, int? b) { }
+
+					[Theory]
+					[InlineData(1, null)]
+					public void NullableReferenceType_DoesNotTrigger(int a, object b) { }
+				}
+
+				#nullable enable
+
+				public class NullableTestClass {
+					[Theory]
+					[InlineData(1, null)]
+					public void NullableReferenceType_DoesNotTrigger(int a, object? b) { }
+
+					[Theory]
+					[InlineData(1, {|#10:null|})]
+					public void NonNullableReferenceType_Triggers(int a, object b) { }
+
+					[Theory]
+					[InlineData(1, "Hello", null, null)]
+					public void NullableReferenceTypeParams_DoesNotTrigger(int a, params string?[] b) { }
+
+					[Theory]
+					[InlineData(1, "Hello", {|#11:null|}, {|#12:null|})]
+					public void NonNullableReferenceTypeParams_DoesNotTrigger(int a, params string[] b) { }
 				}
 				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData("int")]
-		[InlineData("params int[]")]
-		public async Task SingleNullValue(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData({{|#0:null|}})]
-					public void TestMethod({0} a) {{ }}
-				}}
-				""", type);
-			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("a", "int");
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(ValueTypes))]
-		public async Task NonNullableValueTypes(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, {{|#0:null|}}, {{|#1:null|}})]
-					public void TestMethod(int a, {0} b, params {0}[] c) {{ }}
-				}}
-				""", type);
-			var expected = new[]
-			{
-				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type),
-				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("c", type),
-			};
-
-			await Verify.VerifyAnalyzer(source, expected);
-		}
-
-		[Theory]
-		[MemberData(nameof(ValueTypes))]
-		public async Task NullableValueTypes(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, null)]
-					public void TestMethod(int a, {0}? b) {{ }}
-				}}
-				""", type);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData("object")]
-		[InlineData("string")]
-		[InlineData("System.Exception")]
-		public async Task ReferenceTypes(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, null)]
-					public void TestMethod(int a, {0} b) {{ }}
-				}}
-				""", type);
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Theory]
-		[InlineData("object")]
-		[InlineData("string")]
-		[InlineData("System.Exception")]
-		public async Task NonNullableReferenceTypes(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, {{|#0:null|}})]
-					public void TestMethod(int a, {0} b) {{ }}
-				}}
-				""", type);
-			var expected = Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-		}
-
-		[Theory]
-		[InlineData("object")]
-		[InlineData("string")]
-		[InlineData("System.Exception")]
-		public async Task NullableReferenceTypes(string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, null)]
-					public void TestMethod(int a, {0}? b) {{ }}
-				}}
-				""", type);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Theory]
-		[InlineData("1", "object")]
-		[InlineData("\"bob\"", "string")]
-		public async Task NullableParamsReferenceTypes(
-			string param,
-			string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, {0}, null, null)]
-					public void TestMethod(int a, params {1}?[] b) {{ }}
-				}}
-				""", param, type);
-
-			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-		}
-
-		[Theory]
-		[InlineData("1", "object")]
-		[InlineData("\"bob\"", "string")]
-		public async Task NonNullableParamsReferenceTypes(
-			string param,
-			string type)
-		{
-			var source = string.Format(/* lang=c#-test */ """
-				#nullable enable
-
-				public class TestClass {{
-					[Xunit.Theory]
-					[Xunit.InlineData(1, {0}, {{|#0:null|}}, {{|#1:null|}})]
-					public void TestMethod(int a, params {1}[] b) {{ }}
-				}}
-				""", param, type);
-			var expected = new[]
-			{
-				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("b", type),
-				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("b", type),
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("a", "int"),
+				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("a", "int"),
+				Verify.Diagnostic("xUnit1012").WithLocation(10).WithArguments("b", "object"),
+				Verify.Diagnostic("xUnit1012").WithLocation(11).WithArguments("b", "string"),
+				Verify.Diagnostic("xUnit1012").WithLocation(12).WithArguments("b", "string"),
 			};
 
 			await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
 		}
 
-		public static IEnumerable<TheoryDataRow<string>> ValueTypes =
-		[
-			"bool",
-			"int",
-			"byte",
-			"short",
-			"long",
-			"decimal",
-			"double",
-			"float",
-			"char",
-			"ulong",
-			"uint",
-			"ushort",
-			"sbyte",
-			"System.StringComparison",
-			"System.Guid",
-		];
+		[Fact]
+		public async ValueTask V3_only()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public class TestClass {
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData({|#0:null|})]
+					public void NullValue_Triggers(int a) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData({|#1:null|})]
+					public void NullForParamsValue_Triggers(params int[] a) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, null)]
+					public void NullableValueType_DoesNotTrigger(int a, int? b) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, null)]
+					public void NullableReferenceType_DoesNotTrigger(int a, object b) { }
+				}
+
+				#nullable enable
+
+				public class NullableTestClass {
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, null)]
+					public void NullableReferenceType_DoesNotTrigger(int a, object? b) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, {|#10:null|})]
+					public void NonNullableReferenceType_Triggers(int a, object b) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, "Hello", null, null)]
+					public void NullableReferenceTypeParams_DoesNotTrigger(int a, params string?[] b) { }
+
+					[CulturedTheory(new[] { "en-US" })]
+					[InlineData(1, "Hello", {|#11:null|}, {|#12:null|})]
+					public void NonNullableReferenceTypeParams_DoesNotTrigger(int a, params string[] b) { }
+				}
+				""";
+			var expected = new[] {
+				Verify.Diagnostic("xUnit1012").WithLocation(0).WithArguments("a", "int"),
+				Verify.Diagnostic("xUnit1012").WithLocation(1).WithArguments("a", "int"),
+				Verify.Diagnostic("xUnit1012").WithLocation(10).WithArguments("b", "object"),
+				Verify.Diagnostic("xUnit1012").WithLocation(11).WithArguments("b", "string"),
+				Verify.Diagnostic("xUnit1012").WithLocation(12).WithArguments("b", "string"),
+			};
+
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		}
 	}
 
 	internal class Analyzer_v2_Pre240 : InlineDataMustMatchTheoryParameters

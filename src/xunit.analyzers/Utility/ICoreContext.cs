@@ -25,6 +25,16 @@ public interface ICoreContext
 	INamedTypeSymbol? CollectionDefinitionAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>CulturedFactAttribute</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? CulturedFactAttributeType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>CulturedTheoryAttribute</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? CulturedTheoryAttributeType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>DataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? DataAttributeType { get; }

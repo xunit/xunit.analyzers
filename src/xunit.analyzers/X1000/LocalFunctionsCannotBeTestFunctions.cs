@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,14 +25,12 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 			if (context.Node is not LocalFunctionStatementSyntax syntax)
 				return;
 
-			var attributeBaseTypes = new List<INamedTypeSymbol>();
+			var attributeBaseTypes =
+				xunitContext.Core.FactAndTheoryAttributeTypes
+					.Concat(xunitContext.Core.DataAttributeTypes)
+					.ToArray();
 
-			if (xunitContext.Core.FactAttributeType is not null)
-				attributeBaseTypes.Add(xunitContext.Core.FactAttributeType);
-			if (xunitContext.Core.DataAttributeType is not null)
-				attributeBaseTypes.Add(xunitContext.Core.DataAttributeType);
-
-			if (attributeBaseTypes.Count == 0)
+			if (attributeBaseTypes.Length == 0)
 				return;
 
 			foreach (var attributeList in syntax.AttributeLists)
@@ -48,6 +46,7 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 
 					foreach (var attributeBaseType in attributeBaseTypes)
 						if (attributeBaseType.IsAssignableFrom(attributeType))
+						{
 							context.ReportDiagnostic(
 								Diagnostic.Create(
 									Descriptors.X1029_LocalFunctionsCannotBeTestFunctions,
@@ -55,6 +54,8 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 									$"[{attribute.GetText()}]"
 								)
 							);
+							break;
+						}
 				}
 		}, SyntaxKind.LocalFunctionStatement);
 	}

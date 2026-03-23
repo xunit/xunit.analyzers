@@ -25,6 +25,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		if (xunitContext.IsAot)
+			return;
+
 		if (SerializableTypeSymbols.Create(context.Compilation, xunitContext) is not SerializableTypeSymbols typeSymbols)
 			return;
 
@@ -82,15 +85,19 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 		}, SyntaxKind.MethodDeclaration);
 	}
 
-	static bool AttributeIsTheoryOrDataAttribute(AttributeData attribute, SerializableTypeSymbols typeSymbols) =>
-		attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
+	static bool AttributeIsTheoryOrDataAttribute(
+		AttributeData attribute,
+		SerializableTypeSymbols typeSymbols) =>
+			attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
 
-	static bool DiscoveryEnumerationIsDisabled(IMethodSymbol method, SerializableTypeSymbols typeSymbols) =>
-		method
-			.GetAttributes()
-			.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
-			.SelectMany(attribute => attribute.NamedArguments)
-			.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
+	static bool DiscoveryEnumerationIsDisabled(
+		IMethodSymbol method,
+		SerializableTypeSymbols typeSymbols) =>
+			method
+				.GetAttributes()
+				.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
+				.SelectMany(attribute => attribute.NamedArguments)
+				.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
 
 	sealed class TheoryDataTypeArgumentFinder(SerializableTypeSymbols typeSymbols)
 	{
@@ -131,7 +138,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 				if (methods.Length == 1)
 					return methods[0];
 
-				return methods.Where(method => method.Parameters.Length == arguments.Length).FirstOrDefault();
+				return methods.FirstOrDefault(method => method.Parameters.Length == arguments.Length);
 			}
 
 			return null;

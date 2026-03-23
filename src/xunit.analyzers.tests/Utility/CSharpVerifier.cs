@@ -36,7 +36,7 @@ public partial class CSharpVerifier<TAnalyzer>
 	class TestBase<TVerifier> : CSharpCodeFixTest<TAnalyzer, EmptyCodeFixProvider, TVerifier>
 		where TVerifier : XunitVerifier, new()
 	{
-		List<DiagnosticAnalyzer> additionalDiagnosticAnalyzers = new();
+		readonly List<DiagnosticAnalyzer> additionalDiagnosticAnalyzers = [];
 
 		protected TestBase(
 			LanguageVersion languageVersion,
@@ -89,31 +89,31 @@ public partial class CSharpVerifier<TAnalyzer>
 			new CSharpParseOptions(LanguageVersion, DocumentationMode.Diagnose);
 	}
 
-	class TestV2 : TestBase<XunitVerifierV2>
-	{
-		public TestV2(LanguageVersion languageVersion) :
-			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV2)
-		{ }
-	}
+	class TestV2(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV2>(languageVersion, CodeAnalyzerHelper.CurrentXunitV2)
+	{ }
 
-	class TestV2RunnerUtility : TestBase<XunitVerifierV2>
-	{
-		public TestV2RunnerUtility(LanguageVersion languageVersion) :
-			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV2RunnerUtility)
-		{ }
-	}
+	class TestV2RunnerUtility(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV2>(languageVersion, CodeAnalyzerHelper.CurrentXunitV2RunnerUtility)
+	{ }
 
-	class TestV3 : TestBase<XunitVerifierV3>
-	{
-		public TestV3(LanguageVersion languageVersion) :
-			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV3)
-		{ }
-	}
+	class TestV3(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV3>(languageVersion, CodeAnalyzerHelper.CurrentXunitV3)
+	{ }
 
-	class TestV3RunnerUtility : TestBase<XunitVerifierV3>
-	{
-		public TestV3RunnerUtility(LanguageVersion languageVersion) :
-			base(languageVersion, CodeAnalyzerHelper.CurrentXunitV3RunnerUtility)
-		{ }
-	}
+	class TestV3RunnerUtility(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV3>(languageVersion, CodeAnalyzerHelper.CurrentXunitV3RunnerUtility)
+	{ }
+
+#if NETCOREAPP && ROSLYN_LATEST
+
+	class TestV3Aot(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV3Aot>(languageVersion, CodeAnalyzerHelper.CurrentXunitV3Aot)
+	{ }
+
+	class TestV3RunnerUtilityAot(LanguageVersion languageVersion) :
+		TestBase<XunitVerifierV3Aot>(languageVersion, CodeAnalyzerHelper.CurrentXunitV3RunnerUtilityAot)
+	{ }
+
+#endif  // NETCOREAPP && ROSLYN_LATEST
 }

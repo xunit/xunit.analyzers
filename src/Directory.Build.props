@@ -4,7 +4,7 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>8.0.10</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>9.0.14</AnnotatedReferenceAssemblyVersion>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

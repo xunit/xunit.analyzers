@@ -18,17 +18,19 @@ public class TheoryMethodShouldHaveParameters : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var theoryAttributeTypes = xunitContext.Core.TheoryAttributeTypes;
+		if (theoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.TheoryAttributeType is null)
-				return;
 			if (context.Symbol is not IMethodSymbol symbol)
 				return;
 			if (symbol.Parameters.Length > 0)
 				return;
 
 			var attributes = symbol.GetAttributes();
-			if (attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+			if (attributes.ContainsAttributeType(theoryAttributeTypes))
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1006_TheoryMethodShouldHaveParameters,

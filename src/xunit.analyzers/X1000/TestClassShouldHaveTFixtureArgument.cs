@@ -19,11 +19,14 @@ public class TestClassShouldHaveTFixtureArgument : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
+			return;
+		if (xunitContext.Core.IClassFixtureType is null || xunitContext.Core.ICollectionFixtureType is null)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.IClassFixtureType is null || xunitContext.Core.ICollectionFixtureType is null)
-				return;
-
 			if (context.Symbol.DeclaredAccessibility != Accessibility.Public)
 				return;
 			if (context.Symbol is not INamedTypeSymbol classSymbol)
@@ -33,10 +36,13 @@ public class TestClassShouldHaveTFixtureArgument : XunitDiagnosticAnalyzer
 				classSymbol
 					.GetMembers()
 					.OfType<IMethodSymbol>()
-					.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+					.Any(m => m.GetAttributes().Any(a => factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(a.AttributeClass))));
 
 			if (!doesClassContainTests)
 				return;
+
+			// TODO: Should check the collection definition and check for IClassFixture and ICollectionFixture there, too
+			// Tests are written but the expectations are currently commented out
 
 			foreach (var interfaceOnTestClass in classSymbol.AllInterfaces)
 			{

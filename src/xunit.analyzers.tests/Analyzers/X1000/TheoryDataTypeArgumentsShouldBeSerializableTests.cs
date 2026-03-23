@@ -66,41 +66,51 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 
 		return new TheoryData<string, string, string>
 		{
-			{ f, "MemberData(nameof(Field), DisableDiscoveryEnumeration = true)", type },
+			{ f, @"MemberData(nameof(Field), DisableDiscoveryEnumeration = true)", type },
 			{ m, @"MemberData(nameof(Method), 1, ""2"", DisableDiscoveryEnumeration = true)", type },
-			{ p, "MemberData(nameof(Property), DisableDiscoveryEnumeration = true)", type }
+			{ p, @"MemberData(nameof(Property), DisableDiscoveryEnumeration = true)", type }
 		};
 	}
 
 	public sealed class NoDiagnostic : TheoryDataTypeArgumentsShouldBeSerializableTests
 	{
 		[Fact]
-		public async Task GivenMethodWithoutAttributes_DoesNotTrigger()
+		public async ValueTask V2_and_V3()
 		{
 			var source = /* lang=c#-test */ """
+				using System;
+				using System.Collections;
+				using System.Collections.Generic;
+				using Xunit;
+
+				public class NonTestClass {
+					public void NonTestMethod_DoesNotTrigger() { }
+				}
+
 				public class TestClass {
-					public void TestMethod() { }
+					[Fact]
+					public void FactMethod_DoesNotTrigger() { }
+
+					public static IEnumerable<object[]> Property1 => Array.Empty<object[]>();
+					public static DataSource<IDisposable, Action> Property2 => new DataSource<IDisposable, Action>();
+
+					[Theory]
+					[MemberData(nameof(Property1))]
+					[MemberData(nameof(Property2))]
+					public void TheoryMethod_WithoutTheoryDataAsDataSource_DoesNotTrigger(object a, object b) { }
+
+					public class DataSource<T1, T2> : IEnumerable<object[]> {
+						public IEnumerator<object[]> GetEnumerator() { yield break; }
+						IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+					}
 				}
 				""";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzerNonAot(source);
 		}
 
 		[Fact]
-		public async Task GivenFact_DoesNotTrigger()
-		{
-			var source = /* lang=c#-test */ """
-				public class TestClass {
-					[Xunit.Fact]
-					public void TestMethod() { }
-				}
-				""";
-
-			await Verify.VerifyAnalyzer(source);
-		}
-
-		[Fact]
-		public async Task GivenTheory_WithoutTheoryDataAsDataSource_DoesNotTrigger()
+		public async ValueTask V3_only()
 		{
 			var source = /* lang=c#-test */ """
 				using System;
@@ -109,22 +119,25 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				using Xunit;
 
 				public class TestClass {
+					[CulturedFact(new[] { "en-US" })]
+					public void FactMethod_DoesNotTrigger() { }
+
 					public static IEnumerable<object[]> Property1 => Array.Empty<object[]>();
 					public static DataSource<IDisposable, Action> Property2 => new DataSource<IDisposable, Action>();
 
-					[Theory]
+					[CulturedTheory(new[] { "en-US" })]
 					[MemberData(nameof(Property1))]
 					[MemberData(nameof(Property2))]
-					public void TestMethod(object a, object b) { }
-				}
+					public void TheoryMethod_WithoutTheoryDataAsDataSource_DoesNotTrigger(object a, object b) { }
 
-				public class DataSource<T1, T2> : IEnumerable<object[]> {
-					public IEnumerator<object[]> GetEnumerator() { yield break; }
-					IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+					public class DataSource<T1, T2> : IEnumerable<object[]> {
+						public IEnumerator<object[]> GetEnumerator() { yield break; }
+						IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+					}
 				}
 				""";
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzerV3NonAot(source);
 		}
 
 		[Theory]
@@ -186,7 +199,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "Enum")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableEnumeration?")]
-		public async Task GivenTheory_WithSerializableTheoryDataMember_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithSerializableTheoryDataMember_DoesNotTrigger(
 			string member,
 			string attribute,
 			string type)
@@ -208,7 +221,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				public enum SerializableEnumeration {{ Zero }}
 				""", member, attribute, type);
 
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzerNonAot(source);
 		}
 
 		[Theory]
@@ -222,7 +235,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct[]")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?")]
 		[MemberData(nameof(TheoryDataMembers), "SerializableStruct?[]")]
-		public async Task GivenTheory_WithIXunitSerializableTheoryDataMember_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithIXunitSerializableTheoryDataMember_DoesNotTrigger(
 			string member,
 			string attribute,
 			string type)
@@ -231,7 +244,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			var sourceV3 = GetSource("Xunit.Sdk");
 
 			await Verify.VerifyAnalyzerV2(sourceV2);
-			await Verify.VerifyAnalyzerV3(sourceV3);
+			await Verify.VerifyAnalyzerV3NonAot(sourceV3);
 
 			string GetSource(string ns) =>
 				string.Format(/* lang=c#-test */ """
@@ -264,7 +277,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "ICustomSerialized")]
 		[MemberData(nameof(TheoryDataMembers), "CustomSerialized")]
 		[MemberData(nameof(TheoryDataMembers), "CustomSerializedDerived")]
-		public async Task GivenTheory_WithIXunitSerializerTheoryDataMember_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithIXunitSerializerTheoryDataMember_DoesNotTrigger(
 			string member,
 			string attribute,
 			string type)
@@ -306,7 +319,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				""", member, attribute, type
 			);
 
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 		}
 
 		[Theory]
@@ -318,7 +331,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "object[]")]
 		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
-		public async Task GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForTheory_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForTheory_DoesNotTrigger(
 			string member,
 			string attribute,
 			string type)
@@ -344,7 +357,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				public class PossiblySerializableUnsealedClass {{ }}
 				""", member, attribute, type);
 
-			await Verify.VerifyAnalyzerV3(source);
+			await Verify.VerifyAnalyzerV3NonAot(source);
 		}
 
 		[Theory]
@@ -356,7 +369,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "object[]")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "IPossiblySerializableInterface")]
 		[MemberData(nameof(TheoryDataMembersWithDiscoveryEnumerationDisabled), "PossiblySerializableUnsealedClass")]
-		public async Task GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForMemberData_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithNonSerializableTheoryDataMember_WithDiscoveryEnumerationDisabledForMemberData_DoesNotTrigger(
 			string member,
 			string attribute,
 			string type)
@@ -387,25 +400,25 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "int", "double", "string")]
-		public async Task GivenTheory_WithSerializableTheoryDataClass_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithSerializableTheoryDataClass_DoesNotTrigger(
 			string source,
 			string _1,
 			string _2,
 			string _3)
 		{
-			await Verify.VerifyAnalyzer(source);
+			await Verify.VerifyAnalyzerNonAot(source);
 		}
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
 		[MemberData(nameof(TheoryDataClass), "Theory(DisableDiscoveryEnumeration = true)", "object[]", "Array", "IDisposable")]
-		public async Task GivenTheory_WithNonSerializableTheoryDataClass_WithDiscoveryEnumerationDisabled_DoesNotTrigger(
+		public async ValueTask GivenTheory_WithNonSerializableTheoryDataClass_WithDiscoveryEnumerationDisabled_DoesNotTrigger(
 			string source,
 			string _1,
 			string _2,
 			string _3)
 		{
-			await Verify.VerifyAnalyzerV3(source);
+			await Verify.VerifyAnalyzerV3NonAot(source);
 		}
 	}
 
@@ -420,7 +433,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 #endif
 		[MemberData(nameof(TheoryDataMembers), "Version")]
 		[MemberData(nameof(TheoryDataMembers), "Version?")]
-		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
+		public async ValueTask GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
 			string member,
 			string attribute,
 			string type)
@@ -440,7 +453,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			var expectedV2 = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type);
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source);
 		}
 
 		[Theory]
@@ -454,7 +467,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct[]")]
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?")]
 		[MemberData(nameof(TheoryDataMembers), "NonSerializableStruct?[]")]
-		public async Task GivenTheory_WithNonSerializableTheoryDataMember_Triggers(
+		public async ValueTask GivenTheory_WithNonSerializableTheoryDataMember_Triggers(
 			string member,
 			string attribute,
 			string type)
@@ -478,12 +491,12 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				""", member, attribute, type);
 			var expected = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type);
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzerNonAot(source, expected);
 		}
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "Action", "TimeZoneInfo", "TimeZoneInfo.TransitionTime")]
-		public async Task GivenTheory_WithNonSerializableTheoryDataClass_Triggers(
+		public async ValueTask GivenTheory_WithNonSerializableTheoryDataClass_Triggers(
 			string source,
 			string type1,
 			string type2,
@@ -495,13 +508,13 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				Verify.Diagnostic("xUnit1044").WithSpan(6, 3, 6, 34).WithArguments(type3),
 			};
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzerNonAot(source, expected);
 		}
 
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "ValueTuple<string, int>")]
 		[MemberData(nameof(TheoryDataMembers), "ValueTuple<string, int>?")]
-		public async Task GivenTheory_WithValueTuple_OnlySupportedInV3_3_0_1(
+		public async ValueTask GivenTheory_WithValueTuple_OnlySupportedInV3_3_0_1(
 			string member,
 			string attribute,
 			string type)
@@ -521,8 +534,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			var expectedUnsupported = Verify.Diagnostic("xUnit1044").WithLocation(0).WithArguments(type.Replace("ValueTuple<string, int>", "(string, int)"));
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedUnsupported);
-			await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectedUnsupported);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+			await Verify_v3_Pre301.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source);
 		}
 	}
 
@@ -531,7 +544,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "Uri")]
 		[MemberData(nameof(TheoryDataMembers), "Uri?")]
-		public async Task GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
+		public async ValueTask GivenTheory_WithTypeOnlySupportedInV3_TriggersInV2_DoesNotTriggerInV3(
 			string member,
 			string attribute,
 			string type)
@@ -551,11 +564,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			var expectedV2 = Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments(type);
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedV2);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source);
 		}
 
 		[Fact]
-		public async Task IFormattableAndIParseable_TriggersInV2_DoesNotTriggerInV3()
+		public async ValueTask IFormattableAndIParseable_TriggersInV2_DoesNotTriggerInV3()
 		{
 			var source = /* lang=c#-test */ """
 				#nullable enable
@@ -614,7 +627,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			};
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp11, source, expectedV2);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expectedV3);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source, expectedV3);
 #else
 			// For some reason, 'dotnet format' complains about the indenting of #nullable enable in the source code line
 			// above if the #if statement surrounds the whole method, so we use this "workaround" to do nothing in that case.
@@ -626,7 +639,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[Theory]
 		[MemberData(nameof(TheoryDataMembers), "Tuple<string, int>")]
 		[MemberData(nameof(TheoryDataMembers), "Tuple<string, int>?")]
-		public async Task GivenTheory_WithTuple_OnlySupportedInV3_3_0_1(
+		public async ValueTask GivenTheory_WithTuple_OnlySupportedInV3_3_0_1(
 			string member,
 			string attribute,
 			string type)
@@ -646,8 +659,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 			var expectedUnsupported = Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments(type);
 
 			await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source, expectedUnsupported);
-			await Verify_v3_Pre301.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectedUnsupported);
-			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
+			await Verify_v3_Pre301.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source, expectedUnsupported);
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source);
 		}
 
 		[Theory]
@@ -667,7 +680,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 		[MemberData(nameof(TheoryDataMembers), "IPossiblySerializableInterface[]")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass")]
 		[MemberData(nameof(TheoryDataMembers), "PossiblySerializableUnsealedClass[]")]
-		public async Task GivenTheory_WithPossiblySerializableTheoryDataMember_Triggers(
+		public async ValueTask GivenTheory_WithPossiblySerializableTheoryDataMember_Triggers(
 			string member,
 			string attribute,
 			string type)
@@ -692,12 +705,12 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				""", member, attribute, type);
 			var expected = Verify.Diagnostic("xUnit1045").WithLocation(0).WithArguments(type);
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzerNonAot(source, expected);
 		}
 
 		[Theory]
 		[MemberData(nameof(TheoryDataClass), "object[]", "Array", "IDisposable")]
-		public async Task GivenTheory_WithPossiblySerializableTheoryDataClass_Triggers(
+		public async ValueTask GivenTheory_WithPossiblySerializableTheoryDataClass_Triggers(
 			string source,
 			string type1,
 			string type2,
@@ -709,7 +722,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializableTests
 				Verify.Diagnostic("xUnit1045").WithSpan(6, 3, 6, 34).WithArguments(type3),
 			};
 
-			await Verify.VerifyAnalyzer(source, expected);
+			await Verify.VerifyAnalyzerNonAot(source, expected);
 		}
 	}
 

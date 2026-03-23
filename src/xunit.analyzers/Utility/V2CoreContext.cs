@@ -53,6 +53,14 @@ public class V2CoreContext : ICoreContext
 		lazyCollectionDefinitionAttributeType.Value;
 
 	/// <inheritdoc/>
+	public INamedTypeSymbol? CulturedFactAttributeType =>
+		null;
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? CulturedTheoryAttributeType =>
+		null;
+
+	/// <inheritdoc/>
 	public INamedTypeSymbol? DataAttributeType =>
 		lazyDataAttributeType.Value;
 

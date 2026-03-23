@@ -43,7 +43,7 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 				return;
 
 			var attributes = method.GetAttributes();
-			if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+			if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeTypes))
 				return;
 
 			foreach (var attribute in attributes)

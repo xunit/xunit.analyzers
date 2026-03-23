@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/git/">
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/git/workflows/">
+    <File Path=".github/workflows/ci-signed.yaml" />
+    <File Path=".github/workflows/ci-unsigned.yaml" />
+    <File Path=".github/workflows/pull-request.yaml" />
+  </Folder>
+  <Folder Name="/meta/">
+    <File Path=".editorconfig" />
+    <File Path="build" />
+    <File Path="build.ps1" />
+    <File Path="BUILDING.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="version.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <Project Path="src/xunit.analyzers.fixes/xunit.analyzers.fixes.csproj" />
+    <Project Path="src/xunit.analyzers.tests/xunit.analyzers.tests.csproj" />
+    <Project Path="src/xunit.analyzers/xunit.analyzers.csproj" />
+  </Folder>
+  <Folder Name="/src/compat/">
+    <File Path="src/compat/Directory.Build.props" />
+    <Project Path="src/compat/xunit.analyzers.latest.fixes/xunit.analyzers.latest.fixes.csproj" />
+    <Project Path="src/compat/xunit.analyzers.latest.tests/xunit.analyzers.latest.tests.csproj" />
+    <Project Path="src/compat/xunit.analyzers.latest/xunit.analyzers.latest.csproj" />
+  </Folder>
+</Solution>

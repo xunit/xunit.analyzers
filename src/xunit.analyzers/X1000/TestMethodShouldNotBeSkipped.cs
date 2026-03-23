@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -19,10 +20,12 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSyntaxNodeAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Node is not AttributeSyntax attribute)
 				return;
 			if (attribute.ArgumentList is null)
@@ -44,7 +47,7 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 				return;
 
 			var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
-			if (!xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+			if (!factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(attributeType)))
 				return;
 
 			context.ReportDiagnostic(

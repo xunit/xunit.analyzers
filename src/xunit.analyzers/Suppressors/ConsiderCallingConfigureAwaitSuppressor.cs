@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,9 +21,8 @@ public sealed class ConsiderCallingConfigureAwaitSuppressor : XunitDiagnosticSup
 		if (diagnostic.Location.SourceTree is null)
 			return false;
 
-		var factAttributeType = xunitContext.Core.FactAttributeType;
-		var theoryAttributeType = xunitContext.Core.TheoryAttributeType;
-		if (factAttributeType is null || theoryAttributeType is null)
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
 			return false;
 
 		var root = diagnostic.Location.SourceTree.GetRoot(context.CancellationToken);
@@ -47,11 +45,11 @@ public sealed class ConsiderCallingConfigureAwaitSuppressor : XunitDiagnosticSup
 		if (methodSymbol is null)
 			return false;
 
-		var attributes = ImmutableHashSet.Create(SymbolEqualityComparer.Default, factAttributeType, theoryAttributeType);
-
 		return
 			methodSymbol
 				.GetAttributes()
-				.Any(a => attributes.Contains(a.AttributeClass));
+				.Select(a => a.AttributeClass)
+				.WhereNotNull()
+				.Any(factAndTheoryAttributeTypes.Contains);
 	}
 }

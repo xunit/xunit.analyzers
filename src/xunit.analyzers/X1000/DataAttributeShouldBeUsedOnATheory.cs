@@ -32,9 +32,23 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 			if (attributes.Length == 0)
 				return;
 
-			// Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
-			// we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
-			if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType) && attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
+			if (!attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
+				return;
+
+			if (xunitContext.IsAot)
+			{
+				if (!attributes.ContainsAttributeType(xunitContext.Core.FactAndTheoryAttributeTypes))
+					reportX1008();
+			}
+			else
+			{
+				// Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
+				// we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
+				if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType))
+					reportX1008();
+			}
+
+			void reportX1008()
 			{
 				var properties = new Dictionary<string, string?>
 				{
@@ -52,6 +66,7 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 					)
 				);
 			}
+
 		}, SymbolKind.Method);
 	}
 }

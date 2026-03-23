@@ -18,10 +18,12 @@ public class TestClassMustBePublic : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol.DeclaredAccessibility == Accessibility.Public)
 				return;
 			if (context.Symbol is not INamedTypeSymbol classSymbol)
@@ -31,7 +33,7 @@ public class TestClassMustBePublic : XunitDiagnosticAnalyzer
 				classSymbol
 					.GetMembers()
 					.OfType<IMethodSymbol>()
-					.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+					.Any(m => m.GetAttributes().Any(a => factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(a.AttributeClass))));
 
 			if (!doesClassContainTests)
 				return;

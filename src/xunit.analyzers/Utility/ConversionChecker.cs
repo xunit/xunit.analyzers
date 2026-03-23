@@ -58,6 +58,10 @@ static class ConversionChecker
 			return source.SpecialType == SpecialType.System_String;
 		}
 
+		// User-defined conversion not supported in AOT
+		if (xunitContext.IsAot && conversion.IsUserDefined)
+			return false;
+
 		// Rules of last resort
 		return conversion.IsImplicit
 			|| conversion.IsUnboxing

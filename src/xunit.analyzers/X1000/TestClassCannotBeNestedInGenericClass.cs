@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,10 +19,12 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol is not INamedTypeSymbol classSymbol)
 				return;
 			if (classSymbol.ContainingType is null)
@@ -29,7 +32,7 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 			if (!classSymbol.ContainingType.IsGenericType)
 				return;
 
-			var doesClassContainTests = DoesInheritenceTreeContainTests(classSymbol, xunitContext, depth: 3);
+			var doesClassContainTests = DoesInheritenceTreeContainTests(classSymbol, factAndTheoryAttributeTypes, depth: 3);
 
 			if (!doesClassContainTests)
 				return;
@@ -45,17 +48,17 @@ public class TestClassCannotBeNestedInGenericClass : XunitDiagnosticAnalyzer
 
 	static bool DoesInheritenceTreeContainTests(
 		INamedTypeSymbol classSymbol,
-		XunitContext xunitContext,
+		ImmutableHashSet<INamedTypeSymbol> factAndTheoryAttributeTypes,
 		int depth)
 	{
 		var doesClassContainTests =
 			classSymbol
 				.GetMembers()
 				.OfType<IMethodSymbol>()
-				.Any(m => m.GetAttributes().Any(a => xunitContext.Core.FactAttributeType.IsAssignableFrom(a.AttributeClass)));
+				.Any(m => m.GetAttributes().Any(a => factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(a.AttributeClass))));
 
 		if (!doesClassContainTests && classSymbol.BaseType is not null && depth > 0)
-			return DoesInheritenceTreeContainTests(classSymbol.BaseType, xunitContext, depth - 1);
+			return DoesInheritenceTreeContainTests(classSymbol.BaseType, factAndTheoryAttributeTypes, depth - 1);
 
 		return doesClassContainTests;
 	}

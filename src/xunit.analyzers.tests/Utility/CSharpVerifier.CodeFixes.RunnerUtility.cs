@@ -96,12 +96,15 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// <param name="after">The expected code after the fix</param>
 	/// <param name="fixerActionKey">The key of the fix to run</param>
 	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	/// <remarks>
+	/// AOT tests will be run against C# version 13 (the minimum required for .NET 9).
+	/// </remarks>
 	public static Task VerifyCodeFixV3RunnerUtility(
 		string before,
 		string after,
 		string fixerActionKey,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyCodeFixV3RunnerUtility(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+			VerifyCodeFixV3RunnerUtility(includeAot: true, LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
 
 	/// <summary>
 	/// Verify that a code fix has been applied. Runs against xUnit.net v3 Runner Utility, using the
@@ -112,7 +115,54 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// <param name="after">The expected code after the fix</param>
 	/// <param name="fixerActionKey">The key of the fix to run</param>
 	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	/// <remarks>
+	/// If <paramref name="languageVersion"/> is less than 13, then AOT tests will be run
+	/// against version 13 (the minimum required for .NET 9).
+	/// </remarks>
 	public static Task VerifyCodeFixV3RunnerUtility(
+		LanguageVersion languageVersion,
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyCodeFixV3RunnerUtility(includeAot: true, languageVersion, before, after, fixerActionKey, diagnostics);
+
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="includeAot">Set to <see langword="false"/> to exclude testing against AOT</param>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	/// <remarks>
+	/// If <paramref name="includeAot"/> is true, then AOT tests will be run against C# version 13
+	/// (the minimum required for .NET 9).
+	/// </remarks>
+	public static Task VerifyCodeFixV3RunnerUtility(
+		bool includeAot,
+		string before,
+		string after,
+		string fixerActionKey,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyCodeFixV3RunnerUtility(includeAot, LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+
+	/// <summary>
+	/// Verify that a code fix has been applied. Runs against xUnit.net v3 Runner Utility, using the
+	/// provided version of C#.
+	/// </summary>
+	/// <param name="includeAot">Set to <see langword="false"/> to exclude testing against AOT</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="before">The code before the fix</param>
+	/// <param name="after">The expected code after the fix</param>
+	/// <param name="fixerActionKey">The key of the fix to run</param>
+	/// <param name="diagnostics">Any expected diagnostics that still exist after the fix</param>
+	/// <remarks>
+	/// If <paramref name="languageVersion"/> is less than 13 and <paramref name="includeAot"/> is true,
+	/// then AOT tests will be run against version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyCodeFixV3RunnerUtility(
+		bool includeAot,
 		LanguageVersion languageVersion,
 		string before,
 		string after,
@@ -127,6 +177,24 @@ public partial class CSharpVerifier<TAnalyzer>
 			CodeActionEquivalenceKey = fixerActionKey,
 		};
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
-		return test.RunAsync();
+		await test.RunAsync();
+
+#if NETCOREAPP && ROSLYN_LATEST
+		if (!includeAot)
+			return;
+
+		if (languageVersion < LanguageVersion.CSharp13)
+			languageVersion = LanguageVersion.CSharp13;
+
+		var testAot = new TestV3RunnerUtilityAot(languageVersion)
+		{
+			TestCode = before.Replace("\n", newLine),
+			FixedCode = after.Replace("\n", newLine),
+			CodeActionEquivalenceKey = fixerActionKey,
+		};
+		testAot.TestState.ExpectedDiagnostics.AddRange(diagnostics);
+		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
+		await testAot.RunAsync();
+#endif
 	}
 }

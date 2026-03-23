@@ -13,6 +13,12 @@ public static class SymbolExtensions
 		bool exactMatch = false) =>
 			attributes.Any(a => a.IsInstanceOf(attributeType, exactMatch));
 
+	public static bool ContainsAttributeType(
+		this ImmutableArray<AttributeData> attributes,
+		IReadOnlyCollection<INamedTypeSymbol> attributeTypes,
+		bool exactMatch = false) =>
+			attributes.Any(a => attributeTypes.Any(attributeType => a.IsInstanceOf(attributeType, exactMatch)));
+
 	/// <summary>
 	/// If the passed <paramref name="typeSymbol"/> is <see cref="T:System.Collections.Generic.IAsyncEnumerable{T}"/>,
 	/// then returns the enumerable type (aka, T); otherwise, returns <c>null</c>.

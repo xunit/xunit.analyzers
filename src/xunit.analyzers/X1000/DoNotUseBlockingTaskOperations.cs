@@ -53,9 +53,6 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null)
-			return;
-
 		var iCriticalNotifyCompletionType = TypeSymbolFactory.ICriticalNotifyCompletion(context.Compilation);
 		var iValueTaskSourceType = TypeSymbolFactory.IValueTaskSource(context.Compilation);
 		var iValueTaskSourceOfTType = TypeSymbolFactory.IValueTaskSourceOfT(context.Compilation);
@@ -113,10 +110,16 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				case nameof(Task.WaitAll):
 				case nameof(Task.WaitAny):
 					{
-						if (invocation.Arguments.Length == 1 &&
-								invocation.Arguments[0].Value is IArrayCreationOperation arrayCreationOperation &&
-								arrayCreationOperation.Initializer is not null)
-							symbolsForSearch = arrayCreationOperation.Initializer.ElementValues.OfType<ILocalReferenceOperation>().Select(l => l.Local);
+						if (invocation.Arguments.Length == 1)
+						{
+							if (invocation.Arguments[0].Value is IArrayCreationOperation arrayCreationOperation &&
+									arrayCreationOperation.Initializer is not null)
+								symbolsForSearch = arrayCreationOperation.Initializer.ElementValues.OfType<ILocalReferenceOperation>().Select(l => l.Local);
+#if ROSLYN_LATEST
+							else if (invocation.Arguments[0].Value is ICollectionExpressionOperation collectionExpressionOperation)
+								symbolsForSearch = collectionExpressionOperation.Elements.OfType<ILocalReferenceOperation>().Select(l => l.Local);
+#endif
+						}
 						break;
 					}
 			}
@@ -303,12 +306,25 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		var argument = operation.Arguments.FirstOrDefault();
 		if (argument is null)
 			return;
-		if (argument.Value is not IArrayCreationOperation arrayCreation)
-			return;
-		if (arrayCreation.Initializer is null)
-			return;
+		if (argument.Value is IArrayCreationOperation arrayCreation)
+		{
+			if (arrayCreation.Initializer is not null)
+				foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
+					unfoundSymbols.Remove(arrayElement.Local);
 
-		foreach (var arrayElement in arrayCreation.Initializer.ElementValues.OfType<ILocalReferenceOperation>())
-			unfoundSymbols.Remove(arrayElement.Local);
+			return;
+		}
+
+#if ROSLYN_LATEST
+
+		if (argument.Value is ICollectionExpressionOperation collectionExpression)
+		{
+			foreach (var element in collectionExpression.ChildOperations.OfType<ILocalReferenceOperation>())
+				unfoundSymbols.Remove(element.Local);
+
+			return;
+		}
+
+#endif  // ROSLYN_LATEST
 	}
 }

@@ -18,16 +18,20 @@ public class TheoryMethodMustHaveTestData : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var theoryAttributeTypes = xunitContext.Core.TheoryAttributeTypes;
+		if (theoryAttributeTypes.Count == 0)
+			return;
+
+		if (xunitContext.Core.DataAttributeType is null)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.DataAttributeType is null)
-				return;
-
 			if (context.Symbol is not IMethodSymbol symbol)
 				return;
 
 			var attributes = symbol.GetAttributes();
-			if (!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+			if (!attributes.ContainsAttributeType(theoryAttributeTypes))
 				return;
 
 			var hasData = attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType);

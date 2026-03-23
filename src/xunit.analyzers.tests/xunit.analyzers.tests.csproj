@@ -12,6 +12,7 @@
     <!-- Download packages referenced by CodeAnalyzerHelper -->
     <PackageDownload Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0]" />
     <PackageDownload Include="Microsoft.Extensions.Primitives" Version="[6.0.0]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[8.0.25]" Condition=" '$(TargetFramework)' == 'net8.0' " />
     <PackageDownload Include="System.Collections.Immutable" Version="[1.6.0]" Condition=" '$(TargetFramework)' == 'net472' " />
     <PackageDownload Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
 
@@ -27,6 +28,12 @@
     <PackageDownload Include="xunit.v3.extensibility.core" Version="[4.0.0-pre.25]" />
     <PackageDownload Include="xunit.v3.runner.common" Version="[4.0.0-pre.25]" />
     <PackageDownload Include="xunit.v3.runner.utility" Version="[4.0.0-pre.25]" />
+
+    <PackageDownload Include="xunit.v3.assert.aot" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.common.aot" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.extensibility.core.aot" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.runner.common.aot" Version="[4.0.0-pre.25]" />
+    <PackageDownload Include="xunit.v3.runner.utility.aot" Version="[4.0.0-pre.25]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[10.0.100]" />

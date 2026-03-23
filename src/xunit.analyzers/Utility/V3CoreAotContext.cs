@@ -12,6 +12,8 @@ public class V3CoreAotContext : ICoreContextV3
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeOfTType;
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionDefinitionAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyCulturedFactAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyCulturedTheoryAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyFactAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
@@ -36,6 +38,8 @@ public class V3CoreAotContext : ICoreContextV3
 		lazyCollectionAttributeType = new(() => TypeSymbolFactory.CollectionAttribute(compilation));
 		lazyCollectionAttributeOfTType = new(() => TypeSymbolFactory.CollectionAttributeOfT_V3(compilation));
 		lazyCollectionDefinitionAttributeType = new(() => TypeSymbolFactory.CollectionDefinitionAttribute(compilation));
+		lazyCulturedFactAttributeType = new(() => TypeSymbolFactory.CulturedFactAttribute_V3(compilation));
+		lazyCulturedTheoryAttributeType = new(() => TypeSymbolFactory.CulturedTheoryAttribute_V3(compilation));
 		lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute_V3(compilation));
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
@@ -72,6 +76,14 @@ public class V3CoreAotContext : ICoreContextV3
 	/// <inheritdoc/>
 	public INamedTypeSymbol? CollectionDefinitionAttributeType =>
 		lazyCollectionDefinitionAttributeType.Value;
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? CulturedFactAttributeType =>
+		lazyCulturedFactAttributeType.Value;
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? CulturedTheoryAttributeType =>
+		lazyCulturedTheoryAttributeType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? DataAttributeType =>

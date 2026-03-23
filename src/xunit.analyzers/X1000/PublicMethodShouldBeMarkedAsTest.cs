@@ -30,9 +30,10 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol is not INamedTypeSymbol type)
+				return;
+			var factAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+			if (factAttributeTypes.Count == 0)
 				return;
 
 			var attributeUsageType = TypeSymbolFactory.AttributeUsageAttribute(context.Compilation);
@@ -67,7 +68,7 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 					continue;
 
 				var attributes = method.GetAttributesWithInheritance(attributeUsageType);
-				var isTestMethod = attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType);
+				var isTestMethod = attributes.ContainsAttributeType(factAttributeTypes);
 				hasTestMethods = hasTestMethods || isTestMethod;
 
 				if (isTestMethod ||

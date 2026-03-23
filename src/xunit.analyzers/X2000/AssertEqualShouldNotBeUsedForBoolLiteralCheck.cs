@@ -21,7 +21,7 @@ public class AssertEqualShouldNotBeUsedForBoolLiteralCheck : AssertUsageAnalyzer
 		Constants.Asserts.NotEqual,
 		Constants.Asserts.NotStrictEqual,
 	];
-	static readonly string[] targetMethods = equalMethods.Union(notEqualMethods).ToArray();
+	static readonly string[] targetMethods = [.. equalMethods.Union(notEqualMethods)];
 
 	public AssertEqualShouldNotBeUsedForBoolLiteralCheck()
 		: base(Descriptors.X2004_AssertEqualShouldNotUsedForBoolLiteralCheck, targetMethods)

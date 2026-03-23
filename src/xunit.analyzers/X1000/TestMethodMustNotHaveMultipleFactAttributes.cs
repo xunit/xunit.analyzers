@@ -20,10 +20,12 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributesTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributesTypes.Count == 0)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol is not IMethodSymbol symbol)
 				return;
 
@@ -34,7 +36,7 @@ public class TestMethodMustNotHaveMultipleFactAttributes : XunitDiagnosticAnalyz
 			foreach (var attribute in symbol.GetAttributes())
 			{
 				var attributeType = attribute.AttributeClass;
-				if (attributeType is not null && xunitContext.Core.FactAttributeType.IsAssignableFrom(attributeType))
+				if (attributeType is not null && factAndTheoryAttributesTypes.Any(f => f.IsAssignableFrom(attributeType)))
 				{
 					attributeTypes.Add(attributeType);
 					count++;

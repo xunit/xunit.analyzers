@@ -19,10 +19,12 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
+		if (factAndTheoryAttributeTypes.Count == 0)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null)
-				return;
 			if (context.Symbol is not INamedTypeSymbol typeSymbol)
 				return;
 			if (typeSymbol.TypeKind != TypeKind.Class)
@@ -42,7 +44,7 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 
 				var methods = grouping.ToList();
 				var methodName = grouping.Key;
-				if (methods.Count == 1 || !methods.Any(m => m.GetAttributes().ContainsAttributeType(xunitContext.Core.FactAttributeType)))
+				if (methods.Count == 1 || !methods.Any(m => m.GetAttributes().ContainsAttributeType(factAndTheoryAttributeTypes)))
 					continue;
 
 				var methodsWithoutOverloads = new List<IMethodSymbol>(methods.Count);

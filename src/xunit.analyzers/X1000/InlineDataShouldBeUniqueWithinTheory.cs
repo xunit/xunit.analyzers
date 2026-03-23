@@ -34,7 +34,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			return;
 
 		var methodAllAttributes = method.GetAttributes();
-		if (!methodAllAttributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType))
+		if (!methodAllAttributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeTypes))
 			return;
 
 		var objectArrayType = TypeSymbolFactory.ObjectArray(context.Compilation);
