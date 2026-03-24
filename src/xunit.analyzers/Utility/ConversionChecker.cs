@@ -65,6 +65,7 @@ static class ConversionChecker
 		// Rules of last resort
 		return conversion.IsImplicit
 			|| conversion.IsUnboxing
+			|| (conversion.IsExplicit && conversion.IsEnumeration)
 			|| (conversion.IsExplicit && conversion.IsUserDefined)
 			|| (conversion.IsExplicit && conversion.IsNullable);
 	}
