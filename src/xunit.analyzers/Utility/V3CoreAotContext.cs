@@ -18,7 +18,6 @@ public class V3CoreAotContext : ICoreContextV3
 	readonly Lazy<INamedTypeSymbol?> lazyFactAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyICollectionFixtureType;
-	readonly Lazy<INamedTypeSymbol?> lazyIDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyInlineDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestContextAccessorType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType;
@@ -44,7 +43,6 @@ public class V3CoreAotContext : ICoreContextV3
 		lazyFactAttributeType = new(() => TypeSymbolFactory.FactAttribute(compilation));
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
-		lazyIDataAttributeType = new(() => TypeSymbolFactory.IDataAttribute_V3(compilation));
 		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
 		lazyITestContextAccessorType = new(() => TypeSymbolFactory.ITestContextAccessor_V3(compilation));
 		lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V3(compilation));
@@ -101,9 +99,12 @@ public class V3CoreAotContext : ICoreContextV3
 	public INamedTypeSymbol? ICollectionFixtureType =>
 		lazyICollectionFixtureType.Value;
 
+	/// <remarks>
+	/// This will always return <see langword="null"/> for Native AOT, since this interface is obsolete.
+	/// </remarks>
 	/// <inheritdoc/>
 	public INamedTypeSymbol? IDataAttributeType =>
-		lazyIDataAttributeType.Value;
+		null;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? InlineDataAttributeType =>
