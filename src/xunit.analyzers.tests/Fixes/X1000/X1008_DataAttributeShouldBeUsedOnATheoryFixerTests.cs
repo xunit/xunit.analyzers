@@ -3,7 +3,7 @@ using Xunit;
 using Xunit.Analyzers.Fixes;
 using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
 
-public class DataAttributeShouldBeUsedOnATheoryFixerTests
+public class X1008_DataAttributeShouldBeUsedOnATheoryFixerTests
 {
 	[Fact]
 	public async ValueTask V2_and_V3()

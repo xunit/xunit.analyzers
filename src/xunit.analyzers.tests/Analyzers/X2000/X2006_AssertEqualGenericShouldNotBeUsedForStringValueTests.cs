@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssertEqualGenericShouldNotBeUsedForStringValue>;
 
-public class AssertEqualGenericShouldNotBeUsedForStringValueTests
+public class X2006_AssertEqualGenericShouldNotBeUsedForStringValueTests
 {
 	[Fact]
 	public async ValueTask V2_and_V3()

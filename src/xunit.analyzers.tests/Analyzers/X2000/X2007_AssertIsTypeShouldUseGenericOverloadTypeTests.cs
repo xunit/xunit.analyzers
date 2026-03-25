@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.AssertIsTypeShouldUseGenericOverlo
 using Microsoft.CodeAnalysis.CSharp;
 #endif
 
-public class AssertIsTypeShouldUseGenericOverloadTypeTests
+public class X2007_AssertIsTypeShouldUseGenericOverloadTypeTests
 {
 	[Fact]
 	public async ValueTask V2_and_V3()
