@@ -28,6 +28,11 @@ public interface ICoreContextV3 : ICoreContext
 	INamedTypeSymbol? IDataAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>IFactAttribute</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? IFactAttributeType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>ITestContextAccessor</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? ITestContextAccessorType { get; }

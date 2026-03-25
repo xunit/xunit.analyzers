@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory>;
 
@@ -53,6 +54,31 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 	}
 
 	[Fact]
+	public async ValueTask V2_and_V3_NonAOT()
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+
+			public class TestClass {
+				[CustomFactViaInheritance]
+				[InlineData(1)]
+				public void CustomFactViaInheritance_DoesNotTrigger(int i) { }
+
+				[CustomTheoryViaInheritance]
+				[InlineData(1)]
+				public void CustomTheoryViaInheritance_DoesNotTrigger(int i) { }
+			}
+
+			public class CustomFactViaInheritance : FactAttribute { }
+
+			public class CustomTheoryViaInheritance : TheoryAttribute { }
+			""";
+
+		await Verify.VerifyAnalyzerNonAot(source);
+	}
+
+	[Fact]
 	public async ValueTask V3_only()
 	{
 		var source = /* lang=c#-test */ """
@@ -86,5 +112,59 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 			""";
 
 		await Verify.VerifyAnalyzerV3(source);
+	}
+
+	[Fact]
+	public async ValueTask V3_only_NonAOT()
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			public class TestClass {
+				// https://github.com/xunit/xunit/issues/3518
+				[CustomFactViaInterface]
+				[InlineData(1)]
+				public void CustomFactViaInterface_DoesNotTrigger(int i) { }
+
+				// https://github.com/xunit/xunit/issues/3518
+				[CustomTheoryViaInterface]
+				[InlineData(1)]
+				public void CustomTheoryViaInterface_DoesNotTrigger(int i) { }
+			}
+
+			public class CustomFactViaInterface : Attribute, IFactAttribute
+			{
+				public string? DisplayName => throw new NotImplementedException();
+				public bool Explicit => throw new NotImplementedException();
+				public string? Skip => throw new NotImplementedException();
+				public Type[]? SkipExceptions => throw new NotImplementedException();
+				public Type? SkipType => throw new NotImplementedException();
+				public string? SkipUnless => throw new NotImplementedException();
+				public string? SkipWhen => throw new NotImplementedException();
+				public string? SourceFilePath => throw new NotImplementedException();
+				public int? SourceLineNumber => throw new NotImplementedException();
+				public int Timeout => throw new NotImplementedException();
+			}
+
+			public class CustomTheoryViaInterface : Attribute, ITheoryAttribute
+			{
+				public bool DisableDiscoveryEnumeration => throw new NotImplementedException();
+				public string? DisplayName => throw new NotImplementedException();
+				public bool Explicit => throw new NotImplementedException();
+				public string? Skip => throw new NotImplementedException();
+				public Type[]? SkipExceptions => throw new NotImplementedException();
+				public bool SkipTestWithoutData => throw new NotImplementedException();
+				public Type? SkipType => throw new NotImplementedException();
+				public string? SkipUnless => throw new NotImplementedException();
+				public string? SkipWhen => throw new NotImplementedException();
+				public string? SourceFilePath => throw new NotImplementedException();
+				public int? SourceLineNumber => throw new NotImplementedException();
+				public int Timeout => throw new NotImplementedException();
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 }

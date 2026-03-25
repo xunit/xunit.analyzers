@@ -20,11 +20,11 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
+		if (xunitContext.Core.DataAttributeType is null)
+			return;
+
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.DataAttributeType is null)
-				return;
-
 			if (context.Symbol is not IMethodSymbol methodSymbol)
 				return;
 
@@ -35,15 +35,21 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 			if (!attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
 				return;
 
+			// For AOT, only the 4 sealed attribute types are supported
 			if (xunitContext.IsAot)
 			{
 				if (!attributes.ContainsAttributeType(xunitContext.Core.FactAndTheoryAttributeTypes))
 					reportX1008();
 			}
-			else
+			// For v3, check for any attribute that implements IFactAttribute
+			else if (xunitContext.Core is ICoreContextV3 v3Core && v3Core.IFactAttributeType is { } iFactAttributeType)
 			{
-				// Instead of checking for Theory, we check for any Fact. If it is a Fact which is not a Theory,
-				// we will let other rules (i.e. FactMethodShouldNotHaveTestData) handle that case.
+				if (!attributes.Any(a => iFactAttributeType.IsAssignableFrom(a.AttributeClass)))
+					reportX1008();
+			}
+			// For v2, check for any attribute that derives from FactAttribute
+			else if (xunitContext.Core.FactAttributeType is not null)
+			{
 				if (!attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType))
 					reportX1008();
 			}

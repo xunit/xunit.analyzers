@@ -19,6 +19,7 @@ public class V3CoreContext : ICoreContextV3
 	readonly Lazy<INamedTypeSymbol?> lazyIClassFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyICollectionFixtureType;
 	readonly Lazy<INamedTypeSymbol?> lazyIDataAttributeType;
+	readonly Lazy<INamedTypeSymbol?> lazyIFactAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyInlineDataAttributeType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestContextAccessorType;
 	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType;
@@ -45,6 +46,7 @@ public class V3CoreContext : ICoreContextV3
 		lazyIClassFixtureType = new(() => TypeSymbolFactory.IClassFixureOfT(compilation));
 		lazyICollectionFixtureType = new(() => TypeSymbolFactory.ICollectionFixtureOfT(compilation));
 		lazyIDataAttributeType = new(() => TypeSymbolFactory.IDataAttribute_V3(compilation));
+		lazyIFactAttributeType = new(() => TypeSymbolFactory.IFactAttribute_V3(compilation));
 		lazyInlineDataAttributeType = new(() => TypeSymbolFactory.InlineDataAttribute(compilation));
 		lazyITestContextAccessorType = new(() => TypeSymbolFactory.ITestContextAccessor_V3(compilation));
 		lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V3(compilation));
@@ -104,6 +106,10 @@ public class V3CoreContext : ICoreContextV3
 	/// <inheritdoc/>
 	public INamedTypeSymbol? IDataAttributeType =>
 		lazyIDataAttributeType.Value;
+
+	/// <inheritdoc/>
+	public INamedTypeSymbol? IFactAttributeType =>
+		lazyIFactAttributeType.Value;
 
 	/// <inheritdoc/>
 	public INamedTypeSymbol? InlineDataAttributeType =>

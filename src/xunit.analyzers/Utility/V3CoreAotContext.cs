@@ -106,6 +106,13 @@ public class V3CoreAotContext : ICoreContextV3
 	public INamedTypeSymbol? IDataAttributeType =>
 		null;
 
+	/// <remarks>
+	/// This will always return <see langword="null"/> for Native AOT, since this interface is obsolete.
+	/// </remarks>
+	/// <inheritdoc/>
+	public INamedTypeSymbol? IFactAttributeType =>
+		null;
+
 	/// <inheritdoc/>
 	public INamedTypeSymbol? InlineDataAttributeType =>
 		lazyInlineDataAttributeType.Value;
