@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Xunit.Analyzers;
 using Verify_WithAbstractions = CSharpVerifier<X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests.AbstractionsAnalyzer>;
@@ -20,33 +21,33 @@ public class X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 			class NoInterfaces_DoesNotTrigger { }
 
 			// Discovery and execution messages
-			class [|IMessageSink_Triggers|] : {{MemberCount("IMessageSink", 1)}} { }
-			class [|IMessageSinkMessage_Triggers|] : {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class [|IMessageSink_Triggers|] : IMessageSink { }
+			class [|IMessageSinkMessage_Triggers|] : IMessageSinkMessage { }
 
 			// Reflection
-			class [|IAssemblyInfo_Triggers|] : {{MemberCount("IAssemblyInfo", 5)}} { }
-			class [|IAttributeInfo_Triggers|] : {{MemberCount("IAttributeInfo", 3)}} { }
-			class [|IMethodInfo_Triggers|] : {{MemberCount("IMethodInfo", 11)}} { }
-			class [|IParameterInfo_Triggers|] : {{MemberCount("IParameterInfo", 2)}} { }
-			class [|ITypeInfo_Triggers|] : {{MemberCount("ITypeInfo", 13)}} { }
+			class [|IAssemblyInfo_Triggers|] : IAssemblyInfo { }
+			class [|IAttributeInfo_Triggers|] : IAttributeInfo { }
+			class [|IMethodInfo_Triggers|] : IMethodInfo { }
+			class [|IParameterInfo_Triggers|] : IParameterInfo { }
+			class [|ITypeInfo_Triggers|] : ITypeInfo { }
 
 			// Object model
-			class [|ITest_Triggers|] : {{MemberCount("ITest", 2)}} { }
-			class [|ITestAssembly_Triggers|] : {{MemberCount("ITestAssembly", 4)}} { }
-			class [|ITestCase_Triggers|] : {{MemberCount("ITestCase", 9)}} { }
-			class [|ITestClass_Triggers|] : {{MemberCount("ITestClass", 4)}} { }
-			class [|ITestCollection_Triggers|] : {{MemberCount("ITestCollection", 6)}} { }
-			class [|ITestMethod_Triggers|] : {{MemberCount("ITestMethod", 4)}} { }
+			class [|ITest_Triggers|] : ITest { }
+			class [|ITestAssembly_Triggers|] : ITestAssembly { }
+			class [|ITestCase_Triggers|] : ITestCase { }
+			class [|ITestClass_Triggers|] : ITestClass { }
+			class [|ITestCollection_Triggers|] : ITestCollection { }
+			class [|ITestMethod_Triggers|] : ITestMethod { }
 
 			// Test framework
-			class [|ISourceInformation_Triggers|] : {{MemberCount("ISourceInformation", 4)}} { }
-			class [|ISourceInformationProvider_Triggers|] : {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class [|ITestFramework_Triggers|] : {{MemberCount("ITestFramework", 4)}} { }
-			class [|ITestFrameworkDiscoverer_Triggers|] : {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class [|ITestFrameworkExecutor_Triggers|] : {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class [|ISourceInformation_Triggers|] : ISourceInformation { }
+			class [|ISourceInformationProvider_Triggers|] : ISourceInformationProvider { }
+			class [|ITestFramework_Triggers|] : ITestFramework { }
+			class [|ITestFrameworkDiscoverer_Triggers|] : ITestFrameworkDiscoverer { }
+			class [|ITestFrameworkExecutor_Triggers|] : ITestFrameworkExecutor { }
 			""";
 
-		await Verify_WithAbstractions.VerifyAnalyzerV2(source);
+		await Verify_WithAbstractions.VerifyAnalyzerV2(CompilerDiagnostics.None, source);
 	}
 
 	[Fact]
@@ -65,125 +66,125 @@ public class X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 			class NoInterfaces_DoesNotTrigger { }
 
 			// Discovery and execution messages
-			class [|IMessageSink_Triggers|] : {{MemberCount("IMessageSink", 1)}} { }
-			class [|IMessageSinkMessage_Triggers|] : {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class [|IMessageSink_Triggers|] : IMessageSink { }
+			class [|IMessageSinkMessage_Triggers|] : IMessageSinkMessage { }
 
 			// Reflection
-			class [|IAssemblyInfo_Triggers|] : {{MemberCount("IAssemblyInfo", 5)}} { }
-			class [|IAttributeInfo_Triggers|] : {{MemberCount("IAttributeInfo", 3)}} { }
-			class [|IMethodInfo_Triggers|] : {{MemberCount("IMethodInfo", 11)}} { }
-			class [|IParameterInfo_Triggers|] : {{MemberCount("IParameterInfo", 2)}} { }
-			class [|ITypeInfo_Triggers|] : {{MemberCount("ITypeInfo", 13)}} { }
+			class [|IAssemblyInfo_Triggers|] : IAssemblyInfo { }
+			class [|IAttributeInfo_Triggers|] : IAttributeInfo { }
+			class [|IMethodInfo_Triggers|] : IMethodInfo { }
+			class [|IParameterInfo_Triggers|] : IParameterInfo { }
+			class [|ITypeInfo_Triggers|] : ITypeInfo { }
 
 			// Object model
-			class [|ITest_Triggers|] : {{MemberCount("ITest", 2)}} { }
-			class [|ITestAssembly_Triggers|] : {{MemberCount("ITestAssembly", 4)}} { }
-			class [|ITestCase_Triggers|] : {{MemberCount("ITestCase", 9)}} { }
-			class [|ITestClass_Triggers|] : {{MemberCount("ITestClass", 4)}} { }
-			class [|ITestCollection_Triggers|] : {{MemberCount("ITestCollection", 6)}} { }
-			class [|ITestMethod_Triggers|] : {{MemberCount("ITestMethod", 4)}} { }
-			class [|IXunitTestCase_Triggers|] : {{MemberCount("IXunitTestCase", 13)}} { }
+			class [|ITest_Triggers|] : ITest { }
+			class [|ITestAssembly_Triggers|] : ITestAssembly { }
+			class [|ITestCase_Triggers|] : ITestCase { }
+			class [|ITestClass_Triggers|] : ITestClass { }
+			class [|ITestCollection_Triggers|] : ITestCollection { }
+			class [|ITestMethod_Triggers|] : ITestMethod { }
+			class [|IXunitTestCase_Triggers|] : IXunitTestCase { }
 
 			// Test framework
-			class [|ISourceInformation_Triggers|] : {{MemberCount("ISourceInformation", 4)}} { }
-			class [|ISourceInformationProvider_Triggers|] : {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class [|ITestFramework_Triggers|] : {{MemberCount("ITestFramework", 4)}} { }
-			class [|ITestFrameworkDiscoverer_Triggers|] : {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class [|ITestFrameworkExecutor_Triggers|] : {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class [|ISourceInformation_Triggers|] : ISourceInformation { }
+			class [|ISourceInformationProvider_Triggers|] : ISourceInformationProvider { }
+			class [|ITestFramework_Triggers|] : ITestFramework { }
+			class [|ITestFrameworkDiscoverer_Triggers|] : ITestFrameworkDiscoverer { }
+			class [|ITestFrameworkExecutor_Triggers|] : ITestFrameworkExecutor { }
 
 			// ----- Incompatible base class -----
 
 			// Discovery and execution messages
-			class [|IMessageSink_Foo_Triggers|] : Foo, {{MemberCount("IMessageSink", 1)}} { }
-			class [|IMessageSinkMessage_Foo_Triggers|] : Foo, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class [|IMessageSink_Foo_Triggers|] : Foo, IMessageSink { }
+			class [|IMessageSinkMessage_Foo_Triggers|] : Foo, IMessageSinkMessage { }
 
 			// Reflection
-			class [|IAssemblyInfo_Foo_Triggers|] : Foo, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class [|IAttributeInfo_Foo_Triggers|] : Foo, {{MemberCount("IAttributeInfo", 3)}} { }
-			class [|IMethodInfo_Foo_Triggers|] : Foo, {{MemberCount("IMethodInfo", 11)}} { }
-			class [|IParameterInfo_Foo_Triggers|] : Foo, {{MemberCount("IParameterInfo", 2)}} { }
-			class [|ITypeInfo_Foo_Triggers|] : Foo, {{MemberCount("ITypeInfo", 13)}} { }
+			class [|IAssemblyInfo_Foo_Triggers|] : Foo, IAssemblyInfo { }
+			class [|IAttributeInfo_Foo_Triggers|] : Foo, IAttributeInfo { }
+			class [|IMethodInfo_Foo_Triggers|] : Foo, IMethodInfo { }
+			class [|IParameterInfo_Foo_Triggers|] : Foo, IParameterInfo { }
+			class [|ITypeInfo_Foo_Triggers|] : Foo, ITypeInfo { }
 
 			// Object model
-			class [|ITest_Foo_Triggers|] : Foo, {{MemberCount("ITest", 2)}} { }
-			class [|ITestAssembly_Foo_Triggers|] : Foo, {{MemberCount("ITestAssembly", 4)}} { }
-			class [|ITestCase_Foo_Triggers|] : Foo, {{MemberCount("ITestCase", 9)}} { }
-			class [|ITestClass_Foo_Triggers|] : Foo, {{MemberCount("ITestClass", 4)}} { }
-			class [|ITestCollection_Foo_Triggers|] : Foo, {{MemberCount("ITestCollection", 6)}} { }
-			class [|ITestMethod_Foo_Triggers|] : Foo, {{MemberCount("ITestMethod", 4)}} { }
-			class [|IXunitTestCase_Foo_Triggers|] : Foo, {{MemberCount("IXunitTestCase", 13)}} { }
+			class [|ITest_Foo_Triggers|] : Foo, ITest { }
+			class [|ITestAssembly_Foo_Triggers|] : Foo, ITestAssembly { }
+			class [|ITestCase_Foo_Triggers|] : Foo, ITestCase { }
+			class [|ITestClass_Foo_Triggers|] : Foo, ITestClass { }
+			class [|ITestCollection_Foo_Triggers|] : Foo, ITestCollection { }
+			class [|ITestMethod_Foo_Triggers|] : Foo, ITestMethod { }
+			class [|IXunitTestCase_Foo_Triggers|] : Foo, IXunitTestCase { }
 
 			// Test framework
-			class [|ISourceInformation_Foo_Triggers|] : Foo, {{MemberCount("ISourceInformation", 4)}} { }
-			class [|ISourceInformationProvider_Foo_Triggers|] : Foo, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class [|ITestFramework_Foo_Triggers|] : Foo, {{MemberCount("ITestFramework", 4)}} { }
-			class [|ITestFrameworkDiscoverer_Foo_Triggers|] : Foo, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class [|ITestFrameworkExecutor_Foo_Triggers|] : Foo, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class [|ISourceInformation_Foo_Triggers|] : Foo, ISourceInformation { }
+			class [|ISourceInformationProvider_Foo_Triggers|] : Foo, ISourceInformationProvider { }
+			class [|ITestFramework_Foo_Triggers|] : Foo, ITestFramework { }
+			class [|ITestFrameworkDiscoverer_Foo_Triggers|] : Foo, ITestFrameworkDiscoverer { }
+			class [|ITestFrameworkExecutor_Foo_Triggers|] : Foo, ITestFrameworkExecutor { }
 
 			// ----- With LongLivedMarshalByRefObject -----
 
 			// Discovery and execution messages
-			class IMessageSink_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IMessageSink", 1)}} { }
-			class IMessageSinkMessage_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class IMessageSink_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IMessageSink { }
+			class IMessageSinkMessage_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IMessageSinkMessage { }
 
 			// Reflection
-			class IAssemblyInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class IAttributeInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IAttributeInfo", 3)}} { }
-			class IMethodInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IMethodInfo", 11)}} { }
-			class IParameterInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IParameterInfo", 2)}} { }
-			class ITypeInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITypeInfo", 13)}} { }
+			class IAssemblyInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IAssemblyInfo { }
+			class IAttributeInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IAttributeInfo { }
+			class IMethodInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IMethodInfo { }
+			class IParameterInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IParameterInfo { }
+			class ITypeInfo_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITypeInfo { }
 
 			// Object model
-			class ITest_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITest", 2)}} { }
-			class ITestAssembly_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestAssembly", 4)}} { }
-			class ITestCase_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestCase", 9)}} { }
-			class ITestClass_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestClass", 4)}} { }
-			class ITestCollection_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestCollection", 6)}} { }
-			class ITestMethod_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestMethod", 4)}} { }
-			class IXunitTestCase_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("IXunitTestCase", 13)}} { }
+			class ITest_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITest { }
+			class ITestAssembly_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestAssembly { }
+			class ITestCase_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestCase { }
+			class ITestClass_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestClass { }
+			class ITestCollection_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestCollection { }
+			class ITestMethod_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestMethod { }
+			class IXunitTestCase_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, IXunitTestCase { }
 
 			// Test framework
-			class ISourceInformation_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ISourceInformation", 4)}} { }
-			class ISourceInformationProvider_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class ITestFramework_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestFramework", 4)}} { }
-			class ITestFrameworkDiscoverer_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class ITestFrameworkExecutor_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class ISourceInformation_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ISourceInformation { }
+			class ISourceInformationProvider_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ISourceInformationProvider { }
+			class ITestFramework_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestFramework { }
+			class ITestFrameworkDiscoverer_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestFrameworkDiscoverer { }
+			class ITestFrameworkExecutor_LLMBRO_DoesNotTrigger : Xunit.LongLivedMarshalByRefObject, ITestFrameworkExecutor { }
 
 			// ----- With MyLLMBRO -----
 
 			// Discovery and execution messages
-			class IMessageSink_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMessageSink", 1)}} { }
-			class IMessageSinkMessage_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class IMessageSink_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMessageSink { }
+			class IMessageSinkMessage_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMessageSinkMessage { }
 
 			// Reflection
-			class IAssemblyInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class IAttributeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IAttributeInfo", 3)}} { }
-			class IMethodInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMethodInfo", 11)}} { }
-			class IParameterInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IParameterInfo", 2)}} { }
-			class ITypeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITypeInfo", 13)}} { }
+			class IAssemblyInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IAssemblyInfo { }
+			class IAttributeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IAttributeInfo { }
+			class IMethodInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMethodInfo { }
+			class IParameterInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IParameterInfo { }
+			class ITypeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITypeInfo { }
 
 			// Object model
-			class ITest_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITest", 2)}} { }
-			class ITestAssembly_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestAssembly", 4)}} { }
-			class ITestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestCase", 9)}} { }
-			class ITestClass_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestClass", 4)}} { }
-			class ITestCollection_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestCollection", 6)}} { }
-			class ITestMethod_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestMethod", 4)}} { }
-			class IXunitTestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IXunitTestCase", 13)}} { }
+			class ITest_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITest { }
+			class ITestAssembly_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestAssembly { }
+			class ITestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestCase { }
+			class ITestClass_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestClass { }
+			class ITestCollection_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestCollection { }
+			class ITestMethod_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestMethod { }
+			class IXunitTestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IXunitTestCase { }
 
 			// Test framework
-			class ISourceInformation_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ISourceInformation", 4)}} { }
-			class ISourceInformationProvider_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class ITestFramework_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFramework", 4)}} { }
-			class ITestFrameworkDiscoverer_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class ITestFrameworkExecutor_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class ISourceInformation_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ISourceInformation { }
+			class ISourceInformationProvider_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ISourceInformationProvider { }
+			class ITestFramework_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFramework { }
+			class ITestFrameworkDiscoverer_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFrameworkDiscoverer { }
+			class ITestFrameworkExecutor_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFrameworkExecutor { }
 
 			// ----- Concrete base class that already derives from LLMBRO -----
 
 			class ConcreteTestCase_DoesNotTrigger : XunitTestCase { }
 			""";
 
-		await Verify_WithExecution.VerifyAnalyzerV2(source);
+		await Verify_WithExecution.VerifyAnalyzerV2(CompilerDiagnostics.None, source);
 	}
 
 	[Fact]
@@ -202,129 +203,117 @@ public class X3000_CrossAppDomainClassesMustBeLongLivedMarshalByRefObjectTests
 			class NoInterfaces_DoesNotTrigger { }
 
 			// Discovery and execution messages
-			class [|IMessageSink_Triggers|] : {{MemberCount("IMessageSink", 1)}} { }
-			class [|IMessageSinkMessage_Triggers|] : {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class [|IMessageSink_Triggers|] : IMessageSink { }
+			class [|IMessageSinkMessage_Triggers|] : IMessageSinkMessage { }
 
 			// Reflection
-			class [|IAssemblyInfo_Triggers|] : {{MemberCount("IAssemblyInfo", 5)}} { }
-			class [|IAttributeInfo_Triggers|] : {{MemberCount("IAttributeInfo", 3)}} { }
-			class [|IMethodInfo_Triggers|] : {{MemberCount("IMethodInfo", 11)}} { }
-			class [|IParameterInfo_Triggers|] : {{MemberCount("IParameterInfo", 2)}} { }
-			class [|ITypeInfo_Triggers|] : {{MemberCount("ITypeInfo", 13)}} { }
+			class [|IAssemblyInfo_Triggers|] : IAssemblyInfo { }
+			class [|IAttributeInfo_Triggers|] : IAttributeInfo { }
+			class [|IMethodInfo_Triggers|] : IMethodInfo { }
+			class [|IParameterInfo_Triggers|] : IParameterInfo { }
+			class [|ITypeInfo_Triggers|] : ITypeInfo { }
 
 			// Object model
-			class [|ITest_Triggers|] : {{MemberCount("ITest", 2)}} { }
-			class [|ITestAssembly_Triggers|] : {{MemberCount("ITestAssembly", 4)}} { }
-			class [|ITestCase_Triggers|] : {{MemberCount("ITestCase", 9)}} { }
-			class [|ITestClass_Triggers|] : {{MemberCount("ITestClass", 4)}} { }
-			class [|ITestCollection_Triggers|] : {{MemberCount("ITestCollection", 6)}} { }
-			class [|ITestMethod_Triggers|] : {{MemberCount("ITestMethod", 4)}} { }
+			class [|ITest_Triggers|] : ITest { }
+			class [|ITestAssembly_Triggers|] : ITestAssembly { }
+			class [|ITestCase_Triggers|] : ITestCase { }
+			class [|ITestClass_Triggers|] : ITestClass { }
+			class [|ITestCollection_Triggers|] : ITestCollection { }
+			class [|ITestMethod_Triggers|] : ITestMethod { }
 
 			// Test framework
-			class [|ISourceInformation_Triggers|] : {{MemberCount("ISourceInformation", 4)}} { }
-			class [|ISourceInformationProvider_Triggers|] : {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class [|ITestFramework_Triggers|] : {{MemberCount("ITestFramework", 4)}} { }
-			class [|ITestFrameworkDiscoverer_Triggers|] : {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class [|ITestFrameworkExecutor_Triggers|] : {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class [|ISourceInformation_Triggers|] : ISourceInformation { }
+			class [|ISourceInformationProvider_Triggers|] : ISourceInformationProvider { }
+			class [|ITestFramework_Triggers|] : ITestFramework { }
+			class [|ITestFrameworkDiscoverer_Triggers|] : ITestFrameworkDiscoverer { }
+			class [|ITestFrameworkExecutor_Triggers|] : ITestFrameworkExecutor { }
 
 			// ----- Incompatible base class -----
 
 			// Discovery and execution messages
-			class [|IMessageSink_Foo_Triggers|] : Foo, {{MemberCount("IMessageSink", 1)}} { }
-			class [|IMessageSinkMessage_Foo_Triggers|] : Foo, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class [|IMessageSink_Foo_Triggers|] : Foo, IMessageSink { }
+			class [|IMessageSinkMessage_Foo_Triggers|] : Foo, IMessageSinkMessage { }
 
 			// Reflection
-			class [|IAssemblyInfo_Foo_Triggers|] : Foo, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class [|IAttributeInfo_Foo_Triggers|] : Foo, {{MemberCount("IAttributeInfo", 3)}} { }
-			class [|IMethodInfo_Foo_Triggers|] : Foo, {{MemberCount("IMethodInfo", 11)}} { }
-			class [|IParameterInfo_Foo_Triggers|] : Foo, {{MemberCount("IParameterInfo", 2)}} { }
-			class [|ITypeInfo_Foo_Triggers|] : Foo, {{MemberCount("ITypeInfo", 13)}} { }
+			class [|IAssemblyInfo_Foo_Triggers|] : Foo, IAssemblyInfo { }
+			class [|IAttributeInfo_Foo_Triggers|] : Foo, IAttributeInfo { }
+			class [|IMethodInfo_Foo_Triggers|] : Foo, IMethodInfo { }
+			class [|IParameterInfo_Foo_Triggers|] : Foo, IParameterInfo { }
+			class [|ITypeInfo_Foo_Triggers|] : Foo, ITypeInfo { }
 
 			// Object model
-			class [|ITest_Foo_Triggers|] : Foo, {{MemberCount("ITest", 2)}} { }
-			class [|ITestAssembly_Foo_Triggers|] : Foo, {{MemberCount("ITestAssembly", 4)}} { }
-			class [|ITestCase_Foo_Triggers|] : Foo, {{MemberCount("ITestCase", 9)}} { }
-			class [|ITestClass_Foo_Triggers|] : Foo, {{MemberCount("ITestClass", 4)}} { }
-			class [|ITestCollection_Foo_Triggers|] : Foo, {{MemberCount("ITestCollection", 6)}} { }
-			class [|ITestMethod_Foo_Triggers|] : Foo, {{MemberCount("ITestMethod", 4)}} { }
+			class [|ITest_Foo_Triggers|] : Foo, ITest { }
+			class [|ITestAssembly_Foo_Triggers|] : Foo, ITestAssembly { }
+			class [|ITestCase_Foo_Triggers|] : Foo, ITestCase { }
+			class [|ITestClass_Foo_Triggers|] : Foo, ITestClass { }
+			class [|ITestCollection_Foo_Triggers|] : Foo, ITestCollection { }
+			class [|ITestMethod_Foo_Triggers|] : Foo, ITestMethod { }
 
 			// Test framework
-			class [|ISourceInformation_Foo_Triggers|] : Foo, {{MemberCount("ISourceInformation", 4)}} { }
-			class [|ISourceInformationProvider_Foo_Triggers|] : Foo, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class [|ITestFramework_Foo_Triggers|] : Foo, {{MemberCount("ITestFramework", 4)}} { }
-			class [|ITestFrameworkDiscoverer_Foo_Triggers|] : Foo, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class [|ITestFrameworkExecutor_Foo_Triggers|] : Foo, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class [|ISourceInformation_Foo_Triggers|] : Foo, ISourceInformation { }
+			class [|ISourceInformationProvider_Foo_Triggers|] : Foo, ISourceInformationProvider { }
+			class [|ITestFramework_Foo_Triggers|] : Foo, ITestFramework { }
+			class [|ITestFrameworkDiscoverer_Foo_Triggers|] : Foo, ITestFrameworkDiscoverer { }
+			class [|ITestFrameworkExecutor_Foo_Triggers|] : Foo, ITestFrameworkExecutor { }
 
 			// ----- With LongLivedMarshalByRefObject -----
 
 			// Discovery and execution messages
-			class IMessageSink_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IMessageSink", 1)}} { }
-			class IMessageSinkMessage_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class IMessageSink_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IMessageSink { }
+			class IMessageSinkMessage_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IMessageSinkMessage { }
 
 			// Reflection
-			class IAssemblyInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class IAttributeInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IAttributeInfo", 3)}} { }
-			class IMethodInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IMethodInfo", 11)}} { }
-			class IParameterInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("IParameterInfo", 2)}} { }
-			class ITypeInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITypeInfo", 13)}} { }
+			class IAssemblyInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IAssemblyInfo { }
+			class IAttributeInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IAttributeInfo { }
+			class IMethodInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IMethodInfo { }
+			class IParameterInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, IParameterInfo { }
+			class ITypeInfo_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITypeInfo { }
 
 			// Object model
-			class ITest_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITest", 2)}} { }
-			class ITestAssembly_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestAssembly", 4)}} { }
-			class ITestCase_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestCase", 9)}} { }
-			class ITestClass_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestClass", 4)}} { }
-			class ITestCollection_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestCollection", 6)}} { }
-			class ITestMethod_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestMethod", 4)}} { }
+			class ITest_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITest { }
+			class ITestAssembly_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestAssembly { }
+			class ITestCase_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestCase { }
+			class ITestClass_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestClass { }
+			class ITestCollection_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestCollection { }
+			class ITestMethod_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestMethod { }
 
 			// Test framework
-			class ISourceInformation_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ISourceInformation", 4)}} { }
-			class ISourceInformationProvider_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class ITestFramework_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestFramework", 4)}} { }
-			class ITestFrameworkDiscoverer_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class ITestFrameworkExecutor_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class ISourceInformation_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ISourceInformation { }
+			class ISourceInformationProvider_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ISourceInformationProvider { }
+			class ITestFramework_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestFramework { }
+			class ITestFrameworkDiscoverer_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer { }
+			class ITestFrameworkExecutor_LLMBRO_DoesNotTrigger : LongLivedMarshalByRefObject, ITestFrameworkExecutor { }
 
 			// ----- With MyLLMBRO -----
 
 			// Discovery and execution messages
-			class IMessageSink_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMessageSink", 1)}} { }
-			class IMessageSinkMessage_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMessageSinkMessage", 0)}} { }
+			class IMessageSink_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMessageSink { }
+			class IMessageSinkMessage_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMessageSinkMessage { }
 
 			// Reflection
-			class IAssemblyInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IAssemblyInfo", 5)}} { }
-			class IAttributeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IAttributeInfo", 3)}} { }
-			class IMethodInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IMethodInfo", 11)}} { }
-			class IParameterInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("IParameterInfo", 2)}} { }
-			class ITypeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITypeInfo", 13)}} { }
+			class IAssemblyInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IAssemblyInfo { }
+			class IAttributeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IAttributeInfo { }
+			class IMethodInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IMethodInfo { }
+			class IParameterInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, IParameterInfo { }
+			class ITypeInfo_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITypeInfo { }
 
 			// Object model
-			class ITest_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITest", 2)}} { }
-			class ITestAssembly_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestAssembly", 4)}} { }
-			class ITestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestCase", 9)}} { }
-			class ITestClass_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestClass", 4)}} { }
-			class ITestCollection_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestCollection", 6)}} { }
-			class ITestMethod_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestMethod", 4)}} { }
+			class ITest_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITest { }
+			class ITestAssembly_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestAssembly { }
+			class ITestCase_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestCase { }
+			class ITestClass_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestClass { }
+			class ITestCollection_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestCollection { }
+			class ITestMethod_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestMethod { }
 
 			// Test framework
-			class ISourceInformation_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ISourceInformation", 4)}} { }
-			class ISourceInformationProvider_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ISourceInformationProvider", 2)}} { }
-			class ITestFramework_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFramework", 4)}} { }
-			class ITestFrameworkDiscoverer_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFrameworkDiscoverer", 6)}} { }
-			class ITestFrameworkExecutor_MyLLMBRO_DoesNotTrigger : MyLLMBRO, {{MemberCount("ITestFrameworkExecutor", 4)}} { }
+			class ISourceInformation_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ISourceInformation { }
+			class ISourceInformationProvider_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ISourceInformationProvider { }
+			class ITestFramework_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFramework { }
+			class ITestFrameworkDiscoverer_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFrameworkDiscoverer { }
+			class ITestFrameworkExecutor_MyLLMBRO_DoesNotTrigger : MyLLMBRO, ITestFrameworkExecutor { }
 			""";
 
-		await Verify_WithRunnerUtility.VerifyAnalyzerV2RunnerUtility(source);
-	}
-
-	public static string MemberCount(
-		string memberName,
-		int memberCount)
-	{
-		var result = memberName;
-
-		while (memberCount-- > 0)
-			result = $"{{|CS0535:{result}|}}";
-
-		return result;
+		await Verify_WithRunnerUtility.VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.None, source);
 	}
 
 	internal class AbstractionsAnalyzer : CrossAppDomainClassesMustBeLongLivedMarshalByRefObject

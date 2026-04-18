@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
+using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.DoNotTestForConcreteTypeOfJsonSerializableTypes>;
-
-namespace Xunit.Analyzers;
 
 public class X3002_DoNotTestForConcreteTypeOfJsonSerializableTypesTests
 {

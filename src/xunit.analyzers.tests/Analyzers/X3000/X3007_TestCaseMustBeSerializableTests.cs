@@ -1,44 +1,37 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestCaseMustBeSerializable>;
 
 public class X3007_TestCaseMustBeSerializableTests
 {
-	static string CS0535(
-		string interfaceName,
-		int memberCount)
-	{
-		var result = interfaceName;
-
-		while (memberCount-- > 0)
-			result = $"{{|CS0535:{result}|}}";
-
-		return result;
-	}
-
 	[Fact]
 	public async ValueTask V3_only_NonAOT()
 	{
-		var source = $$"""
+		var source = """
 			using Xunit.Sdk;
 
 			[assembly: RegisterXunitSerializer(typeof(MySerializer), typeof(ExternalSerializedTestCase))]
 
 			public class NonTestCase { }
 
-			public abstract class AbstractTestCase : {{CS0535("ITestCase", 19)}} { }
+			public abstract class AbstractTestCase : ITestCase { }
 
-			public class SelfSerializedTestCase : {{CS0535("ITestCase", 19)}}, {{CS0535("IXunitSerializable", 2)}} { }
+			public class SelfSerializedTestCase : ITestCase, IXunitSerializable { }
 
-			public class ExternalSerializedTestCase : {{CS0535("ITestCase", 19)}} { }
+			public class ExternalSerializedTestCase : ITestCase { }
 
 			public class DerivedTestCase : ExternalSerializedTestCase { }
 
-			public class {|xUnit3007:UnserializedTestCase|} : {{CS0535("ITestCase", 19)}} { }
+			public class {|#0:UnserializedTestCase|} : ITestCase { }
 
-			public class MySerializer : {{CS0535("IXunitSerializer", 3)}} { }
+			public class MySerializer : IXunitSerializer { }
 			""";
 
-		await Verify.VerifyAnalyzerV3NonAot(source);
+		var expected = Verify.Diagnostic("xUnit3007")
+			.WithLocation(0)
+			.WithArguments("UnserializedTestCase", "Xunit.Sdk.ITestCase", "Xunit.Sdk.IXunitSerializable");
+
+		await Verify.VerifyAnalyzerV3NonAot(CompilerDiagnostics.None, source, expected);
 	}
 }

@@ -19,8 +19,27 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, [source], diagnostics);
-		await VerifyAnalyzerV3RunnerUtility(LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// AOT tests will be run against C# version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerRunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
 	}
 
 	/// <summary>
@@ -35,8 +54,26 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(languageVersion, [source], diagnostics);
-		await VerifyAnalyzerV3RunnerUtility(languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(compilerDiagnostics, languageVersion, [source], diagnostics);
 	}
 
 	/// <summary>
@@ -52,8 +89,27 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, sources, diagnostics);
-		await VerifyAnalyzerV3RunnerUtility(LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// AOT tests will be run against C# version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerRunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
 	}
 
 	/// <summary>
@@ -68,8 +124,26 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(languageVersion, sources, diagnostics);
-		await VerifyAnalyzerV3RunnerUtility(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtility(compilerDiagnostics, languageVersion, sources, diagnostics);
 	}
 
 	/// <summary>
@@ -82,8 +156,24 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, [source], diagnostics);
-		await VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
 	}
 
 	/// <summary>
@@ -98,8 +188,26 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(languageVersion, [source], diagnostics);
-		await VerifyAnalyzerV3RunnerUtilityNonAot(languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, languageVersion, [source], diagnostics);
 	}
 
 	/// <summary>
@@ -112,8 +220,24 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, sources, diagnostics);
-		await VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
 	}
 
 	/// <summary>
@@ -128,8 +252,26 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV2RunnerUtility(languageVersion, sources, diagnostics);
-		await VerifyAnalyzerV3RunnerUtilityNonAot(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 and v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static async Task VerifyAnalyzerRunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, languageVersion, sources, diagnostics);
 	}
 
 	// ----- v2 -----
@@ -143,7 +285,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV2RunnerUtility(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, [source], diagnostics);
+			VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
@@ -156,7 +311,22 @@ public partial class CSharpVerifier<TAnalyzer>
 		LanguageVersion languageVersion,
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV2RunnerUtility(languageVersion, [source], diagnostics);
+			VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, languageVersion, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v2 Runner Utility, using C# 6.
@@ -167,7 +337,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV2RunnerUtility(
 		string[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV2RunnerUtility(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV2RunnerUtility(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
@@ -179,6 +362,21 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV2RunnerUtility(
 		LanguageVersion languageVersion,
 		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV2RunnerUtility(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v2, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV2RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
 		var test = new TestV2RunnerUtility(languageVersion);
@@ -186,6 +384,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		foreach (var source in sources)
 			test.TestState.Sources.Add(source);
 
+		test.CompilerDiagnostics = compilerDiagnostics;
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		return test.RunAsync();
 	}
@@ -205,9 +404,30 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
 #if NETCOREAPP
-		await VerifyAnalyzerV3RunnerUtilityAot(LanguageVersion.CSharp13, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, [source], diagnostics);
+#endif
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// AOT tests will be run against C# version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerV3RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
+#if NETCOREAPP
+		await VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, LanguageVersion.CSharp13, [source], diagnostics);
 #endif
 	}
 
@@ -227,9 +447,33 @@ public partial class CSharpVerifier<TAnalyzer>
 		string source,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV3RunnerUtilityNonAot(languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
 #if NETCOREAPP
-		await VerifyAnalyzerV3RunnerUtilityAot(languageVersion, [source], diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+#endif
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// If <paramref name="languageVersion"/> is less than 13, then AOT tests will be run
+	/// against version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerV3RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, languageVersion, [source], diagnostics);
+#if NETCOREAPP
+		await VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, languageVersion, [source], diagnostics);
 #endif
 	}
 
@@ -246,9 +490,30 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
 #if NETCOREAPP
-		await VerifyAnalyzerV3RunnerUtilityAot(LanguageVersion.CSharp13, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, sources, diagnostics);
+#endif
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// AOT tests will be run against C# version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerV3RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
+#if NETCOREAPP
+		await VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, LanguageVersion.CSharp13, sources, diagnostics);
 #endif
 	}
 
@@ -268,9 +533,33 @@ public partial class CSharpVerifier<TAnalyzer>
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
 	{
-		await VerifyAnalyzerV3RunnerUtilityNonAot(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
 #if NETCOREAPP
-		await VerifyAnalyzerV3RunnerUtilityAot(languageVersion, sources, diagnostics);
+		await VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+#endif
+	}
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	/// <remarks>
+	/// If <paramref name="languageVersion"/> is less than 13, then AOT tests will be run
+	/// against version 13 (the minimum required for .NET 9).
+	/// </remarks>
+	public static async Task VerifyAnalyzerV3RunnerUtility(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics)
+	{
+		await VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, languageVersion, sources, diagnostics);
+#if NETCOREAPP
+		await VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, languageVersion, sources, diagnostics);
 #endif
 	}
 
@@ -285,7 +574,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV3RunnerUtilityAot(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityAot(LanguageVersion.CSharp13, [source], diagnostics);
+			VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 13.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, LanguageVersion.CSharp13, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
@@ -298,7 +600,22 @@ public partial class CSharpVerifier<TAnalyzer>
 		LanguageVersion languageVersion,
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityAot(languageVersion, [source], diagnostics);
+			VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityAot(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, languageVersion, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 13.
@@ -309,7 +626,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV3RunnerUtilityAot(
 		string[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityAot(LanguageVersion.CSharp13, sources, diagnostics);
+			VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 13.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityAot(compilerDiagnostics, LanguageVersion.CSharp13, sources, diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
@@ -318,7 +648,22 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// <param name="sources">The code to verify</param>
 	/// <param name="diagnostics">The expected diagnostics (pass none for code that
 	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityAot(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
 	public static async Task VerifyAnalyzerV3RunnerUtilityAot(
+		CompilerDiagnostics compilerDiagnostics,
 		LanguageVersion languageVersion,
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -332,6 +677,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		foreach (var source in sources)
 			testAot.TestState.Sources.Add(source);
 
+		testAot.CompilerDiagnostics = compilerDiagnostics;
 		testAot.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
 		await testAot.RunAsync();
@@ -348,7 +694,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, [source], diagnostics);
+			VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
@@ -361,7 +720,22 @@ public partial class CSharpVerifier<TAnalyzer>
 		LanguageVersion languageVersion,
 		string source,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityNonAot(languageVersion, [source], diagnostics);
+			VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, [source], diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="source">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		LanguageVersion languageVersion,
+		string source,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, languageVersion, [source], diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
@@ -372,7 +746,20 @@ public partial class CSharpVerifier<TAnalyzer>
 	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
 		string[] sources,
 		params DiagnosticResult[] diagnostics) =>
-			VerifyAnalyzerV3RunnerUtilityNonAot(LanguageVersion.CSharp6, sources, diagnostics);
+			VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using C# 6.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityNonAot(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
@@ -381,7 +768,22 @@ public partial class CSharpVerifier<TAnalyzer>
 	/// <param name="sources">The code to verify</param>
 	/// <param name="diagnostics">The expected diagnostics (pass none for code that
 	/// should not trigger)</param>
+	public static Task VerifyAnalyzerV3RunnerUtilityNonAot(
+		LanguageVersion languageVersion,
+		string[] sources,
+		params DiagnosticResult[] diagnostics) =>
+			VerifyAnalyzerV3RunnerUtilityNonAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
+
+	/// <summary>
+	/// Runs code for analysis, against xUnit.net v3 Runner Utility, using the provided version of C#.
+	/// </summary>
+	/// <param name="compilerDiagnostics">The level of compiler diagnostics to verify</param>
+	/// <param name="languageVersion">The language version to compile with</param>
+	/// <param name="sources">The code to verify</param>
+	/// <param name="diagnostics">The expected diagnostics (pass none for code that
+	/// should not trigger)</param>
 	public static async Task VerifyAnalyzerV3RunnerUtilityNonAot(
+		CompilerDiagnostics compilerDiagnostics,
 		LanguageVersion languageVersion,
 		string[] sources,
 		params DiagnosticResult[] diagnostics)
@@ -391,6 +793,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		foreach (var source in sources)
 			test.TestState.Sources.Add(source);
 
+		test.CompilerDiagnostics = compilerDiagnostics;
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		await test.RunAsync();
 	}
