@@ -618,7 +618,14 @@ public static partial class Descriptors
 			"There is no matching argument for '{0}.{1}' parameter: {2} {3}. Remove unused parameter(s), or add more argument(s)."
 		);
 
-	// Placeholder for rule X1068
+	public static DiagnosticDescriptor X1068_MemberDataCannotPointToOpenGeneric { get; } =
+		Diagnostic(
+			"xUnit1068",
+			"MemberData cannot point to an open generic type",
+			Usage,
+			Error,
+			"Member data is pointing to an open generic type, which cannot be closed at runtime in Native AOT."
+		);
 
 	// Placeholder for rule X1069
 

@@ -36,7 +36,8 @@ public class MemberDataShouldReferenceValidMember() :
 		Descriptors.X1057_TypeMustBePublicOrInternal,
 		Descriptors.X1065_MemberDataMethodIsAmbiguous,
 		Descriptors.X1066_MemberDataParameterCannotBeParams,
-		Descriptors.X1067_MissingMemberDataMethodParameter)
+		Descriptors.X1067_MissingMemberDataMethodParameter,
+		Descriptors.X1068_MemberDataCannotPointToOpenGeneric)
 {
 	public override void AnalyzeCompilation(
 		CompilationStartAnalysisContext context,
@@ -95,11 +96,21 @@ public class MemberDataShouldReferenceValidMember() :
 				if (declaredMemberTypeSymbol is null || testClassTypeSymbol is null)
 					continue;
 
-				// Member data symbol must be public or internal for Native AOT
-				if (xunitContext.HasV3AotReferences && declaredMemberTypeSymbol.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
+				if (xunitContext.HasV3AotReferences)
 				{
-					ReportTypeMustBePublicOrInternal(context, attributeSyntax, declaredMemberTypeSymbol);
-					return;
+					// Member data symbol must be public or internal for Native AOT
+					if (declaredMemberTypeSymbol.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
+					{
+						ReportTypeMustBePublicOrInternal(context, attributeSyntax, declaredMemberTypeSymbol);
+						return;
+					}
+
+					// We can't close an open generic in Native AOT
+					if (declaredMemberTypeSymbol is INamedTypeSymbol namedMemberType && namedMemberType.IsGenericType && namedMemberType.TypeArguments.Any(t => t.Kind == SymbolKind.TypeParameter))
+					{
+						ReportOpenGenericMemberType(context, attributeSyntax);
+						return;
+					}
 				}
 
 				// Ensure we're pointing to something that exists
@@ -578,6 +589,18 @@ public class MemberDataShouldReferenceValidMember() :
 				)
 			);
 
+	static void ReportMemberReturnsTypeUnsafeValue(
+		SyntaxNodeAnalysisContext context,
+		AttributeSyntax attribute,
+		string suggestedAlternative) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
+					attribute.GetLocation(),
+					suggestedAlternative
+				)
+			);
+
 	static void ReportMissingMember(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -621,18 +644,6 @@ public class MemberDataShouldReferenceValidMember() :
 				)
 			);
 
-	static void ReportMemberReturnsTypeUnsafeValue(
-		SyntaxNodeAnalysisContext context,
-		AttributeSyntax attribute,
-		string suggestedAlternative) =>
-			context.ReportDiagnostic(
-				Diagnostic.Create(
-					Descriptors.X1042_MemberDataTheoryDataIsRecommendedForStronglyTypedAnalysis,
-					attribute.GetLocation(),
-					suggestedAlternative
-				)
-			);
-
 	static void ReportNonStatic(
 		SyntaxNodeAnalysisContext context,
 		AttributeSyntax attribute,
@@ -659,6 +670,16 @@ public class MemberDataShouldReferenceValidMember() :
 					memberName,
 					SymbolDisplay.ToDisplayString(firstUnprovidedParameter.Type),
 					firstUnprovidedParameter.Name
+				)
+			);
+
+	static void ReportOpenGenericMemberType(
+		SyntaxNodeAnalysisContext context,
+		AttributeSyntax attribute) =>
+			context.ReportDiagnostic(
+				Diagnostic.Create(
+					Descriptors.X1068_MemberDataCannotPointToOpenGeneric,
+					attribute.GetLocation()
 				)
 			);
 
