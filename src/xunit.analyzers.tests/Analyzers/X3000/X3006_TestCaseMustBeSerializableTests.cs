@@ -8,7 +8,7 @@ public class X3006_TestCaseMustBeSerializableTests
 	[Fact]
 	public async ValueTask V3_only_NonAOT()
 	{
-		var source = """
+		var source = /* lang=c#-test */ """
 			using Xunit.Sdk;
 
 			[assembly: RegisterXunitSerializer(typeof(MySerializer), typeof(ExternalSerializedTestCase))]
