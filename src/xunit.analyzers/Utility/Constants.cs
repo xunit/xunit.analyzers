@@ -181,6 +181,7 @@ public static class Constants
 			public const string ITestCollection_V3 = "Xunit.Sdk.ITestCollection";
 			public const string ITestCollectionOrderer_V2 = "Xunit.ITestCollectionOrderer";
 			public const string ITestCollectionOrderer_V3 = "Xunit.v3.ITestCollectionOrderer";
+			public const string ITestContext_V3 = "Xunit.ITestContext";
 			public const string ITestContextAccessor_V3 = "Xunit.ITestContextAccessor";
 			public const string ITestFramework_V2 = "Xunit.Abstractions.ITestFramework";
 			public const string ITestFramework_V3 = "Xunit.v3.ITestFramework";

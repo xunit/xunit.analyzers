@@ -286,6 +286,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? ITestCollectionOrderer_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestCollectionOrderer_V3);
 
+	public static INamedTypeSymbol? ITestContext_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestContext_V3);
+
 	public static INamedTypeSymbol? ITestContextAccessor_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.ITestContextAccessor_V3);
 

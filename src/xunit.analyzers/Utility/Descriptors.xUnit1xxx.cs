@@ -627,7 +627,14 @@ public static partial class Descriptors
 			"Member data is pointing to an open generic type, which cannot be closed at runtime in Native AOT."
 		);
 
-	// Placeholder for rule X1069
+	public static DiagnosticDescriptor X1069_TestMethodWithTimeoutShouldUseCancellationToken { get; } =
+		Diagnostic(
+			"xUnit1069",
+			"Test methods with a Timeout should reference TestContext.Current.CancellationToken",
+			Usage,
+			Warning,
+			"Test method '{0}' has a Timeout but does not reference TestContext.Current.CancellationToken. Tests with a Timeout should reference TestContext.Current.CancellationToken so they can terminate promptly when the timeout is exceeded."
+		);
 
 	// Placeholder for rule X1070
 }
