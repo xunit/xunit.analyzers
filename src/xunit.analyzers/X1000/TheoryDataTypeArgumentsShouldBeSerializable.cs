@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -50,39 +51,178 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			if (DiscoveryEnumerationIsDisabled(method, typeSymbols))
 				return;
 
-			var dataAttributes =
-				methodSyntax
-					.AttributeLists
-					.SelectMany(list => list.Attributes)
-					.Zip(method.GetAttributes(), (attributeSyntax, attribute) => (attributeSyntax, attribute))
-					.Where((tuple) => tuple.attribute.IsInstanceOf(typeSymbols.DataAttribute));
-
-			foreach ((var dataAttributeSyntax, var dataAttribute) in dataAttributes)
+			var methodAttributes = method.GetAttributes();
+			foreach (var attributeList in methodSyntax.AttributeLists)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
-
-				var types = finder.FindTypeArguments(dataAttribute, testClass);
-
-				foreach (var type in types)
+				foreach (var dataAttributeSyntax in attributeList.Attributes)
 				{
-					if (analyzer.TypeShouldBeIgnored(type))
+					var dataAttribute = methodAttributes.FirstOrDefault(a => a.ApplicationSyntaxReference?.GetSyntax(cancellationToken) == dataAttributeSyntax);
+					if (dataAttribute == null || !dataAttribute.IsInstanceOf(typeSymbols.DataAttribute))
 						continue;
+					cancellationToken.ThrowIfCancellationRequested();
 
-					var serializability = analyzer.AnalyzeSerializability(type, xunitContext);
+					var (types, dataSource) = finder.FindTypeArgumentsInfo(dataAttribute, testClass);
 
-					if (serializability != Serializability.AlwaysSerializable)
-						context.ReportDiagnostic(
-							Diagnostic.Create(
-								serializability == Serializability.NeverSerializable
-									? Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable
-									: Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable,
-								dataAttributeSyntax.GetLocation(),
-								type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
-							)
-						);
+					foreach (var type in types)
+					{
+						if (analyzer.TypeShouldBeIgnored(type))
+							continue;
+
+						var serializability = analyzer.AnalyzeSerializability(type, xunitContext);
+
+						if (serializability != Serializability.AlwaysSerializable)
+						{
+							if (CanStaticallyVerifyAllValuesAreSerializable(dataSource, semanticModel, analyzer, xunitContext, cancellationToken))
+								continue;
+
+							context.ReportDiagnostic(
+								Diagnostic.Create(
+									serializability == Serializability.NeverSerializable
+										? Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable
+										: Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable,
+									dataAttributeSyntax.GetLocation(),
+									type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
+								)
+							);
+						}
+					}
 				}
 			}
 		}, SyntaxKind.MethodDeclaration);
+	}
+
+	static bool CanStaticallyVerifyAllValuesAreSerializable(
+		ISymbol? dataSource,
+		SemanticModel semanticModel,
+		SerializabilityAnalyzer analyzer,
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
+	{
+		if (dataSource is null)
+			return false;
+
+		var syntaxReferences = dataSource.DeclaringSyntaxReferences;
+		if (syntaxReferences.Length == 0)
+			return false;
+
+		bool foundAnyInitializer = false;
+
+		foreach (var syntaxRef in syntaxReferences)
+		{
+			var syntax = syntaxRef.GetSyntax(cancellationToken);
+			if (syntax.SyntaxTree != semanticModel.SyntaxTree)
+				return false;
+
+			ExpressionSyntax? initializerExpression = null;
+
+			if (syntax is PropertyDeclarationSyntax property)
+			{
+				initializerExpression = property.Initializer?.Value ?? property.ExpressionBody?.Expression;
+				if (initializerExpression == null && property.AccessorList != null)
+				{
+					var getter = property.AccessorList.Accessors.FirstOrDefault(a => a.Keyword.IsKind(SyntaxKind.GetKeyword));
+					if (getter?.Body?.Statements.Count == 1 && getter.Body.Statements[0] is ReturnStatementSyntax returnStmt)
+						initializerExpression = returnStmt.Expression;
+					else if (getter?.ExpressionBody != null)
+						initializerExpression = getter.ExpressionBody.Expression;
+				}
+			}
+			else if (syntax is VariableDeclaratorSyntax variableDeclarator)
+			{
+				initializerExpression = variableDeclarator.Initializer?.Value;
+			}
+			else if (syntax is MethodDeclarationSyntax method)
+			{
+				initializerExpression = method.ExpressionBody?.Expression;
+				if (initializerExpression == null && method.Body?.Statements.Count == 1 && method.Body.Statements[0] is ReturnStatementSyntax returnStmt)
+				{
+					initializerExpression = returnStmt.Expression;
+				}
+			}
+			else if (syntax is ClassDeclarationSyntax _)
+			{
+				return false;
+			}
+
+			if (initializerExpression == null)
+				continue;
+
+			foundAnyInitializer = true;
+
+			if (!IsExpressionAllSerializable(initializerExpression, semanticModel, analyzer, xunitContext, cancellationToken))
+				return false;
+		}
+
+		return foundAnyInitializer;
+	}
+
+	static bool IsExpressionAllSerializable(
+		ExpressionSyntax expression,
+		SemanticModel model,
+		SerializabilityAnalyzer analyzer,
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
+	{
+		InitializerExpressionSyntax? initializer = null;
+		if (expression is ObjectCreationExpressionSyntax objCreation)
+			initializer = objCreation.Initializer;
+		else if (expression is ImplicitObjectCreationExpressionSyntax implicitObjCreation)
+			initializer = implicitObjCreation.Initializer;
+
+		if (initializer == null || !initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
+			return false;
+
+		if (initializer.Expressions.Count == 0)
+			return false;
+
+		foreach (var element in initializer.Expressions)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			if (element is InitializerExpressionSyntax complexElement)
+			{
+				foreach (var innerElement in complexElement.Expressions)
+				{
+					if (!IsValueSerializable(innerElement, model, analyzer, xunitContext, cancellationToken))
+						return false;
+				}
+			}
+			else
+			{
+				if (!IsValueSerializable(element, model, analyzer, xunitContext, cancellationToken))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	static bool IsValueSerializable(
+		ExpressionSyntax expression,
+		SemanticModel model,
+		SerializabilityAnalyzer analyzer,
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
+	{
+		var expr = expression;
+		while (true)
+		{
+			if (expr is CastExpressionSyntax castExpr)
+				expr = castExpr.Expression;
+			else if (expr is ParenthesizedExpressionSyntax paren)
+				expr = paren.Expression;
+			else
+				break;
+		}
+
+		if (expr.IsKind(SyntaxKind.NullLiteralExpression))
+			return true;
+
+		var typeInfo = model.GetTypeInfo(expr, cancellationToken);
+		if (typeInfo.Type == null || analyzer.AnalyzeSerializability(typeInfo.Type, xunitContext) != Serializability.AlwaysSerializable)
+			return false;
+
+		return true;
 	}
 
 	static bool AttributeIsTheoryOrDataAttribute(
@@ -109,12 +249,32 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 		/// a generic TheoryData class, such as if it is a member with the type <see cref="IEnumerable{T}"/>
 		/// of <see cref="object"/>[], then no type arguments will be found.
 		/// </summary>
-		public IEnumerable<ITypeSymbol> FindTypeArguments(
+		public (IEnumerable<ITypeSymbol> TypeArguments, ISymbol? DataSource) FindTypeArgumentsInfo(
 			AttributeData dataAttribute,
-			INamedTypeSymbol testClass) =>
-				GetDataSourceType(dataAttribute, testClass) is INamedTypeSymbol type
-					? GetTheoryDataTypeArguments(type)
-					: [];
+			INamedTypeSymbol testClass)
+		{
+			var dataSource = FindDataSourceSymbol(dataAttribute, testClass);
+			var type = dataSource switch
+			{
+				INamedTypeSymbol namedType => namedType,
+				_ => GetMemberType(dataSource) as INamedTypeSymbol
+			};
+
+			return (type is not null ? GetTheoryDataTypeArguments(type) : [], dataSource);
+		}
+
+		ISymbol? FindDataSourceSymbol(
+			AttributeData dataAttribute,
+			INamedTypeSymbol testClass)
+		{
+			if (dataAttribute.IsInstanceOf(typeSymbols.ClassDataAttribute, exactMatch: true))
+				return dataAttribute.ConstructorArguments.FirstOrDefault().Value as INamedTypeSymbol;
+
+			if (dataAttribute.IsInstanceOf(typeSymbols.MemberDataAttribute, exactMatch: true))
+				return GetMemberSymbol(dataAttribute, testClass);
+
+			return null;
+		}
 
 		static IMethodSymbol? GetCompatibleMethod(
 			ITypeSymbol type,
@@ -140,19 +300,6 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 
 				return methods.FirstOrDefault(method => method.Parameters.Length == arguments.Length);
 			}
-
-			return null;
-		}
-
-		INamedTypeSymbol? GetDataSourceType(
-			AttributeData dataAttribute,
-			INamedTypeSymbol testClass)
-		{
-			if (dataAttribute.IsInstanceOf(typeSymbols.ClassDataAttribute, exactMatch: true))
-				return dataAttribute.ConstructorArguments.FirstOrDefault().Value as INamedTypeSymbol;
-
-			if (dataAttribute.IsInstanceOf(typeSymbols.MemberDataAttribute, exactMatch: true))
-				return GetMemberType(dataAttribute, testClass) as INamedTypeSymbol;
 
 			return null;
 		}
@@ -183,7 +330,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 		/// <remarks>
 		/// The logic in this method corresponds to the logic in MemberDataAttributeBase.GetData.
 		/// </remarks>
-		static ITypeSymbol? GetMemberType(
+		static ISymbol? GetMemberSymbol(
 			AttributeData memberDataAttribute,
 			INamedTypeSymbol testClass)
 		{
@@ -193,12 +340,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			{
 				var containingType = GetMemberContainingType(memberDataAttribute) ?? testClass;
 
-				var member =
-					GetProperty(containingType, memberName)
+				return GetProperty(containingType, memberName)
 						?? GetField(containingType, memberName)
 						?? GetMethod(containingType, memberName, memberDataAttribute) as ISymbol;
-
-				return GetMemberType(member);
 			}
 
 			return null;
