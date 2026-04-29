@@ -72,7 +72,8 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 
 						if (serializability != Serializability.AlwaysSerializable)
 						{
-							if (CanStaticallyVerifyAllValuesAreSerializable(dataSource, semanticModel, analyzer, xunitContext, cancellationToken))
+							if (serializability == Serializability.PossiblySerializable
+							&& CanStaticallyVerifyAllValuesAreSerializable(dataSource, semanticModel, analyzer, xunitContext, cancellationToken))
 								continue;
 
 							context.ReportDiagnostic(
