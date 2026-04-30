@@ -22,9 +22,9 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 			public class ObjectClass {
 				public sealed class Class : TheoryData<object> { }
-				public static readonly TheoryData<object> Field = new TheoryData<object>() { };
-				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { };
-				public static TheoryData<object> Property => new TheoryData<object>() { };
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { new object() };
+				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { new object() };
+				public static TheoryData<object> Property => new TheoryData<object>() { new object() };
 
 				[Theory]
 				[MemberData(nameof(Field), DisableDiscoveryEnumeration = true)]
@@ -39,6 +39,28 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[{|xUnit1045:MemberData(nameof(Property))|}]
 				public void Triggers(object parameter) { }
 			}
+
+			public class SafeObjectClass {
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+				public static TheoryData<object> Property => new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+
+				[Theory]
+				[MemberData(nameof(Field))]
+				[MemberData(nameof(Method), 1, "2")]
+				[MemberData(nameof(Property))]
+				public void DoesNotTriggerWhenInitializedWithSerializableValues(object parameter) { }
+			}
+
+			public class UnsafeObjectClass {
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { { (object)1 }, { (object)new NonSerializableClass() } };
+
+				[Theory]
+				[{|xUnit1045:MemberData(nameof(Field))|}]
+				public void TriggersWhenMixedSerializableAndNonSerializable(object parameter) { }
+			}
+
+			public sealed class NonSerializableClass { }
 
 			public class IPossiblySerializableInterfaceClass {
 				public sealed class Class : TheoryData<IPossiblySerializableInterface> { }
@@ -248,9 +270,9 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 			public class ObjectClass {
 				public sealed class Class : TheoryData<object> { }
-				public static readonly TheoryData<object> Field = new TheoryData<object>() { };
-				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { };
-				public static TheoryData<object> Property => new TheoryData<object>() { };
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { new object() };
+				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { new object() };
+				public static TheoryData<object> Property => new TheoryData<object>() { new object() };
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
@@ -265,6 +287,26 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[{|xUnit1045:MemberData(nameof(Method), 1, "2")|}]
 				[{|xUnit1045:MemberData(nameof(Property))|}]
 				public void Triggers(object parameter) { }
+			}
+
+			public class SafeObjectClass {
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+				public static TheoryData<object> Property => new TheoryData<object>() { { (object)1 }, { (object)"test" } };
+
+				[Theory]
+				[MemberData(nameof(Field))]
+				[MemberData(nameof(Method), 1, "2")]
+				[MemberData(nameof(Property))]
+				public void DoesNotTriggerWhenInitializedWithSerializableValues(object parameter) { }
+			}
+
+			public class UnsafeObjectClass {
+				public static readonly TheoryData<object> Field = new TheoryData<object>() { { (object)1 }, { (object)new NonSerializableSealedClass() } };
+
+				[Theory]
+				[{|xUnit1045:MemberData(nameof(Field))|}]
+				public void TriggersWhenMixedSerializableAndNonSerializable(object parameter) { }
 			}
 
 			public class IPossiblySerializableInterfaceClass {
