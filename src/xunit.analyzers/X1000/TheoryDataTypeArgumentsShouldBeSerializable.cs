@@ -52,45 +52,48 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 				return;
 
 			var methodAttributes = method.GetAttributes();
-			foreach (var attributeList in methodSyntax.AttributeLists)
+			foreach (var dataAttributeSyntax in methodSyntax.AttributeLists.SelectMany(al => al.Attributes))
 			{
-				foreach (var dataAttributeSyntax in attributeList.Attributes)
+				var dataAttribute = methodAttributes.FirstOrDefault(a => a.ApplicationSyntaxReference?.GetSyntax(cancellationToken) == dataAttributeSyntax);
+				if (dataAttribute == null || !dataAttribute.IsInstanceOf(typeSymbols.DataAttribute))
+					continue;
+
+				cancellationToken.ThrowIfCancellationRequested();
+
+				var (types, dataSource) = finder.FindTypeArgumentsInfo(dataAttribute, testClass);
+
+				foreach (var type in types)
 				{
-					var dataAttribute = methodAttributes.FirstOrDefault(a => a.ApplicationSyntaxReference?.GetSyntax(cancellationToken) == dataAttributeSyntax);
-					if (dataAttribute == null || !dataAttribute.IsInstanceOf(typeSymbols.DataAttribute))
+					if (analyzer.TypeShouldBeIgnored(type))
 						continue;
-					cancellationToken.ThrowIfCancellationRequested();
 
-					var (types, dataSource) = finder.FindTypeArgumentsInfo(dataAttribute, testClass);
+					var serializability = analyzer.AnalyzeSerializability(type, xunitContext);
 
-					foreach (var type in types)
+					if (serializability != Serializability.AlwaysSerializable)
 					{
-						if (analyzer.TypeShouldBeIgnored(type))
+						if (serializability == Serializability.PossiblySerializable
+								&& CanStaticallyVerifyAllValuesAreSerializable(dataSource, semanticModel, analyzer, xunitContext, cancellationToken))
 							continue;
 
-						var serializability = analyzer.AnalyzeSerializability(type, xunitContext);
-
-						if (serializability != Serializability.AlwaysSerializable)
-						{
-							if (serializability == Serializability.PossiblySerializable
-							&& CanStaticallyVerifyAllValuesAreSerializable(dataSource, semanticModel, analyzer, xunitContext, cancellationToken))
-								continue;
-
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									serializability == Serializability.NeverSerializable
-										? Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable
-										: Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable,
-									dataAttributeSyntax.GetLocation(),
-									type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
-								)
-							);
-						}
+						context.ReportDiagnostic(
+							Diagnostic.Create(
+								serializability == Serializability.NeverSerializable
+									? Descriptors.X1044_AvoidUsingTheoryDataTypeArgumentsThatAreNotSerializable
+									: Descriptors.X1045_AvoidUsingTheoryDataTypeArgumentsThatMightNotBeSerializable,
+								dataAttributeSyntax.GetLocation(),
+								type.ToMinimalDisplayString(semanticModel, dataAttributeSyntax.SpanStart)
+							)
+						);
 					}
 				}
 			}
 		}, SyntaxKind.MethodDeclaration);
 	}
+
+	static bool AttributeIsTheoryOrDataAttribute(
+		AttributeData attribute,
+		SerializableTypeSymbols typeSymbols) =>
+			attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
 
 	static bool CanStaticallyVerifyAllValuesAreSerializable(
 		ISymbol? dataSource,
@@ -136,11 +139,9 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			{
 				initializerExpression = method.ExpressionBody?.Expression;
 				if (initializerExpression == null && method.Body?.Statements.Count == 1 && method.Body.Statements[0] is ReturnStatementSyntax returnStmt)
-				{
 					initializerExpression = returnStmt.Expression;
-				}
 			}
-			else if (syntax is ClassDeclarationSyntax _)
+			else if (syntax is ClassDeclarationSyntax)
 			{
 				return false;
 			}
@@ -156,6 +157,15 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 
 		return foundAnyInitializer;
 	}
+
+	static bool DiscoveryEnumerationIsDisabled(
+		IMethodSymbol method,
+		SerializableTypeSymbols typeSymbols) =>
+			method
+				.GetAttributes()
+				.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
+				.SelectMany(attribute => attribute.NamedArguments)
+				.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
 
 	static bool IsExpressionAllSerializable(
 		ExpressionSyntax expression,
@@ -183,16 +193,11 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			if (element is InitializerExpressionSyntax complexElement)
 			{
 				foreach (var innerElement in complexElement.Expressions)
-				{
 					if (!IsValueSerializable(innerElement, model, analyzer, xunitContext, cancellationToken))
 						return false;
-				}
 			}
-			else
-			{
-				if (!IsValueSerializable(element, model, analyzer, xunitContext, cancellationToken))
-					return false;
-			}
+			else if (!IsValueSerializable(element, model, analyzer, xunitContext, cancellationToken))
+				return false;
 		}
 
 		return true;
@@ -225,20 +230,6 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 
 		return true;
 	}
-
-	static bool AttributeIsTheoryOrDataAttribute(
-		AttributeData attribute,
-		SerializableTypeSymbols typeSymbols) =>
-			attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
-
-	static bool DiscoveryEnumerationIsDisabled(
-		IMethodSymbol method,
-		SerializableTypeSymbols typeSymbols) =>
-			method
-				.GetAttributes()
-				.Where(attribute => AttributeIsTheoryOrDataAttribute(attribute, typeSymbols))
-				.SelectMany(attribute => attribute.NamedArguments)
-				.Any(argument => argument.Key == "DisableDiscoveryEnumeration" && argument.Value.Value is true);
 
 	sealed class TheoryDataTypeArgumentFinder(SerializableTypeSymbols typeSymbols)
 	{
