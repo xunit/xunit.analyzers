@@ -6,7 +6,7 @@ namespace Xunit.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class TestCaseMustBeSerializable() :
-	XunitV3DiagnosticAnalyzer(
+	XunitV3NonAotDiagnosticAnalyzer(
 		Descriptors.X3006_TestCaseImplementationMustBeSerializable,
 		Descriptors.X3007_TestCaseImplementationMightNotBeSerializable)
 {

@@ -28,10 +28,28 @@ public class X3007_TestCaseMustBeSerializableTests
 			public class MySerializer : IXunitSerializer { }
 			""";
 
-		var expected = Verify.Diagnostic("xUnit3007")
-			.WithLocation(0)
-			.WithArguments("UnserializedTestCase", "Xunit.Sdk.ITestCase", "Xunit.Sdk.IXunitSerializable");
+		var expected = Verify.Diagnostic("xUnit3007").WithLocation(0).WithArguments("UnserializedTestCase", "Xunit.Sdk.ITestCase", "Xunit.Sdk.IXunitSerializable");
 
 		await Verify.VerifyAnalyzerV3NonAot(CompilerDiagnostics.None, source, expected);
 	}
+
+#if NETCOREAPP && ROSLYN_LATEST
+
+	[Fact]
+	public async ValueTask V3_only_AOT()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit.Sdk;
+
+			public class NonTestCase { }
+
+			public abstract class AbstractTestCase : ITestCase { }
+
+			public class UnserializedTestCase : ITestCase { }
+			""";
+
+		await Verify.VerifyAnalyzerV3Aot(CompilerDiagnostics.None, source);
+	}
+
+#endif  // NETCOREAPP && ROSLYN_LATEST
 }
