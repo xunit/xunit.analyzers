@@ -868,6 +868,8 @@ public class X1010_InlineDataMustMatchTheoryParametersTests
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp11, source);
 	}
 
+#if ROSLYN_LATEST
+
 	[Fact]
 	public async ValueTask V3_only_AOT()
 	{
@@ -904,6 +906,7 @@ public class X1010_InlineDataMustMatchTheoryParametersTests
 		await Verify.VerifyAnalyzerV3Aot(source, expected);
 	}
 
+#endif  // ROSLYN_LATEST
 #endif  // NETCOREAPP
 
 	internal class Analyzer_v2_Pre240 : InlineDataMustMatchTheoryParameters

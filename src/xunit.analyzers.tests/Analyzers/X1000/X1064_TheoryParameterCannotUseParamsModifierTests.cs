@@ -26,7 +26,7 @@ public class X1064_TheoryParameterCannotUseParamsModifierTests
 			""";
 
 		await Verify.VerifyAnalyzerNonAot(source);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await Verify.VerifyAnalyzerV3Aot(source, Verify.Diagnostic().WithLocation(0));
 #endif
 	}

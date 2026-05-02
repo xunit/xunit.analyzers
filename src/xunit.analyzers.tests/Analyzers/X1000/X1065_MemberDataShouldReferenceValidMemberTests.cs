@@ -48,7 +48,7 @@ public class X1065_MemberDataShouldReferenceValidMemberTests
 
 		await Verify.VerifyAnalyzerNonAot(source, expectedNonAot);
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = new[] {
 			Verify.Diagnostic("xUnit1065").WithLocation(0).WithArguments("TestClass", "DataMethod", "Native AOT does not support overloaded MemberData methods."),
 			Verify.Diagnostic("xUnit1065").WithLocation(1).WithArguments("TestClass", "DataMethod", "Native AOT does not support overloaded MemberData methods."),

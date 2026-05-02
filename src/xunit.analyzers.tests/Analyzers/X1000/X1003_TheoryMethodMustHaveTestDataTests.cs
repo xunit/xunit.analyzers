@@ -111,7 +111,7 @@ public class X1003_TheoryMethodMustHaveTestDataTests
 		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
 	}
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 
 	[Fact]
 	public async ValueTask V3_only_AOT()

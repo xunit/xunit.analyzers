@@ -179,7 +179,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		test.TestState.ExpectedDiagnostics.AddRange(diagnostics);
 		await test.RunAsync();
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		if (!includeAot)
 			return;
 

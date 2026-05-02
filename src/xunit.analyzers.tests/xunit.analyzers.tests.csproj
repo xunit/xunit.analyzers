@@ -37,7 +37,7 @@
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[10.0.100]" />
-    <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[4.12.0]" />
+    <PackageDownload Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="[4.11.0]" />
 
     <!-- Download packages referenced by VsThreadingAnalyzers -->
     <PackageDownload Include="Microsoft.VisualStudio.Threading.Analyzers" Version="[17.11.20]" />

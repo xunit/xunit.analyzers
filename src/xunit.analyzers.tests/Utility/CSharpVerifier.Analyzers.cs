@@ -421,7 +421,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, source, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, source, diagnostics);
 #endif
 	}
@@ -442,7 +442,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(compilerDiagnostics, LanguageVersion.CSharp6, source, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(compilerDiagnostics, LanguageVersion.CSharp13, source, diagnostics);
 #endif
 	}
@@ -464,7 +464,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(CompilerDiagnostics.Errors, languageVersion, source, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(CompilerDiagnostics.Errors, languageVersion, source, diagnostics);
 #endif
 	}
@@ -488,7 +488,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(compilerDiagnostics, languageVersion, source, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(compilerDiagnostics, languageVersion, source, diagnostics);
 #endif
 	}
@@ -507,7 +507,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(CompilerDiagnostics.Errors, LanguageVersion.CSharp6, sources, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(CompilerDiagnostics.Errors, LanguageVersion.CSharp13, sources, diagnostics);
 #endif
 	}
@@ -528,7 +528,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(compilerDiagnostics, LanguageVersion.CSharp6, sources, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(compilerDiagnostics, LanguageVersion.CSharp13, sources, diagnostics);
 #endif
 	}
@@ -550,7 +550,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(CompilerDiagnostics.Errors, languageVersion, sources, diagnostics);
 #endif
 	}
@@ -574,12 +574,12 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyAnalyzerV3NonAot(compilerDiagnostics, languageVersion, sources, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyAnalyzerV3Aot(compilerDiagnostics, languageVersion, sources, diagnostics);
 #endif
 	}
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3 (Native AOT), using C# 13.
@@ -699,7 +699,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		return testAot.RunAsync();
 	}
 
-#endif  // NETCOREAPP
+#endif  // NETCOREAPP && ROSLYN_LATEST
 
 	/// <summary>
 	/// Runs code for analysis, against xUnit.net v3, using C# 6.

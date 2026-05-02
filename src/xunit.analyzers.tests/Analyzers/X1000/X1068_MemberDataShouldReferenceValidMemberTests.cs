@@ -39,7 +39,7 @@ public class X1068_MemberDataShouldReferenceValidMemberTests
 			""";
 
 		await Verify.VerifyAnalyzerV3NonAot(source);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = Verify.Diagnostic("xUnit1068").WithLocation(0);
 
 		await Verify.VerifyAnalyzerV3Aot(source, expectedAot);

@@ -24,7 +24,7 @@ public class X1066_MemberDataShouldReferenceValidMemberTests
 			""";
 
 		await Verify.VerifyAnalyzerNonAot(source);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = Verify.Diagnostic("xUnit1066").WithLocation(0).WithArguments("a", "TestClass", "DataMethod");
 
 		await Verify.VerifyAnalyzerV3Aot(source, expectedAot);

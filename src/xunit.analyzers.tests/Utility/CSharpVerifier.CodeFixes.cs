@@ -70,7 +70,9 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyCodeFixV2(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
+#if ROSLYN_LATEST
 		await VerifyCodeFixV3Aot(LanguageVersion.CSharp13, before, after, fixerActionKey, diagnostics);
+#endif
 	}
 
 	/// <summary>
@@ -90,7 +92,9 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyCodeFixV2(languageVersion, before, after, fixerActionKey, diagnostics);
+#if ROSLYN_LATEST
 		await VerifyCodeFixV3Aot(languageVersion, before, after, fixerActionKey, diagnostics);
+#endif
 	}
 
 #endif  // NETCOREAPP
@@ -194,7 +198,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyCodeFixV3NonAot(LanguageVersion.CSharp6, before, after, fixerActionKey, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyCodeFixV3Aot(LanguageVersion.CSharp13, before, after, fixerActionKey, diagnostics);
 #endif
 	}
@@ -220,11 +224,12 @@ public partial class CSharpVerifier<TAnalyzer>
 		params DiagnosticResult[] diagnostics)
 	{
 		await VerifyCodeFixV3NonAot(languageVersion, before, after, fixerActionKey, diagnostics);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		await VerifyCodeFixV3Aot(languageVersion, before, after, fixerActionKey, diagnostics);
 #endif
 	}
-#if NETCOREAPP
+
+#if NETCOREAPP && ROSLYN_LATEST
 
 	/// <summary>
 	/// Verify that a code fix has been applied. Runs against xUnit.net v3, using C# 13.
@@ -271,7 +276,7 @@ public partial class CSharpVerifier<TAnalyzer>
 		await testAot.RunAsync();
 	}
 
-#endif  // NETCOREAPP
+#endif  // NETCOREAPP && ROSLYN_LATEST
 
 	/// <summary>
 	/// Verify that a code fix has been applied. Runs against xUnit.net v3, using C# 6.

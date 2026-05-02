@@ -18,7 +18,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>14.0</LangVersion>
-    <MicrosoftCodeAnalysisVersion Condition=" '$(MicrosoftCodeAnalysisVersion)' == '' ">4.12.0</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion Condition=" '$(MicrosoftCodeAnalysisVersion)' == '' ">4.11.0</MicrosoftCodeAnalysisVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -44,7 +44,7 @@ public class X1057_MemberDataShouldReferenceValidMemberTests
 			""";
 
 		await Verify.VerifyAnalyzerNonAot(source);
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = Verify.Diagnostic("xUnit1057").WithLocation(0).WithArguments("MemberData member", "TestClass.PrivateClass");
 
 		await Verify.VerifyAnalyzerV3Aot(source, expectedAot);

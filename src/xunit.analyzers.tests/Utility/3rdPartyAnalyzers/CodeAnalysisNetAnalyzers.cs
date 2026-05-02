@@ -28,7 +28,7 @@ public class CodeAnalysisNetAnalyzers : AnalyzerLoaderBase
 
 	static Assembly LoadNetAnalyzers()
 	{
-		LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.workspaces.common", "4.12.0", "lib", "netstandard2.0", "Microsoft.CodeAnalysis.Workspaces.dll"));
+		LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.workspaces.common", "4.11.0", "lib", "netstandard2.0", "Microsoft.CodeAnalysis.Workspaces.dll"));
 		return LoadAssembly(Path.Combine(NuGetPackagesFolder, "microsoft.codeanalysis.netanalyzers", "10.0.100", "analyzers", "dotnet", "Microsoft.CodeAnalysis.NetAnalyzers.dll"));
 	}
 }

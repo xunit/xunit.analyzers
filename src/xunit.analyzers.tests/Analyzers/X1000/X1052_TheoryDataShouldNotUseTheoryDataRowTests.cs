@@ -91,7 +91,7 @@ public class X1052_TheoryDataShouldNotUseTheoryDataRowTests
 
 		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, [source, myRowNonAOT]);
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var myRowAOT = /* lang=c#-test */ """
 			using System;
 			using Xunit;

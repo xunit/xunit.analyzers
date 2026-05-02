@@ -55,7 +55,7 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 
 		await Verify.VerifyAnalyzerV3NonAot(source, expectedNonAot);
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = new[] {
 			Verify.Diagnostic("xUnit3004").WithLocation(0).WithArguments("MyCollectionFactory", "Xunit.v3.ICodeGenTestCollectionFactory"),
 			Verify.Diagnostic("xUnit3004").WithLocation(1).WithArguments("object", "Xunit.v3.ITestCaseOrderer"),

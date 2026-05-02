@@ -34,7 +34,7 @@ public class X1057_TypeMustBePublicOrInternalTests
 		await Verify.VerifyAnalyzerV2(source.Replace("Xunit.v3", "Xunit.Sdk"));
 		await Verify.VerifyAnalyzerV3NonAot(source);
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = new[] {
 			Verify.Diagnostic().WithLocation(0).WithArguments("Attribute", "WithBeforeAfter.MyBeforeAfter"),
 			Verify.Diagnostic().WithLocation(1).WithArguments("Fixture", "WithCollectionFixture.PrivateClass"),
@@ -70,7 +70,7 @@ public class X1057_TypeMustBePublicOrInternalTests
 
 		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp12, source);
 
-#if NETCOREAPP
+#if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = new[] {
 			Verify.Diagnostic().WithLocation(0).WithArguments("Exception", "WithSkipExceptions.PrivateException"),
 			Verify.Diagnostic().WithLocation(1).WithArguments("Exception", "WithSkipExceptions.PrivateException"),
