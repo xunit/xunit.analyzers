@@ -332,6 +332,30 @@ public class InlineDataMustMatchTheoryParametersTests
 
 			await Verify.VerifyAnalyzer(source);
 		}
+
+		// https://github.com/xunit/xunit/issues/3569
+		[Fact]
+		public async Task InvalidLiteralDoesNotDesynchronizeSubsequentParameters()
+		{
+			var source = /* lang=c#-test */ """
+				using Xunit;
+
+				public enum MyEnum {
+					Value1,
+					Value2,
+					Value3
+				}
+
+				public sealed class ReproClass {
+					[Theory]
+					[InlineData({|CS0182:1.1m|}, MyEnum.Value1)]
+					public void ReproMethod(decimal param1, MyEnum param2)
+					{ }
+				}
+				""";
+
+			await Verify.VerifyAnalyzer(source);
+		}
 	}
 
 	public class X1009_TooFewValues

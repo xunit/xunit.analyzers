@@ -102,7 +102,12 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					// If the value isn't legal (malformed or illegal type), then just skip validation and let
 					// the compiler report the problem.
 					if (value.Kind == TypedConstantKind.Error)
+					{
+						if (!parameter.IsParams)
+							paramIdx++;
+
 						continue;
+					}
 
 					// If the parameter type is object, everything is compatible, though we still need to check for nullability
 					if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
@@ -171,7 +176,12 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					else
 					{
 						if (value.Type is null)
+						{
+							if (!parameter.IsParams)
+								paramIdx++;
+
 							continue;
+						}
 
 						var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext, value.Kind == TypedConstantKind.Primitive ? value.Value : null);
 						if (!isCompatible && paramsElementType is not null)
