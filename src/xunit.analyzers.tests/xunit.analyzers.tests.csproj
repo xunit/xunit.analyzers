@@ -23,17 +23,17 @@
     <PackageDownload Include="xunit.extensibility.execution" Version="[2.9.4-pre.6]" />
     <PackageDownload Include="xunit.runner.utility" Version="[2.9.4-pre.6]" />
 
-    <PackageDownload Include="xunit.v3.assert" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.common" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.extensibility.core" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.runner.common" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.runner.utility" Version="[4.0.0-pre.107]" />
+    <PackageDownload Include="xunit.v3.assert" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.common" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.extensibility.core" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.runner.common" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.runner.utility" Version="[4.0.0-pre.124]" />
 
-    <PackageDownload Include="xunit.v3.assert.aot" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.common.aot" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.extensibility.core.aot" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.runner.common.aot" Version="[4.0.0-pre.107]" />
-    <PackageDownload Include="xunit.v3.runner.utility.aot" Version="[4.0.0-pre.107]" />
+    <PackageDownload Include="xunit.v3.assert.aot" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.common.aot" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.extensibility.core.aot" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.runner.common.aot" Version="[4.0.0-pre.124]" />
+    <PackageDownload Include="xunit.v3.runner.utility.aot" Version="[4.0.0-pre.124]" />
 
     <!-- Download packages referenced by CodeAnalysisNetAnalyzers -->
     <PackageDownload Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="[10.0.100]" />
