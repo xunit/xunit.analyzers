@@ -6,7 +6,7 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory
 public class X1008_DataAttributeShouldBeUsedOnATheoryFixerTests
 {
 	[Fact]
-	public async ValueTask V2_and_V3()
+	public async ValueTask V2_and_V3_NonAOT()
 	{
 		var before = /* lang=c#-test */ """
 			using Xunit;
@@ -42,7 +42,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterMarkAsTheory, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
-		await Verify.VerifyCodeFixFixAll(before, afterRemoveDataAttributes, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
+		await Verify.VerifyCodeFixFixAllNonAot(before, afterMarkAsTheory, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
+		await Verify.VerifyCodeFixFixAllNonAot(before, afterRemoveDataAttributes, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
 	}
 }

@@ -75,4 +75,7 @@ public class DataAttributeShouldBeUsedOnATheory : XunitDiagnosticAnalyzer
 
 		}, SymbolKind.Method);
 	}
+
+	protected override bool ShouldAnalyze(XunitContext xunitContext) =>
+		!Guard.ArgumentNotNull(xunitContext).HasV3AotReferences;
 }

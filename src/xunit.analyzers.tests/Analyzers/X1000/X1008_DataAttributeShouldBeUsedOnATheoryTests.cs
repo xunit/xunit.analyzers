@@ -6,9 +6,10 @@ using Verify = CSharpVerifier<Xunit.Analyzers.DataAttributeShouldBeUsedOnATheory
 public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 {
 	[Fact]
-	public async ValueTask V2_and_V3()
+	public async ValueTask V2_and_V3_NonAOT()
 	{
 		var source = /* lang=c#-test */ """
+			using System;
 			using Xunit;
 
 			public class TestClass {
@@ -47,20 +48,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 
 				[ClassData(typeof(string))]
 				public void [|NonFact_ClassData_Triggers|]() { }
-			}
-			""";
 
-		await Verify.VerifyAnalyzer(source);
-	}
-
-	[Fact]
-	public async ValueTask V2_and_V3_NonAOT()
-	{
-		var source = /* lang=c#-test */ """
-			using System;
-			using Xunit;
-
-			public class TestClass {
 				[CustomFactViaInheritance]
 				[InlineData(1)]
 				public void CustomFactViaInheritance_DoesNotTrigger(int i) { }
@@ -79,11 +67,13 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 	}
 
 	[Fact]
-	public async ValueTask V3_only()
+	public async ValueTask V3_only_NonAOT()
 	{
 		var source = /* lang=c#-test */ """
+			using System;
 			using Xunit;
-
+			using Xunit.v3;
+			
 			public class TestClass {
 				[CulturedFact(new[] { "en-US" })]
 				[InlineData]
@@ -108,21 +98,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 				[CulturedTheory(new[] { "en-US" })]
 				[ClassData(typeof(string))]
 				public void CulturedTheory_ClassData_DoesNotTrigger() { }
-			}
-			""";
 
-		await Verify.VerifyAnalyzerV3(source);
-	}
-
-	[Fact]
-	public async ValueTask V3_only_NonAOT()
-	{
-		var source = /* lang=c#-test */ """
-			using System;
-			using Xunit;
-			using Xunit.v3;
-
-			public class TestClass {
 				// https://github.com/xunit/xunit/issues/3518
 				[CustomFactViaInterface]
 				[InlineData(1)]
@@ -147,7 +123,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 				public int? SourceLineNumber => throw new NotImplementedException();
 				public int Timeout => throw new NotImplementedException();
 			}
-
+			
 			public class CustomTheoryViaInterface : Attribute, ITheoryAttribute
 			{
 				public bool DisableDiscoveryEnumeration => throw new NotImplementedException();
