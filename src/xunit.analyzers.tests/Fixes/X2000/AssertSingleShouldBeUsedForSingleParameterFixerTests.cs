@@ -28,6 +28,66 @@ public class AssertSingleShouldBeUsedForSingleParameterFixerTests
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, source, source, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
 	}
 
+	// https://github.com/xunit/xunit/issues/3336
+	[Fact]
+	public async ValueTask ReplacesCommentedAndMultiLineCollections()
+	{
+		var before = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void WithLeadingComment() {
+					// Assert
+					[|Assert.Collection(default(IEnumerable<object>), item => Assert.NotNull(item))|];
+				}
+
+				[Fact]
+				public void WithMultiLineCollection() {
+					[|Assert.Collection(
+						default(IEnumerable<object>),
+						item => Assert.NotNull(item))|];
+				}
+
+				[Fact]
+				public void WithMultiLineInspector() {
+					[|Assert.Collection(default(IEnumerable<string>),
+						item => Assert.Equal(
+							"abc",
+							item))|];
+				}
+			}
+			""";
+		var after = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			public class TestClass {
+				[Fact]
+				public void WithLeadingComment() {
+					// Assert
+					var item = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item);
+				}
+
+				[Fact]
+				public void WithMultiLineCollection() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item);
+				}
+
+				[Fact]
+				public void WithMultiLineInspector() {
+					var item = Assert.Single(default(IEnumerable<string>));
+					Assert.Equal("abc", item);
+				}
+			}
+			""";
+
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod);
+	}
+
 	[Fact]
 	public async ValueTask EnumerableAcceptanceTest()
 	{
