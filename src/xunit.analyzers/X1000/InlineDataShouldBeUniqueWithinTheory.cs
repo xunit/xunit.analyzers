@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -125,15 +127,18 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 				IsSingleNullByInlineDataOrByDefaultParamValue(xArguments)
 				&& IsSingleNullByInlineDataOrByDefaultParamValue(yArguments);
 
-			return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments);
+			return areBothNullEntirely || AreArgumentsEqual(xArguments, yArguments, topLevel: true);
 		}
 
 		// Since arguments can be object[] at any level we need to compare 2 sequences of trees for equality.
 		// The algorithm traverses each tree in a sequence and compares with the corresponding tree in the other sequence.
 		// Any difference at any stage results in inequality proved and <c>false</c> returned.
-		static bool AreArgumentsEqual(
+		// Top-level primitive values are normalized to the target parameter type first, so that values which
+		// only differ by an implicit conversion (e.g. int 1 vs. byte 1 for an int parameter) compare as equal.
+		bool AreArgumentsEqual(
 			ImmutableArray<object> xArguments,
-			ImmutableArray<object> yArguments)
+			ImmutableArray<object> yArguments,
+			bool topLevel)
 		{
 			if (xArguments.Length != yArguments.Length)
 				return false;
@@ -142,6 +147,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 			{
 				var x = xArguments[i];
 				var y = yArguments[i];
+				var targetType = topLevel ? GetTargetParameterType(i) : null;
 
 				switch (x)
 				{
@@ -149,12 +155,17 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 						switch (y)
 						{
 							case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-								if (!xArgPrimitive.Equals(yArgPrimitive))
+								if (xArgPrimitive.Kind == TypedConstantKind.Primitive && yArgPrimitive.Kind == TypedConstantKind.Primitive)
+								{
+									if (!object.Equals(GetNormalizedValue(xArgPrimitive.Value, targetType), GetNormalizedValue(yArgPrimitive.Value, targetType)))
+										return false;
+								}
+								else if (!xArgPrimitive.Equals(yArgPrimitive))
 									return false;
 								break;
 
 							case IParameterSymbol yMethodParamDefault:
-								if (!object.Equals(xArgPrimitive.Value, yMethodParamDefault.ExplicitDefaultValue))
+								if (!object.Equals(GetNormalizedValue(xArgPrimitive.Value, yMethodParamDefault.Type), yMethodParamDefault.ExplicitDefaultValue))
 									return false;
 								break;
 
@@ -167,7 +178,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 						switch (y)
 						{
 							case TypedConstant yArgPrimitive when yArgPrimitive.Kind != TypedConstantKind.Array:
-								if (!object.Equals(xMethodParamDefault.ExplicitDefaultValue, yArgPrimitive.Value))
+								if (!object.Equals(xMethodParamDefault.ExplicitDefaultValue, GetNormalizedValue(yArgPrimitive.Value, xMethodParamDefault.Type)))
 									return false;
 								break;
 
@@ -185,7 +196,7 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 						switch (y)
 						{
 							case TypedConstant yArgArray when yArgArray.Kind == TypedConstantKind.Array && !yArgArray.IsNull:
-								if (!AreArgumentsEqual(xArgArray.Values.Cast<object>().ToImmutableArray(), yArgArray.Values.Cast<object>().ToImmutableArray()))
+								if (!AreArgumentsEqual(xArgArray.Values.Cast<object>().ToImmutableArray(), yArgArray.Values.Cast<object>().ToImmutableArray(), topLevel: false))
 									return false;
 								break;
 							default:
@@ -200,6 +211,69 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 
 			return true;
 		}
+
+		ITypeSymbol? GetTargetParameterType(int ordinal)
+		{
+			var parameters = attributeRelatedMethod.Parameters;
+			if (parameters.Length == 0)
+				return null;
+
+			var parameter = ordinal < parameters.Length ? parameters[ordinal] : parameters[parameters.Length - 1];
+			if (parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayType && parameter.Ordinal <= ordinal)
+				return arrayType.ElementType;
+
+			return ordinal < parameters.Length ? parameter.Type : null;
+		}
+
+		// Normalizes a primitive value to the type of the parameter it will be assigned to, mirroring the
+		// conversion the test framework performs at runtime. The round trip guards against lossy conversions
+		// (e.g. float 0.1f to a double parameter), which must not be treated as equal values.
+		static object? GetNormalizedValue(
+			object? value,
+			ITypeSymbol? targetType)
+		{
+			if (value is null || targetType is null)
+				return value;
+
+			if (targetType is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments.Length: 1 } nullableType)
+				targetType = nullableType.TypeArguments[0];
+
+			if (!numericTypes.TryGetValue(targetType.SpecialType, out var targetClrType))
+				return value;
+			if (!numericTypes.ContainsValue(value.GetType()))
+				return value;
+
+			try
+			{
+				var converted = Convert.ChangeType(value, targetClrType, CultureInfo.InvariantCulture);
+				var roundTripped = Convert.ChangeType(converted, value.GetType(), CultureInfo.InvariantCulture);
+				return value.Equals(roundTripped) ? converted : value;
+			}
+			catch (InvalidCastException)
+			{
+				return value;
+			}
+			catch (OverflowException)
+			{
+				return value;
+			}
+		}
+
+		static readonly Dictionary<SpecialType, Type> numericTypes = new()
+		{
+			{ SpecialType.System_Byte, typeof(byte) },
+			{ SpecialType.System_SByte, typeof(sbyte) },
+			{ SpecialType.System_Int16, typeof(short) },
+			{ SpecialType.System_UInt16, typeof(ushort) },
+			{ SpecialType.System_Int32, typeof(int) },
+			{ SpecialType.System_UInt32, typeof(uint) },
+			{ SpecialType.System_Int64, typeof(long) },
+			{ SpecialType.System_UInt64, typeof(ulong) },
+			{ SpecialType.System_Single, typeof(float) },
+			{ SpecialType.System_Double, typeof(double) },
+			{ SpecialType.System_Decimal, typeof(decimal) },
+			{ SpecialType.System_Char, typeof(char) },
+		};
 
 		// A special search for a degenerated case of either:
 		// 1. InlineData(null) or
@@ -224,7 +298,33 @@ public class InlineDataShouldBeUniqueWithinTheory : XunitDiagnosticAnalyzer
 		public int GetHashCode(AttributeData attributeData)
 		{
 			var arguments = GetEffectiveTestArguments(attributeData);
-			var flattened = GetFlattenedArgumentPrimitives(arguments);
+			var flattened = new List<object?>();
+
+			for (var i = 0; i < arguments.Length; i++)
+			{
+				switch (arguments[i])
+				{
+					case TypedConstant argPrimitive when argPrimitive.Kind == TypedConstantKind.Primitive:
+						flattened.Add(GetNormalizedValue(argPrimitive.Value, GetTargetParameterType(i)));
+						break;
+
+					case TypedConstant argPrimitive when argPrimitive.Kind != TypedConstantKind.Array:
+						flattened.Add(argPrimitive.Value);
+						break;
+
+					case IParameterSymbol methodParameterWithDefault:
+						flattened.Add(methodParameterWithDefault.ExplicitDefaultValue);
+						break;
+
+					case TypedConstant argArray when argArray.Kind == TypedConstantKind.Array && !argArray.IsNull:
+						flattened.AddRange(GetFlattenedArgumentPrimitives(argArray.Values.Cast<object>()));
+						break;
+
+					case TypedConstant nullObjectArray when nullObjectArray.Kind == TypedConstantKind.Array && nullObjectArray.IsNull:
+						flattened.Add(null);
+						break;
+				}
+			}
 
 			var hash = 17;
 

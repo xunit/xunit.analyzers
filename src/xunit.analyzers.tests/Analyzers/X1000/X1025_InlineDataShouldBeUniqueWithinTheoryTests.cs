@@ -236,6 +236,90 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryTests
 	}
 
 	[Fact]
+	public async ValueTask ImplicitlyConvertedValues()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				private const int ConstInt = 1;
+				private const byte ConstByte = 1;
+
+				// Unique data
+
+				[Theory]
+				[InlineData(1)]
+				[InlineData((byte)2)]
+				public void DifferentValues_DoesNotTrigger(int n) { }
+
+				[Theory]
+				[InlineData(1)]
+				[InlineData((byte)1)]
+				public void ObjectParameter_DoesNotTrigger(object o) { }
+
+				[Theory]
+				[InlineData(0.1f)]
+				[InlineData(0.1)]
+				public void FloatAndDoubleWithPrecisionLoss_DoesNotTrigger(double d) { }
+
+				// Duplicated data
+
+				[Theory]
+				[InlineData(ConstInt)]
+				[{|#0:InlineData(ConstByte)|}]
+				public void IntAndByteConstants_Triggers(int n) { }
+
+				[Theory]
+				[InlineData(1)]
+				[{|#1:InlineData((byte)1)|}]
+				public void IntAndByteLiterals_Triggers(int n) { }
+
+				[Theory]
+				[InlineData(1)]
+				[{|#2:InlineData(1.0)|}]
+				public void IntAndDouble_Triggers(double d) { }
+
+				[Theory]
+				[InlineData((byte)1, 2L)]
+				[{|#3:InlineData(1, (short)2)|}]
+				public void MixedNumericTypes_Triggers(long x, long y) { }
+
+				[Theory]
+				[InlineData(1, (byte)2)]
+				[{|#4:InlineData((byte)1, 2)|}]
+				public void ParamsArray_Triggers(params int[] a) { }
+
+				[Theory]
+				[InlineData]
+				[{|#5:InlineData((byte)1)|}]
+				public void DefaultValue_Triggers(int n = 1) { }
+
+				[Theory]
+				[InlineData(1)]
+				[{|#6:InlineData((byte)1)|}]
+				public void NullableParameter_Triggers(int? n) { }
+
+				[Theory]
+				[InlineData('a')]
+				[{|#7:InlineData(97)|}]
+				public void CharAndInt_Triggers(int n) { }
+			}
+			""";
+		var expected = new[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("IntAndByteConstants_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(1).WithArguments("IntAndByteLiterals_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(2).WithArguments("IntAndDouble_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(3).WithArguments("MixedNumericTypes_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(4).WithArguments("ParamsArray_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(5).WithArguments("DefaultValue_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(6).WithArguments("NullableParameter_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(7).WithArguments("CharAndInt_Triggers", "TestClass"),
+		};
+
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
+	}
+
+	[Fact]
 	public async ValueTask V3_only()
 	{
 		var source = /* lang=c#-test */ """
