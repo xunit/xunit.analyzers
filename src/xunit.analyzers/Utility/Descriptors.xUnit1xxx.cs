@@ -636,5 +636,15 @@ public static partial class Descriptors
 			"Test method '{0}' has a Timeout but does not reference TestContext.Current.CancellationToken. Tests with a Timeout should reference TestContext.Current.CancellationToken so they can terminate promptly when the timeout is exceeded."
 		);
 
-	// Placeholder for rule X1070
+	public static DiagnosticDescriptor X1070_CollectionDefinitionIsNeverUsed { get; } =
+		Diagnostic(
+			"xUnit1070",
+			"Collection definition is never used",
+			Usage,
+			Warning,
+			"Collection definition '{0}' is never used. Fix a misspelled collection name in a [Collection] attribute, or remove the unused definition.",
+			WellKnownDiagnosticTags.CompilationEnd
+		);
+
+	// Placeholder for rule X1071
 }
