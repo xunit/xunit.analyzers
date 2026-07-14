@@ -591,6 +591,101 @@ public class X1010_InlineDataMustMatchTheoryParametersTests
 				void ToGuid(Guid g) { }
 			}
 
+			// https://github.com/xunit/xunit/issues/2354
+			class NumericStringConversions {
+				[Theory]
+				[InlineData("42")]
+				[InlineData("-42")]
+				[InlineData({|xUnit1010:""|})]
+				[InlineData({|xUnit1010:"42.1"|})]
+				[InlineData({|xUnit1010:"2147483648"|})]
+				void ToInt32(int n) { }
+			
+				[Theory]
+				[InlineData("0.05")]
+				[InlineData("-0.05")]
+				[InlineData({|xUnit1010:"Hello world"|})]
+				void ToDecimal(decimal d) { }
+			
+				[Theory]
+				[InlineData("42")]
+				[InlineData({|xUnit1010:"300"|})]
+				void ToByte(byte b) { }
+			
+				[Theory]
+				[InlineData("42")]
+				void ToSByte(sbyte n) { }
+			
+				[Theory]
+				[InlineData("42")]
+				void ToInt16(short n) { }
+			
+				[Theory]
+				[InlineData("42")]
+				void ToUInt16(ushort n) { }
+			
+				[Theory]
+				[InlineData("42")]
+				[InlineData({|xUnit1010:"-1"|})]
+				void ToUInt32(uint n) { }
+			
+				[Theory]
+				[InlineData("42")]
+				void ToInt64(long n) { }
+			
+				[Theory]
+				[InlineData("42")]
+				void ToUInt64(ulong n) { }
+			
+				[Theory]
+				[InlineData("0.05")]
+				void ToSingle(float f) { }
+			
+				[Theory]
+				[InlineData("0.05")]
+				[InlineData("42")]
+				void ToDouble(double d) { }
+			
+				[Theory]
+				[InlineData("true")]
+				[InlineData("True")]
+				[InlineData({|xUnit1010:"yes"|})]
+				void ToBoolean(bool b) { }
+			
+				[Theory]
+				[InlineData("a")]
+				[InlineData({|xUnit1010:"ab"|})]
+				void ToChar(char c) { }
+			
+				[Theory]
+				[InlineData("42", "43")]
+				void ToMultipleInt32(int a, int b) { }
+			
+				[Theory]
+				[InlineData({|xUnit1010:"42"|})]
+				void ToNullableInt32(int? n) { }
+			
+				[Theory]
+				[InlineData({|xUnit1010:"InvariantCulture"|})]
+				void ToEnum(StringComparison s) { }
+			
+				[Theory]
+				[InlineData({|xUnit1010:"42"|}, {|xUnit1010:"43"|})]
+				void ToParamsArray(params int[] n) { }
+			
+				[Theory]
+				[InlineData({|xUnit1010:"42"|})]
+				void ToInt32WithDefaultValue(int n, int m = 0) { }
+			
+				[Theory]
+				[InlineData({|xUnit1010:"42"|})]
+				void ToInt32WithEmptyParamsArray(int n, params int[] rest) { }
+			
+				[Theory]
+				[InlineData("42", 43)]
+				void ToInt32WithFilledParamsArray(int n, params int[] rest) { }
+			}
+
 			#nullable enable
 
 			class NullableTestClass {
@@ -639,113 +734,6 @@ public class X1010_InlineDataMustMatchTheoryParametersTests
 			""";
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source);
-	}
-
-	[Fact]
-	public async ValueTask V2_and_V3_ParsableStrings()
-	{
-		var source = /* lang=c#-test */ """
-			using System;
-			using Xunit;
-
-			class TestClass {
-				// https://github.com/xunit/xunit/issues/2354
-
-				[Theory]
-				[InlineData("42")]
-				[InlineData("-42")]
-				[InlineData({|xUnit1010:""|})]
-				[InlineData({|xUnit1010:"42.1"|})]
-				[InlineData({|xUnit1010:"2147483648"|})]
-				void ToInt32(int n) { }
-
-				[Theory]
-				[InlineData("0.05")]
-				[InlineData("-0.05")]
-				[InlineData({|xUnit1010:"Hello world"|})]
-				void ToDecimal(decimal d) { }
-
-				[Theory]
-				[InlineData("42")]
-				[InlineData({|xUnit1010:"300"|})]
-				void ToByte(byte b) { }
-
-				[Theory]
-				[InlineData("42")]
-				void ToSByte(sbyte n) { }
-
-				[Theory]
-				[InlineData("42")]
-				void ToInt16(short n) { }
-
-				[Theory]
-				[InlineData("42")]
-				void ToUInt16(ushort n) { }
-
-				[Theory]
-				[InlineData("42")]
-				[InlineData({|xUnit1010:"-1"|})]
-				void ToUInt32(uint n) { }
-
-				[Theory]
-				[InlineData("42")]
-				void ToInt64(long n) { }
-
-				[Theory]
-				[InlineData("42")]
-				void ToUInt64(ulong n) { }
-
-				[Theory]
-				[InlineData("0.05")]
-				void ToSingle(float f) { }
-
-				[Theory]
-				[InlineData("0.05")]
-				[InlineData("42")]
-				void ToDouble(double d) { }
-
-				[Theory]
-				[InlineData("true")]
-				[InlineData("True")]
-				[InlineData({|xUnit1010:"yes"|})]
-				void ToBoolean(bool b) { }
-
-				[Theory]
-				[InlineData("a")]
-				[InlineData({|xUnit1010:"ab"|})]
-				void ToChar(char c) { }
-
-				[Theory]
-				[InlineData("42", "43")]
-				void ToMultipleInt32(int a, int b) { }
-
-				[Theory]
-				[InlineData({|xUnit1010:"42"|})]
-				void ToNullableInt32(int? n) { }
-
-				[Theory]
-				[InlineData({|xUnit1010:"InvariantCulture"|})]
-				void ToEnum(StringComparison s) { }
-
-				[Theory]
-				[InlineData({|xUnit1010:"42"|}, {|xUnit1010:"43"|})]
-				void ToParamsArray(params int[] n) { }
-
-				[Theory]
-				[InlineData({|xUnit1010:"42"|})]
-				void ToInt32WithDefaultValue(int n, int m = 0) { }
-
-				[Theory]
-				[InlineData({|xUnit1010:"42"|})]
-				void ToInt32WithEmptyParamsArray(int n, params int[] rest) { }
-
-				[Theory]
-				[InlineData("42", 43)]
-				void ToInt32WithFilledParamsArray(int n, params int[] rest) { }
-			}
-			""";
-
-		await Verify.VerifyAnalyzer(source);
 	}
 
 	[Fact]
