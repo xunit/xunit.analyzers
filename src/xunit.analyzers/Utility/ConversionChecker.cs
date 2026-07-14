@@ -23,12 +23,30 @@ static class ConversionChecker
 		SpecialType.System_UInt64,
 	];
 
+	static readonly Dictionary<SpecialType, Type> StringConversionTargets = new()
+	{
+		{ SpecialType.System_Boolean, typeof(bool) },
+		{ SpecialType.System_Char, typeof(char) },
+		{ SpecialType.System_SByte, typeof(sbyte) },
+		{ SpecialType.System_Byte, typeof(byte) },
+		{ SpecialType.System_Int16, typeof(short) },
+		{ SpecialType.System_UInt16, typeof(ushort) },
+		{ SpecialType.System_Int32, typeof(int) },
+		{ SpecialType.System_UInt32, typeof(uint) },
+		{ SpecialType.System_Int64, typeof(long) },
+		{ SpecialType.System_UInt64, typeof(ulong) },
+		{ SpecialType.System_Single, typeof(float) },
+		{ SpecialType.System_Double, typeof(double) },
+		{ SpecialType.System_Decimal, typeof(decimal) },
+	};
+
 	public static bool IsConvertible(
 		Compilation compilation,
 		ITypeSymbol source,
 		ITypeSymbol destination,
 		XunitContext xunitContext,
-		object? valueSource = null)
+		object? valueSource = null,
+		bool valueIsConvertedAtRuntime = false)
 	{
 		Guard.ArgumentNotNull(compilation);
 		Guard.ArgumentNotNull(source);
@@ -58,6 +76,9 @@ static class ConversionChecker
 			return source.SpecialType == SpecialType.System_String;
 		}
 
+		if (valueIsConvertedAtRuntime && CanConvertStringValue(source, destination, valueSource))
+			return true;
+
 		// User-defined conversion not supported in AOT
 		if (xunitContext.HasV3AotReferences && conversion.IsUserDefined)
 			return false;
@@ -68,6 +89,32 @@ static class ConversionChecker
 			|| (conversion.IsExplicit && conversion.IsEnumeration)
 			|| (conversion.IsExplicit && conversion.IsUserDefined)
 			|| (conversion.IsExplicit && conversion.IsNullable);
+	}
+
+	static bool CanConvertStringValue(
+		ITypeSymbol source,
+		ITypeSymbol destination,
+		object? valueSource)
+	{
+		if (source.SpecialType != SpecialType.System_String || valueSource is not string stringValue)
+			return false;
+
+		if (!StringConversionTargets.TryGetValue(destination.SpecialType, out var destinationType))
+			return false;
+
+		try
+		{
+			Convert.ChangeType(stringValue, destinationType, CultureInfo.InvariantCulture);
+			return true;
+		}
+		catch (FormatException)
+		{
+			return false;
+		}
+		catch (OverflowException)
+		{
+			return false;
+		}
 	}
 
 	static bool IsConvertibleTypeParameter(
