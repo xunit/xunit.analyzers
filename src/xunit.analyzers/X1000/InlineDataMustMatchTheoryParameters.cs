@@ -97,106 +97,108 @@ public class InlineDataMustMatchTheoryParameters : XunitDiagnosticAnalyzer
 					var parameter = method.Parameters[paramIdx];
 					var value = values[valueIdx];
 
-					// If the value isn't legal (malformed or illegal type), then just skip validation and let
-					// the compiler report the problem.
-					if (value.Kind == TypedConstantKind.Error)
-						continue;
-
-					// If the parameter type is object, everything is compatible, though we still need to check for nullability
-					if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
-						&& (!value.IsNull || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
+					try
 					{
-						paramIdx++;
-						continue;
-					}
+						// If the value isn't legal (malformed or illegal type), then just skip validation and let
+						// the compiler report the problem.
+						if (value.Kind == TypedConstantKind.Error)
+							continue;
 
-					// If this is a params array (and we're using a version of xUnit.net that supports params arrays),
-					// get the element type so we can compare it appropriately.
-					var paramsElementType =
-						xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
-							? arrayParam.ElementType
-							: null;
+						// If the parameter type is object, everything is compatible, though we still need to check for nullability
+						if (SymbolEqualityComparer.Default.Equals(parameter.Type, compilation.ObjectType)
+								&& (!value.IsNull || parameter.Type.NullableAnnotation != NullableAnnotation.NotAnnotated))
+							continue;
 
-					// For params array of object, just consume everything that's left
-					if (paramsElementType is not null
-						&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
-						&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
-					{
-						valueIdx = values.Length;
-						break;
-					}
+						// If this is a params array (and we're using a version of xUnit.net that supports params arrays),
+						// get the element type so we can compare it appropriately.
+						var paramsElementType =
+							xunitSupportsParameterArrays && parameter.IsParams && parameter.Type is IArrayTypeSymbol arrayParam
+								? arrayParam.ElementType
+								: null;
 
-					if (value.IsNull)
-					{
-						// Special case: if this is the only value of the params array, and it's null,
-						// and the params array itself is nullable, then this is allowable, since we'll
-						// end up passing null for the array itself.
-						if (paramsElementType is not null &&
-							valueIdx == values.Length - 1 &&
-							parameter.Type.NullableAnnotation == NullableAnnotation.Annotated)
+						// For params array of object, just consume everything that's left
+						if (paramsElementType is not null
+							&& SymbolEqualityComparer.Default.Equals(paramsElementType, compilation.ObjectType)
+							&& paramsElementType.NullableAnnotation != NullableAnnotation.NotAnnotated)
 						{
 							valueIdx = values.Length;
 							break;
 						}
 
-						var isValueTypeParam =
-							paramsElementType is not null
-								? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
-								: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
-
-						var isNonNullableReferenceTypeParam =
-							paramsElementType is not null
-								? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
-								: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
-
-						if (isValueTypeParam || isNonNullableReferenceTypeParam)
+						if (value.IsNull)
 						{
-							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
-							builder[Constants.Properties.ParameterName] = parameter.Name;
+							// Special case: if this is the only value of the params array, and it's null,
+							// and the params array itself is nullable, then this is allowable, since we'll
+							// end up passing null for the array itself.
+							if (paramsElementType is not null &&
+								valueIdx == values.Length - 1 &&
+								parameter.Type.NullableAnnotation == NullableAnnotation.Annotated)
+							{
+								valueIdx = values.Length;
+								break;
+							}
 
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
-									valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
-									builder.ToImmutable(),
-									parameter.Name,
-									SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
-								)
-							);
+							var isValueTypeParam =
+								paramsElementType is not null
+									? paramsElementType.IsValueType && paramsElementType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T
+									: parameter.Type.IsValueType && parameter.Type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
+
+							var isNonNullableReferenceTypeParam =
+								paramsElementType is not null
+									? paramsElementType.IsReferenceType && paramsElementType.NullableAnnotation == NullableAnnotation.NotAnnotated
+									: parameter.Type.IsReferenceType && parameter.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
+
+							if (isValueTypeParam || isNonNullableReferenceTypeParam)
+							{
+								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
+								builder[Constants.Properties.ParameterName] = parameter.Name;
+
+								context.ReportDiagnostic(
+									Diagnostic.Create(
+										Descriptors.X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameter,
+										valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
+										builder.ToImmutable(),
+										parameter.Name,
+										SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+									)
+								);
+							}
+						}
+						else
+						{
+							if (value.Type is null)
+								continue;
+
+							var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value : null);
+							if (!isCompatible && paramsElementType is not null)
+								isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value : null);
+
+							if (!isCompatible)
+							{
+								var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+								builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
+								builder[Constants.Properties.ParameterName] = parameter.Name;
+
+								context.ReportDiagnostic(
+									Diagnostic.Create(
+										Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
+										valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
+										builder.ToImmutable(),
+										parameter.Name,
+										SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
+									)
+								);
+							}
 						}
 					}
-					else
+					finally
 					{
-						if (value.Type is null)
-							continue;
-
-						var isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, parameter.Type, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value : null);
-						if (!isCompatible && paramsElementType is not null)
-							isCompatible = ConversionChecker.IsConvertible(compilation, value.Type, paramsElementType, xunitContext, value.Kind != TypedConstantKind.Array ? value.Value : null);
-
-						if (!isCompatible)
+						if (!parameter.IsParams)
 						{
-							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-							builder[Constants.Properties.ParameterIndex] = paramIdx.ToString(CultureInfo.InvariantCulture);
-							builder[Constants.Properties.ParameterName] = parameter.Name;
-
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1010_InlineDataMustMatchTheoryParameters_IncompatibleValueType,
-									valueIdx < dataParameterExpressions.Count ? dataParameterExpressions[valueIdx].GetLocation() : null,
-									builder.ToImmutable(),
-									parameter.Name,
-									SymbolDisplay.ToDisplayString(paramsElementType ?? parameter.Type)
-								)
-							);
+							// Stop moving paramIdx forward if the argument is a parameter array, regardless of xunit's support for it
+							paramIdx++;
 						}
-					}
-
-					if (!parameter.IsParams)
-					{
-						// Stop moving paramIdx forward if the argument is a parameter array, regardless of xunit's support for it
-						paramIdx++;
 					}
 				}
 

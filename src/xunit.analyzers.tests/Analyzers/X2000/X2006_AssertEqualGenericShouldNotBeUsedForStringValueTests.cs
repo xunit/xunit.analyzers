@@ -31,7 +31,12 @@ public class X2006_AssertEqualGenericShouldNotBeUsedForStringValueTests
 					[|Assert.Equal<string>("TestClass", nameof(TestClass))|];
 				}
 
-				void StrictEqual_Triggers() {
+				void StrictEqual_NonString_DoesNotTrigger() {
+					Assert.StrictEqual(new object(), new object());
+					Assert.StrictEqual(new[] { 1, 2 }, new[] { 3, 4 });
+				}
+
+				void StrictEqual_String_Triggers() {
 					[|Assert.StrictEqual(true.ToString(), "True")|];
 					[|Assert.StrictEqual(1.ToString(), "1")|];
 					[|Assert.StrictEqual("", null)|];

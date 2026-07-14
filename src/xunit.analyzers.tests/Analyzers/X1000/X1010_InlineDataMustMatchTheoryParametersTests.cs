@@ -35,9 +35,10 @@ public class X1010_InlineDataMustMatchTheoryParametersTests
 				void MethodWithEmptyArray(byte[] input) { }
 
 				// https://github.com/xunit/xunit/issues/3000
+				// https://github.com/xunit/xunit/issues/3569
 				[Theory]
-				[InlineData({|CS0182:0.1m|})]
-				void MethodWithDecimalValue(decimal m)
+				[InlineData({|CS0182:0.1m|}, "Hello, world")]
+				void MethodWithDecimalValue(decimal m, string s)
 				{ }
 
 				// Optional parameters
