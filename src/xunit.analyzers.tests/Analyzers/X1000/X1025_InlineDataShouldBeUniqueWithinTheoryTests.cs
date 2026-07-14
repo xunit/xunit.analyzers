@@ -176,6 +176,51 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryTests
 				[{|#20:InlineData(10)|}]
 				[{|#21:InlineData(20)|}]
 				public void DoubledTwice_TriggersTwice(int n) { }
+
+				// Duplicated data (implicit conversions)
+
+				private const int ConstInt = 1;
+				private const byte ConstByte = 1;
+			
+				[Theory]
+				[InlineData(ConstInt)]
+				[{|#30:InlineData(ConstByte)|}]
+				public void IntAndByteConstants_Triggers(int n) { }
+			
+				[Theory]
+				[InlineData(1)]
+				[{|#31:InlineData((byte)1)|}]
+				public void IntAndByteLiterals_Triggers(int n) { }
+			
+				[Theory]
+				[InlineData(1)]
+				[{|#32:InlineData(1.0)|}]
+				public void IntAndDouble_Triggers(double d) { }
+			
+				[Theory]
+				[InlineData((byte)1, 2L)]
+				[{|#33:InlineData(1, (short)2)|}]
+				public void MixedNumericTypes_Triggers(long x, long y) { }
+			
+				[Theory]
+				[InlineData(1, (byte)2)]
+				[{|#34:InlineData((byte)1, 2)|}]
+				public void ParamsArray_Triggers(params int[] a) { }
+			
+				[Theory]
+				[InlineData]
+				[{|#35:InlineData((byte)1)|}]
+				public void DefaultValue_Triggers(int n = 1) { }
+			
+				[Theory]
+				[InlineData(1)]
+				[{|#36:InlineData((byte)1)|}]
+				public void NullableParameter_Triggers(int? n) { }
+			
+				[Theory]
+				[InlineData('a')]
+				[{|#37:InlineData(97)|}]
+				public void CharAndInt_Triggers(int n) { }
 			}
 
 			#nullable enable
@@ -225,95 +270,19 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryTests
 			Verify.Diagnostic().WithLocation(19).WithArguments("Tripled_TriggersTwice", "TestClass"),
 			Verify.Diagnostic().WithLocation(20).WithArguments("DoubledTwice_TriggersTwice", "TestClass"),
 			Verify.Diagnostic().WithLocation(21).WithArguments("DoubledTwice_TriggersTwice", "TestClass"),
+			Verify.Diagnostic().WithLocation(30).WithArguments("IntAndByteConstants_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(31).WithArguments("IntAndByteLiterals_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(32).WithArguments("IntAndDouble_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(33).WithArguments("MixedNumericTypes_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(34).WithArguments("ParamsArray_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(35).WithArguments("DefaultValue_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(36).WithArguments("NullableParameter_Triggers", "TestClass"),
+			Verify.Diagnostic().WithLocation(37).WithArguments("CharAndInt_Triggers", "TestClass"),
 
 			Verify.Diagnostic().WithLocation(101).WithArguments("DoubleNullInlineData_Triggers", "NullableTestClass"),
 			Verify.Diagnostic().WithLocation(114).WithArguments("DefaultValueVsNull_Triggers", "NullableTestClass"),
 			Verify.Diagnostic().WithLocation(115).WithArguments("Null_RawValuesVsExplicitArray_Triggers", "NullableTestClass"),
 			Verify.Diagnostic().WithLocation(117).WithArguments("DefaultOfReferenceType_Triggers", "NullableTestClass"),
-		};
-
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
-	}
-
-	[Fact]
-	public async ValueTask ImplicitlyConvertedValues()
-	{
-		var source = /* lang=c#-test */ """
-			using Xunit;
-
-			public class TestClass {
-				private const int ConstInt = 1;
-				private const byte ConstByte = 1;
-
-				// Unique data
-
-				[Theory]
-				[InlineData(1)]
-				[InlineData((byte)2)]
-				public void DifferentValues_DoesNotTrigger(int n) { }
-
-				[Theory]
-				[InlineData(1)]
-				[InlineData((byte)1)]
-				public void ObjectParameter_DoesNotTrigger(object o) { }
-
-				[Theory]
-				[InlineData(0.1f)]
-				[InlineData(0.1)]
-				public void FloatAndDoubleWithPrecisionLoss_DoesNotTrigger(double d) { }
-
-				// Duplicated data
-
-				[Theory]
-				[InlineData(ConstInt)]
-				[{|#0:InlineData(ConstByte)|}]
-				public void IntAndByteConstants_Triggers(int n) { }
-
-				[Theory]
-				[InlineData(1)]
-				[{|#1:InlineData((byte)1)|}]
-				public void IntAndByteLiterals_Triggers(int n) { }
-
-				[Theory]
-				[InlineData(1)]
-				[{|#2:InlineData(1.0)|}]
-				public void IntAndDouble_Triggers(double d) { }
-
-				[Theory]
-				[InlineData((byte)1, 2L)]
-				[{|#3:InlineData(1, (short)2)|}]
-				public void MixedNumericTypes_Triggers(long x, long y) { }
-
-				[Theory]
-				[InlineData(1, (byte)2)]
-				[{|#4:InlineData((byte)1, 2)|}]
-				public void ParamsArray_Triggers(params int[] a) { }
-
-				[Theory]
-				[InlineData]
-				[{|#5:InlineData((byte)1)|}]
-				public void DefaultValue_Triggers(int n = 1) { }
-
-				[Theory]
-				[InlineData(1)]
-				[{|#6:InlineData((byte)1)|}]
-				public void NullableParameter_Triggers(int? n) { }
-
-				[Theory]
-				[InlineData('a')]
-				[{|#7:InlineData(97)|}]
-				public void CharAndInt_Triggers(int n) { }
-			}
-			""";
-		var expected = new[] {
-			Verify.Diagnostic().WithLocation(0).WithArguments("IntAndByteConstants_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(1).WithArguments("IntAndByteLiterals_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(2).WithArguments("IntAndDouble_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(3).WithArguments("MixedNumericTypes_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(4).WithArguments("ParamsArray_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(5).WithArguments("DefaultValue_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(6).WithArguments("NullableParameter_Triggers", "TestClass"),
-			Verify.Diagnostic().WithLocation(7).WithArguments("CharAndInt_Triggers", "TestClass"),
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, source, expected);
