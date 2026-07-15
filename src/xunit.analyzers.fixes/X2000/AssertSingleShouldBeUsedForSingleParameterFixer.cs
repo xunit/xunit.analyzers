@@ -43,7 +43,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 	static IEnumerable<SyntaxNode> GetLambdaStatements(SimpleLambdaExpressionSyntax lambdaExpression)
 	{
 		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
-			yield return ExpressionStatement(lambdaBody).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+			yield return ExpressionStatement(lambdaBody.NormalizeWhitespace()).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 		else if (lambdaExpression.Block is not null && lambdaExpression.Block.Statements.Count != 0)
 			foreach (var statement in lambdaExpression.Block.Statements)
 				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
@@ -69,7 +69,7 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		string parameterName,
 		InvocationExpressionSyntax replacementNode)
 	{
-		var equalsToReplacementNode = EqualsValueClause(replacementNode);
+		var equalsToReplacementNode = EqualsValueClause(replacementNode.WithoutTrivia());
 
 		var oneItemVariableDeclaration = VariableDeclaration(
 			ParseTypeName("var"),

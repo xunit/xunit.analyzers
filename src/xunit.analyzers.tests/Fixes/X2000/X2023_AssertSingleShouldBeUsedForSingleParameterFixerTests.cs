@@ -71,6 +71,28 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 
 				Task AsyncElementInspector(Task<int> obj) =>
 					Task.CompletedTask;
+
+				// https://github.com/xunit/xunit/issues/3336
+				[Fact]
+				public void WithLeadingComment() {
+					// Assert
+					[|Assert.Collection(default(IEnumerable<object>), item => Assert.NotNull(item))|];
+				}
+
+				[Fact]
+				public void WithMultiLineCollection() {
+					[|Assert.Collection(
+						default(IEnumerable<object>),
+						item => Assert.NotNull(item))|];
+				}
+
+				[Fact]
+				public void WithMultiLineInspector() {
+					[|Assert.Collection(default(IEnumerable<string>),
+						item => Assert.Equal(
+							"abc",
+							item))|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -143,6 +165,26 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 
 				Task AsyncElementInspector(Task<int> obj) =>
 					Task.CompletedTask;
+
+				// https://github.com/xunit/xunit/issues/3336
+				[Fact]
+				public void WithLeadingComment() {
+					// Assert
+					var item = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item);
+				}
+
+				[Fact]
+				public void WithMultiLineCollection() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item);
+				}
+
+				[Fact]
+				public void WithMultiLineInspector() {
+					var item = Assert.Single(default(IEnumerable<string>));
+					Assert.Equal("abc", item);
+				}
 			}
 			""";
 		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Collection");
