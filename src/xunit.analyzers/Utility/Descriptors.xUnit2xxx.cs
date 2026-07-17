@@ -296,7 +296,14 @@ public static partial class Descriptors
 			"The naming of Assert.{0} can be confusing. An overload of Assert.{1} is available with an exact match flag which can be set to false to perform the same operation."
 		);
 
-	// Placeholder for rule X2033
+	public static DiagnosticDescriptor X2033_AssertReturnValueShouldBeUsed { get; } =
+		Diagnostic(
+			"xUnit2033",
+			"Use the assertion return value instead of re-deriving it",
+			Assertions,
+			Info,
+			"The return value of Assert.{0} should be used instead of re-deriving it with '{1}'."
+		);
 
 	// Placeholder for rule X2034
 

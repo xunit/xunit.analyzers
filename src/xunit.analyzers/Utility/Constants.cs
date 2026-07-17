@@ -110,6 +110,8 @@ public static class Constants
 		public const string ParameterIndex = nameof(ParameterIndex);
 		public const string ParameterName = nameof(ParameterName);
 		public const string ParameterSpecialType = nameof(ParameterSpecialType);
+		public const string RederivationSpanLength = nameof(RederivationSpanLength);
+		public const string RederivationSpanStart = nameof(RederivationSpanStart);
 		public const string Replacement = nameof(Replacement);
 		public const string SizeValue = nameof(SizeValue);
 		public const string SubstringMethodName = nameof(SubstringMethodName);
