@@ -173,7 +173,7 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 			BinaryExpressionSyntax { RawKind: (int)SyntaxKind.AsExpression, Right: TypeSyntax asType } binary =>
 				(binary.Left, asType),
 			_ =>
-				(default(ExpressionSyntax), default(TypeSyntax)),
+				(default, default),
 		};
 
 		if (operand is null || typeSyntax is null || !AreEquivalent(valueExpression, operand))
