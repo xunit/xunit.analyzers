@@ -88,6 +88,7 @@ public class X1003_TheoryMethodMustHaveTestDataTests
 			}
 
 			public class MyData : Attribute, IDataAttribute {
+				public bool DisableParallelization => throw new NotImplementedException();
 				public bool? Explicit => throw new NotImplementedException();
 				public string? Label => throw new NotImplementedException();
 				public string? Skip => throw new NotImplementedException();

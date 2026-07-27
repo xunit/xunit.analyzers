@@ -70,6 +70,7 @@ public class X1052_TheoryDataShouldNotUseTheoryDataRowTests
 
 			public partial class MyRow : ITheoryDataRow {
 				public object?[] GetData() { return null; }
+				public bool? DisableParallelization { get; }
 				public bool? Explicit { get; }
 				public string? Label { get; }
 				public string? Skip { get; }

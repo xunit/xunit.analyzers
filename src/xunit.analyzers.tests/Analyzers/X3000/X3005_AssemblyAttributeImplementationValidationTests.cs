@@ -10,8 +10,10 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 	{
 		var source = /* lang=c#-test */ """
 			using System;
+			using System.Threading.Tasks;
 			using Xunit;
 			using Xunit.Runner.Common;
+			using Xunit.Sdk;
 			using Xunit.v3;
 
 			// xunit.v3.core
@@ -45,19 +47,55 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			public class MyAssemblyFixture_Obsolete	{ [Obsolete] public MyAssemblyFixture_Obsolete() { } }
 			public class MyAssemblyFixture_NonPublic { protected MyAssemblyFixture_NonPublic() { } }
 
-			public class MyResultWriter_Missing : {|CS0535:{|CS0535:{|CS0535:IConsoleResultWriter|}|}|}, {|CS0535:{|CS0535:{|CS0535:IMicrosoftTestingPlatformResultWriter|}|}|}
-			{ public MyResultWriter_Missing(int x) { } }
-			public class MyResultWriter_Obsolete : {|CS0535:{|CS0535:{|CS0535:IConsoleResultWriter|}|}|}, {|CS0535:{|CS0535:{|CS0535:IMicrosoftTestingPlatformResultWriter|}|}|}
-			{ [Obsolete] public MyResultWriter_Obsolete() { } }
-			public class MyResultWriter_NonPublic : {|CS0535:{|CS0535:{|CS0535:IConsoleResultWriter|}|}|}, {|CS0535:{|CS0535:{|CS0535:IMicrosoftTestingPlatformResultWriter|}|}|}
-			{ protected MyResultWriter_NonPublic() { } }
+			public class MyResultWriter_Missing : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter {
+				public MyResultWriter_Missing(int x) { }
+				public string DefaultFileExtension => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public string FileNameDescription => throw new NotImplementedException();
+				public ValueTask<IResultWriterMessageHandler> CreateMessageHandler(string fileName, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
+			public class MyResultWriter_Obsolete : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter {
+				[Obsolete] public MyResultWriter_Obsolete() { }
+				public string DefaultFileExtension => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public string FileNameDescription => throw new NotImplementedException();
+				public ValueTask<IResultWriterMessageHandler> CreateMessageHandler(string fileName, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
+			public class MyResultWriter_NonPublic : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter {
+				protected MyResultWriter_NonPublic() { }
+				public string DefaultFileExtension => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public string FileNameDescription => throw new NotImplementedException();
+				public ValueTask<IResultWriterMessageHandler> CreateMessageHandler(string fileName, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
 
-			public class MyRunnerReporter_Missing : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:IRunnerReporter|}|}|}|}|}|}
-			{ public MyRunnerReporter_Missing(int x) { } }
-			public class MyRunnerReporter_Obsolete : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:IRunnerReporter|}|}|}|}|}|}
-			{ [Obsolete] public MyRunnerReporter_Obsolete() { } }
-			public class MyRunnerReporter_NonPublic : {|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:{|CS0535:IRunnerReporter|}|}|}|}|}|}
-			{ protected MyRunnerReporter_NonPublic() { } }
+			public class MyRunnerReporter_Missing : IRunnerReporter {
+				public MyRunnerReporter_Missing(int x) { }
+				public bool CanBeEnvironmentallyEnabled => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public bool ForceNoLogo => throw new NotImplementedException();
+				public bool IsEnvironmentallyEnabled => throw new NotImplementedException();
+				public string? RunnerSwitch => throw new NotImplementedException();
+				public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(IRunnerLogger logger, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
+			public class MyRunnerReporter_Obsolete : IRunnerReporter {
+				[Obsolete] public MyRunnerReporter_Obsolete() { }
+				public bool CanBeEnvironmentallyEnabled => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public bool ForceNoLogo => throw new NotImplementedException();
+				public bool IsEnvironmentallyEnabled => throw new NotImplementedException();
+				public string? RunnerSwitch => throw new NotImplementedException();
+				public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(IRunnerLogger logger, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
+			public class MyRunnerReporter_NonPublic : IRunnerReporter {
+				protected MyRunnerReporter_NonPublic() { }
+				public bool CanBeEnvironmentallyEnabled => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public bool ForceNoLogo => throw new NotImplementedException();
+				public bool IsEnvironmentallyEnabled => throw new NotImplementedException();
+				public string? RunnerSwitch => throw new NotImplementedException();
+				public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(IRunnerLogger logger, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
 			""";
 		var expected = new[] {
 			Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments("MyAssemblyFixture_Missing", string.Empty),

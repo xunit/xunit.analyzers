@@ -6,14 +6,13 @@ The primary build system for xUnit.net Analyzers is done via command line, and o
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [.NET SDK 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
 * [git](https://git-scm.com/downloads)
 
 ## Linux Pre-Requisites
 
 Linux users will additionally need:
 
-* [Mono](https://www.mono-project.com/download/stable/) 6.12+
 * [bash](https://www.gnu.org/software/bash/)
 
 Note: Linux users cannot run the .NET Framework tests, as they are incompatible. For this reason, we recommend that users either work primarily in Windows, or verify their tests work as expected in a Windows VM, before submitting PRs.
@@ -69,12 +68,12 @@ There are also three projects which build against the latest version of Roslyn:
 * `xunit.analyzers.latest.fixes`
 * `xunit.analyzers.latest.tests`
 
-When running a command line build, we run a matrix of 4 test projects: Roslyn 4.12 vs. latest, and .NET Framework vs. .NET. It's important that you run `./build` (or `./build test`) from Windows before submitting PRs, because some bugs are often found only in one of the four combinations (and Mono cannot run the .NET Framework tests).
+When running a command line build, we run a matrix of 4 test projects: Roslyn 4.12 vs. latest, and .NET Framework vs. .NET. It's important that you run `./build` (or `./build test`) from Windows before submitting PRs, because some bugs are often found only in one of the four combinations (and Linux cannot run the .NET Framework tests).
 
 You will also occasionally see tests which only run in specific environments. Common `#if` statements you may see (or may need to use) include:
 
 * `#if NETFRAMEWORK` (only runs for .NET Framework)
 * `#if NETCOREAPP` (only runs for .NET)
-* `#if ROSLYN_LATEST` (only runs with latest Roslyn, for C# language > version 13)
+* `#if ROSLYN_LATEST` (only runs with latest Roslyn, for C# language version 13+)
 
 In production code, we try to minimize these when possible, and prefer to fall back to use dynamic runtime environment detection when we can (as we'd like to light up features in newer versions of Roslyn when available). While this isn't always possible, it is generally a goal we try to achieve. In test code, we tend to use these to more frequently to ensure we have complete coverage of features that should be available dynamically (whether they are lit up based on `#if` or by runtime environment detection).

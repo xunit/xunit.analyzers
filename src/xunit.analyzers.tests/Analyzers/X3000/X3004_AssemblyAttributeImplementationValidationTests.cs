@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.AssemblyAttributeImplementationValidation>;
 
@@ -8,6 +9,8 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 	public async ValueTask V3_only()
 	{
 		var source = /* lang=c#-test */ """
+			using System;
+			using System.Threading.Tasks;
 			using Xunit;
 			using Xunit.Runner.Common;
 			using Xunit.Sdk;
@@ -31,8 +34,16 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 			[assembly: {|#14:RegisterResultWriter("foo", typeof(MyMTPResultWriter))|}]
 			[assembly: {|#15:RegisterRunnerReporter(typeof(object))|}]
 
-			class MyConsoleResultWriter : {|CS0535:{|CS0535:{|CS0535:IConsoleResultWriter|}|}|} { }
-			class MyMTPResultWriter : {|CS0535:{|CS0535:{|CS0535:{|CS0535:IMicrosoftTestingPlatformResultWriter|}|}|}|} { }
+			class MyConsoleResultWriter : IConsoleResultWriter {
+				public string Description => throw new NotImplementedException();
+				public ValueTask<IResultWriterMessageHandler> CreateMessageHandler(string fileName, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
+			class MyMTPResultWriter : IMicrosoftTestingPlatformResultWriter {
+				public string DefaultFileExtension => throw new NotImplementedException();
+				public string Description => throw new NotImplementedException();
+				public string FileNameDescription => throw new NotImplementedException();
+				public ValueTask<IResultWriterMessageHandler> CreateMessageHandler(string fileName, IMessageSink? diagnosticMessageSink) => throw new NotImplementedException();
+			}
 			class MyCollectionFactory { public MyCollectionFactory(IXunitTestAssembly testAssembly) { } }  // Don't trigger xUnit3005
 			""";
 		var expectedNonAot = new[] {
@@ -53,7 +64,7 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 			Verify.Diagnostic("xUnit3004").WithLocation(15).WithArguments("object", "Xunit.Runner.Common.IRunnerReporter"),
 		};
 
-		await Verify.VerifyAnalyzerV3NonAot(source, expectedNonAot);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expectedNonAot);
 
 #if NETCOREAPP && ROSLYN_LATEST
 		var expectedAot = new[] {
@@ -74,7 +85,7 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 			Verify.Diagnostic("xUnit3004").WithLocation(15).WithArguments("object", "Xunit.Runner.Common.IRunnerReporter"),
 		};
 
-		await Verify.VerifyAnalyzerV3Aot(source.Replace("IXunitTestAssembly", "ICodeGenTestAssembly"), expectedAot);
+		await Verify.VerifyAnalyzerV3Aot(LanguageVersion.CSharp8, source.Replace("IXunitTestAssembly", "ICodeGenTestAssembly"), expectedAot);
 #endif
 	}
 

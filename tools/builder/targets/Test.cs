@@ -21,9 +21,9 @@ public class Test
 				.GetFiles(Path.Join(context.BaseFolder, "src"), "*.tests*.csproj", SearchOption.AllDirectories)
 				.Select(csproj => '"' + Path.Combine(Path.GetDirectoryName(csproj)!, "bin", context.ConfigurationText, "net8.0", Path.GetFileNameWithoutExtension(csproj) + ".net8.0.dll") + '"');
 
-		if (context.NeedMono)
+		if (!context.IsWindows)
 		{
-			context.WriteLineColor(ConsoleColor.Yellow, "Skipping .NET Framework tests on Mono");
+			context.WriteLineColor(ConsoleColor.Yellow, "Skipping .NET Framework tests on non-Windows OS");
 			Console.WriteLine();
 		}
 		else
@@ -34,6 +34,6 @@ public class Test
 			);
 
 
-		return context.Exec(context.ConsoleRunner, $"{string.Join(" ", testDLLs)} -ctrf {Path.Join(context.TestOutputFolder, "results.ctrf")}");
+		return context.Exec(context.ConsoleRunner, $"{string.Join(" ", testDLLs)} -result-ctrf {Path.Join(context.TestOutputFolder, "results.ctrf")}");
 	}
 }

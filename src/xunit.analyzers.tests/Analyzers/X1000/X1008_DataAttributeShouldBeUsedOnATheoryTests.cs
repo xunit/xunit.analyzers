@@ -73,7 +73,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 			using System;
 			using Xunit;
 			using Xunit.v3;
-			
+
 			public class TestClass {
 				[CulturedFact(new[] { "en-US" })]
 				[InlineData]
@@ -112,6 +112,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 
 			public class CustomFactViaInterface : Attribute, IFactAttribute
 			{
+				public bool DisableParallelization => throw new NotImplementedException();
 				public string? DisplayName => throw new NotImplementedException();
 				public bool Explicit => throw new NotImplementedException();
 				public string? Skip => throw new NotImplementedException();
@@ -123,10 +124,11 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 				public int? SourceLineNumber => throw new NotImplementedException();
 				public int Timeout => throw new NotImplementedException();
 			}
-			
+
 			public class CustomTheoryViaInterface : Attribute, ITheoryAttribute
 			{
 				public bool DisableDiscoveryEnumeration => throw new NotImplementedException();
+				public bool DisableParallelization => throw new NotImplementedException();
 				public string? DisplayName => throw new NotImplementedException();
 				public bool Explicit => throw new NotImplementedException();
 				public bool IncludeTestCaseIndex => throw new NotImplementedException();

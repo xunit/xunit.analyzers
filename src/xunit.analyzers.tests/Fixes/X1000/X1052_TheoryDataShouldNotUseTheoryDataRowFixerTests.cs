@@ -52,6 +52,7 @@ public class X1052_TheoryDataShouldNotUseTheoryDataRowFixerTests
 
 			public class MyRow : {|CS0535:{|CS0535:ITheoryDataRow|}|} {
 				public object?[] GetData() { return null; }
+				public bool? DisableParallelization { get; }
 				public bool? Explicit { get; }
 				public string? Label { get; }
 				public string? Skip { get; }
@@ -104,6 +105,7 @@ public class X1052_TheoryDataShouldNotUseTheoryDataRowFixerTests
 
 			public class MyRow : {|CS0535:{|CS0535:ITheoryDataRow|}|} {
 				public object?[] GetData() { return null; }
+				public bool? DisableParallelization { get; }
 				public bool? Explicit { get; }
 				public string? Label { get; }
 				public string? Skip { get; }
