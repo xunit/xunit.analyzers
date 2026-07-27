@@ -21,8 +21,8 @@ if ($null -eq (Get-Command "dotnet" -ErrorAction Ignore)) {
 }
 
 $version = [Version]$([regex]::matches((&dotnet --version), '^(\d+\.)?(\d+\.)?(\*|\d+)').value)
-if ($version.Major -lt 8) {
-	throw ".NET SDK version ($version) is too low; please install version 8.0 or later"
+if ($version.Major -lt 10) {
+	throw ".NET SDK version ($version) is too low; please install version 10.0 or later"
 }
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Definition)
