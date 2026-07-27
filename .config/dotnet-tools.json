@@ -8,6 +8,13 @@
         "sign"
       ],
       "rollForward": false
+    },
+    "xunit-console-tool": {
+      "version": "4.0.0-pre.154",
+      "commands": [
+        "xunit-console"
+      ],
+      "rollForward": false
     }
   }
 }

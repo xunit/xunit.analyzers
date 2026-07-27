@@ -33,7 +33,6 @@ public class Test
 					.Select(csproj => '"' + Path.Combine(Path.GetDirectoryName(csproj)!, "bin", context.ConfigurationText, "net472", Path.GetFileNameWithoutExtension(csproj) + ".net472.exe") + '"')
 			);
 
-
-		return context.Exec(context.ConsoleRunner, $"{string.Join(" ", testDLLs)} -result-ctrf {Path.Join(context.TestOutputFolder, "results.ctrf")}");
+		return context.Exec("dotnet", $"xunit-console {string.Join(" ", testDLLs)} -result-ctrf {Path.Join(context.TestOutputFolder, "results.ctrf")}");
 	}
 }
