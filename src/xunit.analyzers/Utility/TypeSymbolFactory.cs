@@ -451,27 +451,26 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
 
-	public static INamedTypeSymbol? TheoryData(Compilation compilation) =>
-		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryData);
+	public static INamedTypeSymbol? TheoryData(
+		Compilation compilation,
+		int arity = 0) =>
+			arity switch
+			{
+				0 => Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryData),
+				> 0 => Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryData + "`" + arity.ToString(CultureInfo.InvariantCulture)),
+				_ => throw new ArgumentException("Arity must be a non-negative integer value", nameof(arity)),
+			};
 
-	// Centralized here so we don't repeat knowledge of how many arities exist
-	// (in case we decide to add more later).
 	public static Dictionary<int, INamedTypeSymbol> TheoryData_ByGenericArgumentCount(Compilation compilation)
 	{
 		var result = new Dictionary<int, INamedTypeSymbol>();
 
-		var type = TheoryData(compilation);
-		if (type is not null)
-			result[0] = type;
-
-		for (var i = 1; ; i++)
-		{
-			type = compilation.GetTypeByMetadataName(Constants.Types.Xunit.TheoryData + "`" + i.ToString(CultureInfo.InvariantCulture));
-			if (type is not null)
-				result[i] = type;
+		// Keep looking until we run out of variants
+		for (var arity = 0; ; arity++)
+			if (TheoryData(compilation, arity) is { } type)
+				result[arity] = type;
 			else
 				break;
-		}
 
 		return result;
 	}
