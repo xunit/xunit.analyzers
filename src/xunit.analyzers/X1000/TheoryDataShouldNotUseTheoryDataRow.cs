@@ -21,7 +21,9 @@ public class TheoryDataShouldNotUseTheoryDataRow() :
 		if (iTheoryDataRowSymbol is null)
 			return;
 
-		var theoryDataTypes = TypeSymbolFactory.TheoryData_ByGenericArgumentCount(context.Compilation);
+		var theoryDataOfTSymbol = TypeSymbolFactory.TheoryData(context.Compilation, 1);
+		if (theoryDataOfTSymbol is null)
+			return;
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -30,20 +32,17 @@ public class TheoryDataShouldNotUseTheoryDataRow() :
 			if (context.SemanticModel.GetSymbolInfo(genericName).Symbol is not INamedTypeSymbol typeSymbol)
 				return;
 
-			if (!theoryDataTypes.TryGetValue(typeSymbol.TypeArguments.Length, out var expectedSymbol))
+			// Only care about TheoryData<ITheoryDataRow>
+			if (!SymbolEqualityComparer.Default.Equals(theoryDataOfTSymbol, typeSymbol.OriginalDefinition))
 				return;
 
-			if (!SymbolEqualityComparer.Default.Equals(expectedSymbol, typeSymbol.OriginalDefinition))
-				return;
-
-			foreach (var typeArg in typeSymbol.TypeArguments)
-				if (IsOrImplementsITheoryDataRow(typeArg, iTheoryDataRowSymbol))
-					context.ReportDiagnostic(
-						Diagnostic.Create(
-							Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow,
-							genericName.GetLocation()
-						)
-					);
+			if (IsOrImplementsITheoryDataRow(typeSymbol.TypeArguments[0], iTheoryDataRowSymbol))
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1052_TheoryDataShouldNotUseITheoryDataRow,
+						genericName.GetLocation()
+					)
+				);
 		}, SyntaxKind.GenericName);
 	}
 
