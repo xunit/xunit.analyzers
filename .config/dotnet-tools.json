@@ -10,7 +10,7 @@
       "rollForward": false
     },
     "xunit-console-tool": {
-      "version": "4.0.0-pre.154",
+      "version": "4.0.0-pre.158",
       "commands": [
         "xunit-console"
       ],
