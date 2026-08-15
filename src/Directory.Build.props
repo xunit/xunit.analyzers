@@ -77,8 +77,8 @@
       <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.4" />
         <PackageReference Include="System.ValueTuple" Version="4.6.2" />
-        <PackageReference Include="xunit.v3.assert.source" Version="[4.0.0-pre.158, 4.99.0)" />
-        <PackageReference Include="xunit.v3.core" Version="[4.0.0-pre.158, 4.99.0)" />
+        <PackageReference Include="xunit.v3.assert.source" Version="4.0.0" />
+        <PackageReference Include="xunit.v3.core" Version="4.0.0" />
       </ItemGroup>
 
     </When>
