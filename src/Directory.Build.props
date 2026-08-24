@@ -21,6 +21,8 @@
     <MicrosoftCodeAnalysisVersion Condition=" '$(MicrosoftCodeAnalysisVersion)' == '' ">4.11.0</MicrosoftCodeAnalysisVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <Nullable>enable</Nullable>
+    <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
