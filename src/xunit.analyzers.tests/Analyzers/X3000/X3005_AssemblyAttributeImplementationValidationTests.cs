@@ -18,9 +18,20 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 
 			// xunit.v3.core
 			[assembly: AssemblyFixture(typeof(object))]
+			[assembly: AssemblyFixture(typeof(MyAssemblyFixture_InjectedValues))]
+			[assembly: AssemblyFixture(typeof(MyAssemblyFixture_OptionalValue))]
+			[assembly: AssemblyFixture(typeof(MyAssemblyFixture_ParamsValue))]
 			[assembly: {|#0:AssemblyFixture(typeof(MyAssemblyFixture_Missing))|}]
 			[assembly: {|#1:AssemblyFixture(typeof(MyAssemblyFixture_Obsolete))|}]
 			[assembly: {|#2:AssemblyFixture(typeof(MyAssemblyFixture_NonPublic))|}]
+
+			[assembly: AssemblyFixture<object>]
+			[assembly: AssemblyFixture<MyAssemblyFixture_InjectedValues>]
+			[assembly: AssemblyFixture<MyAssemblyFixture_OptionalValue>]
+			[assembly: AssemblyFixture<MyAssemblyFixture_ParamsValue>]
+			[assembly: {|#3:AssemblyFixture<MyAssemblyFixture_Missing>|}]
+			[assembly: {|#4:AssemblyFixture<MyAssemblyFixture_Obsolete>|}]
+			[assembly: {|#5:AssemblyFixture<MyAssemblyFixture_NonPublic>|}]
 
 			// xunit.v3.runner.common
 			[assembly: RegisterConsoleResultWriter("foo", typeof(XmlV2ResultWriter))]
@@ -43,6 +54,9 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			[assembly: {|#41:RegisterRunnerReporter(typeof(MyRunnerReporter_Obsolete))|}]
 			[assembly: {|#42:RegisterRunnerReporter(typeof(MyRunnerReporter_NonPublic))|}]
 
+			public class MyAssemblyFixture_InjectedValues { public MyAssemblyFixture_InjectedValues(ITestContextAccessor _1, IMessageSink _2, ITestOutputHelper _3) { } }
+			public class MyAssemblyFixture_OptionalValue { public MyAssemblyFixture_OptionalValue(int _ = 0) { } }
+			public class MyAssemblyFixture_ParamsValue { public MyAssemblyFixture_ParamsValue(params string[] _) { } }
 			public class MyAssemblyFixture_Missing { public MyAssemblyFixture_Missing(int x) { } }
 			public class MyAssemblyFixture_Obsolete	{ [Obsolete] public MyAssemblyFixture_Obsolete() { } }
 			public class MyAssemblyFixture_NonPublic { protected MyAssemblyFixture_NonPublic() { } }
@@ -98,9 +112,12 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			}
 			""";
 		var expected = new[] {
-			Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments("MyAssemblyFixture_Missing", string.Empty),
-			Verify.Diagnostic("xUnit3005").WithLocation(1).WithArguments("MyAssemblyFixture_Obsolete", string.Empty),
-			Verify.Diagnostic("xUnit3005").WithLocation(2).WithArguments("MyAssemblyFixture_NonPublic", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments("MyAssemblyFixture_Missing", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
+			Verify.Diagnostic("xUnit3005").WithLocation(1).WithArguments("MyAssemblyFixture_Obsolete", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
+			Verify.Diagnostic("xUnit3005").WithLocation(2).WithArguments("MyAssemblyFixture_NonPublic", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
+			Verify.Diagnostic("xUnit3005").WithLocation(3).WithArguments("MyAssemblyFixture_Missing", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
+			Verify.Diagnostic("xUnit3005").WithLocation(4).WithArguments("MyAssemblyFixture_Obsolete", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
+			Verify.Diagnostic("xUnit3005").WithLocation(5).WithArguments("MyAssemblyFixture_NonPublic", "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]"),
 
 			Verify.Diagnostic("xUnit3005").WithLocation(10).WithArguments("MyResultWriter_Missing", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(11).WithArguments("MyResultWriter_Obsolete", string.Empty),
@@ -119,7 +136,7 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			Verify.Diagnostic("xUnit3005").WithLocation(42).WithArguments("MyRunnerReporter_NonPublic", string.Empty),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 
 	[Fact]

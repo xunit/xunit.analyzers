@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -22,6 +24,11 @@ public class AssemblyAttributeImplementationValidation() :
 
 		var obsoleteAttributeType = TypeSymbolFactory.ObsoleteAttribute(context.Compilation);
 		var stringType = TypeSymbolFactory.String(context.Compilation);
+		var assemblyFixtureArgTypes = new[] {
+			TypeSymbolFactory.IMessageSink_V3(context.Compilation),
+			TypeSymbolFactory.ITestContextAccessor_V3(context.Compilation),
+			TypeSymbolFactory.ITestOutputHelper_V3(context.Compilation),
+		}.WhereNotNull().ToImmutableHashSet(SymbolEqualityComparer.Default);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -33,7 +40,6 @@ public class AssemblyAttributeImplementationValidation() :
 
 			var _ =  // Throw away the result, we just want to short circuit processing when we've identified our attribute
 				validateEmptyCtor(xunitContext.V3Common?.RegisterXunitSerializerAttributeType, [xunitContext.V3Common?.IXunitSerializerType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.AssemblyFixtureAttributeType, []) ||
 				validateEmptyCtor(xunitContext.V3Core?.TestCaseOrdererAttributeType, [xunitContext.V3Core?.ITestCaseOrdererType]) ||
 				validateEmptyCtor(xunitContext.V3Core?.TestClassOrdererAttributeType, [xunitContext.V3Core?.ITestClassOrdererType]) ||
 				validateEmptyCtor(xunitContext.V3Core?.TestCollectionOrdererAttributeType, [xunitContext.V3Core?.ITestCollectionOrdererType]) ||
@@ -43,13 +49,26 @@ public class AssemblyAttributeImplementationValidation() :
 				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterMicrosoftTestingPlatformResultWriterAttributeType, [xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
 				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterResultWriterAttributeType, [xunitContext.V3RunnerCommon?.IConsoleResultWriterType, xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
 				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterRunnerReporterAttributeType, [xunitContext.V3RunnerCommon?.IRunnerReporterType]) ||
+				validateAssemblyFixture() ||
 				validateTestCollectionFactory() ||
 				validateTestFramework();
 
 			INamedTypeSymbol? getImplementationType(
 				INamedTypeSymbol? registrationAttributeType,
-				int typeArgumentIdx = 0)
+				INamedTypeSymbol? genericRegistrationAttributeType = null,
+				int typeArgumentIdx = 0,
+				int genericTypeArgumentIdx = 0)
 			{
+				if (attributeType.IsGenericType)
+				{
+					if (genericRegistrationAttributeType is null ||
+							!SymbolEqualityComparer.Default.Equals(attributeType.ConstructUnboundGenericType(), genericRegistrationAttributeType.ConstructUnboundGenericType()) ||
+							attributeType.TypeArguments.Length <= genericTypeArgumentIdx)
+						return null;
+
+					return attributeType.TypeArguments[genericTypeArgumentIdx] as INamedTypeSymbol;
+				}
+
 				if (registrationAttributeType is null ||
 						!SymbolEqualityComparer.Default.Equals(attributeType, registrationAttributeType) ||
 						attributeSyntax.ArgumentList is null ||
@@ -106,12 +125,31 @@ public class AssemblyAttributeImplementationValidation() :
 						)
 					);
 
+			bool validateAssemblyFixture()
+			{
+				if (getImplementationType(xunitContext.V3Core?.AssemblyFixtureAttributeType, xunitContext.V3Core?.AssemblyFixtureAttributeOfTType) is not { } implementationType)
+					return false;
+
+				var targetCtors =
+					implementationType
+						.Constructors
+						.Where(c => !c.IsStatic && c.DeclaredAccessibility == Accessibility.Public)
+						.ToArray();
+
+				if (targetCtors.Length != 1 ||
+						(obsoleteAttributeType is not null && targetCtors[0].GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, obsoleteAttributeType))) ||
+						!targetCtors[0].Parameters.All(p => p.IsParams || p.IsOptional || assemblyFixtureArgTypes.Contains(p.Type)))
+					reportX3005(implementationType, "[ITestContextAccessor accessor], [ITestOutputHelper helper], [IMessageSink diagnosticMessageSink]");
+
+				return true;
+			}
+
 			bool validateEmptyCtor(
 				INamedTypeSymbol? registrationAttributeType,
 				INamedTypeSymbol?[] interfaceTypes,
 				int typeArgumentIdx = 0)
 			{
-				if (getImplementationType(registrationAttributeType, typeArgumentIdx) is not { } implementationType)
+				if (getImplementationType(registrationAttributeType, typeArgumentIdx: typeArgumentIdx) is not { } implementationType)
 					return false;
 
 				validateInterfaces(implementationType, interfaceTypes);

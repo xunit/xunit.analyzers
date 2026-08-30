@@ -135,6 +135,7 @@ public static class Constants
 		public static class Xunit
 		{
 			public const string AssemblyFixtureAttribute_V3 = "Xunit.AssemblyFixtureAttribute";
+			public const string AssemblyFixtureAttributeOfT_V3 = "Xunit.AssemblyFixtureAttribute`1";
 			public const string Assert = "Xunit.Assert";
 			public const string BeforeAfterTestAttribute_V2 = "Xunit.Sdk.BeforeAfterTestAttribute";
 			public const string BeforeAfterTestAttribute_V3 = "Xunit.v3.BeforeAfterTestAttribute";

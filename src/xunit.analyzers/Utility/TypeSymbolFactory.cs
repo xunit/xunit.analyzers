@@ -21,6 +21,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? AssemblyFixtureAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.AssemblyFixtureAttribute_V3);
 
+	public static INamedTypeSymbol? AssemblyFixtureAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.AssemblyFixtureAttributeOfT_V3);
+
 	public static INamedTypeSymbol? Assert(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.Assert);
 

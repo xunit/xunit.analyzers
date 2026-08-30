@@ -13,6 +13,11 @@ public interface ICoreContextV3 : ICoreContext
 	INamedTypeSymbol? AssemblyFixtureAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>AssemblyFixtureAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? AssemblyFixtureAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>ClassDataAttribute&lt;T&gt;</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? ClassDataAttributeOfTType { get; }

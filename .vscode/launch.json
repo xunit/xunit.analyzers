@@ -1,4 +1,47 @@
 {
 	"version": "0.2.0",
-	"configurations": []
+	"configurations": [
+		{
+			"name": "xunit.analyzers.tests (net8.0)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "Build_AnalyzersTests",
+			"program": "bin/Debug/net8.0/xunit.analyzers.tests.net8.0.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/xunit.analyzers.tests",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
+			"name": "xunit.analyzers.tests (net472/Windows)",
+			"type": "clr",
+			"request": "launch",
+			"preLaunchTask": "Build_AnalyzersTests",
+			"program": "bin/Debug/net472/xunit.analyzers.tests.net472.exe",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/xunit.analyzers.tests",
+			"console": "internalConsole"
+		},
+		{
+			"name": "xunit.analyzers.latest.tests (net8.0)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "Build_AnalyzersLatestTests",
+			"program": "bin/Debug/net8.0/xunit.analyzers.latest.tests.net8.0.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/compat/xunit.analyzers.latest.tests",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
+			"name": "xunit.analyzers.latest.tests (net472/Windows)",
+			"type": "clr",
+			"request": "launch",
+			"preLaunchTask": "Build_AnalyzersLatestTests",
+			"program": "bin/Debug/net472/xunit.analyzers.latest.tests.net472.exe",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/compat/xunit.analyzers.latest.tests",
+			"console": "internalConsole"
+		}
+	]
 }

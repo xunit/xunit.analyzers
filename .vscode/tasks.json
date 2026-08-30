@@ -5,14 +5,7 @@
 			"label": "Build",
 			"type": "process",
 			"command": "dotnet",
-			"args": [
-				"run",
-				"--project",
-				"tools/builder",
-				"--no-launch-profile",
-				"--",
-				"Build"
-			],
+			"args": ["build"],
 			"options": {
 				"cwd": "${workspaceRoot}"
 			},
@@ -44,7 +37,7 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "Unit Tests (.NET Core)",
+			"label": "Unit Tests (net8.0)",
 			"type": "process",
 			"command": "dotnet",
 			"args": [
@@ -65,7 +58,7 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "Unit Tests (.NET Framework)",
+			"label": "Unit Tests (net472)",
 			"type": "process",
 			"command": "dotnet",
 			"args": [
@@ -84,6 +77,33 @@
 				"focus": true
 			},
 			"problemMatcher": []
+		},
+		// Helper build tasks used by launch.json
+		{
+			"label": "Build_AnalyzersTests",
+			"type": "process",
+			"command": "dotnet",
+			"args": ["build", "src/xunit.analyzers.tests"],
+			"options": {
+				"cwd": "${workspaceRoot}"
+			},
+			"presentation": {
+				"focus": true
+			},
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "Build_AnalyzersLatestTests",
+			"type": "process",
+			"command": "dotnet",
+			"args": ["build", "src/compat/xunit.analyzers.latest.tests"],
+			"options": {
+				"cwd": "${workspaceRoot}"
+			},
+			"presentation": {
+				"focus": true
+			},
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
