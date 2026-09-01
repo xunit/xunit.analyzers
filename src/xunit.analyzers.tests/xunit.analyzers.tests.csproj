@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <PackageId>xunit.analyzers.tests</PackageId>
     <RootNamespace>Xunit.Analyzers</RootNamespace>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64;osx;linux-x64;linux-arm64</RuntimeIdentifiers>
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
   </PropertyGroup>
 
