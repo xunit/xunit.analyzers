@@ -13,6 +13,7 @@ public abstract class CoreContextV3Base(
 	readonly Lazy<INamedTypeSymbol?> lazyBeforeAfterTestAttributeType = new(() => TypeSymbolFactory.BeforeAfterTestAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyClassDataAttributeOfTType = new(() => TypeSymbolFactory.ClassDataAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyCollectionAttributeOfTType = new(() => TypeSymbolFactory.CollectionAttributeOfT_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyCollectionBehaviorAttributeOfTType = new(() => TypeSymbolFactory.CollectionBehaviorAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyCulturedFactAttributeType = new(() => TypeSymbolFactory.CulturedFactAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyCulturedTheoryAttributeType = new(() => TypeSymbolFactory.CulturedTheoryAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyDataAttributeType = new(() => TypeSymbolFactory.DataAttribute_V3(compilation));
@@ -48,6 +49,9 @@ public abstract class CoreContextV3Base(
 
 	public INamedTypeSymbol? CollectionAttributeOfTType =>
 		lazyCollectionAttributeOfTType.Value;
+
+	public INamedTypeSymbol? CollectionBehaviorAttributeOfTType =>
+		lazyCollectionBehaviorAttributeOfTType.Value;
 
 	public override INamedTypeSymbol? CulturedFactAttributeType =>
 		lazyCulturedFactAttributeType.Value;

@@ -28,6 +28,11 @@ public interface ICoreContextV3 : ICoreContext
 	INamedTypeSymbol? CollectionAttributeOfTType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>CollectionBehaviorAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? CollectionBehaviorAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>IDataAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? IDataAttributeType { get; }

@@ -144,6 +144,7 @@ public static class Constants
 			public const string CollectionAttribute = "Xunit.CollectionAttribute";
 			public const string CollectionAttributeOfT_V3 = "Xunit.CollectionAttribute`1";
 			public const string CollectionBehaviorAttribute = "Xunit.CollectionBehaviorAttribute";
+			public const string CollectionBehaviorAttributeOfT_V3 = "Xunit.CollectionBehaviorAttribute`1";
 			public const string CollectionDefinitionAttribute = "Xunit.CollectionDefinitionAttribute";
 			public const string DataAttribute_V2 = "Xunit.Sdk.DataAttribute";
 			public const string DataAttribute_V3 = "Xunit.v3.DataAttribute";

@@ -66,6 +66,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? CollectionBehaviorAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionBehaviorAttribute);
 
+	public static INamedTypeSymbol? CollectionBehaviorAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionBehaviorAttributeOfT_V3);
+
 	public static INamedTypeSymbol? CollectionDefinitionAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.CollectionDefinitionAttribute);
 

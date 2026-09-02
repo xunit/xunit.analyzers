@@ -489,9 +489,52 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 				.Replace("IXunitTestAssembly", "ICodeGenTestAssembly");
 
 		if (expectTrigger)
-			await Verify.VerifyAnalyzerV3Aot(LanguageVersion.CSharp8, source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testCollectionFactoryType, "ICodeGenTestAssembly testAssembly"));
+			await Verify.VerifyAnalyzerV3Aot(source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testCollectionFactoryType, "ICodeGenTestAssembly testAssembly"));
 		else
-			await Verify.VerifyAnalyzerV3Aot(LanguageVersion.CSharp8, source);
+			await Verify.VerifyAnalyzerV3Aot(source);
+#endif
+	}
+
+	// These have to be tested individually since [CollectionBehavior] does not permit duplicates
+	[Theory]
+	[InlineData("CollectionPerClassTestCollectionFactory", false)]
+	[InlineData("MyTestCollectionFactory_Missing", true)]
+	[InlineData("MyTestCollectionFactory_Obsolete", true)]
+	[InlineData("MyTestCollectionFactory_NonPublic", true)]
+	public async ValueTask V3_only_TestCollectionFactories_Generic(
+		string testCollectionFactoryType,
+		bool expectTrigger)
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			[assembly: {|#0:CollectionBehavior<TEST_COLLECTION_FACTORY_TYPE>|}]
+
+			public class MyTestCollectionFactory_Missing : {|CS0535:{|CS0535:IXunitTestCollectionFactory|}|}
+			{ }
+			public class MyTestCollectionFactory_Obsolete : {|CS0535:{|CS0535:IXunitTestCollectionFactory|}|}
+			{ [Obsolete] public MyTestCollectionFactory_Obsolete(IXunitTestAssembly testAssembly) { } }
+			public class MyTestCollectionFactory_NonPublic : {|CS0535:{|CS0535:IXunitTestCollectionFactory|}|}
+			{ protected MyTestCollectionFactory_NonPublic(IXunitTestAssembly testAssembly) { } }
+			""".Replace("TEST_COLLECTION_FACTORY_TYPE", testCollectionFactoryType);
+
+		if (expectTrigger)
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testCollectionFactoryType, "IXunitTestAssembly testAssembly"));
+		else
+			await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source);
+
+#if NETCOREAPP && ROSLYN_LATEST
+		source =
+			source
+				.Replace("IXunitTestCollectionFactory", "ICodeGenTestCollectionFactory")
+				.Replace("IXunitTestAssembly", "ICodeGenTestAssembly");
+
+		if (expectTrigger)
+			await Verify.VerifyAnalyzerV3Aot(source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testCollectionFactoryType, "ICodeGenTestAssembly testAssembly"));
+		else
+			await Verify.VerifyAnalyzerV3Aot(source);
 #endif
 	}
 }

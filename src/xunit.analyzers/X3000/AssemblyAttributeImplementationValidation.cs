@@ -208,7 +208,7 @@ public class AssemblyAttributeImplementationValidation() :
 			{
 				if (xunitContext.V3Core?.IXunitTestAssemblyType is not { } testAssemblyType)
 					return false;
-				if (getImplementationType(xunitContext.V3Core?.CollectionBehaviorAttributeType) is not { } implementationType)
+				if (getImplementationType(xunitContext.V3Core?.CollectionBehaviorAttributeType, xunitContext.V3Core?.CollectionBehaviorAttributeOfTType) is not { } implementationType)
 					return false;
 
 				validateInterfaces(implementationType, [xunitContext.V3Core?.ITestCollectionFactoryType]);
