@@ -481,6 +481,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TestPipelineStartupAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestPipelineStartupAttribute_V3);
 
+	public static INamedTypeSymbol? TestPipelineStartupAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestPipelineStartupAttributeOfT_V3);
+
 	public static INamedTypeSymbol? TheoryAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TheoryAttribute);
 

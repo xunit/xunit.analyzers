@@ -34,6 +34,7 @@ public abstract class CoreContextV3Base(
 	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeType = new(() => TypeSymbolFactory.TestMethodOrdererAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestMethodOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestPipelineStartupAttributeType = new(() => TypeSymbolFactory.TestPipelineStartupAttribute_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestPipelineStartupAttributeOfTType = new(() => TypeSymbolFactory.TestPipelineStartupAttributeOfT_V3(compilation));
 
 	public INamedTypeSymbol? AssemblyFixtureAttributeType =>
 		lazyAssemblyFixtureAttributeType.Value;
@@ -118,6 +119,9 @@ public abstract class CoreContextV3Base(
 
 	public INamedTypeSymbol? TestPipelineStartupAttributeType =>
 		lazyTestPipelineStartupAttributeType.Value;
+
+	public INamedTypeSymbol? TestPipelineStartupAttributeOfTType =>
+		lazyTestPipelineStartupAttributeOfTType.Value;
 
 	public override bool TheorySupportsConversionFromStringToDateTimeOffsetAndGuid => true;
 

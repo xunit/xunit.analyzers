@@ -60,7 +60,7 @@ public class AssemblyAttributeImplementationValidation() :
 					[xunitContext.V3Core?.ITestMethodOrdererType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestPipelineStartupAttributeType,
-					null,
+					xunitContext.V3Core?.TestPipelineStartupAttributeOfTType,
 					[xunitContext.V3Core?.ITestPipelineStartupType]) ||
 				validateEmptyCtor(
 					xunitContext.V3RunnerCommon?.RegisterConsoleResultWriterAttributeType,

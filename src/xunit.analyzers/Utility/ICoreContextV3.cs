@@ -112,4 +112,9 @@ public interface ICoreContextV3 : ICoreContext
 	/// Gets a reference to type <c>TestPipelineStartupAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? TestPipelineStartupAttributeType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>TestPipelineStartupAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestPipelineStartupAttributeOfTType { get; }
 }

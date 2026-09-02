@@ -43,7 +43,7 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			[assembly: {|#13:RegisterConsoleResultWriter<MyResultWriter_Missing>("foo")|}]
 			[assembly: {|#14:RegisterConsoleResultWriter<MyResultWriter_Obsolete>("foo")|}]
 			[assembly: {|#15:RegisterConsoleResultWriter<MyResultWriter_NonPublic>("foo")|}]
-			
+
 			[assembly: RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(XmlV2ResultWriter))]
 			[assembly: {|#20:RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(MyResultWriter_Missing))|}]
 			[assembly: {|#21:RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(MyResultWriter_Obsolete))|}]
@@ -536,5 +536,65 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 		else
 			await Verify.VerifyAnalyzerV3Aot(source);
 #endif
+	}
+
+	// These have to be tested individually since [TestPipelineStartup] does not permit duplicates
+	[Theory]
+	[InlineData("MyTestPipelineStartup_Missing", true)]
+	[InlineData("MyTestPipelineStartup_Obsolete", true)]
+	[InlineData("MyTestPipelineStartup_NonPublic", true)]
+	public async ValueTask V3_only_TestPipelineStartup(
+		string TestPipelineStartupType,
+		bool expectTrigger)
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			[assembly: {|#0:TestPipelineStartup(typeof(TEST_PIPELINE_STARTUP_TYPE))|}]
+
+			public class MyTestPipelineStartup_Missing : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ public MyTestPipelineStartup_Missing(int _) { } }
+			public class MyTestPipelineStartup_Obsolete : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ [Obsolete] public MyTestPipelineStartup_Obsolete() { } }
+			public class MyTestPipelineStartup_NonPublic : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ protected MyTestPipelineStartup_NonPublic() { } }
+			""".Replace("TEST_PIPELINE_STARTUP_TYPE", TestPipelineStartupType);
+
+		if (expectTrigger)
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(TestPipelineStartupType, string.Empty));
+		else
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
+	}
+
+	// These have to be tested individually since [TestPipelineStartup] does not permit duplicates
+	[Theory]
+	[InlineData("MyTestPipelineStartup_Missing", true)]
+	[InlineData("MyTestPipelineStartup_Obsolete", true)]
+	[InlineData("MyTestPipelineStartup_NonPublic", true)]
+	public async ValueTask V3_only_TestPipelineStartup_Generic(
+		string TestPipelineStartupType,
+		bool expectTrigger)
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			[assembly: {|#0:TestPipelineStartup<TEST_PIPELINE_STARTUP_TYPE>|}]
+
+			public class MyTestPipelineStartup_Missing : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ public MyTestPipelineStartup_Missing(int _) { } }
+			public class MyTestPipelineStartup_Obsolete : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ [Obsolete] public MyTestPipelineStartup_Obsolete() { } }
+			public class MyTestPipelineStartup_NonPublic : {|CS0535:{|CS0535:ITestPipelineStartup|}|}
+			{ protected MyTestPipelineStartup_NonPublic() { } }
+			""".Replace("TEST_PIPELINE_STARTUP_TYPE", TestPipelineStartupType);
+
+		if (expectTrigger)
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(TestPipelineStartupType, string.Empty));
+		else
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
 	}
 }
