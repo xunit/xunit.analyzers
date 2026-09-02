@@ -233,7 +233,7 @@ public class AssemblyAttributeImplementationValidation() :
 
 			bool validateTestFramework()
 			{
-				if (getImplementationType(xunitContext.V3Core?.TestFrameworkAttributeType) is not { } implementationType)
+				if (getImplementationType(xunitContext.V3Core?.TestFrameworkAttributeType, xunitContext.V3Core?.TestFrameworkAttributeOfTType) is not { } implementationType)
 					return false;
 
 				validateInterfaces(implementationType, [xunitContext.V3Core?.ITestFrameworkType]);

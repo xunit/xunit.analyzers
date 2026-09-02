@@ -466,6 +466,9 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TestFrameworkAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestFrameworkAttribute);
 
+	public static INamedTypeSymbol? TestFrameworkAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestFrameworkAttributeOfT_V3);
+
 	public static INamedTypeSymbol? TestMethodOrdererAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestMethodOrdererAttribute_V3);
 

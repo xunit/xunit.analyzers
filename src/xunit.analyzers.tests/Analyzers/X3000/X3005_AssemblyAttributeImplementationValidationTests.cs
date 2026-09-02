@@ -414,6 +414,44 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source);
 	}
 
+	// These have to be tested individually since [TestFramework] does not permit duplicates
+	[Theory]
+	[InlineData("MyTestFramework_Empty", false)]
+	[InlineData("MyTestFramework_WithString", false)]
+	[InlineData("MyTestFramework_Missing", true)]
+	[InlineData("MyTestFramework_Obsolete", true)]
+	[InlineData("MyTestFramework_NonPublic", true)]
+	public async ValueTask V3_only_TestFrameworks_Generic(
+		string testFrameworkType,
+		bool expectTrigger)
+	{
+		var source = /* lang=c#-test */ """
+			#nullable enable
+
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			[assembly: {|#0:TestFramework<TEST_FRAMEWORK_TYPE>|}]
+
+			public class MyTestFramework_Empty : {|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestFramework|}|}|}|}
+			{ }
+			public class MyTestFramework_WithString : {|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestFramework|}|}|}|}
+			{ public MyTestFramework_WithString(string? configFileName) { } }
+			public class MyTestFramework_Missing : {|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestFramework|}|}|}|}
+			{ public MyTestFramework_Missing(int x) { } }
+			public class MyTestFramework_Obsolete : {|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestFramework|}|}|}|}
+			{ [Obsolete] public MyTestFramework_Obsolete(string? configFileName) { } }
+			public class MyTestFramework_NonPublic : {|CS0535:{|CS0535:{|CS0535:{|CS0535:ITestFramework|}|}|}|}
+			{ protected MyTestFramework_NonPublic() { } }
+			""".Replace("TEST_FRAMEWORK_TYPE", testFrameworkType);
+
+		if (expectTrigger)
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testFrameworkType, "string? configFileName"));
+		else
+			await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
+	}
+
 	// These have to be tested individually since [CollectionBehavior] does not permit duplicates
 	[Theory]
 	[InlineData("CollectionPerClassTestCollectionFactory", false)]

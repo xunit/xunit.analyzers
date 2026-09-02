@@ -89,6 +89,11 @@ public interface ICoreContextV3 : ICoreContext
 	INamedTypeSymbol? TestCollectionOrdererAttributeOfTType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>TestFrameworkAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestFrameworkAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>TestMethodOrdererAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? TestMethodOrdererAttributeType { get; }

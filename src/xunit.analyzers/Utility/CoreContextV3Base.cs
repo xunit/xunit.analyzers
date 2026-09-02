@@ -29,6 +29,7 @@ public abstract class CoreContextV3Base(
 	readonly Lazy<INamedTypeSymbol?> lazyTestClassOrdererAttributeType = new(() => TypeSymbolFactory.TestClassOrdererAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestClassOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestClassOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestCollectionOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestCollectionOrdererAttributeOfT_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestFrameworkAttributeOfTType = new(() => TypeSymbolFactory.TestFrameworkAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeType = new(() => TypeSymbolFactory.TestMethodOrdererAttribute_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestMethodOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestPipelineStartupAttributeType = new(() => TypeSymbolFactory.TestPipelineStartupAttribute_V3(compilation));
@@ -101,6 +102,9 @@ public abstract class CoreContextV3Base(
 
 	public INamedTypeSymbol? TestCollectionOrdererAttributeOfTType =>
 		lazyTestCollectionOrdererAttributeOfTType.Value;
+
+	public INamedTypeSymbol? TestFrameworkAttributeOfTType =>
+		lazyTestFrameworkAttributeOfTType.Value;
 
 	public INamedTypeSymbol? TestMethodOrdererAttributeType =>
 		lazyTestMethodOrdererAttributeType.Value;

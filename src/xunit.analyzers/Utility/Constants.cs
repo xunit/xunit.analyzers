@@ -228,6 +228,7 @@ public static class Constants
 			public const string TestCollectionOrdererAttributeOfT_V3 = "Xunit.TestCollectionOrdererAttribute`1";
 			public const string TestContext_V3 = "Xunit.TestContext";
 			public const string TestFrameworkAttribute = "Xunit.TestFrameworkAttribute";
+			public const string TestFrameworkAttributeOfT_V3 = "Xunit.TestFrameworkAttribute`1";
 			public const string TestMethodOrdererAttribute_V3 = "Xunit.TestMethodOrdererAttribute";
 			public const string TestMethodOrdererAttributeOfT_V3 = "Xunit.TestMethodOrdererAttribute`1";
 			public const string TestPipelineStartupAttribute_V3 = "Xunit.v3.TestPipelineStartupAttribute";
