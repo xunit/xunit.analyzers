@@ -29,9 +29,19 @@ public interface IRunnerCommonContextV3
 	INamedTypeSymbol? RegisterConsoleResultWriterAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>RegisterConsoleResultWriterAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? RegisterConsoleResultWriterAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>RegisterMicrosoftTestingPlatformResultWriterAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? RegisterMicrosoftTestingPlatformResultWriterAttributeType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>RegisterMicrosoftTestingPlatformResultWriterAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? RegisterMicrosoftTestingPlatformResultWriterAttributeOfTType { get; }
 
 	/// <summary>
 	/// Gets a reference to type <c>RegisterResultWriterAttribute</c>, if available.
@@ -39,9 +49,19 @@ public interface IRunnerCommonContextV3
 	INamedTypeSymbol? RegisterResultWriterAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>RegisterResultWriterAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? RegisterResultWriterAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>RegisterRunnerReporterAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? RegisterRunnerReporterAttributeType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>RegisterRunnerReporterAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? RegisterRunnerReporterAttributeOfTType { get; }
 
 	/// <summary>
 	/// Gets the version number of the runner common assembly.

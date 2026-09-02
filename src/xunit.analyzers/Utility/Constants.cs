@@ -213,9 +213,13 @@ public static class Constants
 			public const string Record = "Xunit.Record";
 			public const string RegisterXunitSerializerAttribute_V3 = "Xunit.Sdk.RegisterXunitSerializerAttribute";
 			public const string RegisterConsoleResultWriterAttribute_V3 = "Xunit.Runner.Common.RegisterConsoleResultWriterAttribute";
+			public const string RegisterConsoleResultWriterAttributeOfT_V3 = "Xunit.Runner.Common.RegisterConsoleResultWriterAttribute`1";
 			public const string RegisterMicrosoftTestingPlatformResultWriterAttribute_V3 = "Xunit.Runner.Common.RegisterMicrosoftTestingPlatformResultWriterAttribute";
+			public const string RegisterMicrosoftTestingPlatformResultWriterAttributeOfT_V3 = "Xunit.Runner.Common.RegisterMicrosoftTestingPlatformResultWriterAttribute`1";
 			public const string RegisterResultWriterAttribute_V3 = "Xunit.Runner.Common.RegisterResultWriterAttribute";
+			public const string RegisterResultWriterAttributeOfT_V3 = "Xunit.Runner.Common.RegisterResultWriterAttribute`1";
 			public const string RegisterRunnerReporterAttribute_V3 = "Xunit.Runner.Common.RegisterRunnerReporterAttribute";
+			public const string RegisterRunnerReporterAttributeOfT_V3 = "Xunit.Runner.Common.RegisterRunnerReporterAttribute`1";
 			public const string TestCaseOrdererAttribute = "Xunit.TestCaseOrdererAttribute";
 			public const string TestClassOrdererAttribute_V3 = "Xunit.TestClassOrdererAttribute";
 			public const string TestCollectionOrdererAttribute = "Xunit.TestCollectionOrdererAttribute";

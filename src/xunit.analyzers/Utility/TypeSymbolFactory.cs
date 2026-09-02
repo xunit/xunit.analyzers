@@ -403,14 +403,26 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? RegisterConsoleResultWriterAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterConsoleResultWriterAttribute_V3);
 
+	public static INamedTypeSymbol? RegisterConsoleResultWriterAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterConsoleResultWriterAttributeOfT_V3);
+
 	public static INamedTypeSymbol? RegisterMicrosoftTestingPlatformResultWriterAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterMicrosoftTestingPlatformResultWriterAttribute_V3);
+
+	public static INamedTypeSymbol? RegisterMicrosoftTestingPlatformResultWriterAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterMicrosoftTestingPlatformResultWriterAttributeOfT_V3);
 
 	public static INamedTypeSymbol? RegisterResultWriterAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterResultWriterAttribute_V3);
 
+	public static INamedTypeSymbol? RegisterResultWriterAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterResultWriterAttributeOfT_V3);
+
 	public static INamedTypeSymbol? RegisterRunnerReporterAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterRunnerReporterAttribute_V3);
+
+	public static INamedTypeSymbol? RegisterRunnerReporterAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterRunnerReporterAttributeOfT_V3);
 
 	public static INamedTypeSymbol? RegisterXunitSerializerAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.RegisterXunitSerializerAttribute_V3);

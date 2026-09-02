@@ -39,20 +39,40 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			[assembly: {|#11:RegisterConsoleResultWriter("foo", typeof(MyResultWriter_Obsolete))|}]
 			[assembly: {|#12:RegisterConsoleResultWriter("foo", typeof(MyResultWriter_NonPublic))|}]
 
+			[assembly: RegisterConsoleResultWriter<XmlV2ResultWriter>("foo")]
+			[assembly: {|#13:RegisterConsoleResultWriter<MyResultWriter_Missing>("foo")|}]
+			[assembly: {|#14:RegisterConsoleResultWriter<MyResultWriter_Obsolete>("foo")|}]
+			[assembly: {|#15:RegisterConsoleResultWriter<MyResultWriter_NonPublic>("foo")|}]
+			
 			[assembly: RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(XmlV2ResultWriter))]
 			[assembly: {|#20:RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(MyResultWriter_Missing))|}]
 			[assembly: {|#21:RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(MyResultWriter_Obsolete))|}]
 			[assembly: {|#22:RegisterMicrosoftTestingPlatformResultWriter("foo", typeof(MyResultWriter_NonPublic))|}]
+
+			[assembly: RegisterMicrosoftTestingPlatformResultWriter<XmlV2ResultWriter>("foo")]
+			[assembly: {|#23:RegisterMicrosoftTestingPlatformResultWriter<MyResultWriter_Missing>("foo")|}]
+			[assembly: {|#24:RegisterMicrosoftTestingPlatformResultWriter<MyResultWriter_Obsolete>("foo")|}]
+			[assembly: {|#25:RegisterMicrosoftTestingPlatformResultWriter<MyResultWriter_NonPublic>("foo")|}]
 
 			[assembly: RegisterResultWriter("foo", typeof(XmlV2ResultWriter))]
 			[assembly: {|#30:RegisterResultWriter("foo", typeof(MyResultWriter_Missing))|}]
 			[assembly: {|#31:RegisterResultWriter("foo", typeof(MyResultWriter_Obsolete))|}]
 			[assembly: {|#32:RegisterResultWriter("foo", typeof(MyResultWriter_NonPublic))|}]
 
+			[assembly: RegisterResultWriter<XmlV2ResultWriter>("foo")]
+			[assembly: {|#33:RegisterResultWriter<MyResultWriter_Missing>("foo")|}]
+			[assembly: {|#34:RegisterResultWriter<MyResultWriter_Obsolete>("foo")|}]
+			[assembly: {|#35:RegisterResultWriter<MyResultWriter_NonPublic>("foo")|}]
+
 			[assembly: RegisterRunnerReporter(typeof(QuietReporter))]
 			[assembly: {|#40:RegisterRunnerReporter(typeof(MyRunnerReporter_Missing))|}]
 			[assembly: {|#41:RegisterRunnerReporter(typeof(MyRunnerReporter_Obsolete))|}]
 			[assembly: {|#42:RegisterRunnerReporter(typeof(MyRunnerReporter_NonPublic))|}]
+
+			[assembly: RegisterRunnerReporter<QuietReporter>]
+			[assembly: {|#43:RegisterRunnerReporter<MyRunnerReporter_Missing>|}]
+			[assembly: {|#44:RegisterRunnerReporter<MyRunnerReporter_Obsolete>|}]
+			[assembly: {|#45:RegisterRunnerReporter<MyRunnerReporter_NonPublic>|}]
 
 			public class MyAssemblyFixture_InjectedValues { public MyAssemblyFixture_InjectedValues(ITestContextAccessor _1, IMessageSink _2, ITestOutputHelper _3) { } }
 			public class MyAssemblyFixture_OptionalValue { public MyAssemblyFixture_OptionalValue(int _ = 0) { } }
@@ -122,18 +142,30 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 			Verify.Diagnostic("xUnit3005").WithLocation(10).WithArguments("MyResultWriter_Missing", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(11).WithArguments("MyResultWriter_Obsolete", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(12).WithArguments("MyResultWriter_NonPublic", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(13).WithArguments("MyResultWriter_Missing", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(14).WithArguments("MyResultWriter_Obsolete", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(15).WithArguments("MyResultWriter_NonPublic", string.Empty),
 
 			Verify.Diagnostic("xUnit3005").WithLocation(20).WithArguments("MyResultWriter_Missing", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(21).WithArguments("MyResultWriter_Obsolete", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(22).WithArguments("MyResultWriter_NonPublic", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(23).WithArguments("MyResultWriter_Missing", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(24).WithArguments("MyResultWriter_Obsolete", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(25).WithArguments("MyResultWriter_NonPublic", string.Empty),
 
 			Verify.Diagnostic("xUnit3005").WithLocation(30).WithArguments("MyResultWriter_Missing", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(31).WithArguments("MyResultWriter_Obsolete", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(32).WithArguments("MyResultWriter_NonPublic", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(33).WithArguments("MyResultWriter_Missing", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(34).WithArguments("MyResultWriter_Obsolete", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(35).WithArguments("MyResultWriter_NonPublic", string.Empty),
 
 			Verify.Diagnostic("xUnit3005").WithLocation(40).WithArguments("MyRunnerReporter_Missing", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(41).WithArguments("MyRunnerReporter_Obsolete", string.Empty),
 			Verify.Diagnostic("xUnit3005").WithLocation(42).WithArguments("MyRunnerReporter_NonPublic", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(43).WithArguments("MyRunnerReporter_Missing", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(44).WithArguments("MyRunnerReporter_Obsolete", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(45).WithArguments("MyRunnerReporter_NonPublic", string.Empty),
 		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);

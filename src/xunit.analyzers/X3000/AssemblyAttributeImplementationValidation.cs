@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -39,16 +38,46 @@ public class AssemblyAttributeImplementationValidation() :
 				return;
 
 			var _ =  // Throw away the result, we just want to short circuit processing when we've identified our attribute
-				validateEmptyCtor(xunitContext.V3Common?.RegisterXunitSerializerAttributeType, [xunitContext.V3Common?.IXunitSerializerType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.TestCaseOrdererAttributeType, [xunitContext.V3Core?.ITestCaseOrdererType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.TestClassOrdererAttributeType, [xunitContext.V3Core?.ITestClassOrdererType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.TestCollectionOrdererAttributeType, [xunitContext.V3Core?.ITestCollectionOrdererType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.TestMethodOrdererAttributeType, [xunitContext.V3Core?.ITestMethodOrdererType]) ||
-				validateEmptyCtor(xunitContext.V3Core?.TestPipelineStartupAttributeType, [xunitContext.V3Core?.ITestPipelineStartupType]) ||
-				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterConsoleResultWriterAttributeType, [xunitContext.V3RunnerCommon?.IConsoleResultWriterType], 1) ||
-				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterMicrosoftTestingPlatformResultWriterAttributeType, [xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
-				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterResultWriterAttributeType, [xunitContext.V3RunnerCommon?.IConsoleResultWriterType, xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
-				validateEmptyCtor(xunitContext.V3RunnerCommon?.RegisterRunnerReporterAttributeType, [xunitContext.V3RunnerCommon?.IRunnerReporterType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Common?.RegisterXunitSerializerAttributeType,
+					null,
+					[xunitContext.V3Common?.IXunitSerializerType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Core?.TestCaseOrdererAttributeType,
+					null,
+					[xunitContext.V3Core?.ITestCaseOrdererType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Core?.TestClassOrdererAttributeType,
+					null,
+					[xunitContext.V3Core?.ITestClassOrdererType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Core?.TestCollectionOrdererAttributeType,
+					null,
+					[xunitContext.V3Core?.ITestCollectionOrdererType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Core?.TestMethodOrdererAttributeType,
+					null,
+					[xunitContext.V3Core?.ITestMethodOrdererType]) ||
+				validateEmptyCtor(
+					xunitContext.V3Core?.TestPipelineStartupAttributeType,
+					null,
+					[xunitContext.V3Core?.ITestPipelineStartupType]) ||
+				validateEmptyCtor(
+					xunitContext.V3RunnerCommon?.RegisterConsoleResultWriterAttributeType,
+					xunitContext.V3RunnerCommon?.RegisterConsoleResultWriterAttributeOfTType,
+					[xunitContext.V3RunnerCommon?.IConsoleResultWriterType], 1) ||
+				validateEmptyCtor(
+					xunitContext.V3RunnerCommon?.RegisterMicrosoftTestingPlatformResultWriterAttributeType,
+					xunitContext.V3RunnerCommon?.RegisterMicrosoftTestingPlatformResultWriterAttributeOfTType,
+					[xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
+				validateEmptyCtor(
+					xunitContext.V3RunnerCommon?.RegisterResultWriterAttributeType,
+					xunitContext.V3RunnerCommon?.RegisterResultWriterAttributeOfTType,
+					[xunitContext.V3RunnerCommon?.IConsoleResultWriterType, xunitContext.V3RunnerCommon?.IMicrosoftTestingPlatformResultWriterType], 1) ||
+				validateEmptyCtor(
+					xunitContext.V3RunnerCommon?.RegisterRunnerReporterAttributeType,
+					xunitContext.V3RunnerCommon?.RegisterRunnerReporterAttributeOfTType,
+					[xunitContext.V3RunnerCommon?.IRunnerReporterType]) ||
 				validateAssemblyFixture() ||
 				validateTestCollectionFactory() ||
 				validateTestFramework();
@@ -146,10 +175,11 @@ public class AssemblyAttributeImplementationValidation() :
 
 			bool validateEmptyCtor(
 				INamedTypeSymbol? registrationAttributeType,
+				INamedTypeSymbol? genericRegistrationAttributeType,
 				INamedTypeSymbol?[] interfaceTypes,
 				int typeArgumentIdx = 0)
 			{
-				if (getImplementationType(registrationAttributeType, typeArgumentIdx: typeArgumentIdx) is not { } implementationType)
+				if (getImplementationType(registrationAttributeType, genericRegistrationAttributeType, typeArgumentIdx) is not { } implementationType)
 					return false;
 
 				validateInterfaces(implementationType, interfaceTypes);
