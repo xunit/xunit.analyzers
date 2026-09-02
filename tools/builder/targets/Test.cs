@@ -8,7 +8,7 @@ namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.Test,
-	BuildTarget.Build
+	BuildTarget.RestoreTools, BuildTarget.Build
 )]
 public class Test
 {
