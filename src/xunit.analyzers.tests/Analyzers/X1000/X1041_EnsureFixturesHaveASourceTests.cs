@@ -186,6 +186,7 @@ public class X1041_EnsureFixturesHaveASourceTests
 			using Xunit;
 
 			[assembly: AssemblyFixture(typeof(int))]
+			[assembly: AssemblyFixture<long>]
 
 			public class Fixture { }
 			public class Fixture<T> { }
@@ -194,6 +195,12 @@ public class X1041_EnsureFixturesHaveASourceTests
 
 			public class WithAssemblyFixture {
 				public WithAssemblyFixture(int _) { }
+
+				[Fact] public void TestMethod() { }
+			}
+
+			public class WithAssemblyFixture_Generic {
+				public WithAssemblyFixture_Generic(long _) { }
 
 				[Fact] public void TestMethod() { }
 			}
@@ -232,11 +239,11 @@ public class X1041_EnsureFixturesHaveASourceTests
 
 			[CollectionDefinition]
 			public class InheritedFixtureByTypeCollection_Generic : ICollectionFixture<Fixture> { }
-			
+
 			[Collection<InheritedFixtureByTypeCollection>]
 			public class WithInheritedFixtureByType_Generic_DoesNotTrigger : TestContext {
 				public WithInheritedFixtureByType_Generic_DoesNotTrigger(Fixture fixture) : base(fixture) { }
-			
+
 				[Fact]
 				public void TestMethod() { }
 			}

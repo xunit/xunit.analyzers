@@ -129,6 +129,16 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
 				);
 
+			var assemblyFixtureAttributeOfTType = xunitContext.V3Core?.AssemblyFixtureAttributeOfTType;
+			if (assemblyFixtureAttributeOfTType is not null)
+				validConstructorArgumentTypes.AddRange(
+					namedType
+						.ContainingAssembly
+						.GetAttributes()
+						.Where(a => a.AttributeClass?.IsGenericType == true && SymbolEqualityComparer.Default.Equals(a.AttributeClass.OriginalDefinition, assemblyFixtureAttributeOfTType))
+						.Select(a => a.AttributeClass?.TypeArguments.FirstOrDefault())
+				);
+
 			foreach (var parameter in ctors[0].Parameters.Where(p => !p.IsOptional
 					&& !p.IsParams
 					&& !validConstructorArgumentTypes.Contains(p.Type)
