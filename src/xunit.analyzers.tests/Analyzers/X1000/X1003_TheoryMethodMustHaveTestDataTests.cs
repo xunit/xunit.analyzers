@@ -42,27 +42,35 @@ public class X1003_TheoryMethodMustHaveTestDataTests
 			using Xunit;
 
 			public class TestClass {
+				[Theory]
+				[ClassData<string>]
+				public void TheoryMethodWithClassData_Generic_DoesNotTrigger() { }
+
 				[CulturedFact(new[] { "en-US" })]
-				public void FactMethod_DoesNotTrigger() { }
+				public void CulturedFactMethod_DoesNotTrigger() { }
 
 				[CulturedTheory(new[] { "en-US" })]
 				[InlineData]
-				public void TheoryMethodWithInlineData_DoesNotTrigger() { }
+				public void CulturedTheoryMethodWithInlineData_DoesNotTrigger() { }
 
 				[CulturedTheory(new[] { "en-US" })]
 				[MemberData("")]
-				public void TheoryMethodWithMemberData_DoesNotTrigger() { }
+				public void CulturedTheoryMethodWithMemberData_DoesNotTrigger() { }
 
 				[CulturedTheory(new[] { "en-US" })]
 				[ClassData(typeof(string))]
-				public void TheoryMethodWithClassData_DoesNotTrigger() { }
+				public void CulturedTheoryMethodWithClassData_DoesNotTrigger() { }
 
 				[CulturedTheory(new[] { "en-US" })]
-				public void [|TheoryMethodWithoutData_Triggers|]() { }
+				[ClassData<string>]
+				public void CulturedTheoryMethodWithClassData_Generic_DoesNotTrigger() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				public void [|CulturedTheoryMethodWithoutData_Triggers|]() { }
 			}
 			""";
 
-		await Verify.VerifyAnalyzerV3(source);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
 	}
 
 	[Fact]
