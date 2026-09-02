@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.FactMethodShouldNotHaveTestData>;
 
@@ -66,5 +67,44 @@ public class X1005_FactMethodShouldNotHaveTestDataTests
 			""";
 
 		await Verify.VerifyAnalyzerNonAot([source1, source2]);
+	}
+
+	[Fact]
+	public async ValueTask V3_only()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[CulturedFact(new[] { "en-US" })]
+				public void CulturedFactWithNoDataAttributes_DoesNotTrigger() { }
+
+				[CulturedFact(new[] { "en-US" })]
+				[InlineData]
+				public void [|CulturedFactWithInlineData_Triggers|]() { }
+
+				[CulturedFact(new[] { "en-US" })]
+				[MemberData("")]
+				public void [|CulturedFactWithMemberData_Triggers|]() { }
+
+				[CulturedFact(new[] { "en-US" })]
+				[ClassData(typeof(string))]
+				public void [|CulturedFactWithClassData_Triggers|]() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				[InlineData]
+				public void CulturedTheoryWithInlineData_DoesNotTrigger() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				[MemberData("")]
+				public void CulturedTheoryWithMemberData_DoesNotTrigger() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				[ClassData(typeof(string))]
+				public void CulturedTheoryWithClassData_DoesNotTrigger() { }
+			}
+			""";
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
 	}
 }

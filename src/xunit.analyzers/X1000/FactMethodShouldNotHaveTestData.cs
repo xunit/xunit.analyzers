@@ -22,7 +22,9 @@ public class FactMethodShouldNotHaveTestData : XunitDiagnosticAnalyzer
 
 		context.RegisterSymbolAction(context =>
 		{
-			if (xunitContext.Core.FactAttributeType is null || xunitContext.Core.TheoryAttributeType is null || xunitContext.Core.DataAttributeType is null)
+			var factAttributeTypes = xunitContext.Core.FactAttributeTypes;
+			var theoryAttributeTypes = xunitContext.Core.TheoryAttributeTypes;
+			if ((factAttributeTypes.Count == 0 && theoryAttributeTypes.Count == 0) || xunitContext.Core.DataAttributeType is null)
 				return;
 
 			if (context.Symbol is not IMethodSymbol symbol)
@@ -30,8 +32,8 @@ public class FactMethodShouldNotHaveTestData : XunitDiagnosticAnalyzer
 
 			var attributes = symbol.GetAttributes();
 			if (attributes.Length > 1 &&
-				attributes.ContainsAttributeType(xunitContext.Core.FactAttributeType, exactMatch: true) &&
-				!attributes.ContainsAttributeType(xunitContext.Core.TheoryAttributeType) &&
+				attributes.ContainsAttributeType(factAttributeTypes, exactMatch: true) &&
+				!attributes.ContainsAttributeType(theoryAttributeTypes) &&
 				attributes.ContainsAttributeType(xunitContext.Core.DataAttributeType))
 			{
 				var properties = new Dictionary<string, string?>
