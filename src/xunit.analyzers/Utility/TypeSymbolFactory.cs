@@ -445,11 +445,20 @@ public static class TypeSymbolFactory
 	public static INamedTypeSymbol? TestCaseOrdererAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestCaseOrdererAttribute);
 
+	public static INamedTypeSymbol? TestCaseOrdererAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestCaseOrdererAttributeOfT_V3);
+
 	public static INamedTypeSymbol? TestClassOrdererAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestClassOrdererAttribute_V3);
 
+	public static INamedTypeSymbol? TestClassOrdererAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestClassOrdererAttributeOfT_V3);
+
 	public static INamedTypeSymbol? TestCollectionOrdererAttribute(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestCollectionOrdererAttribute);
+
+	public static INamedTypeSymbol? TestCollectionOrdererAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestCollectionOrdererAttributeOfT_V3);
 
 	public static INamedTypeSymbol? TestContext_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestContext_V3);
@@ -459,6 +468,9 @@ public static class TypeSymbolFactory
 
 	public static INamedTypeSymbol? TestMethodOrdererAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestMethodOrdererAttribute_V3);
+
+	public static INamedTypeSymbol? TestMethodOrdererAttributeOfT_V3(Compilation compilation) =>
+		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestMethodOrdererAttributeOfT_V3);
 
 	public static INamedTypeSymbol? TestPipelineStartupAttribute_V3(Compilation compilation) =>
 		Guard.ArgumentNotNull(compilation).GetTypeByMetadataName(Constants.Types.Xunit.TestPipelineStartupAttribute_V3);

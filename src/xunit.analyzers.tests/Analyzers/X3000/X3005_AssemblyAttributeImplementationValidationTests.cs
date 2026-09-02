@@ -289,6 +289,93 @@ public class X3005_AssemblyAttributeImplementationValidationTests
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expectTrigger ? expected : []);
 	}
 
+	// These have to be tested individually since [TestXyzOrderer] does not permit duplicates
+	[Theory]
+	[InlineData("MyOrderer_Empty", false)]
+	[InlineData("MyOrderer_WithInstance", false)]
+	[InlineData("MyOrderer_Missing", true)]
+	[InlineData("MyOrderer_Obsolete", true)]
+	[InlineData("MyOrderer_NonPublic", true)]
+	public async ValueTask V3_only_Orderers_Generic(
+		string testOrdererTypePrefix,
+		bool expectTrigger)
+	{
+		var source = /* lang=c#-test */ """
+			using System;
+			using Xunit;
+			using Xunit.v3;
+
+			[assembly: {|#0:TestCaseOrderer<TEST_ORDERER_TYPE_Case>|}]
+			[assembly: {|#1:TestClassOrderer<TEST_ORDERER_TYPE_Class>|}]
+			[assembly: {|#2:TestCollectionOrderer<TEST_ORDERER_TYPE_Collection>|}]
+			[assembly: {|#3:TestMethodOrderer<TEST_ORDERER_TYPE_Method>|}]
+
+			public class MyOrderer_Empty_Case : {|CS0535:ITestCaseOrderer|}
+			{ }
+			public class MyOrderer_WithInstance_Case : {|CS0535:ITestCaseOrderer|}
+			{
+				[Obsolete] public MyOrderer_WithInstance_Case() { }
+				public static MyOrderer_WithInstance_Case Instance { get; } = new();
+			}
+			public class MyOrderer_Missing_Case : {|CS0535:ITestCaseOrderer|}
+			{ public MyOrderer_Missing_Case(int x) { } }
+			public class MyOrderer_Obsolete_Case : {|CS0535:ITestCaseOrderer|}
+			{ [Obsolete] public MyOrderer_Obsolete_Case() { } }
+			public class MyOrderer_NonPublic_Case : {|CS0535:ITestCaseOrderer|}
+			{ protected MyOrderer_NonPublic_Case() { } }
+
+			public class MyOrderer_Empty_Class : {|CS0535:ITestClassOrderer|}
+			{ }
+			public class MyOrderer_WithInstance_Class : {|CS0535:ITestClassOrderer|}
+			{
+				[Obsolete] public MyOrderer_WithInstance_Class() { }
+				public static MyOrderer_WithInstance_Class Instance { get; } = new();
+			}
+			public class MyOrderer_Missing_Class : {|CS0535:ITestClassOrderer|}
+			{ public MyOrderer_Missing_Class(int x) { } }
+			public class MyOrderer_Obsolete_Class : {|CS0535:ITestClassOrderer|}
+			{ [Obsolete] public MyOrderer_Obsolete_Class() { } }
+			public class MyOrderer_NonPublic_Class : {|CS0535:ITestClassOrderer|}
+			{ protected MyOrderer_NonPublic_Class() { } }
+
+			public class MyOrderer_Empty_Collection : {|CS0535:ITestCollectionOrderer|}
+			{ }
+			public class MyOrderer_WithInstance_Collection : {|CS0535:ITestCollectionOrderer|}
+			{
+				[Obsolete] public MyOrderer_WithInstance_Collection() { }
+				public static MyOrderer_WithInstance_Collection Instance { get; } = new();
+			}
+			public class MyOrderer_Missing_Collection : {|CS0535:ITestCollectionOrderer|}
+			{ public MyOrderer_Missing_Collection(int x) { } }
+			public class MyOrderer_Obsolete_Collection : {|CS0535:ITestCollectionOrderer|}
+			{ [Obsolete] public MyOrderer_Obsolete_Collection() { } }
+			public class MyOrderer_NonPublic_Collection : {|CS0535:ITestCollectionOrderer|}
+			{ protected MyOrderer_NonPublic_Collection() { } }
+
+			public class MyOrderer_Empty_Method : {|CS0535:ITestMethodOrderer|}
+			{ }
+			public class MyOrderer_WithInstance_Method : {|CS0535:ITestMethodOrderer|}
+			{
+				[Obsolete] public MyOrderer_WithInstance_Method() { }
+				public static MyOrderer_WithInstance_Method Instance { get; } = new();
+			}
+			public class MyOrderer_Missing_Method : {|CS0535:ITestMethodOrderer|}
+			{ public MyOrderer_Missing_Method(int x) { } }
+			public class MyOrderer_Obsolete_Method : {|CS0535:ITestMethodOrderer|}
+			{ [Obsolete] public MyOrderer_Obsolete_Method() { } }
+			public class MyOrderer_NonPublic_Method : {|CS0535:ITestMethodOrderer|}
+			{ protected MyOrderer_NonPublic_Method() { } }
+			""".Replace("TEST_ORDERER_TYPE", testOrdererTypePrefix);
+		var expected = new[] {
+			Verify.Diagnostic("xUnit3005").WithLocation(0).WithArguments(testOrdererTypePrefix + "_Case", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(1).WithArguments(testOrdererTypePrefix + "_Class", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(2).WithArguments(testOrdererTypePrefix + "_Collection", string.Empty),
+			Verify.Diagnostic("xUnit3005").WithLocation(3).WithArguments(testOrdererTypePrefix + "_Method", string.Empty),
+		};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expectTrigger ? expected : []);
+	}
+
 	// These have to be tested individually since [TestFramework] does not permit duplicates
 	[Theory]
 	[InlineData("MyTestFramework_Empty", false)]

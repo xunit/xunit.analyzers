@@ -25,8 +25,12 @@ public abstract class CoreContextV3Base(
 	readonly Lazy<INamedTypeSymbol?> lazyITestOutputHelperType = new(() => TypeSymbolFactory.ITestOutputHelper_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyITestPipelineStartupType = new(() => TypeSymbolFactory.ITestPipelineStartup_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyJsonTypeIDAttributeType = new(() => TypeSymbolFactory.JsonTypeIDAttribute_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestCaseOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestCaseOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestClassOrdererAttributeType = new(() => TypeSymbolFactory.TestClassOrdererAttribute_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestClassOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestClassOrdererAttributeOfT_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestCollectionOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestCollectionOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeType = new(() => TypeSymbolFactory.TestMethodOrdererAttribute_V3(compilation));
+	readonly Lazy<INamedTypeSymbol?> lazyTestMethodOrdererAttributeOfTType = new(() => TypeSymbolFactory.TestMethodOrdererAttributeOfT_V3(compilation));
 	readonly Lazy<INamedTypeSymbol?> lazyTestPipelineStartupAttributeType = new(() => TypeSymbolFactory.TestPipelineStartupAttribute_V3(compilation));
 
 	public INamedTypeSymbol? AssemblyFixtureAttributeType =>
@@ -86,11 +90,23 @@ public abstract class CoreContextV3Base(
 	public INamedTypeSymbol? JsonTypeIDAttributeType =>
 		lazyJsonTypeIDAttributeType.Value;
 
+	public INamedTypeSymbol? TestCaseOrdererAttributeOfTType =>
+		lazyTestCaseOrdererAttributeOfTType.Value;
+
 	public INamedTypeSymbol? TestClassOrdererAttributeType =>
 		lazyTestClassOrdererAttributeType.Value;
 
+	public INamedTypeSymbol? TestClassOrdererAttributeOfTType =>
+		lazyTestClassOrdererAttributeOfTType.Value;
+
+	public INamedTypeSymbol? TestCollectionOrdererAttributeOfTType =>
+		lazyTestCollectionOrdererAttributeOfTType.Value;
+
 	public INamedTypeSymbol? TestMethodOrdererAttributeType =>
 		lazyTestMethodOrdererAttributeType.Value;
+
+	public INamedTypeSymbol? TestMethodOrdererAttributeOfTType =>
+		lazyTestMethodOrdererAttributeOfTType.Value;
 
 	public INamedTypeSymbol? TestPipelineStartupAttributeType =>
 		lazyTestPipelineStartupAttributeType.Value;

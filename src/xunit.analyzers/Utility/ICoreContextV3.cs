@@ -69,14 +69,34 @@ public interface ICoreContextV3 : ICoreContext
 	INamedTypeSymbol? JsonTypeIDAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>TestCaseOrdererAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestCaseOrdererAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>TestClassOrdererAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? TestClassOrdererAttributeType { get; }
 
 	/// <summary>
+	/// Gets a reference to type <c>TestClassOrdererAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestClassOrdererAttributeOfTType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>TestCollectionOrdererAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestCollectionOrdererAttributeOfTType { get; }
+
+	/// <summary>
 	/// Gets a reference to type <c>TestMethodOrdererAttribute</c>, if available.
 	/// </summary>
 	INamedTypeSymbol? TestMethodOrdererAttributeType { get; }
+
+	/// <summary>
+	/// Gets a reference to type <c>TestMethodOrdererAttribute&lt;T&gt;</c>, if available.
+	/// </summary>
+	INamedTypeSymbol? TestMethodOrdererAttributeOfTType { get; }
 
 	/// <summary>
 	/// Gets a reference to type <c>TestPipelineStartupAttribute</c>, if available.

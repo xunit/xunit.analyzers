@@ -44,19 +44,19 @@ public class AssemblyAttributeImplementationValidation() :
 					[xunitContext.V3Common?.IXunitSerializerType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestCaseOrdererAttributeType,
-					null,
+					xunitContext.V3Core?.TestCaseOrdererAttributeOfTType,
 					[xunitContext.V3Core?.ITestCaseOrdererType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestClassOrdererAttributeType,
-					null,
+					xunitContext.V3Core?.TestClassOrdererAttributeOfTType,
 					[xunitContext.V3Core?.ITestClassOrdererType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestCollectionOrdererAttributeType,
-					null,
+					xunitContext.V3Core?.TestCollectionOrdererAttributeOfTType,
 					[xunitContext.V3Core?.ITestCollectionOrdererType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestMethodOrdererAttributeType,
-					null,
+					xunitContext.V3Core?.TestMethodOrdererAttributeOfTType,
 					[xunitContext.V3Core?.ITestMethodOrdererType]) ||
 				validateEmptyCtor(
 					xunitContext.V3Core?.TestPipelineStartupAttributeType,

@@ -221,11 +221,15 @@ public static class Constants
 			public const string RegisterRunnerReporterAttribute_V3 = "Xunit.Runner.Common.RegisterRunnerReporterAttribute";
 			public const string RegisterRunnerReporterAttributeOfT_V3 = "Xunit.Runner.Common.RegisterRunnerReporterAttribute`1";
 			public const string TestCaseOrdererAttribute = "Xunit.TestCaseOrdererAttribute";
+			public const string TestCaseOrdererAttributeOfT_V3 = "Xunit.TestCaseOrdererAttribute`1";
 			public const string TestClassOrdererAttribute_V3 = "Xunit.TestClassOrdererAttribute";
+			public const string TestClassOrdererAttributeOfT_V3 = "Xunit.TestClassOrdererAttribute`1";
 			public const string TestCollectionOrdererAttribute = "Xunit.TestCollectionOrdererAttribute";
+			public const string TestCollectionOrdererAttributeOfT_V3 = "Xunit.TestCollectionOrdererAttribute`1";
 			public const string TestContext_V3 = "Xunit.TestContext";
 			public const string TestFrameworkAttribute = "Xunit.TestFrameworkAttribute";
 			public const string TestMethodOrdererAttribute_V3 = "Xunit.TestMethodOrdererAttribute";
+			public const string TestMethodOrdererAttributeOfT_V3 = "Xunit.TestMethodOrdererAttribute`1";
 			public const string TestPipelineStartupAttribute_V3 = "Xunit.v3.TestPipelineStartupAttribute";
 			public const string TheoryAttribute = "Xunit.TheoryAttribute";
 			public const string TheoryData = "Xunit.TheoryData";
