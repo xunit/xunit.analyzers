@@ -17,7 +17,6 @@ public class X3004_AssemblyAttributeImplementationValidationTests
 			using Xunit.v3;
 
 			// xunit.v3.core
-			[assembly: AssemblyFixture(typeof(object))]
 			[assembly: {|#0:CollectionBehavior(typeof(MyCollectionFactory))|}]
 			[assembly: {|#1:TestCaseOrderer(typeof(object))|}]
 			[assembly: {|#2:TestClassOrderer(typeof(object))|}]
