@@ -306,6 +306,10 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryTests
 				[ClassData(typeof(string))]
 				public void ClassData_DoesNotTrigger() {{ }}
 
+				[CulturedTheory(new[] { "en-US" })]
+				[ClassData<string>]
+				public void ClassDataGeneric_DoesNotTrigger() {{ }}
+
 				// Unique data
 
 				[CulturedTheory(new[] { "en-US" })]
@@ -501,6 +505,6 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryTests
 			Verify.Diagnostic().WithLocation(117).WithArguments("DefaultOfReferenceType_Triggers", "NullableTestClass"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
