@@ -24,9 +24,19 @@ public class X1040_ClassDataAttributeMustPointAtValidClassTests
 				[ClassData(typeof(DataClass))]
 				public void TestMethod({|#0:string|} s) { }
 			}
-			""";
-		var expected = Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "DataClass", "s");
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);
+			public class TestClass_Generic {
+				[Theory]
+				[ClassData<DataClass>]
+				public void TestMethod({|#10:string|} s) { }
+			}
+			""";
+		var expected = new[] {
+			Verify.Diagnostic("xUnit1040").WithLocation(0).WithArguments("string?", "DataClass", "s"),
+
+			Verify.Diagnostic("xUnit1040").WithLocation(10).WithArguments("string?", "DataClass", "s"),
+		};
+
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
