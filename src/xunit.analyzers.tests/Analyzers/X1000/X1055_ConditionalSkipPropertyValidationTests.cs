@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.ConditionalSkipPropertyValidation>;
 
@@ -18,7 +19,8 @@ public class X1055_ConditionalSkipPropertyValidationTests
 				[ClassData(typeof(TestClass), {|#40:SkipUnless = nameof(AlwaysTrue)|}, {|#41:SkipWhen = nameof(AlwaysTrue)|})] public void OnClassData() { }
 				[InlineData({|#50:SkipUnless = nameof(AlwaysTrue)|}, {|#51:SkipWhen = nameof(AlwaysTrue)|})] public void OnInlineData() { }
 				[MemberData("bar", {|#60:SkipUnless = nameof(AlwaysTrue)|}, {|#61:SkipWhen = nameof(AlwaysTrue)|})] public void OnMemberData() { }
-
+				[ClassData<TestClass>({|#70:SkipUnless = nameof(AlwaysTrue)|}, {|#71:SkipWhen = nameof(AlwaysTrue)|})] public void OnClassDataGeneric() { }
+			
 				public static bool AlwaysTrue => true;
 			}
 			""";
@@ -43,8 +45,11 @@ public class X1055_ConditionalSkipPropertyValidationTests
 
 			Verify.Diagnostic("xUnit1055").WithLocation(60),
 			Verify.Diagnostic("xUnit1055").WithLocation(61),
+
+			Verify.Diagnostic("xUnit1055").WithLocation(70),
+			Verify.Diagnostic("xUnit1055").WithLocation(71),
 		};
 
-		await Verify.VerifyAnalyzerV3(source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
