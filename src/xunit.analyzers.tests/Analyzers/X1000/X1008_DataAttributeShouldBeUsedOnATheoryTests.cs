@@ -75,6 +75,17 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 			using Xunit.v3;
 
 			public class TestClass {
+				[Fact]
+				[ClassData<string>]
+				public void Fact_ClassDataGeneric_DoesNotTrigger() { }
+
+				[Theory]
+				[ClassData<string>]
+				public void Theory_ClassDataGeneric_DoesNotTrigger() { }
+
+				[ClassData<string>]
+				public void [|NonFact_ClassDataGeneric_Triggers|]() { }
+
 				[CulturedFact(new[] { "en-US" })]
 				[InlineData]
 				public void CulturedFact_InlineData_DoesNotTrigger() { }
@@ -87,6 +98,10 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 				[ClassData(typeof(string))]
 				public void CulturedFact_ClassData_DoesNotTrigger() { }
 
+				[CulturedFact(new[] { "en-US" })]
+				[ClassData<string>]
+				public void CulturedFact_ClassDataGeneric_DoesNotTrigger() { }
+
 				[CulturedTheory(new[] { "en-US" })]
 				[InlineData]
 				public void CulturedTheory_InlineData_DoesNotTrigger() { }
@@ -98,6 +113,10 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 				[CulturedTheory(new[] { "en-US" })]
 				[ClassData(typeof(string))]
 				public void CulturedTheory_ClassData_DoesNotTrigger() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				[ClassData<string>]
+				public void CulturedTheory_ClassDataGeneric_DoesNotTrigger() { }
 
 				// https://github.com/xunit/xunit/issues/3518
 				[CustomFactViaInterface]
@@ -144,6 +163,6 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryTests
 			}
 			""";
 
-		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source);
 	}
 }
