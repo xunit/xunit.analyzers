@@ -62,14 +62,18 @@ public class X1029_LocalFunctionsCannotBeTestFunctionsTests
 
 					[{|#1:CulturedTheory(new[] { "en-us" })|}]
 					void CulturedTheoryAttribute_Triggers() { }
+
+					[{|#2:ClassData<string>|}]
+					void ClassDataGenericAttribute_Triggers() { }
 				}
 			}
 			""";
 		var expected = new[] {
 			Verify.Diagnostic().WithLocation(0).WithArguments(@"[CulturedFact(new[] { ""en-us"" })]"),
 			Verify.Diagnostic().WithLocation(1).WithArguments(@"[CulturedTheory(new[] { ""en-us"" })]"),
+			Verify.Diagnostic().WithLocation(2).WithArguments("[ClassData<string>]"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
