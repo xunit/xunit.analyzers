@@ -67,6 +67,6 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFix(before, after, AssertReturnValueShouldBeUsedFixer.Key_UseReturnValue);
+		await Verify.VerifyCodeFixFixAll(before, after, AssertReturnValueShouldBeUsedFixer.Key_UseReturnValue);
 	}
 }
