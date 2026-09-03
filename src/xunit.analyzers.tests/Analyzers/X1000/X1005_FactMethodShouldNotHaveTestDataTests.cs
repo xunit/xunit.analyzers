@@ -76,6 +76,14 @@ public class X1005_FactMethodShouldNotHaveTestDataTests
 			using Xunit;
 
 			public class TestClass {
+				[Fact]
+				[ClassData(typeof(string))]
+				public void [|FactWithClassData_Triggers|]() { }
+
+				[Theory]
+				[ClassData<string>]
+				public void TheoryWithClassData_Generic_DoesNotTrigger() { }
+
 				[CulturedFact(new[] { "en-US" })]
 				public void CulturedFactWithNoDataAttributes_DoesNotTrigger() { }
 
@@ -91,6 +99,10 @@ public class X1005_FactMethodShouldNotHaveTestDataTests
 				[ClassData(typeof(string))]
 				public void [|CulturedFactWithClassData_Triggers|]() { }
 
+				[CulturedFact(new[] { "en-US" })]
+				[ClassData<string>]
+				public void [|CulturedFactWithClassData_Generic_Triggers|]() { }
+
 				[CulturedTheory(new[] { "en-US" })]
 				[InlineData]
 				public void CulturedTheoryWithInlineData_DoesNotTrigger() { }
@@ -102,6 +114,10 @@ public class X1005_FactMethodShouldNotHaveTestDataTests
 				[CulturedTheory(new[] { "en-US" })]
 				[ClassData(typeof(string))]
 				public void CulturedTheoryWithClassData_DoesNotTrigger() { }
+
+				[CulturedTheory(new[] { "en-US" })]
+				[ClassData<string>]
+				public void CulturedTheoryWithClassData_Generic_DoesNotTrigger() { }
 			}
 			""";
 
