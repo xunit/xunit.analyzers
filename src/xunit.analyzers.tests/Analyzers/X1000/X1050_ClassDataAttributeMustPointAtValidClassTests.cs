@@ -50,9 +50,18 @@ public class X1050_ClassDataAttributeMustPointAtValidClassTests
 				[{|xUnit1050:ClassData(typeof(DataClass_TheoryDataRow))|}]
 				[{|xUnit1050:ClassData(typeof(DataClass_TheoryDataRow_Async))|}]
 				public void TestMethod(int n) { }
+
+				[Theory]
+				[{|xUnit1050:ClassData<DataClass_ObjectArray>|}]
+				[{|xUnit1050:ClassData<DataClass_ObjectArray_Async>|}]
+				[{|xUnit1050:ClassData<DataClass_ITheoryDataRow>|}]
+				[{|xUnit1050:ClassData<DataClass_ITheoryDataRow_Async>|}]
+				[{|xUnit1050:ClassData<DataClass_TheoryDataRow>|}]
+				[{|xUnit1050:ClassData<DataClass_TheoryDataRow_Async>|}]
+				public void TestMethod_Generic(int n) { }
 			}
 			""";
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
 	}
 }
