@@ -246,6 +246,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -260,6 +261,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -276,6 +278,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -283,6 +286,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[{|xUnit1045:ClassData(typeof(Class))|}]
+				[{|xUnit1045:ClassData<Class>|}]
 				[{|xUnit1045:MemberData(nameof(Field))|}]
 				[{|xUnit1045:MemberData(nameof(Method), 1, "2")|}]
 				[{|xUnit1045:MemberData(nameof(Property))|}]
@@ -317,6 +321,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -324,6 +329,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[{|xUnit1045:ClassData(typeof(Class))|}]
+				[{|xUnit1045:ClassData<Class>|}]
 				[{|xUnit1045:MemberData(nameof(Field))|}]
 				[{|xUnit1045:MemberData(nameof(Method), 1, "2")|}]
 				[{|xUnit1045:MemberData(nameof(Property))|}]
@@ -338,6 +344,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -345,6 +352,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[{|xUnit1045:ClassData(typeof(Class))|}]
+				[{|xUnit1045:ClassData<Class>|}]
 				[{|xUnit1045:MemberData(nameof(Field))|}]
 				[{|xUnit1045:MemberData(nameof(Method), 1, "2")|}]
 				[{|xUnit1045:MemberData(nameof(Property))|}]
@@ -360,7 +368,7 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 			public class PossiblySerializableUnsealedClass { }
 			""";
 
-		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp9, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source);
 	}
 
 #if NETCOREAPP
