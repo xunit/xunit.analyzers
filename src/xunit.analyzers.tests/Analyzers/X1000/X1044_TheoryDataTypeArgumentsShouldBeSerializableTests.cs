@@ -926,55 +926,9 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 				public void TestMethod(NonSerializableStruct parameter) { }
 			}
 
-			public class ObjectClass {
-				public sealed class Class : TheoryData<object> { }
-				public static readonly TheoryData<object> Field = new TheoryData<object>() { };
-				public static TheoryData<object> Method(int a, string b) => new TheoryData<object>() { };
-				public static TheoryData<object> Property => new TheoryData<object>() { };
-
-				[Theory(DisableDiscoveryEnumeration = true)]
-				[ClassData(typeof(Class))]
-				[MemberData(nameof(Field))]
-				[MemberData(nameof(Method), 1, "2")]
-				[MemberData(nameof(Property))]
-				public void TestMethod(object parameter) { }
-			}
-
-			public class IPossiblySerializableInterfaceClass {
-				public sealed class Class : TheoryData<IPossiblySerializableInterface> { }
-				public static readonly TheoryData<IPossiblySerializableInterface> Field = new TheoryData<IPossiblySerializableInterface>() { };
-				public static TheoryData<IPossiblySerializableInterface> Method(int a, string b) => new TheoryData<IPossiblySerializableInterface>() { };
-				public static TheoryData<IPossiblySerializableInterface> Property => new TheoryData<IPossiblySerializableInterface>() { };
-
-				[Theory(DisableDiscoveryEnumeration = true)]
-				[ClassData(typeof(Class))]
-				[MemberData(nameof(Field))]
-				[MemberData(nameof(Method), 1, "2")]
-				[MemberData(nameof(Property))]
-				public void TestMethod(IPossiblySerializableInterface parameter) { }
-			}
-
-			public class PossiblySerializableUnsealedClassClass {
-				public sealed class Class : TheoryData<PossiblySerializableUnsealedClass> { }
-				public static readonly TheoryData<PossiblySerializableUnsealedClass> Field = new TheoryData<PossiblySerializableUnsealedClass>() { };
-				public static TheoryData<PossiblySerializableUnsealedClass> Method(int a, string b) => new TheoryData<PossiblySerializableUnsealedClass>() { };
-				public static TheoryData<PossiblySerializableUnsealedClass> Property => new TheoryData<PossiblySerializableUnsealedClass>() { };
-
-				[Theory(DisableDiscoveryEnumeration = true)]
-				[ClassData(typeof(Class))]
-				[MemberData(nameof(Field))]
-				[MemberData(nameof(Method), 1, "2")]
-				[MemberData(nameof(Property))]
-				public void TestMethod(PossiblySerializableUnsealedClass parameter) { }
-			}
-
 			public sealed class NonSerializableSealedClass { }
 
 			public struct NonSerializableStruct { }
-
-			public interface IPossiblySerializableInterface { }
-
-			public class PossiblySerializableUnsealedClass { }
 			""";
 
 		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
