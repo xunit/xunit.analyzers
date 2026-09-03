@@ -19,7 +19,7 @@ public class ConditionalSkipPropertyValidation() :
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		var dataAttributes = xunitContext.Core.DataAttributeTypes;
+		var dataAttributes = xunitContext.V3Core.DataAttributeTypes_V3;
 		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
 		var booleanType = TypeSymbolFactory.Boolean(context.Compilation);
 
@@ -31,7 +31,7 @@ public class ConditionalSkipPropertyValidation() :
 			if (context.SemanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type is not INamedTypeSymbol attributeType)
 				return;
 
-			if (dataAttributes.Contains(attributeType) || factAndTheoryAttributeTypes.Contains(attributeType))
+			if (dataAttributes.Contains(attributeType.IsGenericType ? attributeType.OriginalDefinition : attributeType) || factAndTheoryAttributeTypes.Contains(attributeType))
 			{
 				var skipType = context.ContainingSymbol?.ContainingType;
 				var skipUnless = default(string);

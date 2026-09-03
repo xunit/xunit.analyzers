@@ -92,6 +92,25 @@ static class CodeAnalysisExtensions
 					coreContext.CulturedFactAttributeType,
 					coreContext.CulturedTheoryAttributeType
 				}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+		/// <summary>
+		/// Gets a list of attribute types that includes:
+		/// <list type="bullet">
+		/// <item><c>DataAttribute</c></item>
+		/// <item><c>ClassDataAttribute</c></item>
+		/// <item><c>ClassDataAttribute&lt;T&gt;</c></item>
+		/// <item><c>InlineDataAttribute</c></item>
+		/// <item><c>MemberDataAttribute</c></item>
+		/// </list>
+		/// </summary>
+		public ImmutableHashSet<INamedTypeSymbol> DataAttributeTypes_V3 =>
+			new[] {
+				coreContext?.DataAttributeType,
+				coreContext?.ClassDataAttributeType,
+				coreContext?.ClassDataAttributeOfTType,
+				coreContext?.InlineDataAttributeType,
+				coreContext?.MemberDataAttributeType,
+			}.WhereNotNull().ToImmutableHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 	}
 
 	public static INamedTypeSymbol? FindNamedType(
