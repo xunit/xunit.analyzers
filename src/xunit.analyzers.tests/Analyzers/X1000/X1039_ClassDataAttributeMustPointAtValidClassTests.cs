@@ -30,12 +30,25 @@ public class X1039_ClassDataAttributeMustPointAtValidClassTests
 				[ClassData(typeof(DataClass2))]
 				public void TestMethod2(int n, params {|#1:string[]|} s) { }
 			}
+
+			public class TestClass_Generic {
+				[Theory]
+				[ClassData<DataClass1>]
+				public void TestMethod1(int n, {|#10:double|} d) { }
+
+				[Theory]
+				[ClassData<DataClass2>]
+				public void TestMethod2(int n, params {|#11:string[]|} s) { }
+			}
 			""";
 		var expected = new[] {
 			Verify.Diagnostic("xUnit1039").WithLocation(0).WithArguments("string", "DataClass1", "d"),
 			Verify.Diagnostic("xUnit1039").WithLocation(1).WithArguments("int", "DataClass2", "s"),
+
+			Verify.Diagnostic("xUnit1039").WithLocation(10).WithArguments("string", "DataClass1", "d"),
+			Verify.Diagnostic("xUnit1039").WithLocation(11).WithArguments("int", "DataClass2", "s"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
