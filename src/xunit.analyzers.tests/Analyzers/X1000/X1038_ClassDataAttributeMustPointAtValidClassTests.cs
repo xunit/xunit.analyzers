@@ -31,12 +31,26 @@ public class X1038_ClassDataAttributeMustPointAtValidClassTests
 				[{|#1:ClassData(typeof(DataClass2))|}]
 				public void TestMethod2(int n, params double[] d) { }
 			}
+
+			public class TestClass_Generic {
+				[Theory]
+				[{|#10:ClassData<DataClass1>|}]
+				public void TestMethod1(int n) { }
+
+				[Theory]
+				[ClassData<DataClass1>]
+				[{|#11:ClassData<DataClass2>|}]
+				public void TestMethod2(int n, params double[] d) { }
+			}
 			""";
 		var expected = new[] {
 			Verify.Diagnostic("xUnit1038").WithLocation(0).WithArguments("Xunit.TheoryDataRow"),
 			Verify.Diagnostic("xUnit1038").WithLocation(1).WithArguments("Xunit.TheoryDataRow"),
+
+			Verify.Diagnostic("xUnit1038").WithLocation(10).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(11).WithArguments("Xunit.TheoryDataRow"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp7_1, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
 }
