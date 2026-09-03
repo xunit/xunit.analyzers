@@ -32,6 +32,7 @@ public sealed class SerializableTypeSymbols
 		Compilation compilation,
 		XunitContext xunitContext,
 		INamedTypeSymbol classDataAttribute,
+		INamedTypeSymbol? classDataAttributeOfT,
 		INamedTypeSymbol dataAttribute,
 		INamedTypeSymbol memberDataAttribute,
 		INamedTypeSymbol theoryAttribute,
@@ -76,6 +77,7 @@ public sealed class SerializableTypeSymbols
 		version = new(() => TypeSymbolFactory.Version(compilation));
 
 		ClassDataAttribute = classDataAttribute;
+		ClassDataAttributeOfT = classDataAttributeOfT;
 		DataAttribute = dataAttribute;
 		MemberDataAttribute = memberDataAttribute;
 		TheoryAttribute = theoryAttribute;
@@ -83,6 +85,7 @@ public sealed class SerializableTypeSymbols
 
 	public INamedTypeSymbol? BigInteger => bigInteger.Value;
 	public INamedTypeSymbol ClassDataAttribute { get; }
+	public INamedTypeSymbol? ClassDataAttributeOfT { get; }
 	public INamedTypeSymbol DataAttribute { get; }
 	public INamedTypeSymbol? DateOnly => dateOnly.Value;
 	public INamedTypeSymbol? DateTimeOffset => dateTimeOffset.Value;
@@ -124,6 +127,7 @@ public sealed class SerializableTypeSymbols
 			compilation,
 			xunitContext,
 			classDataAttribute,
+			xunitContext.V3Core?.ClassDataAttributeOfTType,
 			dataAttribute,
 			memberDataAttribute,
 			theoryAttribute,

@@ -748,15 +748,278 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 	public async ValueTask V3_only_NonAOT()
 	{
 		var source = /* lang=c#-test */ """
+			#nullable enable
+
 			using System;
 			using System.Collections;
 			using System.Collections.Generic;
+			using System.Numerics;
 			using Xunit;
 			using Xunit.Sdk;
 
 			[assembly: RegisterXunitSerializer(typeof(CustomSerializer), typeof(ICustomSerialized))]
 
-			public class TestClass {
+			// Serializable via SerializationHelper (v3)
+
+			public class TypeClass {
+				public sealed class Class : TheoryData<Type> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(Type parameter) { }
+			}
+
+			public class TraitsClass {
+				public sealed class Class : TheoryData<Dictionary<string, List<string>>> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(Dictionary<string, List<string>> parameter) { }
+			}
+
+			public class StringClass {
+				public sealed class Class : TheoryData<string> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(string parameter) { }
+			}
+
+			public class NullableStringClass {
+				public sealed class Class : TheoryData<string?> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(string? parameter) { }
+			}
+
+			public class StringArrayClass {
+				public sealed class Class : TheoryData<string[]> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(string[] parameter) { }
+			}
+
+			public class StringArrayArrayClass {
+				public sealed class Class : TheoryData<string[][]> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(string[][] parameter) { }
+			}
+
+			public class CharClass {
+				public sealed class Class : TheoryData<char> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(char parameter) { }
+			}
+
+			public class NullableCharClass {
+				public sealed class Class : TheoryData<char?> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(char? parameter) { }
+			}
+
+			public class ByteClass {
+				public sealed class Class : TheoryData<byte> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(byte parameter) { }
+			}
+
+			public class SByteClass {
+				public sealed class Class : TheoryData<sbyte> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(sbyte parameter) { }
+			}
+
+			public class Int16Class {
+				public sealed class Class : TheoryData<short> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(short parameter) { }
+			}
+
+			public class UInt16Class {
+				public sealed class Class : TheoryData<ushort> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(ushort parameter) { }
+			}
+
+			public class Int32Class {
+				public sealed class Class : TheoryData<int> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(int parameter) { }
+			}
+
+			public class UInt32Class {
+				public sealed class Class : TheoryData<uint> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(uint parameter) { }
+			}
+
+			public class Int64Class {
+				public sealed class Class : TheoryData<long> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(long parameter) { }
+			}
+
+			public class UInt64Class {
+				public sealed class Class : TheoryData<ulong> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(ulong parameter) { }
+			}
+
+			public class SingleClass {
+				public sealed class Class : TheoryData<float> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(float parameter) { }
+			}
+
+			public class DoubleClass {
+				public sealed class Class : TheoryData<double> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(double parameter) { }
+			}
+
+			public class DecimalClass {
+				public sealed class Class : TheoryData<decimal> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(decimal parameter) { }
+			}
+
+			public class BooleanClass {
+				public sealed class Class : TheoryData<bool> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(bool parameter) { }
+			}
+
+			public class DateTimeClass {
+				public sealed class Class : TheoryData<DateTime> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(DateTime parameter) { }
+			}
+
+			public class DateTimeOffsetClass {
+				public sealed class Class : TheoryData<DateTimeOffset> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(DateTimeOffset parameter) { }
+			}
+
+			public class TimeSpanClass {
+				public sealed class Class : TheoryData<TimeSpan> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(TimeSpan parameter) { }
+			}
+
+			public class BigIntegerClass {
+				public sealed class Class : TheoryData<BigInteger> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(BigInteger parameter) { }
+			}
+
+			public class EnumClass {
+				public sealed class Class : TheoryData<Enum> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(Enum parameter) { }
+			}
+
+			public class SerializableEnumerationClass {
+				public sealed class Class : TheoryData<SerializableEnumeration> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(SerializableEnumeration parameter) { }
+			}
+
+			public enum SerializableEnumeration { Zero }
+
+			// Things which implement IXunitSerializable
+
+			public class IXunitSerializableClass {
+				public sealed class Class : TheoryData<IXunitSerializable> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(IXunitSerializable parameter) { }
+			}
+
+			public class ISerializableInterfaceClass {
+				public sealed class Class : TheoryData<ISerializableInterface> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(ISerializableInterface parameter) { }
+			}
+
+			public class SerializableClassClass {
+				public sealed class Class : TheoryData<SerializableClass> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(SerializableClass parameter) { }
+			}
+
+			public class SerializableStructClass {
+				public sealed class Class : TheoryData<SerializableStruct> { }
+
+				[Theory]
+				[ClassData<Class>]
+				public void TestMethod(SerializableStruct parameter) { }
+			}
+
+			public interface ISerializableInterface : IXunitSerializable { }
+
+			public class SerializableClass : ISerializableInterface {
+				public void Deserialize(IXunitSerializationInfo info) { }
+				public void Serialize(IXunitSerializationInfo info) { }
+			}
+
+			public struct SerializableStruct : ISerializableInterface {
+				public void Deserialize(IXunitSerializationInfo info) { }
+				public void Serialize(IXunitSerializationInfo info) { }
+			}
+
+			// Cultured fact and theory support
+
+			public class CulturedFactAndTheoryTests {
 				[CulturedFact(new[] { "en-US" })]
 				public void CulturedFactMethod_DoesNotTrigger() { }
 
@@ -784,6 +1047,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -798,6 +1062,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -812,6 +1077,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -848,6 +1114,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -862,6 +1129,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -876,6 +1144,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
@@ -892,10 +1161,15 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
-				public void TestMethod(Delegate parameter) { }
+				public void DoesNotTrigger(Delegate parameter) { }
+
+				[Theory]
+				[{|xUnit1044:ClassData<Class>|}]
+				public void Triggers(Delegate parameter) { }
 			}
 
 			public class NonSerializableSealedClassClass {
@@ -906,10 +1180,15 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
-				public void TestMethod(NonSerializableSealedClass parameter) { }
+				public void DoesNotTrigger(NonSerializableSealedClass parameter) { }
+
+				[Theory]
+				[{|xUnit1044:ClassData<Class>|}]
+				public void Triggers(NonSerializableSealedClass parameter) { }
 			}
 
 			public class NonSerializableStructClass {
@@ -920,10 +1199,15 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 
 				[Theory(DisableDiscoveryEnumeration = true)]
 				[ClassData(typeof(Class))]
+				[ClassData<Class>]
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
-				public void TestMethod(NonSerializableStruct parameter) { }
+				public void DoesNotTrigger(NonSerializableStruct parameter) { }
+
+				[Theory]
+				[{|xUnit1044:ClassData<Class>|}]
+				public void Triggers(NonSerializableStruct parameter) { }
 			}
 
 			public sealed class NonSerializableSealedClass { }
@@ -931,7 +1215,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 			public struct NonSerializableStruct { }
 			""";
 
-		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source);
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp11, source);
 	}
 
 	internal class Analyzer_v3_Pre301 : TheoryDataTypeArgumentsShouldBeSerializable
