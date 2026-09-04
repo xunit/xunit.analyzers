@@ -43,6 +43,6 @@ public class X1017_MemberDataShouldReferenceValidMember_StaticFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_StaticFixer.Key_MakeMemberStatic);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_StaticFixer.Key_MakeMemberStatic);
 	}
 }

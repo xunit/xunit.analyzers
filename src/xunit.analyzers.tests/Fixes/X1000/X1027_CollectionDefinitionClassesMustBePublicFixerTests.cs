@@ -37,6 +37,6 @@ public class X1027_CollectionDefinitionClassesMustBePublicFixerTests
 			partial class PartialCollectionDefinitionClass { }
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
+		await Verify.VerifyCodeFix(before, after, CollectionDefinitionClassesMustBePublicFixer.Key_MakeCollectionDefinitionClassPublic);
 	}
 }

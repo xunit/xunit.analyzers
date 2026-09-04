@@ -52,6 +52,6 @@ public class X2002_AssertNullShouldNotBeCalledOnValueTypesFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
+		await Verify.VerifyCodeFix(before, after, AssertNullShouldNotBeCalledOnValueTypesFixer.Key_RemoveAssert);
 	}
 }

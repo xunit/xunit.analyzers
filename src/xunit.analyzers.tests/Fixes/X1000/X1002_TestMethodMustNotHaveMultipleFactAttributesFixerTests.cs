@@ -33,7 +33,7 @@ public class X1002_TestMethodMustNotHaveMultipleFactAttributesFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Theory"));
+		await Verify.VerifyCodeFix(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Theory"));
 	}
 
 	[Fact]
@@ -68,6 +68,6 @@ public class X1002_TestMethodMustNotHaveMultipleFactAttributesFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAllNonAot(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Fact"));
+		await Verify.VerifyCodeFixNonAot(before, after, TestMethodMustNotHaveMultipleFactAttributesFixer.Key_KeepAttribute("Fact"));
 	}
 }

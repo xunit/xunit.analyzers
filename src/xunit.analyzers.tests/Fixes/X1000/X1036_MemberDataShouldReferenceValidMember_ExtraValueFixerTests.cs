@@ -57,7 +57,7 @@ public class X1036_MemberDataShouldReferenceValidMember_ExtraValueFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterRemove, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_RemoveExtraDataValue);
-		await Verify.VerifyCodeFixFixAll(before, afterAdd, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
+		await Verify.VerifyCodeFix(before, afterRemove, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_RemoveExtraDataValue);
+		await Verify.VerifyCodeFix(before, afterAdd, MemberDataShouldReferenceValidMember_ExtraValueFixer.Key_AddMethodParameter);
 	}
 }

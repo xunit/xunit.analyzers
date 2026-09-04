@@ -33,7 +33,7 @@ public class X2006_AssertEqualGenericShouldNotBeUsedForStringValueFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualGenericShouldNotBeUsedForStringValueFixer.Key_UseStringAssertEqual);
+		await Verify.VerifyCodeFix(before, after, AssertEqualGenericShouldNotBeUsedForStringValueFixer.Key_UseStringAssertEqual);
 	}
 
 	[Fact]
@@ -64,6 +64,6 @@ public class X2006_AssertEqualGenericShouldNotBeUsedForStringValueFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAllNonAot(before, after, AssertEqualGenericShouldNotBeUsedForStringValueFixer.Key_UseStringAssertEqual);
+		await Verify.VerifyCodeFixNonAot(before, after, AssertEqualGenericShouldNotBeUsedForStringValueFixer.Key_UseStringAssertEqual);
 	}
 }

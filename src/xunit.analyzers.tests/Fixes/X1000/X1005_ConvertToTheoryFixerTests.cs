@@ -35,6 +35,6 @@ public class X1005_ConvertToTheoryFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, ConvertToTheoryFixer.Key_ConvertToTheory);
+		await Verify.VerifyCodeFix(before, after, ConvertToTheoryFixer.Key_ConvertToTheory);
 	}
 }

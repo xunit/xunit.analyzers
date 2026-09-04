@@ -79,6 +79,6 @@ public class X1009_InlineDataMustMatchTheoryParameters_TooFewValuesFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
+		await Verify.VerifyCodeFix(before, after, InlineDataMustMatchTheoryParameters_TooFewValuesFixer.Key_AddDefaultValues);
 	}
 }

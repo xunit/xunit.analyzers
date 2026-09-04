@@ -19,6 +19,8 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					var xs = new List<int> { 42 };
 					[|Assert.Single(xs)|];
 					var value = xs.Single();
+					[|Assert.Single(xs)|];
+					var value2 = xs.Single();
 				}
 
 				[Fact]
@@ -26,14 +28,8 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					object value = "Hello world";
 					[|Assert.IsType<string>(value)|];
 					var text = (string)value;
-				}
-
-				[Fact]
-				public void PicksSafeVariableNameOnCollision() {
-					var item = 42;
-					var xs = new List<int> { 42 };
-					[|Assert.Single(xs)|];
-					var value = xs.Single();
+					[|Assert.IsType<string>(value)|];
+					var text2 = (string)value;
 				}
 			}
 			""";
@@ -48,6 +44,8 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					var xs = new List<int> { 42 };
 					var item = Assert.Single(xs);
 					var value = item;
+					var item_2 = Assert.Single(xs);
+					var value2 = item_2;
 				}
 
 				[Fact]
@@ -55,14 +53,8 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					object value = "Hello world";
 					var typed = Assert.IsType<string>(value);
 					var text = typed;
-				}
-
-				[Fact]
-				public void PicksSafeVariableNameOnCollision() {
-					var item = 42;
-					var xs = new List<int> { 42 };
-					var item_2 = Assert.Single(xs);
-					var value = item_2;
+					var typed_2 = Assert.IsType<string>(value);
+					var text2 = typed_2;
 				}
 			}
 			""";

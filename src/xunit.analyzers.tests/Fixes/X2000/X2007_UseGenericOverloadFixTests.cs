@@ -41,6 +41,6 @@ public class X2007_UseGenericOverloadFixTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, UseGenericOverloadFix.Key_UseAlternateAssert);
 	}
 }

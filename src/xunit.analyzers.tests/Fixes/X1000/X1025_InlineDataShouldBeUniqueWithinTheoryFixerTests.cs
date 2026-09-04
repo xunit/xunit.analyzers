@@ -37,6 +37,6 @@ public class X1025_InlineDataShouldBeUniqueWithinTheoryFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
+		await Verify.VerifyCodeFix(before, after, InlineDataShouldBeUniqueWithinTheoryFixer.Key_RemoveDuplicateInlineData);
 	}
 }

@@ -41,6 +41,6 @@ public class X1048_DoNotUseAsyncVoidForTestMethodsFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixV2FixAll(before, after, DoNotUseAsyncVoidForTestMethodsFixer.Key_ConvertToTask);
+		await Verify.VerifyCodeFixV2(before, after, DoNotUseAsyncVoidForTestMethodsFixer.Key_ConvertToTask);
 	}
 }

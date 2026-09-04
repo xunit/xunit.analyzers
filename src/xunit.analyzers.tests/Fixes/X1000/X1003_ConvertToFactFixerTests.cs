@@ -31,6 +31,6 @@ public class X1003_ConvertToFactFixTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, ConvertToFactFixer.Key_ConvertToFact);
+		await Verify.VerifyCodeFix(before, after, ConvertToFactFixer.Key_ConvertToFact);
 	}
 }

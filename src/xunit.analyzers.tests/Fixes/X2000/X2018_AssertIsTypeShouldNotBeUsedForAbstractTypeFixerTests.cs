@@ -46,8 +46,8 @@ public class X2018_AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			}
 			""";
 
-		await Verify_v2_Pre2_9_3.VerifyCodeFixFixAll(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
-		await Verify_v3_Pre0_6_0.VerifyCodeFixFixAll(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
+		await Verify_v2_Pre2_9_3.VerifyCodeFix(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
+		await Verify_v3_Pre0_6_0.VerifyCodeFix(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
 	}
 
 	[Fact]
@@ -102,7 +102,7 @@ public class X2018_AssertIsTypeShouldNotBeUsedForAbstractTypeFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertIsTypeShouldNotBeUsedForAbstractTypeFixer.Key_UseAlternateAssert);
 	}
 
 	internal class Analyzer_v2_Pre2_9_3 : AssertIsTypeShouldNotBeUsedForAbstractType

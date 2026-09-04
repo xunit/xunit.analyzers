@@ -66,7 +66,7 @@ public class X1019_MemberDataShouldReferenceValidMember_ReturnTypeFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterObjectArray, MemberDataShouldReferenceValidMember_ReturnTypeFixer.Key_ChangeMemberReturnType_ObjectArray);
-		await Verify.VerifyCodeFixV3FixAll(before, afterITheoryDataRow, MemberDataShouldReferenceValidMember_ReturnTypeFixer.Key_ChangeMemberReturnType_ITheoryDataRow);
+		await Verify.VerifyCodeFix(before, afterObjectArray, MemberDataShouldReferenceValidMember_ReturnTypeFixer.Key_ChangeMemberReturnType_ObjectArray);
+		await Verify.VerifyCodeFixV3(before, afterITheoryDataRow, MemberDataShouldReferenceValidMember_ReturnTypeFixer.Key_ChangeMemberReturnType_ITheoryDataRow);
 	}
 }

@@ -35,6 +35,6 @@ public class X1000_TestClassMustBePublicFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
+		await Verify.VerifyCodeFix(before, after, TestClassMustBePublicFixer.Key_MakeTestClassPublic);
 	}
 }

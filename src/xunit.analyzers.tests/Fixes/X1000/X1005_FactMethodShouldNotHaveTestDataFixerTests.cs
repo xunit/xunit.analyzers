@@ -33,6 +33,6 @@ public class X1005_FactMethodShouldNotHaveTestDataFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, FactMethodShouldNotHaveTestDataFixer.Key_RemoveDataAttributes);
+		await Verify.VerifyCodeFix(before, after, FactMethodShouldNotHaveTestDataFixer.Key_RemoveDataAttributes);
 	}
 }

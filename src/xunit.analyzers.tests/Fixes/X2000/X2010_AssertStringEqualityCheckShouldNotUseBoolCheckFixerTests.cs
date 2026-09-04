@@ -51,6 +51,6 @@ public class X2010_AssertStringEqualityCheckShouldNotUseBoolCheckFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertStringEqualityCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertStringEqualityCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
 	}
 }

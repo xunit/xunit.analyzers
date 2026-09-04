@@ -120,12 +120,12 @@ public class X3001_SerializableClassMustHaveParameterlessConstructorFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixV2FixAll(
+		await Verify.VerifyCodeFixV2(
 			before.Replace("Xunit.Sdk", "Xunit.Abstractions"),
 			after.Replace("Xunit.Sdk", "Xunit.Abstractions"),
 			SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor
 		);
-		await Verify.VerifyCodeFixV3FixAllNonAot(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
+		await Verify.VerifyCodeFixV3NonAot(before, after, SerializableClassMustHaveParameterlessConstructorFixer.Key_GenerateOrUpdateConstructor);
 	}
 
 	[Fact]

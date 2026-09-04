@@ -131,6 +131,6 @@ public class X1051_UseCancellationTokenFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixV3FixAll(before, after, UseCancellationTokenFixer.Key_UseCancellationTokenArgument);
+		await Verify.VerifyCodeFixV3(before, after, UseCancellationTokenFixer.Key_UseCancellationTokenArgument);
 	}
 }

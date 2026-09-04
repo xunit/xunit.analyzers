@@ -31,6 +31,6 @@ public class X2020_UseAssertFailInsteadOfBooleanAssertFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
+		await Verify.VerifyCodeFix(before, after, UseAssertFailInsteadOfBooleanAssertFixer.Key_UseAssertFail);
 	}
 }

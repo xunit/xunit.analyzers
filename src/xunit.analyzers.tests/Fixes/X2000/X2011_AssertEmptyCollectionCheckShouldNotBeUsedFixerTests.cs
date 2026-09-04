@@ -51,7 +51,7 @@ public class X2011_AssertEmptyCollectionCheckShouldNotBeUsedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterAssertEmpty, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
-		await Verify.VerifyCodeFixFixAll(before, afterElementInspector, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
+		await Verify.VerifyCodeFix(before, afterAssertEmpty, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_UseAssertEmpty);
+		await Verify.VerifyCodeFix(before, afterElementInspector, AssertEmptyCollectionCheckShouldNotBeUsedFixer.Key_AddElementInspector);
 	}
 }

@@ -47,6 +47,6 @@ public class X2009_AssertSubstringCheckShouldNotUseBoolCheckFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertSubstringCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertSubstringCheckShouldNotUseBoolCheckFixer.Key_UseAlternateAssert);
 	}
 }

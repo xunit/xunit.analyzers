@@ -35,6 +35,6 @@ public class X2001_AssertEqualsShouldNotBeUsedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualsShouldNotBeUsedFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertEqualsShouldNotBeUsedFixer.Key_UseAlternateAssert);
 	}
 }

@@ -272,7 +272,6 @@ public partial class CSharpVerifier<TAnalyzer>
 			CodeActionEquivalenceKey = fixerActionKey,
 		};
 		testAot.FixedState.ExpectedDiagnostics.AddRange(diagnostics);
-		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
 		await testAot.RunAsync();
 	}
 

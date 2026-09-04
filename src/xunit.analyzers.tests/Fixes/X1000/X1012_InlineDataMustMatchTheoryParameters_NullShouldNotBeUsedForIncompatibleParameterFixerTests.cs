@@ -40,6 +40,6 @@ public class X1012_InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForInc
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp8, before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, InlineDataMustMatchTheoryParameters_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 }

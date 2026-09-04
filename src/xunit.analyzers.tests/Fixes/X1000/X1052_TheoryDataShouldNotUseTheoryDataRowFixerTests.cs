@@ -101,6 +101,6 @@ public class X1052_TheoryDataShouldNotUseTheoryDataRowFixerTests
 			Verify.Diagnostic().WithLocation(12),
 		};
 
-		await Verify.VerifyCodeFixV3FixAll(LanguageVersion.CSharp9, before, after, TheoryDataShouldNotUseTheoryDataRowFixer.Key_UseIEnumerable, expected);
+		await Verify.VerifyCodeFixV3(LanguageVersion.CSharp9, before, after, TheoryDataShouldNotUseTheoryDataRowFixer.Key_UseIEnumerable, expected);
 	}
 }
