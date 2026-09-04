@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Text;
+using static Microsoft.CodeAnalysis.CodeFixes.WellKnownFixAllProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Xunit.Analyzers.Fixes;
@@ -25,6 +26,8 @@ public class AssertReturnValueShouldBeUsedFixer : XunitCodeFixProvider
 	public AssertReturnValueShouldBeUsedFixer() :
 		base(Descriptors.X2033_AssertReturnValueShouldBeUsed.Id)
 	{ }
+
+	public override FixAllProvider? GetFixAllProvider() => BatchFixer;
 
 	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
