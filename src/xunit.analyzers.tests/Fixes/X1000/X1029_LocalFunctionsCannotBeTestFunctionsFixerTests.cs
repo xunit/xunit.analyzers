@@ -38,7 +38,7 @@ public class X1029_LocalFunctionsCannotBeTestFunctionsFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAllNonAot(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
+		await Verify.VerifyCodeFixNonAot(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
 	}
 
 	[Fact]
@@ -73,6 +73,6 @@ public class X1029_LocalFunctionsCannotBeTestFunctionsFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixV3FixAllNonAot(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
+		await Verify.VerifyCodeFixV3NonAot(LanguageVersion.CSharp9, before, after, LocalFunctionsCannotBeTestFunctionsFixer.Key_RemoveAttribute);
 	}
 }

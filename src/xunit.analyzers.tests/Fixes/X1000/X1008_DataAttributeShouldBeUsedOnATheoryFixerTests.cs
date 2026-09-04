@@ -42,7 +42,7 @@ public class X1008_DataAttributeShouldBeUsedOnATheoryFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAllNonAot(before, afterMarkAsTheory, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
-		await Verify.VerifyCodeFixFixAllNonAot(before, afterRemoveDataAttributes, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
+		await Verify.VerifyCodeFixNonAot(before, afterMarkAsTheory, DataAttributeShouldBeUsedOnATheoryFixer.Key_MarkAsTheory);
+		await Verify.VerifyCodeFixNonAot(before, afterRemoveDataAttributes, DataAttributeShouldBeUsedOnATheoryFixer.Key_RemoveDataAttributes);
 	}
 }

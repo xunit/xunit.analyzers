@@ -303,8 +303,8 @@ public class X1030_DoNotUseConfigureAwaitFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterRemove, DoNotUseConfigureAwaitFixer.Key_RemoveConfigureAwait);
-		await Verify.VerifyCodeFixFixAll(before, afterReplace, DoNotUseConfigureAwaitFixer.Key_ReplaceArgumentValue);
+		await Verify.VerifyCodeFix(before, afterRemove, DoNotUseConfigureAwaitFixer.Key_RemoveConfigureAwait);
+		await Verify.VerifyCodeFix(before, afterReplace, DoNotUseConfigureAwaitFixer.Key_ReplaceArgumentValue);
 	}
 
 #if NETCOREAPP

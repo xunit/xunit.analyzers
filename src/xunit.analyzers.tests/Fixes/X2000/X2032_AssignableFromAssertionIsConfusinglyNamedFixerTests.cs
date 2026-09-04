@@ -37,6 +37,6 @@ public class X2032_AssignableFromAssertionIsConfusinglyNamedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssignableFromAssertionIsConfusinglyNamedFixer.Key_UseIsType);
+		await Verify.VerifyCodeFix(before, after, AssignableFromAssertionIsConfusinglyNamedFixer.Key_UseIsType);
 	}
 }

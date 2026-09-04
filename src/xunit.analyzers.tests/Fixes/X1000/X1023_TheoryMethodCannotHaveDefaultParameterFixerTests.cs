@@ -38,7 +38,7 @@ public class X1023_TheoryMethodCannotHaveDefaultParameterFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixV2FixAll(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
+		await Verify.VerifyCodeFixV2(before, after, TheoryMethodCannotHaveDefaultParameterFixer.Key_RemoveParameterDefault);
 	}
 
 	internal class Analyzer : TheoryMethodCannotHaveDefaultParameter

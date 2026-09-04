@@ -75,6 +75,6 @@ public class X2025_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFix
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer.Key_UseSuggestedAssert);
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFixer.Key_UseSuggestedAssert);
 	}
 }

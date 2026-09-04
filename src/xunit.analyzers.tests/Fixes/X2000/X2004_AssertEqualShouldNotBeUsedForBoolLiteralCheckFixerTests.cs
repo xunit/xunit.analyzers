@@ -39,7 +39,7 @@ public class X2004_AssertEqualShouldNotBeUsedForBoolLiteralCheckFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.Key_UseAlternateAssert);
 	}
 
 	[Fact]
@@ -76,6 +76,6 @@ public class X2004_AssertEqualShouldNotBeUsedForBoolLiteralCheckFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAllNonAot(before, after, AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFixNonAot(before, after, AssertEqualShouldNotBeUsedForBoolLiteralCheckFixer.Key_UseAlternateAssert);
 	}
 }

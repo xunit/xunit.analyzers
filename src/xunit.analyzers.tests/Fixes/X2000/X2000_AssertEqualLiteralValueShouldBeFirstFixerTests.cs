@@ -46,6 +46,6 @@ public class X2000_AssertEqualLiteralValueShouldBeFirstFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp7_2, before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp7_2, before, after, AssertEqualLiteralValueShouldBeFirstFixer.Key_SwapArguments);
 	}
 }

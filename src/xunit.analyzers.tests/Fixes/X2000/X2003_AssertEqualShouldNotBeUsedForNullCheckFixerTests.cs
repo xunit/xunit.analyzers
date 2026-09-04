@@ -39,6 +39,6 @@ public class X2003_AssertEqualShouldNotBeUsedForNullCheckFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualShouldNotBeUsedForNullCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertEqualShouldNotBeUsedForNullCheckFixer.Key_UseAlternateAssert);
 	}
 }

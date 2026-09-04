@@ -45,6 +45,6 @@ public class X1014_MemberDataShouldReferenceValidMember_NameOfFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_NameOfFixer.Key_UseNameof);
 	}
 }

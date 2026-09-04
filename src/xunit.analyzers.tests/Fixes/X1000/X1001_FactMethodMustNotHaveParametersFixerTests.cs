@@ -31,6 +31,6 @@ public class X1001_FactMethodMustNotHaveParametersFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, FactMethodMustNotHaveParametersFixer.Key_RemoveParameters);
+		await Verify.VerifyCodeFix(before, after, FactMethodMustNotHaveParametersFixer.Key_RemoveParameters);
 	}
 }

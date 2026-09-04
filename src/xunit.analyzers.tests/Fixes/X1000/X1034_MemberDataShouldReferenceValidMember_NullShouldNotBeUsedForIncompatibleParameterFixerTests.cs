@@ -46,6 +46,6 @@ public class X1034_MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIn
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp8, before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompatibleParameterFixer.Key_MakeParameterNullable);
 	}
 }

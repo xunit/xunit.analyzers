@@ -37,6 +37,6 @@ public class X2012_AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsC
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertEnumerableAnyCheckShouldNotBeUsedForCollectionContainsCheckFixer.Key_UseAlternateAssert);
 	}
 }

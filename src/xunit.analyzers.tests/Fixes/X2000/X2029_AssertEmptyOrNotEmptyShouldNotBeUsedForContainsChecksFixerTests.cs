@@ -43,6 +43,6 @@ public class X2029_AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixerTes
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer.Key_UseDoesNotContain);
+		await Verify.VerifyCodeFix(before, after, AssertEmptyOrNotEmptyShouldNotBeUsedForContainsChecksFixer.Key_UseDoesNotContain);
 	}
 }

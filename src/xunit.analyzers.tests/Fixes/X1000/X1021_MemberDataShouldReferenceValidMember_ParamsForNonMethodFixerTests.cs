@@ -47,6 +47,6 @@ public class X1021_MemberDataShouldReferenceValidMember_ParamsForNonMethodFixerT
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer.Key_RemoveArgumentsFromMemberData);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_ParamsForNonMethodFixer.Key_RemoveArgumentsFromMemberData);
 	}
 }

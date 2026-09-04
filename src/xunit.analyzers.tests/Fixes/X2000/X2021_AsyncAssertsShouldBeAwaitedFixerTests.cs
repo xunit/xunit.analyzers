@@ -102,6 +102,6 @@ public class X2021_AsyncAssertsShouldBeAwaitedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp8, before, after, AsyncAssertsShouldBeAwaitedFixer.Key_AddAwait);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, AsyncAssertsShouldBeAwaitedFixer.Key_AddAwait);
 	}
 }

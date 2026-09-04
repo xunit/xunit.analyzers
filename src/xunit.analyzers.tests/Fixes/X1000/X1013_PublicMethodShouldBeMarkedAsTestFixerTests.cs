@@ -61,9 +61,9 @@ public class X1013_PublicMethodShouldBeMarkedAsTestFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterFact, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact, expectedAfterFact);
-		await Verify.VerifyCodeFixFixAll(before, afterTheory, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory, expectedAfterTheory);
-		await Verify.VerifyCodeFixFixAll(before, afterMakeInternal, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
+		await Verify.VerifyCodeFix(before, afterFact, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToFact, expectedAfterFact);
+		await Verify.VerifyCodeFix(before, afterTheory, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory, expectedAfterTheory);
+		await Verify.VerifyCodeFix(before, afterMakeInternal, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
 	}
 
 	[Fact]
@@ -96,7 +96,7 @@ public class X1013_PublicMethodShouldBeMarkedAsTestFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
+		await Verify.VerifyCodeFix(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_ConvertToTheory);
 	}
 
 	[Fact]
@@ -127,6 +127,6 @@ public class X1013_PublicMethodShouldBeMarkedAsTestFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
+		await Verify.VerifyCodeFix(before, after, PublicMethodShouldBeMarkedAsTestFixer.Key_MakeMethodInternal);
 	}
 }

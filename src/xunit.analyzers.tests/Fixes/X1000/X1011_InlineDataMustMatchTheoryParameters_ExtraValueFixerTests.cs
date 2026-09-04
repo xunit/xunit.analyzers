@@ -48,7 +48,7 @@ public class X1011_InlineDataMustMatchTheoryParameters_ExtraValueFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, afterRemove, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
-		await Verify.VerifyCodeFixFixAll(before, afterAdd, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
+		await Verify.VerifyCodeFix(before, afterRemove, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_RemoveExtraDataValue);
+		await Verify.VerifyCodeFix(before, afterAdd, InlineDataMustMatchTheoryParameters_ExtraValueFixer.Key_AddTheoryParameter);
 	}
 }

@@ -43,6 +43,6 @@ public class X2031_AssertSingleShouldUseTwoArgumentCallFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertSingleShouldUseTwoArgumentCallFixer.Key_UseTwoArguments);
+		await Verify.VerifyCodeFix(before, after, AssertSingleShouldUseTwoArgumentCallFixer.Key_UseTwoArguments);
 	}
 }

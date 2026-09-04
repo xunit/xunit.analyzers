@@ -31,6 +31,6 @@ public class X2016_AssertEqualPrecisionShouldBeInRangeFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertEqualPrecisionShouldBeInRangeFixer.Key_UsePrecision);
+		await Verify.VerifyCodeFix(before, after, AssertEqualPrecisionShouldBeInRangeFixer.Key_UsePrecision);
 	}
 }

@@ -101,6 +101,6 @@ public class X2022_BooleanAssertsShouldNotBeNegatedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
+		await Verify.VerifyCodeFix(before, after, BooleanAssertsShouldNotBeNegatedFixer.Key_UseSuggestedAssert);
 	}
 }

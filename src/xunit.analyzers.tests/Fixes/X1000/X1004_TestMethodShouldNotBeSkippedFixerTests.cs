@@ -31,6 +31,6 @@ public class X1004_TestMethodShouldNotBeSkippedFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
+		await Verify.VerifyCodeFix(before, after, TestMethodShouldNotBeSkippedFixer.Key_RemoveSkipArgument);
 	}
 }

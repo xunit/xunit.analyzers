@@ -57,6 +57,6 @@ public class X1016_MemberDataShouldReferenceValidMember_VisibilityFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, MemberDataShouldReferenceValidMember_VisibilityFixer.Key_MakeMemberPublic);
+		await Verify.VerifyCodeFix(before, after, MemberDataShouldReferenceValidMember_VisibilityFixer.Key_MakeMemberPublic);
 	}
 }

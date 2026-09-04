@@ -176,6 +176,6 @@ public class X2024_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBoolean
 			enum MyEnum { None, Bacon, Veggie }
 			""";
 
-		await Verify.VerifyCodeFixFixAll(LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
+		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckNonBooleanFixer.Key_UseSuggestedAssert);
 	}
 }

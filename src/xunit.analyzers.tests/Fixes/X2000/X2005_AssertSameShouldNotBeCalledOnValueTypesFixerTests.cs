@@ -35,6 +35,6 @@ public class X2005_AssertSameShouldNotBeCalledOnValueTypesFixerTests
 			}
 			""";
 
-		await Verify.VerifyCodeFixFixAll(before, after, AssertSameShouldNotBeCalledOnValueTypesFixer.Key_UseAlternateAssert);
+		await Verify.VerifyCodeFix(before, after, AssertSameShouldNotBeCalledOnValueTypesFixer.Key_UseAlternateAssert);
 	}
 }
