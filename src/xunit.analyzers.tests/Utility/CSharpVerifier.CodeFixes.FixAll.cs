@@ -289,7 +289,6 @@ partial class CSharpVerifier<TAnalyzer>
 		testAot.FixedState.ExpectedDiagnostics.AddRange(diagnostics);
 		testAot.BatchFixedState.Sources.Add(after.Replace("\n", newLine));
 		testAot.BatchFixedState.ExpectedDiagnostics.AddRange(diagnostics);
-		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
 		await testAot.RunAsync();
 	}
 

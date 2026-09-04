@@ -473,7 +473,6 @@ public partial class CSharpVerifier<TAnalyzer>
 			testAot.TestState.Sources.Add(source);
 
 		testAot.TestState.ExpectedDiagnostics.AddRange(diagnostics);
-		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
 		testAot.TestState.OutputKind = OutputKind.ConsoleApplication;
 		testAot.TestState.Sources.Add("internal class Program { public static void Main() { } }");
 		await testAot.RunAsync();
@@ -587,7 +586,6 @@ public partial class CSharpVerifier<TAnalyzer>
 
 		testAot.CompilerDiagnostics = CompilerDiagnostics.Warnings;
 		testAot.TestState.ExpectedDiagnostics.AddRange(diagnostics);
-		testAot.DisabledDiagnostics.Add("CS1701");  // assert is net9, core is net8, ignore version drift
 		testAot.TestState.OutputKind = OutputKind.ConsoleApplication;
 		testAot.TestState.Sources.Add("internal class Program { public static void Main() { } }");
 		await testAot.RunAsync();
