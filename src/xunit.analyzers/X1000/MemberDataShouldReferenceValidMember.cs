@@ -220,56 +220,6 @@ public class MemberDataShouldReferenceValidMember() :
 		}, SyntaxKind.MethodDeclaration);
 	}
 
-	static bool IsInitialized(
-		ISymbol memberSymbol,
-		SyntaxNodeAnalysisContext context)
-	{
-		if (!memberSymbol.IsStatic || memberSymbol is IMethodSymbol)
-			// assume initialized, if nonstatic or method to avoid spurious results
-			return true;
-
-		if (memberSymbol.DeclaringSyntaxReferences.IsEmpty)
-			return true;
-
-		var semantics = context.SemanticModel;
-		var declarationReference = memberSymbol.DeclaringSyntaxReferences.First();
-		var declarationSyntax = declarationReference.GetSyntax();
-		if (declarationSyntax is PropertyDeclarationSyntax prop
-			&& (prop.Initializer != null
-				|| prop.AccessorList?.Accessors.FirstOrDefault(decl => decl.Kind() == SyntaxKind.GetAccessorDeclaration)?.Body != null
-				|| prop.ExpressionBody != null))
-			return true;
-
-		if (declarationSyntax is VariableDeclaratorSyntax field && field.Initializer != null)
-			return true;
-
-		var declarationContainer = declarationSyntax.FirstAncestorOrSelf<TypeDeclarationSyntax>()!;
-		var staticConstructors =
-			declarationContainer
-				.DescendantNodes()
-				.OfType<ConstructorDeclarationSyntax>()
-				.Where(ctor => ctor.Modifiers.Any(SyntaxKind.StaticKeyword));
-
-		foreach (var ctor in staticConstructors)
-		{
-			// Look for direct assignments to the member
-			var assignments =
-				ctor
-					.DescendantNodes(descendIntoChildren: _ => true, descendIntoTrivia: false)
-					.OfType<AssignmentExpressionSyntax>()
-					.Where(assignment =>
-					{
-						var assignedSymbol = semantics.GetSymbolInfo(assignment.Left).Symbol;
-						return SymbolEqualityComparer.Default.Equals(assignedSymbol?.OriginalDefinition, memberSymbol);
-					});
-
-			if (assignments.Any())
-				return true;
-		}
-
-		return false;
-	}
-
 	static ImmutableArray<ISymbol> FindMemberSymbols(
 		string memberName,
 		ITypeSymbol? type,
@@ -407,6 +357,56 @@ public class MemberDataShouldReferenceValidMember() :
 
 		theoryReturnType = working;
 		return true;
+	}
+
+	static bool IsInitialized(
+		ISymbol memberSymbol,
+		SyntaxNodeAnalysisContext context)
+	{
+		if (!memberSymbol.IsStatic || memberSymbol is IMethodSymbol)
+			// assume initialized, if nonstatic or method to avoid spurious results
+			return true;
+
+		if (memberSymbol.DeclaringSyntaxReferences.IsEmpty)
+			return true;
+
+		var semantics = context.SemanticModel;
+		var declarationReference = memberSymbol.DeclaringSyntaxReferences.First();
+		var declarationSyntax = declarationReference.GetSyntax();
+		if (declarationSyntax is PropertyDeclarationSyntax prop
+			&& (prop.Initializer != null
+				|| prop.AccessorList?.Accessors.FirstOrDefault(decl => decl.Kind() == SyntaxKind.GetAccessorDeclaration)?.Body != null
+				|| prop.ExpressionBody != null))
+			return true;
+
+		if (declarationSyntax is VariableDeclaratorSyntax field && field.Initializer != null)
+			return true;
+
+		var declarationContainer = declarationSyntax.FirstAncestorOrSelf<TypeDeclarationSyntax>()!;
+		var staticConstructors =
+			declarationContainer
+				.DescendantNodes()
+				.OfType<ConstructorDeclarationSyntax>()
+				.Where(ctor => ctor.Modifiers.Any(SyntaxKind.StaticKeyword));
+
+		foreach (var ctor in staticConstructors)
+		{
+			// Look for direct assignments to the member
+			var assignments =
+				ctor
+					.DescendantNodes(descendIntoChildren: _ => true, descendIntoTrivia: false)
+					.OfType<AssignmentExpressionSyntax>()
+					.Where(assignment =>
+					{
+						var assignedSymbol = semantics.GetSymbolInfo(assignment.Left).Symbol;
+						return SymbolEqualityComparer.Default.Equals(assignedSymbol?.OriginalDefinition, memberSymbol);
+					});
+
+			if (assignments.Any())
+				return true;
+		}
+
+		return false;
 	}
 
 	static bool IsTheoryDataType(
