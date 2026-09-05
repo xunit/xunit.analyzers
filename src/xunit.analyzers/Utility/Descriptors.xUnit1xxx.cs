@@ -606,7 +606,7 @@ public static partial class Descriptors
 			"MemberData parameter cannot use params modifier in Native AOT",
 			Usage,
 			Error,
-			"The params modifier on parameter '{0}' of '{1}.{2}' cannot be used for [MemberData] in Native AOT. Remove the modifier and create the arrays the [MemberData] arguments yourself."
+			"The params modifier on parameter '{0}' of '{1}.{2}' cannot be used for [MemberData] in Native AOT. Remove the modifier and create the arrays for the [MemberData] arguments yourself."
 		);
 
 	public static DiagnosticDescriptor X1067_MissingMemberDataMethodParameter { get; } =
