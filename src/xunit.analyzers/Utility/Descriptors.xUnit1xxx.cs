@@ -342,19 +342,19 @@ public static partial class Descriptors
 	public static DiagnosticDescriptor X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1037",
-			"There are fewer theory data type arguments than required by the parameters of the test method",
+			"There are fewer arguments than required by the parameters of the test method",
 			Usage,
 			Error,
-			"There are fewer {0} type arguments than required by the parameters of the test method. Add more type parameters to match the method signature, or remove parameters from the test method."
+			"There are fewer arguments for {0} than required by the parameters of the test method. Add more parameters to match the method signature, or remove parameters from the test method."
 		);
 
 	public static DiagnosticDescriptor X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1038",
-			"There are more theory data type arguments than allowed by the parameters of the test method",
+			"There are more arguments than allowed by the parameters of the test method",
 			Usage,
 			Error,
-			"There are more {0} type arguments than allowed by the parameters of the test method. Remove unused type arguments, or add more parameters."
+			"There are more arguments for {0} than allowed by the parameters of the test method. Remove unused arguments, or add more parameters."
 		);
 
 	public static DiagnosticDescriptor X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =

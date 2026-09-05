@@ -314,75 +314,122 @@ public class X1038_MemberDataShouldReferenceValidMemberTests
 			using Xunit;
 
 			public class TestClass {
-				public static TheoryDataRow<int>[] FieldData = new TheoryDataRow<int>[0];
-				public static TheoryDataRow<int>[] PropertyData => new TheoryDataRow<int>[0];
-				public static TheoryDataRow<int>[] MethodData() => new TheoryDataRow<int>[0];
-				public static TheoryDataRow<int>[] MethodWithArgsData(int _) => new TheoryDataRow<int>[0];
+				public static TheoryDataRow<int, string>[] FieldData_TheoryDataRow = new TheoryDataRow<int, string>[0];
+				public static TheoryDataRow<int, string>[] PropertyData_TheoryDataRow => new TheoryDataRow<int, string>[0];
+				public static TheoryDataRow<int, string>[] MethodData_TheoryDataRow() => new TheoryDataRow<int, string>[0];
+				public static TheoryDataRow<int, string>[] MethodWithArgsData_TheoryDataRow(int _) => new TheoryDataRow<int, string>[0];
+
+				public static (int, string)[] FieldData_Tuple = new (int, string)[0];
+				public static (int, string)[] PropertyData_Tuple => new (int, string)[0];
+				public static (int, string)[] MethodData_Tuple() => new (int, string)[0];
+				public static (int, string)[] MethodWithArgsData_Tuple(int _) => new (int, string)[0];
 
 				// Exact match
-				[MemberData(nameof(FieldData))]
-				[MemberData(nameof(PropertyData))]
-				[MemberData(nameof(MethodData))]
-				[MemberData(nameof(MethodWithArgsData), 42)]
-				public void TestMethod1a(int _) { }
+				[MemberData(nameof(FieldData_TheoryDataRow))]
+				[MemberData(nameof(PropertyData_TheoryDataRow))]
+				[MemberData(nameof(MethodData_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData_Tuple))]
+				[MemberData(nameof(PropertyData_Tuple))]
+				[MemberData(nameof(MethodData_Tuple))]
+				[MemberData(nameof(MethodWithArgsData_Tuple), 42)]
+				public void TestMethod1a(int _1, string _2) { }
 
 				// Optional paramter, no argument from data source
-				[MemberData(nameof(FieldData))]
-				[MemberData(nameof(PropertyData))]
-				[MemberData(nameof(MethodData))]
-				[MemberData(nameof(MethodWithArgsData), 42)]
-				public void TestMethod1b(int _1, int _2 = 0) { }
+				[MemberData(nameof(FieldData_TheoryDataRow))]
+				[MemberData(nameof(PropertyData_TheoryDataRow))]
+				[MemberData(nameof(MethodData_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData_Tuple))]
+				[MemberData(nameof(PropertyData_Tuple))]
+				[MemberData(nameof(MethodData_Tuple))]
+				[MemberData(nameof(MethodWithArgsData_Tuple), 42)]
+				public void TestMethod1b(int _1, string _2, int _3 = 0) { }
 
 				// Params array, no argument from data source
-				[MemberData(nameof(FieldData))]
-				[MemberData(nameof(PropertyData))]
-				[MemberData(nameof(MethodData))]
-				[MemberData(nameof(MethodWithArgsData), 42)]
-				public void TestMethod1c(int _1, params int[] _2) { }
+				[MemberData(nameof(FieldData_TheoryDataRow))]
+				[MemberData(nameof(PropertyData_TheoryDataRow))]
+				[MemberData(nameof(MethodData_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData_Tuple))]
+				[MemberData(nameof(PropertyData_Tuple))]
+				[MemberData(nameof(MethodData_Tuple))]
+				[MemberData(nameof(MethodWithArgsData_Tuple), 42)]
+				public void TestMethod1c(int _1, string _2, params int[] _3) { }
 
 				// Generic match
-				[MemberData(nameof(FieldData))]
-				[MemberData(nameof(PropertyData))]
-				[MemberData(nameof(MethodData))]
-				[MemberData(nameof(MethodWithArgsData), 42)]
-				public void TestMethod1d<T>(T _) { }
+				[MemberData(nameof(FieldData_TheoryDataRow))]
+				[MemberData(nameof(PropertyData_TheoryDataRow))]
+				[MemberData(nameof(MethodData_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData_Tuple))]
+				[MemberData(nameof(PropertyData_Tuple))]
+				[MemberData(nameof(MethodData_Tuple))]
+				[MemberData(nameof(MethodWithArgsData_Tuple), 42)]
+				public void TestMethod1d<T1, T2>(T1 _1, T2 _2) { }
 
 				// Generic nullable match
-				[MemberData(nameof(FieldData))]
-				[MemberData(nameof(PropertyData))]
-				[MemberData(nameof(MethodData))]
-				[MemberData(nameof(MethodWithArgsData), 42)]
-				public void TestMethod1e<T>(T? _) { }
+				[MemberData(nameof(FieldData_TheoryDataRow))]
+				[MemberData(nameof(PropertyData_TheoryDataRow))]
+				[MemberData(nameof(MethodData_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData_Tuple))]
+				[MemberData(nameof(PropertyData_Tuple))]
+				[MemberData(nameof(MethodData_Tuple))]
+				[MemberData(nameof(MethodWithArgsData_Tuple), 42)]
+				public void TestMethod1e<T1, T2>(T1? _1, T2? _2) { }
 
-				public static TheoryDataRow<int, int>[] FieldData2 = new TheoryDataRow<int, int>[0];
-				public static TheoryDataRow<int, int>[] PropertyData2 => new TheoryDataRow<int, int>[0];
-				public static TheoryDataRow<int, int>[] MethodData2() => new TheoryDataRow<int, int>[0];
-				public static TheoryDataRow<int, int>[] MethodWithArgsData2(int _) => new TheoryDataRow<int, int>[0];
+				public static TheoryDataRow<int, int>[] FieldData2_TheoryDataRow = new TheoryDataRow<int, int>[0];
+				public static TheoryDataRow<int, int>[] PropertyData2_TheoryDataRow => new TheoryDataRow<int, int>[0];
+				public static TheoryDataRow<int, int>[] MethodData2_TheoryDataRow() => new TheoryDataRow<int, int>[0];
+				public static TheoryDataRow<int, int>[] MethodWithArgsData2_TheoryDataRow(int _) => new TheoryDataRow<int, int>[0];
+
+				public static (int, int)[] FieldData2_Tuple = new (int, int)[0];
+				public static (int, int)[] PropertyData2_Tuple => new (int, int)[0];
+				public static (int, int)[] MethodData2_Tuple() => new (int, int)[0];
+				public static (int, int)[] MethodWithArgsData2_Tuple(int _) => new (int, int)[0];
 
 				// Params array, single non-array argument from data source
-				[MemberData(nameof(FieldData2))]
-				[MemberData(nameof(PropertyData2))]
-				[MemberData(nameof(MethodData2))]
-				[MemberData(nameof(MethodWithArgsData2), 42)]
+				[MemberData(nameof(FieldData2_TheoryDataRow))]
+				[MemberData(nameof(PropertyData2_TheoryDataRow))]
+				[MemberData(nameof(MethodData2_TheoryDataRow))]
+				[MemberData(nameof(MethodWithArgsData2_TheoryDataRow), 42)]
+				[MemberData(nameof(FieldData2_Tuple))]
+				[MemberData(nameof(PropertyData2_Tuple))]
+				[MemberData(nameof(MethodData2_Tuple))]
+				[MemberData(nameof(MethodWithArgsData2_Tuple), 42)]
 				public void TestMethod1f(int _1, params int[] _2) { }
 
 				// Too many arguments
-				[{|#0:MemberData(nameof(FieldData2))|}]
-				[{|#1:MemberData(nameof(PropertyData2))|}]
-				[{|#2:MemberData(nameof(MethodData2))|}]
-				[{|#3:MemberData(nameof(MethodWithArgsData2), 42)|}]
+				[{|#0:MemberData(nameof(FieldData2_TheoryDataRow))|}]
+				[{|#1:MemberData(nameof(PropertyData2_TheoryDataRow))|}]
+				[{|#2:MemberData(nameof(MethodData2_TheoryDataRow))|}]
+				[{|#3:MemberData(nameof(MethodWithArgsData2_TheoryDataRow), 42)|}]
+				[{|#4:MemberData(nameof(FieldData2_Tuple))|}]
+				[{|#5:MemberData(nameof(PropertyData2_Tuple))|}]
+				[{|#6:MemberData(nameof(MethodData2_Tuple))|}]
+				[{|#7:MemberData(nameof(MethodWithArgsData2_Tuple), 42)|}]
 				public void TestMethod1g(int _) { }
 
-				public static TheoryDataRow<int, string[], string>[] FieldData3 = new TheoryDataRow<int, string[], string>[0];
-				public static TheoryDataRow<int, string[], string>[] PropertyData3 => new TheoryDataRow<int, string[], string>[0];
-				public static TheoryDataRow<int, string[], string>[] MethodData3() => new TheoryDataRow<int, string[], string>[0];
-				public static TheoryDataRow<int, string[], string>[] MethodWithArgsData3(int _) => new TheoryDataRow<int, string[], string>[0];
+				public static TheoryDataRow<int, string[], string>[] FieldData3_TheoryDataRow = new TheoryDataRow<int, string[], string>[0];
+				public static TheoryDataRow<int, string[], string>[] PropertyData3_TheoryDataRow => new TheoryDataRow<int, string[], string>[0];
+				public static TheoryDataRow<int, string[], string>[] MethodData3_TheoryDataRow() => new TheoryDataRow<int, string[], string>[0];
+				public static TheoryDataRow<int, string[], string>[] MethodWithArgsData3_TheoryDataRow(int _) => new TheoryDataRow<int, string[], string>[0];
+
+				public static (int, string[], string)[] FieldData3_Tuple = new (int, string[], string)[0];
+				public static (int, string[], string)[] PropertyData3_Tuple => new (int, string[], string)[0];
+				public static (int, string[], string)[] MethodData3_Tuple() => new (int, string[], string)[0];
+				public static (int, string[], string)[] MethodWithArgsData3_Tuple(int _) => new (int, string[], string)[0];
 
 				// Extra parameter type on data source
-				[{|#4:MemberData(nameof(FieldData3))|}]
-				[{|#5:MemberData(nameof(PropertyData3))|}]
-				[{|#6:MemberData(nameof(MethodData3))|}]
-				[{|#7:MemberData(nameof(MethodWithArgsData3), 42)|}]
+				[{|#10:MemberData(nameof(FieldData3_TheoryDataRow))|}]
+				[{|#11:MemberData(nameof(PropertyData3_TheoryDataRow))|}]
+				[{|#12:MemberData(nameof(MethodData3_TheoryDataRow))|}]
+				[{|#13:MemberData(nameof(MethodWithArgsData3_TheoryDataRow), 42)|}]
+				[{|#14:MemberData(nameof(FieldData3_Tuple))|}]
+				[{|#15:MemberData(nameof(PropertyData3_Tuple))|}]
+				[{|#16:MemberData(nameof(MethodData3_Tuple))|}]
+				[{|#17:MemberData(nameof(MethodWithArgsData3_Tuple), 42)|}]
 				public void TestMethod1h(int _1, params string[] _2) { }
 			}
 			""";
@@ -391,10 +438,19 @@ public class X1038_MemberDataShouldReferenceValidMemberTests
 			Verify.Diagnostic("xUnit1038").WithLocation(1).WithArguments("Xunit.TheoryDataRow"),
 			Verify.Diagnostic("xUnit1038").WithLocation(2).WithArguments("Xunit.TheoryDataRow"),
 			Verify.Diagnostic("xUnit1038").WithLocation(3).WithArguments("Xunit.TheoryDataRow"),
-			Verify.Diagnostic("xUnit1038").WithLocation(4).WithArguments("Xunit.TheoryDataRow"),
-			Verify.Diagnostic("xUnit1038").WithLocation(5).WithArguments("Xunit.TheoryDataRow"),
-			Verify.Diagnostic("xUnit1038").WithLocation(6).WithArguments("Xunit.TheoryDataRow"),
-			Verify.Diagnostic("xUnit1038").WithLocation(7).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(4).WithArguments("(int, int)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(5).WithArguments("(int, int)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(6).WithArguments("(int, int)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(7).WithArguments("(int, int)"),
+
+			Verify.Diagnostic("xUnit1038").WithLocation(10).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(11).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(12).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(13).WithArguments("Xunit.TheoryDataRow"),
+			Verify.Diagnostic("xUnit1038").WithLocation(14).WithArguments("(int, string[], string)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(15).WithArguments("(int, string[], string)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(16).WithArguments("(int, string[], string)"),
+			Verify.Diagnostic("xUnit1038").WithLocation(17).WithArguments("(int, string[], string)"),
 		};
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);

@@ -52,6 +52,7 @@ public class MemberDataShouldReferenceValidMember() :
 		var compilation = context.Compilation;
 		var theoryDataTypes = TypeSymbolFactory.TheoryData_ByGenericArgumentCount(compilation);
 		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(compilation);
+		var iTupleType = TypeSymbolFactory.ITuple(compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -195,13 +196,15 @@ public class MemberDataShouldReferenceValidMember() :
 							ReportNonPublicPropertyGetter(context, attributeSyntax);
 					}
 
-				// If the member returns TheoryData<> or TheoryDataRow<>, ensure that the types are compatible.
-				// If the member does not return TheoryData<> or TheoryDataRow<>, gently suggest to the user
+				// If the member returns TheoryData<> or TheoryDataRow<> or a tuple, ensure that the types are compatible.
+				// If the member does not return TheoryData<> or TheoryDataRow<> or a tuple, gently suggest to the user
 				// to switch for better type safety.
 				if (IsTheoryDataType(memberReturnType, theoryDataTypes, out var theoryReturnType))
 					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataTypes[0], theoryReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
 				else if (IsGenericTheoryDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType, theoryDataRowTypes, out var theoryDataReturnType))
 					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, memberName, declaredMemberTypeSymbol, attributeSyntax);
+				else if (IsTupleDataRowType(memberReturnType, iEnumerableOfTheoryDataRowType, iAsyncEnumerableOfTheoryDataRowType, iTupleType, out var namedTupleType))
+					VerifyGenericArgumentTypes(semanticModel, context, testMethod, namedTupleType, namedTupleType, memberName, declaredMemberTypeSymbol, attributeSyntax);
 				else if (IsValidMemberReturnType)
 					ReportMemberReturnsTypeUnsafeValue(context, attributeSyntax, xunitContext.HasV3References ? "TheoryData<> or IEnumerable<TheoryDataRow<>>" : "TheoryData<>");
 
@@ -433,6 +436,35 @@ public class MemberDataShouldReferenceValidMember() :
 
 		theoryReturnType = working;
 		return true;
+	}
+
+	static bool IsTupleDataRowType(
+		ITypeSymbol? memberReturnType,
+		INamedTypeSymbol? iEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iAsyncEnumerableOfTheoryDataRowType,
+		INamedTypeSymbol? iTupleType,
+		[NotNullWhen(true)] out INamedTypeSymbol? namedTupleType)
+	{
+		namedTupleType = default;
+
+		if (iEnumerableOfTheoryDataRowType is null)
+			return false;
+		var rowType = memberReturnType.UnwrapEnumerable(iEnumerableOfTheoryDataRowType.OriginalDefinition);
+		if (rowType is null && iAsyncEnumerableOfTheoryDataRowType is not null)
+			rowType = memberReturnType.UnwrapEnumerable(iAsyncEnumerableOfTheoryDataRowType.OriginalDefinition);
+		if (rowType is null)
+			return false;
+
+		if (rowType is INamedTypeSymbol namedRowType &&
+			iTupleType is not null &&
+			rowType.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iTupleType)))
+		{
+			namedTupleType = namedRowType;
+			return true;
+		}
+
+		namedTupleType = default;
+		return false;
 	}
 
 	static void ReportIllegalNonMethodArguments(

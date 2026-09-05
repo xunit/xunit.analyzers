@@ -39,6 +39,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		var iAsyncEnumerableOfObjectArray = TypeSymbolFactory.IAsyncEnumerableOfObjectArray(compilation);
 		var iAsyncEnumerableOfTheoryDataRow = TypeSymbolFactory.IAsyncEnumerableOfITheoryDataRow(compilation);
 		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(compilation);
+		var iTupleType = TypeSymbolFactory.ITuple(compilation);
 
 		context.RegisterSyntaxNodeAction(context =>
 		{
@@ -93,6 +94,8 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 
 				if (IsGenericTheoryDataRowType(rowType, theoryDataRowTypes, out var theoryDataReturnType))
 					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, classType, attributeSyntax);
+				else if (IsTupleDataRowType(rowType, iTupleType, out var namedTupleType))
+					VerifyGenericArgumentTypes(semanticModel, context, testMethod, namedTupleType, namedTupleType, classType, attributeSyntax);
 				else if (isValidDeclaration)
 					ReportClassReturnsUnsafeTypeValue(context, attributeSyntax);
 			}
@@ -121,6 +124,23 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 
 		theoryReturnType = working;
 		return true;
+	}
+
+	static bool IsTupleDataRowType(
+		ITypeSymbol? rowType,
+		INamedTypeSymbol? iTupleType,
+		[NotNullWhen(true)] out INamedTypeSymbol? namedTupleType)
+	{
+		if (rowType is INamedTypeSymbol namedRowType &&
+			iTupleType is not null &&
+			rowType.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, iTupleType)))
+		{
+			namedTupleType = namedRowType;
+			return true;
+		}
+
+		namedTupleType = default;
+		return false;
 	}
 
 	static void ReportClassReturnsUnsafeTypeValue(
