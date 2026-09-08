@@ -140,6 +140,17 @@ public class X1042_MemberDataShouldReferenceValidMemberTests
 
 				[MemberData(nameof(LongData))]
 				public void TestMethod7(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n, int o) { }
+
+				public static IEnumerable<(int, string)> FieldTupleData;
+				public static IAsyncEnumerable<(int, string)> PropertyTupleData { get; set; }
+				public static Task<IEnumerable<(int, string)>> MethodTupleData() => null;
+				public static ValueTask<IEnumerable<(int, string)>> MethodWithArgsTupleData(int _) => default;
+
+				[MemberData(nameof(FieldTupleData))]
+				[MemberData(nameof(PropertyTupleData))]
+				[MemberData(nameof(MethodTupleData))]
+				[MemberData(nameof(MethodWithArgsTupleData), 42)]
+				public void TestMethod8(int _1, string _2) { }
 			}
 			""";
 		var expected = new[] {
