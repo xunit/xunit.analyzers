@@ -18,10 +18,10 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 	public ClassDataAttributeMustPointAtValidClass() :
 		base(
 			Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
-			Descriptors.X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
-			Descriptors.X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
-			Descriptors.X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-			Descriptors.X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+			Descriptors.X1037_TheoryArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+			Descriptors.X1038_TheoryArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
+			Descriptors.X1039_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+			Descriptors.X1040_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
 			Descriptors.X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis
 		)
 	{ }
@@ -159,7 +159,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
+					Descriptors.X1038_TheoryArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
 					attribute.GetLocation(),
 					SymbolDisplay.ToDisplayString(theoryDataType)
 				)
@@ -173,7 +173,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
+					Descriptors.X1039_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
 					parameterType.GetLocation(),
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
 					SymbolDisplay.ToDisplayString(namedClassType),
@@ -203,7 +203,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
+					Descriptors.X1040_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
 					parameterType.GetLocation(),
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
 					SymbolDisplay.ToDisplayString(namedClassType),
@@ -217,7 +217,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
-					Descriptors.X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
+					Descriptors.X1037_TheoryArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
 					attribute.GetLocation(),
 					SymbolDisplay.ToDisplayString(theoryDataType)
 				)

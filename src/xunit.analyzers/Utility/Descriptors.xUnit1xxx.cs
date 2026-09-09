@@ -339,7 +339,7 @@ public static partial class Descriptors
 			"There is no matching method parameter for value: {0}. Remove unused value(s), or add more parameter(s)."
 		);
 
-	public static DiagnosticDescriptor X1037_TheoryDataTypeArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
+	public static DiagnosticDescriptor X1037_TheoryArgumentsMustMatchTestMethodParameters_TooFewTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1037",
 			"There are fewer arguments than required by the parameters of the test method",
@@ -348,7 +348,7 @@ public static partial class Descriptors
 			"There are fewer arguments for {0} than required by the parameters of the test method. Add more parameters to match the method signature, or remove parameters from the test method."
 		);
 
-	public static DiagnosticDescriptor X1038_TheoryDataTypeArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
+	public static DiagnosticDescriptor X1038_TheoryArgumentsMustMatchTestMethodParameters_ExtraTypeParameters { get; } =
 		Diagnostic(
 			"xUnit1038",
 			"There are more arguments than allowed by the parameters of the test method",
@@ -357,22 +357,22 @@ public static partial class Descriptors
 			"There are more arguments for {0} than allowed by the parameters of the test method. Remove unused arguments, or add more parameters."
 		);
 
-	public static DiagnosticDescriptor X1039_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
+	public static DiagnosticDescriptor X1039_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleTypes { get; } =
 		Diagnostic(
 			"xUnit1039",
-			"The type argument to theory data is not compatible with the type of the corresponding test method parameter",
+			"The theory argument type is not compatible with the type of the corresponding test method parameter",
 			Usage,
 			Error,
-			"The type argument {0} from {1} is not compatible with the type of the corresponding test method parameter {2}."
+			"The argument type {0} from {1} is not compatible with the type of the corresponding test method parameter {2}."
 		);
 
-	public static DiagnosticDescriptor X1040_TheoryDataTypeArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
+	public static DiagnosticDescriptor X1040_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleNullability { get; } =
 		Diagnostic(
 			"xUnit1040",
-			"The type argument to theory data is nullable, while the type of the corresponding test method parameter is not",
+			"The theory argument type is nullable, while the type of the corresponding test method parameter is not",
 			Usage,
 			Warning,
-			"The type argument {0} from {1} is nullable, while the type of the corresponding test method parameter {2} is not. Make the theory data type non-nullable, or make the test method parameter nullable."
+			"The argument type {0} from {1} is nullable, while the type of the corresponding test method parameter {2} is not. Make the theory argument type non-nullable, or make the test method parameter nullable."
 		);
 
 	public static DiagnosticDescriptor X1041_EnsureFixturesHaveASource { get; } =
