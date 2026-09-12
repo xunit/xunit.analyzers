@@ -111,6 +111,38 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 	}
 
 	[Fact]
+	public async ValueTask V2_and_V3_NonAOT_MemberType()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class PossiblySerializableUnsealedClass { }
+
+			public class DataSource {
+				public static readonly TheoryData<PossiblySerializableUnsealedClass> Field = new TheoryData<PossiblySerializableUnsealedClass>() { };
+				public static TheoryData<PossiblySerializableUnsealedClass> Method(int a, string b) => new TheoryData<PossiblySerializableUnsealedClass>() { };
+				public static TheoryData<PossiblySerializableUnsealedClass> Property => new TheoryData<PossiblySerializableUnsealedClass>() { };
+			}
+
+			public class TestClass {
+				[Theory]
+				[MemberData(nameof(DataSource.Field), MemberType = typeof(DataSource), DisableDiscoveryEnumeration = true)]
+				[MemberData(nameof(DataSource.Method), 1, "2", MemberType = typeof(DataSource), DisableDiscoveryEnumeration = true)]
+				[MemberData(nameof(DataSource.Property), MemberType = typeof(DataSource), DisableDiscoveryEnumeration = true)]
+				public void DoesNotTrigger(PossiblySerializableUnsealedClass parameter) { }
+
+				[Theory]
+				[{|xUnit1045:MemberData(nameof(DataSource.Field), MemberType = typeof(DataSource))|}]
+				[{|xUnit1045:MemberData(nameof(DataSource.Method), 1, "2", MemberType = typeof(DataSource))|}]
+				[{|xUnit1045:MemberData(nameof(DataSource.Property), MemberType = typeof(DataSource))|}]
+				public void Triggers(PossiblySerializableUnsealedClass parameter) { }
+			}
+			""";
+
+		await Verify.VerifyAnalyzerNonAot(source);
+	}
+
+	[Fact]
 	public async ValueTask V2_and_V3_NonAOT_PreTupleSupport()
 	{
 		var source = /* lang=c#-test */ """
