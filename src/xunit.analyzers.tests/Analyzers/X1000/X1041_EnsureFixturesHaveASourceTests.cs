@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.EnsureFixturesHaveASource>;
 
@@ -250,5 +251,24 @@ public class X1041_EnsureFixturesHaveASourceTests
 			""";
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source);
+	}
+
+	[Fact]
+	public async ValueTask V3_AssemblyFixtureWithoutArgument_DoesNotCrash()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			[assembly: AssemblyFixture]
+
+			public class TestClass {
+				public TestClass(int {|#0:x|}) { }
+
+				[Fact] public void TestMethod() { }
+			}
+			""";
+		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("x");
+
+		await Verify.VerifyAnalyzerV3(CompilerDiagnostics.None, source, expected);
 	}
 }

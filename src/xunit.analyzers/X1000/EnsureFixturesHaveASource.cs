@@ -125,7 +125,7 @@ public class EnsureFixturesHaveASource : XunitDiagnosticAnalyzer
 					namedType
 						.ContainingAssembly
 						.GetAttributes()
-						.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, assemblyFixtureAttributeType))
+						.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, assemblyFixtureAttributeType) && !a.ConstructorArguments.IsDefaultOrEmpty)
 						.Select(a => a.ConstructorArguments[0].Value as ITypeSymbol)
 				);
 
