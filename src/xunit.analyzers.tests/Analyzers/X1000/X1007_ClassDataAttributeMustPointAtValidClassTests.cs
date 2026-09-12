@@ -50,6 +50,22 @@ public class X1007_ClassDataAttributeMustPointAtValidClassTests
 	}
 
 	[Fact]
+	public async ValueTask EmptyArgumentList_DoesNotCrash()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class TestClass {
+				[Theory]
+				[{|CS7036:ClassData()|}]
+				public void TestMethod(int n) { }
+			}
+			""";
+
+		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
 	public async ValueTask V2_and_V3()
 	{
 		var source = /* lang=c#-test */ """
