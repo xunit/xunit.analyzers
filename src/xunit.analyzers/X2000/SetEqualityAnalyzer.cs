@@ -47,7 +47,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 		if (arguments.Length < 2)
 			return;
 
-		if (semanticModel.GetTypeInfo(arguments[0].Value.Syntax).Type is not INamedTypeSymbol collection0Type)
+		if (semanticModel.GetTypeInfo(arguments[0].Value.Syntax, context.CancellationToken).Type is not INamedTypeSymbol collection0Type)
 			return;
 		var interface0Type =
 			collection0Type
@@ -56,7 +56,7 @@ public class SetEqualityAnalyzer : AssertUsageAnalyzerBase
 				.Where(i => i.IsGenericType)
 				.FirstOrDefault(i => setInterfaces.Contains(i.ConstructUnboundGenericType()));
 
-		if (semanticModel.GetTypeInfo(arguments[1].Value.Syntax).Type is not INamedTypeSymbol collection1Type)
+		if (semanticModel.GetTypeInfo(arguments[1].Value.Syntax, context.CancellationToken).Type is not INamedTypeSymbol collection1Type)
 			return;
 		var interface1Type =
 			collection1Type

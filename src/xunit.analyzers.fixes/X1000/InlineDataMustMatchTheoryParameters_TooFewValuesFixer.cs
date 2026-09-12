@@ -73,7 +73,7 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : XunitCodeFi
 		var originalInitializer = arrayInitializer;
 		var i = originalInitializer?.Expressions.Count ?? attribute.ArgumentList?.Arguments.Count ?? 0;
 		for (; i < method.ParameterList.Parameters.Count; i++)
-			if (CreateDefaultValueSyntax(editor, method.ParameterList.Parameters[i].Type) is ExpressionSyntax defaultExpression)
+			if (CreateDefaultValueSyntax(editor, method.ParameterList.Parameters[i].Type, cancellationToken) is ExpressionSyntax defaultExpression)
 			{
 				if (arrayInitializer is not null)
 					arrayInitializer = arrayInitializer.AddExpressions(defaultExpression);
@@ -89,12 +89,13 @@ public class InlineDataMustMatchTheoryParameters_TooFewValuesFixer : XunitCodeFi
 
 	static SyntaxNode CreateDefaultValueSyntax(
 		DocumentEditor editor,
-		TypeSyntax? type)
+		TypeSyntax? type,
+		CancellationToken cancellationToken)
 	{
 		if (type is null)
 			return editor.Generator.NullLiteralExpression();
 
-		var t = editor.SemanticModel.GetTypeInfo(type).Type;
+		var t = editor.SemanticModel.GetTypeInfo(type, cancellationToken).Type;
 		if (t is null)
 			return editor.Generator.NullLiteralExpression();
 

@@ -99,7 +99,7 @@ public class DoNotTestForConcreteTypeOfJsonSerializableTypes : XunitV3Diagnostic
 				return;
 
 			foreach (var identifierNameSyntax in typeArgumentListSyntax.ChildNodes().OfType<IdentifierNameSyntax>())
-				reportIfMessageType(context.ReportDiagnostic, context.SemanticModel, context.SemanticModel.GetTypeInfo(identifierNameSyntax).ConvertedType, context.Node);
+				reportIfMessageType(context.ReportDiagnostic, context.SemanticModel, context.SemanticModel.GetTypeInfo(identifierNameSyntax, context.CancellationToken).ConvertedType, context.Node);
 		}, SyntaxKind.GenericName);
 
 		void reportIfMessageType(

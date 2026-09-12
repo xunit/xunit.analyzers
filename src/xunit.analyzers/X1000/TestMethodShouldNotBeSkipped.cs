@@ -46,7 +46,7 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 			if (skipArgument is null)
 				return;
 
-			var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
+			var attributeType = context.SemanticModel.GetTypeInfo(attribute, context.CancellationToken).Type;
 			if (!factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(attributeType)))
 				return;
 

@@ -25,7 +25,7 @@ public sealed class MakeTypesInternalSuppressor : XunitDiagnosticSuppressor
 			return false;
 
 		var semanticModel = context.GetSemanticModel(diagnostic.Location.SourceTree);
-		var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration) as ITypeSymbol;
+		var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken) as ITypeSymbol;
 		return classSymbol.IsTestClass(xunitContext, strict: false);
 	}
 }

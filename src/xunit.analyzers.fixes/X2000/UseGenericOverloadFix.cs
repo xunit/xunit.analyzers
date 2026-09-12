@@ -43,7 +43,7 @@ public class UseGenericOverloadFix : XunitCodeFixProvider
 			return;
 
 		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
-		var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type);
+		var typeInfo = semanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken);
 		if (typeInfo.Type is null)
 			return;
 

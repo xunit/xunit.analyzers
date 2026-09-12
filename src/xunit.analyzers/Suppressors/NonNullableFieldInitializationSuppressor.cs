@@ -65,8 +65,8 @@ public sealed class NonNullableFieldInitializationSuppressor : XunitDiagnosticSu
 		// CS8618 can target field variable declarators or property declarations directly
 		ISymbol? memberSymbol = node switch
 		{
-			VariableDeclaratorSyntax variableDeclarator => semanticModel.GetDeclaredSymbol(variableDeclarator),
-			PropertyDeclarationSyntax propertyDeclaration => semanticModel.GetDeclaredSymbol(propertyDeclaration),
+			VariableDeclaratorSyntax variableDeclarator => semanticModel.GetDeclaredSymbol(variableDeclarator, context.CancellationToken),
+			PropertyDeclarationSyntax propertyDeclaration => semanticModel.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken),
 			_ => null,
 		};
 
@@ -124,7 +124,7 @@ public sealed class NonNullableFieldInitializationSuppressor : XunitDiagnosticSu
 
 			foreach (var assignment in methodDecl.DescendantNodes().OfType<AssignmentExpressionSyntax>())
 			{
-				var assignedSymbol = methodSemanticModel.GetSymbolInfo(assignment.Left).Symbol;
+				var assignedSymbol = methodSemanticModel.GetSymbolInfo(assignment.Left, context.CancellationToken).Symbol;
 				if (assignedSymbol is not null && SymbolEqualityComparer.Default.Equals(assignedSymbol, targetMember))
 					return true;
 			}

@@ -69,7 +69,7 @@ public class MemberDataShouldReferenceValidMember_NullShouldNotBeUsedForIncompat
 		var methodSyntaxes = methodSymbol.DeclaringSyntaxReferences;
 		if (methodSyntaxes.Length != 1)
 			return;
-		if (await methodSyntaxes[0].GetSyntaxAsync().ConfigureAwait(false) is not MethodDeclarationSyntax method)
+		if (await methodSyntaxes[0].GetSyntaxAsync(context.CancellationToken).ConfigureAwait(false) is not MethodDeclarationSyntax method)
 			return;
 
 		context.RegisterCodeFix(

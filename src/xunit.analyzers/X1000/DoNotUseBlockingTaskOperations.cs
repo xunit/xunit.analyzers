@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
 using Microsoft.CodeAnalysis;
@@ -71,10 +72,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				return;
 
 			var foundSymbol =
-				FindSymbol(invocation.TargetMethod, invocation, taskType, blockingTaskMethods, xunitContext, out var foundSymbolName) ||
-				FindSymbol(invocation.TargetMethod, invocation, iCriticalNotifyCompletionType, blockingAwaiterMethods, xunitContext, out foundSymbolName) ||
-				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceType, blockingAwaiterMethods, xunitContext, out foundSymbolName) ||
-				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceOfTType, blockingAwaiterMethods, xunitContext, out foundSymbolName);
+				FindSymbol(invocation.TargetMethod, invocation, taskType, blockingTaskMethods, xunitContext, context.CancellationToken, out var foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iCriticalNotifyCompletionType, blockingAwaiterMethods, xunitContext, context.CancellationToken, out foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceType, blockingAwaiterMethods, xunitContext, context.CancellationToken, out foundSymbolName) ||
+				FindSymbol(invocation.TargetMethod, invocation, iValueTaskSourceOfTType, blockingAwaiterMethods, xunitContext, context.CancellationToken, out foundSymbolName);
 
 			if (!foundSymbol)
 				return;
@@ -123,7 +124,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			}
 
 			if (symbolsForSearch is not null)
-				if (TaskIsKnownToBeCompleted(invocation, symbolsForSearch, taskType, xunitContext))
+				if (TaskIsKnownToBeCompleted(invocation, symbolsForSearch, taskType, xunitContext, context.CancellationToken))
 					return;
 
 			// Should have two child nodes: "(some other code).(target method)" and the arguments
@@ -149,15 +150,15 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 				return;
 
 			var foundSymbol =
-				FindSymbol(reference.Property, reference, taskOfTType, blockingTaskProperties, xunitContext, out var foundSymbolName) ||
-				FindSymbol(reference.Property, reference, valueTaskOfTType, blockingTaskProperties, xunitContext, out foundSymbolName);
+				FindSymbol(reference.Property, reference, taskOfTType, blockingTaskProperties, xunitContext, context.CancellationToken, out var foundSymbolName) ||
+				FindSymbol(reference.Property, reference, valueTaskOfTType, blockingTaskProperties, xunitContext, context.CancellationToken, out foundSymbolName);
 
 			if (!foundSymbol)
 				return;
 
 			if (foundSymbolName == nameof(Task<int>.Result) &&
 					reference.Instance is ILocalReferenceOperation localReferenceOperation &&
-					TaskIsKnownToBeCompleted(reference, [localReferenceOperation.Local], taskType, xunitContext))
+					TaskIsKnownToBeCompleted(reference, [localReferenceOperation.Local], taskType, xunitContext, context.CancellationToken))
 				return;
 
 			// Should have two child nodes: "(some other code)" and "(property name)"
@@ -176,6 +177,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		INamedTypeSymbol? targetType,
 		string[] targetNames,
 		XunitContext xunitContext,
+		CancellationToken cancellationToken,
 		[NotNullWhen(true)]
 		out string? foundSymbolName)
 	{
@@ -198,7 +200,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 			return false;
 
 		// Only trigger when you're inside a test method
-		var (foundSymbol, lambdaOwner) = operation.IsInTestMethod(xunitContext);
+		var (foundSymbol, lambdaOwner) = operation.IsInTestMethod(xunitContext, cancellationToken);
 		if (!foundSymbol || lambdaOwner is not null)
 			return false;
 
@@ -210,7 +212,8 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		IOperation? operation,
 		IEnumerable<ILocalSymbol> symbols,
 		INamedTypeSymbol taskType,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
 	{
 		var ourOperations = new List<IOperation>();
 		var unfoundSymbols = new HashSet<ILocalSymbol>(symbols, SymbolEqualityComparer.Default);
@@ -226,11 +229,11 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 
 				// Could be marked as safe because of "Task.WhenAll(..., symbol, ...)"
 				if (childOperation is IInvocationOperation childInvocationOperation)
-					ValidateTasksInWhenAll(childInvocationOperation, unfoundSymbols, taskType, xunitContext);
+					ValidateTasksInWhenAll(childInvocationOperation, unfoundSymbols, taskType, xunitContext, cancellationToken);
 
 				// Could be marked as safe because of "var symbol = await WhenAny(...)"
 				if (childOperation is IVariableDeclaratorOperation variableDeclaratorOperation)
-					ValidateTaskFromWhenAny(variableDeclaratorOperation, unfoundSymbols, taskType, xunitContext);
+					ValidateTaskFromWhenAny(variableDeclaratorOperation, unfoundSymbols, taskType, xunitContext, cancellationToken);
 
 				// If we've run out of symbols to validate, we're done
 				if (unfoundSymbols.Count == 0)
@@ -259,7 +262,8 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		IVariableDeclaratorOperation operation,
 		HashSet<ILocalSymbol> unfoundSymbols,
 		INamedTypeSymbol taskType,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
 	{
 		if (!unfoundSymbols.Contains(operation.Symbol))
 			return;
@@ -270,7 +274,7 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		if (variableInitializerOperation.Value.ChildOperations.FirstOrDefault() is not IInvocationOperation variableInitializerInvocationOperation)
 			return;
 
-		if (!FindSymbol(variableInitializerInvocationOperation.TargetMethod, variableInitializerInvocationOperation, taskType, whenAny, xunitContext, out var _))
+		if (!FindSymbol(variableInitializerInvocationOperation.TargetMethod, variableInitializerInvocationOperation, taskType, whenAny, xunitContext, cancellationToken, out var _))
 			return;
 
 		unfoundSymbols.Remove(operation.Symbol);
@@ -280,9 +284,10 @@ public class DoNotUseBlockingTaskOperations : XunitDiagnosticAnalyzer
 		IInvocationOperation operation,
 		HashSet<ILocalSymbol> unfoundSymbols,
 		INamedTypeSymbol taskType,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
 	{
-		if (!FindSymbol(operation.TargetMethod, operation, taskType, whenAll, xunitContext, out var _))
+		if (!FindSymbol(operation.TargetMethod, operation, taskType, whenAll, xunitContext, cancellationToken, out var _))
 			return;
 
 		var argument = operation.Arguments.FirstOrDefault();
