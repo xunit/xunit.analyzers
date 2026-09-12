@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -50,7 +51,7 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 
 		foreach (var statement in block.Statements.Skip(block.Statements.IndexOf(assertStatement) + 1))
 		{
-			var rederivation = FindRederivation(statement, method, valueExpression, typeArgument, invocationOperation.SemanticModel);
+			var rederivation = FindRederivation(statement, method, valueExpression, typeArgument, invocationOperation.SemanticModel, context.CancellationToken);
 			if (rederivation is not null)
 			{
 				var properties = ImmutableDictionary.CreateBuilder<string, string?>();
@@ -115,7 +116,8 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 		IMethodSymbol method,
 		ExpressionSyntax valueExpression,
 		ITypeSymbol? typeArgument,
-		SemanticModel? semanticModel)
+		SemanticModel? semanticModel,
+		CancellationToken cancellationToken)
 	{
 		// Lambdas and local functions run at some other time, so they are not re-derivations
 		var candidates =
@@ -127,7 +129,7 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 			.Select(candidate =>
 				method.Name == Constants.Asserts.Single
 					? GetSingleItemRederivation(candidate, valueExpression)
-					: GetTypedRederivation(candidate, valueExpression, typeArgument, semanticModel)
+					: GetTypedRederivation(candidate, valueExpression, typeArgument, semanticModel, cancellationToken)
 			)
 			.FirstOrDefault(match => match is not null);
 	}
@@ -161,7 +163,8 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 		SyntaxNode candidate,
 		ExpressionSyntax valueExpression,
 		ITypeSymbol? typeArgument,
-		SemanticModel? semanticModel)
+		SemanticModel? semanticModel,
+		CancellationToken cancellationToken)
 	{
 		if (typeArgument is null || semanticModel is null)
 			return null;
@@ -179,7 +182,7 @@ public class AssertReturnValueShouldBeUsed : AssertUsageAnalyzerBase
 		if (operand is null || typeSyntax is null || !AreEquivalent(valueExpression, operand))
 			return null;
 
-		return SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(typeSyntax).Type, typeArgument)
+		return SymbolEqualityComparer.Default.Equals(semanticModel.GetTypeInfo(typeSyntax, cancellationToken).Type, typeArgument)
 			? (ExpressionSyntax)candidate
 			: null;
 	}

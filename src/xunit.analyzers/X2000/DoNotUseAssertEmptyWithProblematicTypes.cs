@@ -38,7 +38,7 @@ public class DoNotUseAssertEmptyWithProblematicTypes : AssertUsageAnalyzerBase
 		if (method.Parameters.Length != 1)
 			return;
 
-		if (semanticModel.GetTypeInfo(arguments[0].Value.Syntax).Type is not INamedTypeSymbol sourceType)
+		if (semanticModel.GetTypeInfo(arguments[0].Value.Syntax, context.CancellationToken).Type is not INamedTypeSymbol sourceType)
 			return;
 
 		var stringValuesType = TypeSymbolFactory.StringValues(context.Compilation);

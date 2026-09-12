@@ -53,7 +53,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			{
 				context.CancellationToken.ThrowIfCancellationRequested();
 
-				var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type as INamedTypeSymbol;
+				var attributeType = semanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type as INamedTypeSymbol;
 				if (attributeType is null)
 					continue;
 
@@ -67,7 +67,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 					if (attributeSyntax.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
 						continue;
 
-					classType = semanticModel.GetTypeInfo(typeOfExpression.Type).Type as INamedTypeSymbol;
+					classType = semanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type as INamedTypeSymbol;
 				}
 				// [ClassData<...>]
 				else if (attributeType.IsGenericType)
