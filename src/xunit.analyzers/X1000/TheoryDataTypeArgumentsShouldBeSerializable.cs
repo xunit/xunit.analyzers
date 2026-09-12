@@ -320,7 +320,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 			memberDataAttribute
 				.NamedArguments
 				.Where(namedArgument => namedArgument.Key == MemberType)
-				.Select(namedArgument => namedArgument.Value.Type)
+				.Select(namedArgument => namedArgument.Value.Value as ITypeSymbol)
 				.WhereNotNull()
 				.FirstOrDefault();
 
