@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -20,47 +19,34 @@ public class CulturedTestMustHaveAtLeastOneCulture() :
 		if (culturedAttributeTypes.Count == 0)
 			return;
 
-		context.RegisterSyntaxNodeAction(context =>
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not AttributeSyntax attributeSyntax)
-				return;
-
-			if (context.SemanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type is not INamedTypeSymbol attributeType
+			if (context.Operation is not IAttributeOperation { Operation: IObjectCreationOperation attributeCreation } attributeOperation
+					|| attributeCreation.Type is not INamedTypeSymbol attributeType
 					|| !culturedAttributeTypes.Contains(attributeType)
-					|| attributeSyntax.ArgumentList is null
-					|| attributeSyntax.ArgumentList.Arguments.Count < 1)
+					|| attributeCreation.Arguments.IsEmpty)
 				return;
 
-			var cultures = attributeSyntax.ArgumentList.Arguments[0];
+			var cultures = attributeCreation.Arguments[0].Value;
+			while (cultures is IConversionOperation { IsImplicit: true } conversion)
+				cultures = conversion.Operand;
 
-			if (cultures.Expression is ArrayCreationExpressionSyntax arraySyntax)
+			var isEmpty = cultures switch
 			{
-				if (arraySyntax.Initializer is null || arraySyntax.Initializer.Expressions.Count == 0)
-					reportX1060();
-				return;
-			}
+				IArrayCreationOperation arrayCreation =>
+					arrayCreation.DimensionSizes.Length == 1 && arrayCreation.DimensionSizes[0].ConstantValue is { HasValue: true, Value: 0 },
+				ICollectionExpressionOperation collectionExpression =>
+					collectionExpression.Elements.IsEmpty,
+				_ => false,
+			};
 
-			if (cultures.Expression is ImplicitArrayCreationExpressionSyntax implicitArraySyntax)
-			{
-				if (implicitArraySyntax.Initializer.Expressions.Count == 0)
-					reportX1060();
-				return;
-			}
-
-			if (cultures.Expression is CollectionExpressionSyntax collectionSyntax)
-			{
-				if (collectionSyntax.Elements.Count == 0)
-					reportX1060();
-				return;
-			}
-
-			void reportX1060() =>
+			if (isEmpty)
 				context.ReportDiagnostic(
 					Diagnostic.Create(
 						Descriptors.X1060_CulturedTestMustHaveAtLeastOneCulture,
-						attributeSyntax.GetLocation()
+						attributeOperation.Syntax.GetLocation()
 					)
 				);
-		}, SyntaxKind.Attribute);
+		}, OperationKind.Attribute);
 	}
 }

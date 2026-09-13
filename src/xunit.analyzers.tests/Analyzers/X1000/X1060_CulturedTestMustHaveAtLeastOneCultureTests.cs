@@ -20,6 +20,10 @@ public class X1060_CulturedTestMustHaveAtLeastOneCultureTests
 				[CulturedTheory(["en-US"])]
 				public void Success2() { }
 
+				[CulturedFact(new string[] { "en-US", "fr-FR" })]
+				[CulturedTheory(cultures: ["en-US"])]
+				public void Success3() { }
+
 				[[|CulturedFact(new string[] { })|]]
 				[[|CulturedTheory(new string[] { })|]]
 				public void Failure1() { }
@@ -31,6 +35,10 @@ public class X1060_CulturedTestMustHaveAtLeastOneCultureTests
 				[[|CulturedFact([])|]]
 				[[|CulturedTheory([])|]]
 				public void Failure3() { }
+
+				[[|CulturedFact(cultures: [])|]]
+				[[|CulturedTheory(cultures: new string[] { })|]]
+				public void Failure4() { }
 			}
 			""";
 
