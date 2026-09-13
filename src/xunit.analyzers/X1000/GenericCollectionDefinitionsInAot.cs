@@ -1,7 +1,5 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Xunit.Analyzers;
@@ -21,15 +19,11 @@ public class GenericCollectionDefinitionsInAot() :
 		if (collectionDefinitionAttributeType is null)
 			return;
 
-		context.RegisterSyntaxNodeAction(context =>
+		context.RegisterSymbolAction(context =>
 		{
-			if (context.Node is not AttributeSyntax attributeSyntax)
-				return;
-
-			if (context.SemanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type is not INamedTypeSymbol attributeType
-					|| !SymbolEqualityComparer.Default.Equals(attributeType, collectionDefinitionAttributeType)
-					|| context.ContainingSymbol is not INamedTypeSymbol collectionType
-					|| !collectionType.IsGenericType)
+			if (context.Symbol is not INamedTypeSymbol collectionType
+					|| !collectionType.IsGenericType
+					|| !collectionType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, collectionDefinitionAttributeType)))
 				return;
 
 			context.ReportDiagnostic(
@@ -38,6 +32,6 @@ public class GenericCollectionDefinitionsInAot() :
 					collectionType.Locations.FirstOrDefault()
 				)
 			);
-		}, SyntaxKind.Attribute);
+		}, SymbolKind.NamedType);
 	}
 }
