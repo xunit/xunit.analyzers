@@ -41,7 +41,7 @@ public sealed class ConsiderCallingConfigureAwaitSuppressor : XunitDiagnosticSup
 		}
 
 		var semanticModel = context.GetSemanticModel(diagnostic.Location.SourceTree);
-		var methodSymbol = semanticModel.GetDeclaredSymbol(current);
+		var methodSymbol = semanticModel.GetDeclaredSymbol(current, context.CancellationToken);
 		if (methodSymbol is null)
 			return false;
 
