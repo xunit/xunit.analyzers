@@ -85,6 +85,7 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[MemberData(nameof(Field))]
 				[MemberData(nameof(Method), 1, "2")]
 				[MemberData(nameof(Property))]
+				[MemberData(nameof(ExternalDataSource.SerializableProperty), MemberType = typeof(ExternalDataSource))]
 				public void TestMethod(string parameter) { }
 			}
 
@@ -514,6 +515,9 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[MemberData(nameof(Field), DisableDiscoveryEnumeration = true)]
 				[MemberData(nameof(Method), 1, "2", DisableDiscoveryEnumeration = true)]
 				[MemberData(nameof(Property), DisableDiscoveryEnumeration = true)]
+				[MemberData(nameof(ExternalDataSource.Field), MemberType = typeof(ExternalDataSource), DisableDiscoveryEnumeration = true)]
+				[MemberData(nameof(ExternalDataSource.Method), 1, "2", MemberType = typeof(ExternalDataSource), DisableDiscoveryEnumeration = true)]
+				[MemberData(nameof(ExternalDataSource.Property), MemberType = typeof(ExternalDataSource), DisableDiscoveryEnumeration = true)]
 				public void DoesNotTrigger(NonSerializableSealedClass parameter) { }
 
 				[Theory]
@@ -541,7 +545,17 @@ public class X1044_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[{|xUnit1044:MemberData(nameof(Field))|}]
 				[{|xUnit1044:MemberData(nameof(Method), 1, "2")|}]
 				[{|xUnit1044:MemberData(nameof(Property))|}]
+				[{|xUnit1044:MemberData(nameof(ExternalDataSource.Field), MemberType = typeof(ExternalDataSource))|}]
+				[{|xUnit1044:MemberData(nameof(ExternalDataSource.Method), 1, "2", MemberType = typeof(ExternalDataSource))|}]
+				[{|xUnit1044:MemberData(nameof(ExternalDataSource.Property), MemberType = typeof(ExternalDataSource))|}]
 				public void Triggers(NonSerializableStruct parameter) { }
+			}
+
+			public class ExternalDataSource {
+				public static readonly TheoryData<NonSerializableSealedClass> Field = new TheoryData<NonSerializableSealedClass>() { };
+				public static TheoryData<NonSerializableSealedClass> Method(int a, string b) => new TheoryData<NonSerializableSealedClass>() { };
+				public static TheoryData<NonSerializableSealedClass> Property => new TheoryData<NonSerializableSealedClass>() { };
+				public static TheoryData<string> SerializableProperty => new TheoryData<string>() { };
 			}
 
 			public sealed class NonSerializableSealedClass { }
