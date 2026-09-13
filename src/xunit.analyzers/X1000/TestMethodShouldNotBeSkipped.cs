@@ -1,8 +1,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -24,38 +23,42 @@ public class TestMethodShouldNotBeSkipped : XunitDiagnosticAnalyzer
 		if (factAndTheoryAttributeTypes.Count == 0)
 			return;
 
-		context.RegisterSyntaxNodeAction(context =>
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not AttributeSyntax attribute)
-				return;
-			if (attribute.ArgumentList is null)
+			if (context.Operation is not IAttributeOperation { Operation: IObjectCreationOperation { Initializer: { } initializer } attributeCreation })
 				return;
 
-			var skipArgument = default(AttributeArgumentSyntax);
-			foreach (var argument in attribute.ArgumentList.Arguments)
+			var skipAssignment = default(ISimpleAssignmentOperation);
+			foreach (var initializerOperation in initializer.Initializers)
 			{
-				var valueText = argument.NameEquals?.Name?.Identifier.ValueText;
+				if (initializerOperation is not ISimpleAssignmentOperation { Target: IPropertyReferenceOperation propertyReference } assignment)
+					continue;
 
-				if (valueText == "SkipWhen" || valueText == "SkipUnless")
-					return;
+				switch (propertyReference.Property.Name)
+				{
+					case Constants.AttributeProperties.SkipUnless:
+					case Constants.AttributeProperties.SkipWhen:
+						return;
 
-				if (valueText == "Skip")
-					skipArgument = argument;
+					case Constants.AttributeProperties.Skip:
+						skipAssignment = assignment;
+						break;
+				}
 			}
 
-			if (skipArgument is null)
+			if (skipAssignment is null)
 				return;
 
-			var attributeType = context.SemanticModel.GetTypeInfo(attribute, context.CancellationToken).Type;
+			var attributeType = attributeCreation.Type;
 			if (!factAndTheoryAttributeTypes.Any(f => f.IsAssignableFrom(attributeType)))
 				return;
 
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1004_TestMethodShouldNotBeSkipped,
-					skipArgument.GetLocation()
+					skipAssignment.Syntax.GetLocation()
 				)
 			);
-		}, SyntaxKind.Attribute);
+		}, OperationKind.Attribute);
 	}
 }

@@ -10,18 +10,28 @@ public class X1004_TestMethodShouldNotBeSkippedTests
 		var source = /* lang=c#-test */ """
 			using Xunit;
 
+			public class DerivedFactAttribute : FactAttribute { }
+
 			public class TestClass {
+				const string Reason = "Lazy";
+
 				[Fact]
 				public void Fact_NotSkippedTest_DoesNotTrigger() { }
 
 				[Theory]
 				public void Theory_NotSkippedTest_DoesNotTrigger() { }
 
+				[DerivedFact]
+				public void DerivedFact_NotSkippedTest_DoesNotTrigger() { }
+
 				[Fact([|Skip="Lazy"|])]
 				public void Fact_SkippedTest_Triggers() { }
 
 				[Theory([|Skip="Lazy"|])]
 				public void Theory_SkippedTest_Triggers() { }
+
+				[DerivedFact([|Skip=Reason|])]
+				public void DerivedFact_SkippedTest_Triggers() { }
 			}
 			""";
 
