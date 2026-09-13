@@ -188,6 +188,9 @@ public class X1041_EnsureFixturesHaveASourceTests
 			[assembly: AssemblyFixture(typeof(int))]
 			[assembly: AssemblyFixture<long>]
 
+			// https://github.com/xunit/xunit.analyzers/pull/218
+			[assembly: {|CS7036:AssemblyFixture|}]
+
 			public class Fixture { }
 			public class Fixture<T> { }
 
