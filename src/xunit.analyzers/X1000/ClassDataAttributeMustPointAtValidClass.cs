@@ -62,7 +62,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 				// [ClassData(typeof(...))]
 				if (SymbolEqualityComparer.Default.Equals(attributeType, xunitContext.Core.ClassDataAttributeType))
 				{
-					if (attributeSyntax.ArgumentList is null)
+					if (attributeSyntax.ArgumentList is null || attributeSyntax.ArgumentList.Arguments.Count == 0)
 						continue;
 					if (attributeSyntax.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
 						continue;
