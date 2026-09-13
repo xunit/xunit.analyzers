@@ -1,8 +1,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -20,43 +19,40 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 		Guard.ArgumentNotNull(context);
 		Guard.ArgumentNotNull(xunitContext);
 
-		context.RegisterSyntaxNodeAction(context =>
+		var attributeBaseTypes =
+			xunitContext.Core.FactAndTheoryAttributeTypes
+				.Concat(xunitContext.Core.DataAttributeTypes)
+				.ToArray();
+
+		if (attributeBaseTypes.Length == 0)
+			return;
+
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not LocalFunctionStatementSyntax syntax)
+			if (context.Operation is not ILocalFunctionOperation localFunction)
 				return;
 
-			var attributeBaseTypes =
-				xunitContext.Core.FactAndTheoryAttributeTypes
-					.Concat(xunitContext.Core.DataAttributeTypes)
-					.ToArray();
+			foreach (var attribute in localFunction.Symbol.GetAttributes())
+			{
+				var attributeType = attribute.AttributeClass;
+				if (attributeType is null)
+					continue;
 
-			if (attributeBaseTypes.Length == 0)
-				return;
+				if (!attributeBaseTypes.Any(attributeBaseType => attributeBaseType.IsAssignableFrom(attributeType)))
+					continue;
 
-			foreach (var attributeList in syntax.AttributeLists)
-				foreach (var attribute in attributeList.Attributes)
-				{
-					var symbol = context.SemanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol;
-					if (symbol is null)
-						continue;
+				var attributeSyntax = attribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken);
+				if (attributeSyntax is null)
+					continue;
 
-					var attributeType = symbol.ContainingType;
-					if (attributeType is null)
-						continue;
-
-					foreach (var attributeBaseType in attributeBaseTypes)
-						if (attributeBaseType.IsAssignableFrom(attributeType))
-						{
-							context.ReportDiagnostic(
-								Diagnostic.Create(
-									Descriptors.X1029_LocalFunctionsCannotBeTestFunctions,
-									attribute.GetLocation(),
-									$"[{attribute.GetText()}]"
-								)
-							);
-							break;
-						}
-				}
-		}, SyntaxKind.LocalFunctionStatement);
+				context.ReportDiagnostic(
+					Diagnostic.Create(
+						Descriptors.X1029_LocalFunctionsCannotBeTestFunctions,
+						attributeSyntax.GetLocation(),
+						$"[{attributeSyntax.GetText()}]"
+					)
+				);
+			}
+		}, OperationKind.LocalFunction);
 	}
 }
