@@ -77,3 +77,17 @@ You will also occasionally see tests which only run in specific environments. Co
 * `#if ROSLYN_LATEST` (only runs with latest Roslyn, for C# language version 13+)
 
 In production code, we try to minimize these when possible, and prefer to fall back to use dynamic runtime environment detection when we can (as we'd like to light up features in newer versions of Roslyn when available). While this isn't always possible, it is generally a goal we try to achieve. In test code, we tend to use these to more frequently to ensure we have complete coverage of features that should be available dynamically (whether they are lit up based on `#if` or by runtime environment detection).
+
+# Adding tests
+
+In general, the structure of the test project here is "have as few tests as possible". You'll find that most test files have just a couple tests in them, and they tend to be extremely large tests which test many scenarios at once.
+
+The reason for this is that the Roslyn testing framework we use has absolutely awful "test initialization" cost. You are greatly rewarded for few large tests vs. many small tests. Things you will see here that you wouldn't necessarily see anywhere else in our source base:
+
+* Extremely large tests that test many scenarios at once
+* Tests oriented around test environments (rather than oriented around scenarios, state, bugs, etc.)
+* Tests that duplicate code (rather than using templates and/or data-driven testing)
+
+The one notable exception you'll see is when the thing under test cannot have multiple scenarios combined into the same test (the most common of which is testing assembly-level attributes which don't allow multiples).
+
+This was a massive effort to undo our typical testing behavior, and the reward was a test suite that runs 4x faster on our local builds, and 2x faster in CI. We are keeping very close control over test growth in this project by ensuring that new test scenarios are added to existing tests whenever possible. This means that if you are adding a new test method, there's an extremely high chance you're undo our effort. Make sure you've ruled out the possibility of adding your test scenario. Don't be surprised (or offended) if we ask you to change the test code (or we just change it for you before merging the PR).
