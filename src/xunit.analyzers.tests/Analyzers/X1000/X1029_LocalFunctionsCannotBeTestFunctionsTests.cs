@@ -32,6 +32,16 @@ public class X1029_LocalFunctionsCannotBeTestFunctionsTests
 
 					[{|#4:ClassData(typeof(string))|}]
 					void ClassDataAttribute_Triggers() { }
+
+					System.Action action = () => {
+						[{|#5:Fact|}]
+						void FactAttributeInLambda_Triggers() { }
+					};
+
+					void Outer() {
+						[{|#6:Fact|}, {|#7:InlineData(42)|}]
+						void NestedLocalFunction_Triggers() { }
+					}
 				}
 			}
 			""";
@@ -41,6 +51,9 @@ public class X1029_LocalFunctionsCannotBeTestFunctionsTests
 			Verify.Diagnostic().WithLocation(2).WithArguments("[InlineData(42)]"),
 			Verify.Diagnostic().WithLocation(3).WithArguments("[MemberData(nameof(MyData))]"),
 			Verify.Diagnostic().WithLocation(4).WithArguments("[ClassData(typeof(string))]"),
+			Verify.Diagnostic().WithLocation(5).WithArguments("[Fact]"),
+			Verify.Diagnostic().WithLocation(6).WithArguments("[Fact]"),
+			Verify.Diagnostic().WithLocation(7).WithArguments("[InlineData(42)]"),
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source, expected);
