@@ -11,6 +11,7 @@ public static class SyntaxExtensions
 		this SyntaxList<AttributeListSyntax> attributeLists,
 		SemanticModel semanticModel,
 		INamedTypeSymbol attributeType,
+		CancellationToken cancellationToken,
 		bool exactMatch = false)
 	{
 		Guard.ArgumentNotNull(semanticModel);
@@ -20,7 +21,7 @@ public static class SyntaxExtensions
 		{
 			foreach (var attribute in attributeList.Attributes)
 			{
-				var type = semanticModel.GetTypeInfo(attribute).Type;
+				var type = semanticModel.GetTypeInfo(attribute, cancellationToken).Type;
 				if (attributeType.IsAssignableFrom(type, exactMatch))
 					return true;
 			}

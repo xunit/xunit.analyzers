@@ -96,7 +96,7 @@ public class ConditionalSkipPropertyValidation() :
 				if (expression is not TypeOfExpressionSyntax typeOf)
 					return null;
 
-				return context.SemanticModel.GetTypeInfo(typeOf.Type).Type as INamedTypeSymbol;
+				return context.SemanticModel.GetTypeInfo(typeOf.Type, context.CancellationToken).Type as INamedTypeSymbol;
 			}
 
 			void verifySkipProperty(

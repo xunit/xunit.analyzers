@@ -36,7 +36,7 @@ public class LocalFunctionsCannotBeTestFunctions : XunitDiagnosticAnalyzer
 			foreach (var attributeList in syntax.AttributeLists)
 				foreach (var attribute in attributeList.Attributes)
 				{
-					var symbol = context.SemanticModel.GetSymbolInfo(attribute).Symbol;
+					var symbol = context.SemanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol;
 					if (symbol is null)
 						continue;
 

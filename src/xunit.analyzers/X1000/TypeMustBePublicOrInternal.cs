@@ -43,18 +43,18 @@ public class TypeMustBePublicOrInternal() :
 
 				if (skipExceptions.Expression is ArrayCreationExpressionSyntax arraySyntax && arraySyntax.Initializer is not null)
 					foreach (var typeOfExpression in arraySyntax.Initializer.Expressions.OfType<TypeOfExpressionSyntax>())
-						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type).Type is INamedTypeSymbol exceptionType)
+						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
 							verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
 
 				if (skipExceptions.Expression is ImplicitArrayCreationExpressionSyntax implicitArraySyntax)
 					foreach (var typeOfExpression in implicitArraySyntax.Initializer.Expressions.OfType<TypeOfExpressionSyntax>())
-						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type).Type is INamedTypeSymbol exceptionType)
+						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
 							verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
 
 				if (skipExceptions.Expression is CollectionExpressionSyntax collectionSyntax)
 					foreach (var expressionElement in collectionSyntax.Elements.OfType<ExpressionElementSyntax>())
 						if (expressionElement.Expression is TypeOfExpressionSyntax typeOfExpression)
-							if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type).Type is INamedTypeSymbol exceptionType)
+							if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
 								verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
 
 				return;
