@@ -31,6 +31,33 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					[|Assert.IsType<string>(value)|];
 					var text2 = (string)value;
 				}
+				[Fact]
+				public void ReusesNamesInSiblingScopes() {
+					var xs = new List<int> { 42 };
+					if (xs.Count > 0) {
+						[|Assert.Single(xs)|];
+						var value = xs.Single();
+					} else {
+						[|Assert.Single(xs)|];
+						var value = xs.Single();
+					}
+				}
+
+				[Fact]
+				public void SharesRederivation() {
+					var xs = new List<int> { 42 };
+					[|Assert.Single(xs)|];
+					[|Assert.Single(xs)|];
+					var value = xs.Single();
+				}
+
+				[Fact]
+				public void RederivationInsideLaterAssertion() {
+					var xs = new List<int> { 42 };
+					[|Assert.Single(xs)|];
+					[|Assert.IsType<int>(xs.Single())|];
+					var value = (int)xs.Single();
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
@@ -55,6 +82,33 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					var text = typed;
 					var typed_2 = Assert.IsType<string>(value);
 					var text2 = typed_2;
+				}
+				[Fact]
+				public void ReusesNamesInSiblingScopes() {
+					var xs = new List<int> { 42 };
+					if (xs.Count > 0) {
+						var item = Assert.Single(xs);
+						var value = item;
+					} else {
+						var item = Assert.Single(xs);
+						var value = item;
+					}
+				}
+
+				[Fact]
+				public void SharesRederivation() {
+					var xs = new List<int> { 42 };
+					var item = Assert.Single(xs);
+					Assert.Single(xs);
+					var value = item;
+				}
+
+				[Fact]
+				public void RederivationInsideLaterAssertion() {
+					var xs = new List<int> { 42 };
+					var item = Assert.Single(xs);
+					Assert.IsType<int>(item);
+					var value = (int)xs.Single();
 				}
 			}
 			""";
