@@ -24,6 +24,12 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 
 				[{|#3:MemberData(nameof(MissingRemoteDataSource_ByNameofAndType_Triggers), MemberType = typeof(OtherClass))|}]
 				public void MissingRemoteDataSource_ByNameofAndType_Triggers() { }
+
+				public TheoryData<int> NonStatic => null;
+
+				[{|#4:MemberData("BogusName")|}]
+				[{|#5:MemberData(nameof(NonStatic))|}]
+				public void MissingDataSource_DoesNotStopAnalysisOfSubsequentAttributes(int _) { }
 			}
 
 			public abstract class BaseClassWithTestWithoutData
@@ -47,6 +53,8 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 			Verify.Diagnostic("xUnit1015").WithLocation(1).WithArguments("BogusName", "TestClass"),
 			Verify.Diagnostic("xUnit1015").WithLocation(2).WithArguments("BogusName", "OtherClass"),
 			Verify.Diagnostic("xUnit1015").WithLocation(3).WithArguments("MissingRemoteDataSource_ByNameofAndType_Triggers", "OtherClass"),
+			Verify.Diagnostic("xUnit1015").WithLocation(4).WithArguments("BogusName", "TestClass"),
+			Verify.Diagnostic("xUnit1017").WithLocation(5),
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, [source1, source2], expected);

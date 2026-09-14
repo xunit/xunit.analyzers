@@ -103,14 +103,14 @@ public class MemberDataShouldReferenceValidMember() :
 					if (declaredMemberTypeSymbol.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
 					{
 						ReportTypeMustBePublicOrInternal(context, attributeSyntax, declaredMemberTypeSymbol);
-						return;
+						continue;
 					}
 
 					// We can't close an open generic in Native AOT
 					if (declaredMemberTypeSymbol is INamedTypeSymbol namedMemberType && namedMemberType.IsGenericType && namedMemberType.TypeArguments.Any(t => t.Kind == SymbolKind.TypeParameter))
 					{
 						ReportOpenGenericMemberType(context, attributeSyntax);
-						return;
+						continue;
 					}
 				}
 
@@ -120,11 +120,11 @@ public class MemberDataShouldReferenceValidMember() :
 				{
 					case 0:
 						ReportMissingMember(context, attributeSyntax, memberName, declaredMemberTypeSymbol);
-						return;
+						continue;
 
 					case > 1:
 						ReporterOverloadedMember(context, attributeSyntax, memberName, declaredMemberTypeSymbol, xunitContext.HasV3AotReferences);
-						return;
+						continue;
 				}
 				var memberSymbol = memberSymbols[0];
 
@@ -139,7 +139,7 @@ public class MemberDataShouldReferenceValidMember() :
 				if (memberReturnType is null)
 				{
 					ReportIncorrectMemberType(context, attributeSyntax);
-					return;
+					continue;
 				}
 
 				// Make sure they use nameof() instead of a string constant for the member name
