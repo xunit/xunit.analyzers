@@ -290,11 +290,11 @@ public class MemberDataShouldReferenceValidMember() :
 			memberTypeSymbol = semanticModel.GetTypeInfo(typeSyntax, cancellationToken).Type;
 		}
 
-		var classSyntax = attributeList.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-		if (classSyntax is null)
+		var testClassSyntax = attributeList.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+		if (testClassSyntax is null)
 			return (null, null);
 
-		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(classSyntax, cancellationToken);
+		var testClassTypeSymbol = semanticModel.GetDeclaredSymbol(testClassSyntax, cancellationToken);
 		return (testClassTypeSymbol, memberTypeSymbol ?? testClassTypeSymbol);
 	}
 
