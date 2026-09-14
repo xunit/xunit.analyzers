@@ -67,6 +67,15 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		{
 			case SyntaxKind.TrueLiteralExpression:
 			case SyntaxKind.FalseLiteralExpression:
+				// Can't rewrite exactly for Nullable<bool> when the original assertion passes for null values, since both
+				// Assert.True(bool?) and Assert.False(bool?) fail with null (i.e., Assert.True(value != true) passes)
+				if (trueMethod != isEqualsOperator)
+				{
+					var nonLiteralOperand = leftKind is not null ? binaryArgument.Right : binaryArgument.Left;
+					if (semanticModel?.GetTypeInfo(nonLiteralOperand).Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
+						return;
+				}
+
 				var booleanReplacement = (trueMethod == isEqualsOperator, literalKind) switch
 				{
 					(true, SyntaxKind.TrueLiteralExpression) or (false, SyntaxKind.FalseLiteralExpression) => Constants.Asserts.True,
