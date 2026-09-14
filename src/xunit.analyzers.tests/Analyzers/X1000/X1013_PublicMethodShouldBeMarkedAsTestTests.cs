@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.PublicMethodShouldBeMarkedAsTest>;
 
@@ -111,6 +112,19 @@ public class X1013_PublicMethodShouldBeMarkedAsTestTests
 				[DerivedCustomTestType]
 				public void {|#20:IndirectIgnoreXunitAnalyzersRule1013Attribute_Triggers|}() { }
 			}
+
+			// Compiler-generated methods (like Deconstruct on positional records) don't trigger
+
+			namespace System.Runtime.CompilerServices {
+				internal static class IsExternalInit { }
+			}
+
+			public record PositionalRecordTestClass(int Value) {
+				[Fact]
+				public void TestMethod() { }
+
+				public void {|#30:NonTestMethod|}() { }
+			}
 			""";
 		var expected = new[] {
 			Verify.Diagnostic().WithLocation(0).WithArguments("NonTestMethod", "FactTestClass", "Fact"),
@@ -120,9 +134,11 @@ public class X1013_PublicMethodShouldBeMarkedAsTestTests
 			Verify.Diagnostic().WithLocation(11).WithArguments("NonTestMethodWithParameters", "TheoryTestClass", "Theory"),
 
 			Verify.Diagnostic().WithLocation(20).WithArguments("IndirectIgnoreXunitAnalyzersRule1013Attribute_Triggers", "TestClassWithCustomTestType", "Fact"),
+
+			Verify.Diagnostic().WithLocation(30).WithArguments("NonTestMethod", "PositionalRecordTestClass", "Fact"),
 		};
 
-		await Verify.VerifyAnalyzer(source, expected);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp9, source, expected);
 	}
 
 	[Fact]
