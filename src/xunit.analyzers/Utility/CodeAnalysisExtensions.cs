@@ -269,7 +269,7 @@ static class CodeAnalysisExtensions
 
 		return
 			type
-				.GetMembers()
+				.GetInheritedAndOwnMembers()
 				.OfType<IMethodSymbol>()
 				.Any(method =>
 					method

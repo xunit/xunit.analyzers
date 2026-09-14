@@ -24,10 +24,18 @@ public sealed class CA1515_MakeTypesInternalSuppressorTests
 			public class {|#1:Theory_TestClass_Suppresses|} {
 				[Theory] public void TestMethod() { }
 			}
+
+			public abstract class {|#2:BaseTestClass_Suppresses|} {
+				[Fact] public void TestMethod() { }
+			}
+
+			public class {|#3:InheritedTestClass_Suppresses|} : BaseTestClass_Suppresses { }
 			""";
 		var expected = new[] {
 			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning).WithLocation(0).WithIsSuppressed(true),
 			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning).WithLocation(1).WithIsSuppressed(true),
+			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning).WithLocation(2).WithIsSuppressed(true),
+			new DiagnosticResult("CA1515", DiagnosticSeverity.Warning).WithLocation(3).WithIsSuppressed(true),
 		};
 
 		await Verify.VerifySuppressor(code, CodeAnalysisNetAnalyzers.CA1515(), expected);
