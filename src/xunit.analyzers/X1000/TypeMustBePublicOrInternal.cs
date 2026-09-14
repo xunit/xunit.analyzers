@@ -1,9 +1,8 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -21,41 +20,44 @@ public class TypeMustBePublicOrInternal() :
 		var beforeAfterAttributeType = xunitContext.Core.BeforeAfterTestAttributeType;
 		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
 
-		context.RegisterSyntaxNodeAction(context =>
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not AttributeSyntax attributeSyntax)
+			if (context.Operation is not IAttributeOperation { Operation: IObjectCreationOperation attributeCreation } attributeOperation)
 				return;
 
-			if (context.SemanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type is not INamedTypeSymbol attributeType)
+			if (attributeCreation.Type is not INamedTypeSymbol attributeType)
 				return;
 
 			if (beforeAfterAttributeType.IsAssignableFrom(attributeType))
 			{
-				verifyTypeAccessibility(attributeType, attributeSyntax.GetLocation(), "Attribute");
+				verifyTypeAccessibility(attributeType, attributeOperation.Syntax.GetLocation(), "Attribute");
 				return;
 			}
 
 			if (factAndTheoryAttributeTypes.Contains(attributeType))
 			{
-				var skipExceptions = attributeSyntax.ArgumentList?.Arguments.FirstOrDefault(a => a.NameEquals?.Name.ToString() == Constants.AttributeProperties.SkipExceptions);
-				if (skipExceptions is null)
+				if (attributeCreation.Initializer is null)
 					return;
 
-				if (skipExceptions.Expression is ArrayCreationExpressionSyntax arraySyntax && arraySyntax.Initializer is not null)
-					foreach (var typeOfExpression in arraySyntax.Initializer.Expressions.OfType<TypeOfExpressionSyntax>())
-						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
-							verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
+				foreach (var initializerOperation in attributeCreation.Initializer.Initializers)
+				{
+					if (initializerOperation is not ISimpleAssignmentOperation { Target: IPropertyReferenceOperation propertyReference } assignment)
+						continue;
 
-				if (skipExceptions.Expression is ImplicitArrayCreationExpressionSyntax implicitArraySyntax)
-					foreach (var typeOfExpression in implicitArraySyntax.Initializer.Expressions.OfType<TypeOfExpressionSyntax>())
-						if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
-							verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
+					if (propertyReference.Property.Name != Constants.AttributeProperties.SkipExceptions)
+						continue;
 
-				if (skipExceptions.Expression is CollectionExpressionSyntax collectionSyntax)
-					foreach (var expressionElement in collectionSyntax.Elements.OfType<ExpressionElementSyntax>())
-						if (expressionElement.Expression is TypeOfExpressionSyntax typeOfExpression)
-							if (context.SemanticModel.GetTypeInfo(typeOfExpression.Type, context.CancellationToken).Type is INamedTypeSymbol exceptionType)
-								verifyTypeAccessibility(exceptionType, typeOfExpression.GetLocation(), "Exception");
+					var elements = assignment.Value.WalkDownImplicitConversions() switch
+					{
+						IArrayCreationOperation { Initializer: { } arrayInitializer } => arrayInitializer.ElementValues,
+						ICollectionExpressionOperation collectionExpression => collectionExpression.Elements,
+						_ => ImmutableArray<IOperation>.Empty,
+					};
+
+					foreach (var element in elements)
+						if (element is ITypeOfOperation { TypeOperand: INamedTypeSymbol exceptionType } typeOfOperation)
+							verifyTypeAccessibility(exceptionType, typeOfOperation.Syntax.GetLocation(), "Exception");
+				}
 
 				return;
 			}
@@ -76,7 +78,7 @@ public class TypeMustBePublicOrInternal() :
 						)
 					);
 			}
-		}, SyntaxKind.Attribute);
+		}, OperationKind.Attribute);
 
 		var fixtureTypes = new[] {
 			xunitContext.Core.IClassFixtureType,
