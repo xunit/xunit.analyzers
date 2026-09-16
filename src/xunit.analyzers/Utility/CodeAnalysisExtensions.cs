@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
@@ -173,7 +174,8 @@ static class CodeAnalysisExtensions
 
 	public static (bool isInTestMethod, IOperation? lambdaOwner) IsInTestMethod(
 		this IOperation operation,
-		XunitContext xunitContext)
+		XunitContext xunitContext,
+		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(operation);
 		Guard.ArgumentNotNull(xunitContext);
@@ -219,7 +221,7 @@ static class CodeAnalysisExtensions
 
 			var insideTestMethod = methodSyntax.AttributeLists.SelectMany(list => list.Attributes).Any(attr =>
 			{
-				var typeInfo = semanticModel.GetTypeInfo(attr);
+				var typeInfo = semanticModel.GetTypeInfo(attr, cancellationToken);
 				if (typeInfo.Type is null)
 					return false;
 
@@ -237,8 +239,9 @@ static class CodeAnalysisExtensions
 
 	public static bool IsPointer(
 		this ExpressionSyntax expression,
-		SemanticModel? semanticModel) =>
-			semanticModel?.GetTypeInfo(expression).Type?.TypeKind == TypeKind.Pointer;
+		SemanticModel? semanticModel,
+		CancellationToken cancellationToken) =>
+			semanticModel?.GetTypeInfo(expression, cancellationToken).Type?.TypeKind == TypeKind.Pointer;
 
 	public static bool IsTestClass(
 		this ITypeSymbol? type,

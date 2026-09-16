@@ -29,7 +29,7 @@ public class TheoryDataShouldNotUseTheoryDataRow() :
 		{
 			var genericName = (GenericNameSyntax)context.Node;
 
-			if (context.SemanticModel.GetSymbolInfo(genericName).Symbol is not INamedTypeSymbol typeSymbol)
+			if (context.SemanticModel.GetSymbolInfo(genericName, context.CancellationToken).Symbol is not INamedTypeSymbol typeSymbol)
 				return;
 
 			// Only care about TheoryData<ITheoryDataRow>

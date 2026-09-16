@@ -1,8 +1,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -23,12 +22,12 @@ public class ConditionalSkipPropertyValidation() :
 		var factAndTheoryAttributeTypes = xunitContext.Core.FactAndTheoryAttributeTypes;
 		var booleanType = TypeSymbolFactory.Boolean(context.Compilation);
 
-		context.RegisterSyntaxNodeAction(context =>
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not AttributeSyntax attributeSyntax || attributeSyntax.ArgumentList is null)
+			if (context.Operation is not IAttributeOperation { Operation: IObjectCreationOperation { Initializer: { } initializer } attributeCreation })
 				return;
 
-			if (context.SemanticModel.GetTypeInfo(attributeSyntax, context.CancellationToken).Type is not INamedTypeSymbol attributeType)
+			if (attributeCreation.Type is not INamedTypeSymbol attributeType)
 				return;
 
 			if (dataAttributes.Contains(attributeType.IsGenericType ? attributeType.OriginalDefinition : attributeType) || factAndTheoryAttributeTypes.Contains(attributeType))
@@ -39,23 +38,28 @@ public class ConditionalSkipPropertyValidation() :
 				var skipWhen = default(string);
 				var skipWhenLocation = default(Location);
 
-				foreach (var argument in attributeSyntax.ArgumentList.Arguments)
-					switch (argument.NameEquals?.Name.ToString())
+				foreach (var initializerOperation in initializer.Initializers)
+				{
+					if (initializerOperation is not ISimpleAssignmentOperation { Target: IPropertyReferenceOperation propertyReference } assignment)
+						continue;
+
+					switch (propertyReference.Property.Name)
 					{
 						case Constants.AttributeProperties.SkipType:
-							skipType = toType(argument.Expression);
+							skipType = (assignment.Value as ITypeOfOperation)?.TypeOperand as INamedTypeSymbol;
 							break;
 
 						case Constants.AttributeProperties.SkipUnless:
-							skipUnless = toName(argument.Expression);
-							skipUnlessLocation = argument.GetLocation();
+							skipUnless = toName(assignment.Value);
+							skipUnlessLocation = assignment.Syntax.GetLocation();
 							break;
 
 						case Constants.AttributeProperties.SkipWhen:
-							skipWhen = toName(argument.Expression);
-							skipWhenLocation = argument.GetLocation();
+							skipWhen = toName(assignment.Value);
+							skipWhenLocation = assignment.Syntax.GetLocation();
 							break;
 					}
+				}
 
 				if (skipType is null)
 					return;
@@ -80,24 +84,8 @@ public class ConditionalSkipPropertyValidation() :
 				}
 			}
 
-			static string? toName(ExpressionSyntax expression)
-			{
-				if (expression is LiteralExpressionSyntax literal)
-					return literal.Token.Value as string;
-				// TODO: Is there a more canonically correct way to get just the name besides a .Split?
-				if (expression is InvocationExpressionSyntax invocation && invocation.Expression is IdentifierNameSyntax)
-					return invocation.ArgumentList?.Arguments.FirstOrDefault()?.ToString().Split('.').LastOrDefault();
-
-				return null;
-			}
-
-			INamedTypeSymbol? toType(ExpressionSyntax expression)
-			{
-				if (expression is not TypeOfExpressionSyntax typeOf)
-					return null;
-
-				return context.SemanticModel.GetTypeInfo(typeOf.Type).Type as INamedTypeSymbol;
-			}
+			static string? toName(IOperation operation) =>
+				operation.ConstantValue is { HasValue: true, Value: string name } ? name : null;
 
 			void verifySkipProperty(
 				INamedTypeSymbol skipType,
@@ -113,9 +101,9 @@ public class ConditionalSkipPropertyValidation() :
 				{
 					var property =
 						currentSymbol
-							.GetMembers()
+							.GetMembers(propertyName)
 							.OfType<IPropertySymbol>()
-							.FirstOrDefault(symbol => symbol.Name == propertyName);
+							.FirstOrDefault();
 
 					if (property is not null)
 					{
@@ -139,6 +127,6 @@ public class ConditionalSkipPropertyValidation() :
 					)
 				);
 			}
-		}, SyntaxKind.Attribute);
+		}, OperationKind.Attribute);
 	}
 }
