@@ -24,6 +24,12 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 
 				[{|#3:MemberData(nameof(MissingRemoteDataSource_ByNameofAndType_Triggers), MemberType = typeof(OtherClass))|}]
 				public void MissingRemoteDataSource_ByNameofAndType_Triggers() { }
+
+				public TheoryData<int> NonStatic => null;
+
+				[{|#4:MemberData("BogusName")|}]
+				[{|#5:MemberData(nameof(NonStatic))|}]
+				public void MissingDataSource_DoesNotStopAnalysisOfSubsequentAttributes(int _) { }
 			}
 
 			public abstract class BaseClassWithTestWithoutData
@@ -43,19 +49,19 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 
 			public record TestRecord {
 				[Theory]
-				[{|#4:MemberData("BogusName")|}]
+				[{|#6:MemberData("BogusName")|}]
 				public void MissingLocalDataSource_InRecord_Triggers(int _) { }
 			}
 
 			public record class TestRecordClass {
 				[Theory]
-				[{|#5:MemberData("BogusName")|}]
+				[{|#7:MemberData("BogusName")|}]
 				public void MissingLocalDataSource_InRecordClass_Triggers(int _) { }
 			}
 
 			public record struct TestRecordStruct {
 				[Theory]
-				[{|#6:MemberData("BogusName")|}]
+				[{|#8:MemberData("BogusName")|}]
 				public void MissingLocalDataSource_InRecordStruct_Triggers(int _) { }
 			}
 			""";
@@ -65,9 +71,11 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 			Verify.Diagnostic("xUnit1015").WithLocation(1).WithArguments("BogusName", "TestClass"),
 			Verify.Diagnostic("xUnit1015").WithLocation(2).WithArguments("BogusName", "OtherClass"),
 			Verify.Diagnostic("xUnit1015").WithLocation(3).WithArguments("MissingRemoteDataSource_ByNameofAndType_Triggers", "OtherClass"),
-			Verify.Diagnostic("xUnit1015").WithLocation(4).WithArguments("BogusName", "TestRecord"),
-			Verify.Diagnostic("xUnit1015").WithLocation(5).WithArguments("BogusName", "TestRecordClass"),
-			Verify.Diagnostic("xUnit1015").WithLocation(6).WithArguments("BogusName", "TestRecordStruct"),
+			Verify.Diagnostic("xUnit1015").WithLocation(4).WithArguments("BogusName", "TestClass"),
+			Verify.Diagnostic("xUnit1017").WithLocation(5),
+			Verify.Diagnostic("xUnit1015").WithLocation(6).WithArguments("BogusName", "TestRecord"),
+			Verify.Diagnostic("xUnit1015").WithLocation(7).WithArguments("BogusName", "TestRecordClass"),
+			Verify.Diagnostic("xUnit1015").WithLocation(8).WithArguments("BogusName", "TestRecordStruct"),
 		};
 
 		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, [source1, source2], expected);
