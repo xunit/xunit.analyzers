@@ -67,6 +67,11 @@ public class PublicMethodShouldBeMarkedAsTest : XunitDiagnosticAnalyzer
 				if (method.MethodKind != MethodKind.Ordinary || method.IsAbstract)
 					continue;
 
+				// Compiler-generated methods (like Deconstruct on positional records) can't be
+				// changed by the user, so they should never trigger
+				if (method.IsImplicitlyDeclared)
+					continue;
+
 				var attributes = method.GetAttributesWithInheritance(attributeUsageType);
 				var isTestMethod = attributes.ContainsAttributeType(factAttributeTypes);
 				hasTestMethods = hasTestMethods || isTestMethod;

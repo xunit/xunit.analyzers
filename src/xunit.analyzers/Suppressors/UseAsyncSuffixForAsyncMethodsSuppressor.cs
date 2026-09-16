@@ -24,11 +24,11 @@ public class UseAsyncSuffixForAsyncMethodsSuppressor : XunitDiagnosticSuppressor
 		if (diagnostic?.Location.SourceTree is null)
 			return false;
 
-		if (diagnostic.Location.SourceTree.GetRoot().FindNode(diagnostic.Location.SourceSpan) is not MethodDeclarationSyntax methodDeclaration)
+		if (diagnostic.Location.SourceTree.GetRoot(context.CancellationToken).FindNode(diagnostic.Location.SourceSpan) is not MethodDeclarationSyntax methodDeclaration)
 			return false;
 
 		var semanticModel = context.GetSemanticModel(diagnostic.Location.SourceTree);
-		var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration) as IMethodSymbol;
+		var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken) as IMethodSymbol;
 		return methodSymbol.IsTestMethod(xunitContext, attributeUsageType, strict: false);
 	}
 }

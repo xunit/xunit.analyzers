@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -44,8 +45,8 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 
 		var semanticModel = context.Operation.SemanticModel;
 		var trueMethod = method.Name == Constants.Asserts.True;
-		var leftKind = LiteralReferenceKind(binaryArgument.Left, semanticModel);
-		var rightKind = LiteralReferenceKind(binaryArgument.Right, semanticModel);
+		var leftKind = LiteralReferenceKind(binaryArgument.Left, semanticModel, context.CancellationToken);
+		var rightKind = LiteralReferenceKind(binaryArgument.Right, semanticModel, context.CancellationToken);
 		var literalKind = leftKind ?? rightKind;
 		if (literalKind is null)
 			return;
@@ -67,6 +68,15 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		{
 			case SyntaxKind.TrueLiteralExpression:
 			case SyntaxKind.FalseLiteralExpression:
+				// Can't rewrite exactly for Nullable<bool> when the original assertion passes for null values, since both
+				// Assert.True(bool?) and Assert.False(bool?) fail with null (i.e., Assert.True(value != true) passes)
+				if (trueMethod != isEqualsOperator)
+				{
+					var nonLiteralOperand = leftKind is not null ? binaryArgument.Right : binaryArgument.Left;
+					if (semanticModel?.GetTypeInfo(nonLiteralOperand).Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
+						return;
+				}
+
 				var booleanReplacement = (trueMethod == isEqualsOperator, literalKind) switch
 				{
 					(true, SyntaxKind.TrueLiteralExpression) or (false, SyntaxKind.FalseLiteralExpression) => Constants.Asserts.True,
@@ -82,7 +92,7 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 					return;
 				// Can't rewrite if we're using a pointer and don't support pointers in Null assertions
 				if (!xunitContext.Assert.SupportsAssertNullWithPointers)
-					if (binaryArgument.Left.IsPointer(semanticModel) || binaryArgument.Right.IsPointer(semanticModel))
+					if (binaryArgument.Left.IsPointer(semanticModel, context.CancellationToken) || binaryArgument.Right.IsPointer(semanticModel, context.CancellationToken))
 						return;
 				var nullReplacement = trueMethod == isEqualsOperator ? Constants.Asserts.Null : Constants.Asserts.NotNull;
 				builder[Constants.Properties.Replacement] = nullReplacement;
@@ -105,7 +115,8 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 
 	public static SyntaxKind? LiteralReferenceKind(
 		ExpressionSyntax expression,
-		SemanticModel? semanticModel)
+		SemanticModel? semanticModel,
+		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(expression);
 
@@ -120,7 +131,7 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 		if (left.Kind() != SyntaxKind.IdentifierName)
 			return null;
 
-		var type = semanticModel?.GetTypeInfo(expression).Type;
+		var type = semanticModel?.GetTypeInfo(expression, cancellationToken).Type;
 		if (type is not INamedTypeSymbol namedType)
 			return null;
 

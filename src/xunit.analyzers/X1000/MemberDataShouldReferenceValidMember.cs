@@ -299,7 +299,7 @@ public class MemberDataShouldReferenceValidMember() :
 	}
 
 	static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(
-		List<AttributeArgumentSyntax> arguments, SemanticModel semanticModel)
+		List<AttributeArgumentSyntax> arguments, SemanticModel semanticModel, CancellationToken cancellationToken)
 	{
 		if (arguments.Count > 1)
 			return [.. arguments.Select(a => a.Expression)];
@@ -321,7 +321,7 @@ public class MemberDataShouldReferenceValidMember() :
 			return [argumentExpression];
 
 		// In the special case where the argument is an object[], treat like params
-		var type = semanticModel.GetTypeInfo(argumentExpression).Type;
+		var type = semanticModel.GetTypeInfo(argumentExpression, cancellationToken).Type;
 		if (argumentExpression is CollectionExpressionSyntax || (type is IArrayTypeSymbol arrayType && arrayType.ElementType.SpecialType == SpecialType.System_Object))
 			return [.. expressions];
 
@@ -375,7 +375,7 @@ public class MemberDataShouldReferenceValidMember() :
 
 		var semantics = context.SemanticModel;
 		var declarationReference = memberSymbol.DeclaringSyntaxReferences.First();
-		var declarationSyntax = declarationReference.GetSyntax();
+		var declarationSyntax = declarationReference.GetSyntax(context.CancellationToken);
 		if (declarationSyntax is PropertyDeclarationSyntax prop
 			&& (prop.Initializer != null
 				|| prop.AccessorList?.Accessors.FirstOrDefault(decl => decl.Kind() == SyntaxKind.GetAccessorDeclaration)?.Body != null
@@ -401,7 +401,7 @@ public class MemberDataShouldReferenceValidMember() :
 					.OfType<AssignmentExpressionSyntax>()
 					.Where(assignment =>
 					{
-						var assignedSymbol = semantics.GetSymbolInfo(assignment.Left).Symbol;
+						var assignedSymbol = semantics.GetSymbolInfo(assignment.Left, context.CancellationToken).Symbol;
 						return SymbolEqualityComparer.Default.Equals(assignedSymbol?.OriginalDefinition, memberSymbol);
 					});
 
@@ -879,7 +879,7 @@ public class MemberDataShouldReferenceValidMember() :
 			return;
 		}
 
-		var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments, semanticModel);
+		var argumentSyntaxList = GetParameterExpressionsFromArrayArgument(extraArguments, semanticModel, context.CancellationToken);
 		int valueIdx = 0, paramIdx = 0;
 		for (; valueIdx < argumentSyntaxList.Count && paramIdx < dataMethodParameterSymbols.Length; valueIdx++)
 		{
