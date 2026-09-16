@@ -31,6 +31,7 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					[|Assert.IsType<string>(value)|];
 					var text2 = (string)value;
 				}
+
 				[Fact]
 				public void ReusesNamesInSiblingScopes() {
 					var xs = new List<int> { 42 };
@@ -83,6 +84,7 @@ public class X2033_AssertReturnValueShouldBeUsedFixerTests
 					var typed_2 = Assert.IsType<string>(value);
 					var text2 = typed_2;
 				}
+
 				[Fact]
 				public void ReusesNamesInSiblingScopes() {
 					var xs = new List<int> { 42 };
