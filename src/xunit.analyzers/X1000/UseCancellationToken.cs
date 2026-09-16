@@ -41,7 +41,7 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			if (context.Operation is not IInvocationOperation invocationOperation)
 				return;
 
-			var (foundSymbol, lambdaOwner) = invocationOperation.IsInTestMethod(xunitContext);
+			var (foundSymbol, lambdaOwner) = invocationOperation.IsInTestMethod(xunitContext, context.CancellationToken);
 			if (!foundSymbol || lambdaOwner is ILocalFunctionOperation or IAnonymousFunctionOperation)
 				return;
 

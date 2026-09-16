@@ -54,6 +54,13 @@ public class X1056_TypeMustHaveSinglePublicConstructorTests
 				[Fact] public void TestMethod() { }
 			}
 
+			public class InheritedTestClass_DefaultConstructor : AbstractTestClass { }
+
+			public class {|#1:InheritedTestClass_DualConstructor|} : AbstractTestClass {
+				public InheritedTestClass_DualConstructor() { }
+				public InheritedTestClass_DualConstructor(int x) { }
+			}
+
 			// Fixture constructors
 
 			public class Fixture_DefaultConstructor { }
@@ -101,6 +108,7 @@ public class X1056_TypeMustHaveSinglePublicConstructorTests
 			""";
 		var expected = new[] {
 			Verify.Diagnostic().WithLocation(0).WithArguments("Test class", "TestClass_DualConstructor"),
+			Verify.Diagnostic().WithLocation(1).WithArguments("Test class", "InheritedTestClass_DualConstructor"),
 
 			Verify.Diagnostic().WithLocation(10).WithArguments("Fixture", "Fixture_DualConstructor"),
 			Verify.Diagnostic().WithLocation(10).WithArguments("Fixture", "Fixture_Abstract"),

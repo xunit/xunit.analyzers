@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -52,7 +53,7 @@ public class TestMethodWithTimeoutShouldUseCancellationToken() :
 							&& SymbolEqualityComparer.Default.Equals(propertyReference.Property, cancellationTokenProperty))
 						return;
 
-			var location = GetTimeoutLocation(timeoutAttribute) ?? method.Locations.FirstOrDefault();
+			var location = GetTimeoutLocation(timeoutAttribute, ctx.CancellationToken) ?? method.Locations.FirstOrDefault();
 			if (location is null)
 				return;
 
@@ -80,9 +81,11 @@ public class TestMethodWithTimeoutShouldUseCancellationToken() :
 		return null;
 	}
 
-	static Location? GetTimeoutLocation(AttributeData attribute)
+	static Location? GetTimeoutLocation(
+		AttributeData attribute,
+		CancellationToken cancellationToken)
 	{
-		if (attribute.ApplicationSyntaxReference?.GetSyntax() is not AttributeSyntax attributeSyntax)
+		if (attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is not AttributeSyntax attributeSyntax)
 			return null;
 
 		if (attributeSyntax.ArgumentList is { } argumentList)

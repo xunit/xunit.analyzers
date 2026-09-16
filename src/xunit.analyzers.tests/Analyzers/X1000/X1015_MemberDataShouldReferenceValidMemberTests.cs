@@ -46,6 +46,24 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 					yield return new object?[] { 42 };
 				}
 			}
+
+			public record TestRecord {
+				[Theory]
+				[{|#6:MemberData("BogusName")|}]
+				public void MissingLocalDataSource_InRecord_Triggers(int _) { }
+			}
+
+			public record class TestRecordClass {
+				[Theory]
+				[{|#7:MemberData("BogusName")|}]
+				public void MissingLocalDataSource_InRecordClass_Triggers(int _) { }
+			}
+
+			public record struct TestRecordStruct {
+				[Theory]
+				[{|#8:MemberData("BogusName")|}]
+				public void MissingLocalDataSource_InRecordStruct_Triggers(int _) { }
+			}
 			""";
 		var source2 = /* lang=c#-test */ "public class OtherClass { }";
 		var expected = new[] {
@@ -55,8 +73,11 @@ public class X1015_MemberDataShouldReferenceValidMemberTests
 			Verify.Diagnostic("xUnit1015").WithLocation(3).WithArguments("MissingRemoteDataSource_ByNameofAndType_Triggers", "OtherClass"),
 			Verify.Diagnostic("xUnit1015").WithLocation(4).WithArguments("BogusName", "TestClass"),
 			Verify.Diagnostic("xUnit1017").WithLocation(5),
+			Verify.Diagnostic("xUnit1015").WithLocation(6).WithArguments("BogusName", "TestRecord"),
+			Verify.Diagnostic("xUnit1015").WithLocation(7).WithArguments("BogusName", "TestRecordClass"),
+			Verify.Diagnostic("xUnit1015").WithLocation(8).WithArguments("BogusName", "TestRecordStruct"),
 		};
 
-		await Verify.VerifyAnalyzer(LanguageVersion.CSharp8, [source1, source2], expected);
+		await Verify.VerifyAnalyzer(LanguageVersion.CSharp10, [source1, source2], expected);
 	}
 }
