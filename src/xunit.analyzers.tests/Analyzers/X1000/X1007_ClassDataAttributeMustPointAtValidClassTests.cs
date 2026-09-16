@@ -100,6 +100,11 @@ public class X1007_ClassDataAttributeMustPointAtValidClassTests
 				[{|#2:ClassData(typeof(DataClass_InternalCtor))|}]
 				[{|#3:ClassData(typeof(DataClass_PrivateCtor))|}]
 				public void TestMethod(int n) { }
+
+				// https://github.com/xunit/xunit.analyzers/pull/220
+				[Theory]
+				[{|CS7036:ClassData()|}]
+				public void EmptyArgumentList_DoesNotCrash(int n) { }
 			}
 			""";
 		var expectedV2 = new[] {

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace Xunit.Analyzers;
 
@@ -41,66 +42,61 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		var theoryDataRowTypes = TypeSymbolFactory.TheoryDataRow_ByGenericArgumentCount_V3(compilation);
 		var iTupleType = TypeSymbolFactory.ITuple(compilation);
 
-		context.RegisterSyntaxNodeAction(context =>
+		var classDataOfTType = xunitContext.V3Core?.ClassDataAttributeOfTType;
+
+		context.RegisterOperationAction(context =>
 		{
-			if (context.Node is not MethodDeclarationSyntax testMethod)
+			if (context.ContainingSymbol is not IMethodSymbol testMethod)
+				return;
+			if (context.Operation is not IAttributeOperation { Operation: IObjectCreationOperation { Type: INamedTypeSymbol attributeType } attributeCreation } attributeOperation)
 				return;
 
-			var attributeLists = testMethod.AttributeLists;
-			var semanticModel = context.SemanticModel;
+			var classType = default(INamedTypeSymbol);
 
-			foreach (var attributeSyntax in attributeLists.WhereNotNull().SelectMany(attList => attList.Attributes))
+			// [ClassData(typeof(...))]
+			if (SymbolEqualityComparer.Default.Equals(attributeType, xunitContext.Core.ClassDataAttributeType))
 			{
-				context.CancellationToken.ThrowIfCancellationRequested();
+				if (attributeCreation.Arguments.FirstOrDefault()?.Value is not ITypeOfOperation typeOfOperation)
+					return;
 
-				var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type as INamedTypeSymbol;
-				if (attributeType is null)
-					continue;
-
-				var classType = default(INamedTypeSymbol);
-
-				// [ClassData(typeof(...))]
-				if (SymbolEqualityComparer.Default.Equals(attributeType, xunitContext.Core.ClassDataAttributeType))
-				{
-					if (attributeSyntax.ArgumentList is null)
-						continue;
-					if (attributeSyntax.ArgumentList.Arguments[0].Expression is not TypeOfExpressionSyntax typeOfExpression)
-						continue;
-
-					classType = semanticModel.GetTypeInfo(typeOfExpression.Type).Type as INamedTypeSymbol;
-				}
-				// [ClassData<...>]
-				else if (attributeType.IsGenericType)
-				{
-					var classDataOfTType = xunitContext.V3Core?.ClassDataAttributeOfTType?.ConstructUnboundGenericType();
-					if (classDataOfTType is not null && SymbolEqualityComparer.Default.Equals(attributeType.ConstructUnboundGenericType(), classDataOfTType))
-						classType = attributeType.TypeArguments[0] as INamedTypeSymbol;
-				}
-
-				if (classType is null || classType.Kind == SymbolKind.ErrorType)
-					continue;
-
-				// Make sure the class implements a compatible interface
-				var isValidDeclaration = VerifyDataSourceDeclaration(context, compilation, xunitContext, classType, attributeSyntax);
-
-				// Everything from here is based on ensuring I(Async)Enumerable<TheoryDataRow<>>, which is
-				// only available in v3.
-				if (!xunitContext.HasV3References)
-					continue;
-
-				var rowType = classType.UnwrapEnumerable(compilation);
-				if (rowType is null)
-					continue;
-
-				if (IsGenericTheoryDataRowType(rowType, theoryDataRowTypes, out var theoryDataReturnType))
-					VerifyGenericArgumentTypes(semanticModel, context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, classType, attributeSyntax);
-				else if (IsTupleDataRowType(rowType, iTupleType, out var namedTupleType))
-					VerifyGenericArgumentTypes(semanticModel, context, testMethod, namedTupleType, namedTupleType, classType, attributeSyntax);
-				else if (isValidDeclaration)
-					ReportClassReturnsUnsafeTypeValue(context, attributeSyntax);
+				classType = typeOfOperation.TypeOperand as INamedTypeSymbol;
 			}
-		}, SyntaxKind.MethodDeclaration);
+			// [ClassData<...>]
+			else if (classDataOfTType is not null && SymbolEqualityComparer.Default.Equals(attributeType.OriginalDefinition, classDataOfTType))
+				classType = attributeType.TypeArguments[0] as INamedTypeSymbol;
+
+			if (classType is null || classType.Kind == SymbolKind.ErrorType)
+				return;
+
+			var attributeLocation = attributeOperation.Syntax.GetLocation();
+
+			// Make sure the class implements a compatible interface
+			var isValidDeclaration = VerifyDataSourceDeclaration(context, compilation, xunitContext, classType, attributeLocation);
+
+			// Everything from here is based on ensuring I(Async)Enumerable<TheoryDataRow<>>, which is
+			// only available in v3.
+			if (!xunitContext.HasV3References)
+				return;
+
+			var rowType = classType.UnwrapEnumerable(compilation);
+			if (rowType is null)
+				return;
+
+			if (IsGenericTheoryDataRowType(rowType, theoryDataRowTypes, out var theoryDataReturnType))
+				VerifyGenericArgumentTypes(context, testMethod, theoryDataRowTypes[0], theoryDataReturnType, classType, attributeLocation);
+			else if (IsTupleDataRowType(rowType, iTupleType, out var namedTupleType))
+				VerifyGenericArgumentTypes(context, testMethod, namedTupleType, namedTupleType, classType, attributeLocation);
+			else if (isValidDeclaration)
+				ReportClassReturnsUnsafeTypeValue(context, attributeLocation);
+		}, OperationKind.Attribute);
 	}
+
+	static Location? GetParameterTypeLocation(
+		IParameterSymbol parameter,
+		CancellationToken cancellationToken) =>
+			parameter.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(cancellationToken) is ParameterSyntax { Type: { } parameterType }
+				? parameterType.GetLocation()
+				: null;
 
 	static bool IsGenericTheoryDataRowType(
 		ITypeSymbol? rowType,
@@ -144,37 +140,37 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 	}
 
 	static void ReportClassReturnsUnsafeTypeValue(
-		SyntaxNodeAnalysisContext context,
-		AttributeSyntax attribute) =>
+		OperationAnalysisContext context,
+		Location attributeLocation) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1050_ClassDataTheoryDataRowIsRecommendedForStronglyTypedAnalysis,
-					attribute.GetLocation()
+					attributeLocation
 				)
 			);
 
 	static void ReportExtraTypeArguments(
-		SyntaxNodeAnalysisContext context,
-		AttributeSyntax attribute,
+		OperationAnalysisContext context,
+		Location attributeLocation,
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1038_TheoryArgumentsMustMatchTestMethodParameters_ExtraTypeParameters,
-					attribute.GetLocation(),
+					attributeLocation,
 					SymbolDisplay.ToDisplayString(theoryDataType)
 				)
 			);
 
 	static void ReportIncompatibleType(
-		SyntaxNodeAnalysisContext context,
-		TypeSyntax parameterType,
+		OperationAnalysisContext context,
+		Location parameterTypeLocation,
 		ITypeSymbol theoryDataTypeParameter,
 		INamedTypeSymbol namedClassType,
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1039_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleTypes,
-					parameterType.GetLocation(),
+					parameterTypeLocation,
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
 					SymbolDisplay.ToDisplayString(namedClassType),
 					parameter.Name
@@ -182,29 +178,29 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			);
 
 	static void ReportIncorrectImplementationType(
-		SyntaxNodeAnalysisContext context,
+		OperationAnalysisContext context,
 		string validSymbols,
-		AttributeSyntax attribute,
+		Location attributeLocation,
 		ITypeSymbol classType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1007_ClassDataAttributeMustPointAtValidClass,
-					attribute.GetLocation(),
+					attributeLocation,
 					classType.Name,
 					validSymbols
 				)
 			);
 
 	static void ReportNullabilityMismatch(
-		SyntaxNodeAnalysisContext context,
-		TypeSyntax parameterType,
+		OperationAnalysisContext context,
+		Location parameterTypeLocation,
 		ITypeSymbol theoryDataTypeParameter,
 		INamedTypeSymbol namedClassType,
 		IParameterSymbol parameter) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1040_TheoryArgumentsMustMatchTestMethodParameters_IncompatibleNullability,
-					parameterType.GetLocation(),
+					parameterTypeLocation,
 					SymbolDisplay.ToDisplayString(theoryDataTypeParameter),
 					SymbolDisplay.ToDisplayString(namedClassType),
 					parameter.Name
@@ -212,23 +208,23 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			);
 
 	static void ReportTooFewTypeArguments(
-		SyntaxNodeAnalysisContext context,
-		AttributeSyntax attribute,
+		OperationAnalysisContext context,
+		Location attributeLocation,
 		INamedTypeSymbol theoryDataType) =>
 			context.ReportDiagnostic(
 				Diagnostic.Create(
 					Descriptors.X1037_TheoryArgumentsMustMatchTestMethodParameters_TooFewTypeParameters,
-					attribute.GetLocation(),
+					attributeLocation,
 					SymbolDisplay.ToDisplayString(theoryDataType)
 				)
 			);
 
 	static bool VerifyDataSourceDeclaration(
-		SyntaxNodeAnalysisContext context,
+		OperationAnalysisContext context,
 		Compilation compilation,
 		XunitContext xunitContext,
 		INamedTypeSymbol classType,
-		AttributeSyntax attribute)
+		Location attributeLocation)
 	{
 		var v3 = xunitContext.HasV3References;
 		var valid =
@@ -237,47 +233,41 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 			classType.InstanceConstructors.Any(c => c.Parameters.IsEmpty && c.DeclaredAccessibility == Accessibility.Public);
 
 		if (!valid)
-			ReportIncorrectImplementationType(context, v3 ? typesV3 : typesV2, attribute, classType);
+			ReportIncorrectImplementationType(context, v3 ? typesV3 : typesV2, attributeLocation, classType);
 
 		return valid;
 	}
 
 	static void VerifyGenericArgumentTypes(
-		SemanticModel semanticModel,
-		SyntaxNodeAnalysisContext context,
-		MethodDeclarationSyntax testMethod,
+		OperationAnalysisContext context,
+		IMethodSymbol testMethod,
 		INamedTypeSymbol theoryDataType,
 		INamedTypeSymbol theoryReturnType,
 		ITypeSymbol classType,
-		AttributeSyntax attribute)
+		Location attributeLocation)
 	{
 		if (classType is not INamedTypeSymbol namedClassType)
 			return;
 
 		var returnTypeArguments = theoryReturnType.TypeArguments;
-		var testMethodSymbol = semanticModel.GetDeclaredSymbol(testMethod, context.CancellationToken);
-		if (testMethodSymbol is null)
-			return;
-
-		var testMethodParameterSymbols = testMethodSymbol.Parameters;
-		var testMethodParameterSyntaxes = testMethod.ParameterList.Parameters;
+		var testMethodParameterSymbols = testMethod.Parameters;
 
 		if (testMethodParameterSymbols.Length > returnTypeArguments.Length
 			&& testMethodParameterSymbols.Skip(returnTypeArguments.Length).Any(p => !p.IsOptional && !p.IsParams))
 		{
-			ReportTooFewTypeArguments(context, attribute, theoryDataType);
+			ReportTooFewTypeArguments(context, attributeLocation, theoryDataType);
 			return;
 		}
 
 		int typeArgumentIdx = 0, parameterTypeIdx = 0;
 		for (; typeArgumentIdx < returnTypeArguments.Length && parameterTypeIdx < testMethodParameterSymbols.Length; typeArgumentIdx++)
 		{
-			var parameterSyntax = testMethodParameterSyntaxes[parameterTypeIdx];
-			if (parameterSyntax.Type is null)
-				continue;
-
 			var parameter = testMethodParameterSymbols[parameterTypeIdx];
 			if (parameter.Type is null)
+				continue;
+
+			var parameterTypeLocation = GetParameterTypeLocation(parameter, context.CancellationToken);
+			if (parameterTypeLocation is null)
 				continue;
 
 			var parameterType =
@@ -302,7 +292,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 				}
 
 				if (report)
-					ReportIncompatibleType(context, parameterSyntax.Type, typeArgument, namedClassType, parameter);
+					ReportIncompatibleType(context, parameterTypeLocation, typeArgument, namedClassType, parameter);
 			}
 
 			// Nullability of value types is handled by the type compatibility test,
@@ -311,7 +301,7 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 					&& typeArgument.IsReferenceType
 					&& parameterType.NullableAnnotation == NullableAnnotation.NotAnnotated
 					&& typeArgument.NullableAnnotation == NullableAnnotation.Annotated)
-				ReportNullabilityMismatch(context, parameterSyntax.Type, typeArgument, namedClassType, parameter);
+				ReportNullabilityMismatch(context, parameterTypeLocation, typeArgument, namedClassType, parameter);
 
 			// Only move the parameter type index forward when the current parameter is not a 'params'
 			if (!parameter.IsParams)
@@ -319,6 +309,6 @@ public class ClassDataAttributeMustPointAtValidClass : XunitDiagnosticAnalyzer
 		}
 
 		if (typeArgumentIdx < returnTypeArguments.Length)
-			ReportExtraTypeArguments(context, attribute, theoryDataType);
+			ReportExtraTypeArguments(context, attributeLocation, theoryDataType);
 	}
 }

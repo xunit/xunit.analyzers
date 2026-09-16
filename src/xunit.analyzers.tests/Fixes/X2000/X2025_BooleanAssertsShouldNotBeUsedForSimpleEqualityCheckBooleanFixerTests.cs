@@ -38,6 +38,16 @@ public class X2025_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFix
 
 					{|xUnit2025:Assert.True(condition == true, "message")|};
 					{|xUnit2025:Assert.False(condition == true, "message")|};
+
+					bool? nullableCondition = true;
+
+					{|xUnit2025:Assert.True(nullableCondition == true)|};
+					{|xUnit2025:Assert.True(false == nullableCondition)|};
+					{|xUnit2025:Assert.False(nullableCondition != true)|};
+					{|xUnit2025:Assert.False(false != nullableCondition, "message")|};
+
+					Assert.True(nullableCondition != true);
+					Assert.False(nullableCondition == false);
 				}
 			}
 			""";
@@ -71,6 +81,16 @@ public class X2025_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckBooleanFix
 
 					Assert.True(condition, "message");
 					Assert.False(condition, "message");
+
+					bool? nullableCondition = true;
+
+					Assert.True(nullableCondition);
+					Assert.False(nullableCondition);
+					Assert.True(nullableCondition);
+					Assert.False(nullableCondition, "message");
+
+					Assert.True(nullableCondition != true);
+					Assert.False(nullableCondition == false);
 				}
 			}
 			""";

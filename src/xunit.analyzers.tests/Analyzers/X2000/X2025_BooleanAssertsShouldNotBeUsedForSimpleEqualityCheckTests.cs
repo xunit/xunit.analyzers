@@ -50,6 +50,29 @@ public class X2025_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 					{|#36:Assert.False(false == trueValue, "message")|};
 					{|#37:Assert.False(false != trueValue, "message")|};
 				}
+
+				// Assert.True(bool?) and Assert.False(bool?) fail with null, so only forms which also fail with null are reported
+				void NullableExpressions(bool? nullableValue) {
+					{|#40:Assert.True(nullableValue == true)|};
+					Assert.True(nullableValue != true);
+					{|#41:Assert.True(true == nullableValue, "message")|};
+					Assert.True(true != nullableValue, "message");
+
+					{|#50:Assert.True(nullableValue == false)|};
+					Assert.True(nullableValue != false);
+					{|#51:Assert.True(false == nullableValue, "message")|};
+					Assert.True(false != nullableValue, "message");
+
+					Assert.False(nullableValue == true);
+					{|#60:Assert.False(nullableValue != true)|};
+					Assert.False(true == nullableValue, "message");
+					{|#61:Assert.False(true != nullableValue, "message")|};
+
+					Assert.False(nullableValue == false);
+					{|#70:Assert.False(nullableValue != false)|};
+					Assert.False(false == nullableValue, "message");
+					{|#71:Assert.False(false != nullableValue, "message")|};
+				}
 			}
 			""";
 		var expected = new[] {
@@ -88,6 +111,15 @@ public class X2025_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 			Verify.Diagnostic("xUnit2025").WithLocation(35).WithArguments("False"),
 			Verify.Diagnostic("xUnit2025").WithLocation(36).WithArguments("False"),
 			Verify.Diagnostic("xUnit2025").WithLocation(37).WithArguments("False"),
+
+			Verify.Diagnostic("xUnit2025").WithLocation(40).WithArguments("True"),
+			Verify.Diagnostic("xUnit2025").WithLocation(41).WithArguments("True"),
+			Verify.Diagnostic("xUnit2025").WithLocation(50).WithArguments("True"),
+			Verify.Diagnostic("xUnit2025").WithLocation(51).WithArguments("True"),
+			Verify.Diagnostic("xUnit2025").WithLocation(60).WithArguments("False"),
+			Verify.Diagnostic("xUnit2025").WithLocation(61).WithArguments("False"),
+			Verify.Diagnostic("xUnit2025").WithLocation(70).WithArguments("False"),
+			Verify.Diagnostic("xUnit2025").WithLocation(71).WithArguments("False"),
 		};
 
 		await Verify.VerifyAnalyzer(source, expected);
