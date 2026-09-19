@@ -636,9 +636,23 @@ public static partial class Descriptors
 			"Test method '{0}' has a Timeout but does not reference TestContext.Current.CancellationToken. Tests with a Timeout should reference TestContext.Current.CancellationToken so they can terminate promptly when the timeout is exceeded."
 		);
 
-	// Placeholder for rule X1070
+	public static DiagnosticDescriptor X1070_CulturedTestCultureCannotBeNull { get; } =
+		Diagnostic(
+			"xUnit1070",
+			"Cultured test methods cannot have null cultures",
+			Usage,
+			Error,
+			"Cultured test methods cannot have null cultures. Replace the null value with a valid culture name."
+		);
 
-	// Placeholder for rule X1071
+	public static DiagnosticDescriptor X1071_CulturedTestCultureShouldNotBeDuplicated { get; } =
+		Diagnostic(
+			"xUnit1071",
+			"Cultured test methods should not have duplicate cultures",
+			Usage,
+			Warning,
+			"Culture '{0}' is duplicated. Remove the duplicate culture."
+		);
 
 	// Placeholder for rule X1072
 
