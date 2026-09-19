@@ -10,8 +10,6 @@ public class X1004_TestMethodShouldNotBeSkippedTests
 		var source = /* lang=c#-test */ """
 			using Xunit;
 
-			public class DerivedFactAttribute : FactAttribute { }
-
 			public class TestClass {
 				const string Reason = "Lazy";
 
@@ -21,21 +19,39 @@ public class X1004_TestMethodShouldNotBeSkippedTests
 				[Theory]
 				public void Theory_NotSkippedTest_DoesNotTrigger() { }
 
-				[DerivedFact]
-				public void DerivedFact_NotSkippedTest_DoesNotTrigger() { }
-
 				[Fact([|Skip="Lazy"|])]
 				public void Fact_SkippedTest_Triggers() { }
 
 				[Theory([|Skip="Lazy"|])]
 				public void Theory_SkippedTest_Triggers() { }
 
-				[DerivedFact([|Skip=Reason|])]
-				public void DerivedFact_SkippedTest_Triggers() { }
+				[Fact([|Skip=Reason|])]
+				public void Fact_SkippedTestWithConstReason_Triggers() { }
 			}
 			""";
 
 		await Verify.VerifyAnalyzer(source);
+	}
+
+	[Fact]
+	public async ValueTask V2_and_V3_NonAot()
+	{
+		// FactAttribute is sealed in Native AOT, so derived attributes are only tested in non-AOT
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public class DerivedFactAttribute : FactAttribute { }
+
+			public class TestClass {
+				[DerivedFact]
+				public void DerivedFact_NotSkippedTest_DoesNotTrigger() { }
+
+				[DerivedFact([|Skip="Lazy"|])]
+				public void DerivedFact_SkippedTest_Triggers() { }
+			}
+			""";
+
+		await Verify.VerifyAnalyzerNonAot(source);
 	}
 
 	[Fact]
