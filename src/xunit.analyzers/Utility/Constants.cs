@@ -83,6 +83,7 @@ public static class Constants
 		public const string DeclaringType = nameof(DeclaringType);
 		public const string MemberName = nameof(MemberName);
 		public const string MemberType = nameof(MemberType);
+		public const string Skip = nameof(Skip);
 		public const string SkipExceptions = nameof(SkipExceptions);
 		public const string SkipType = nameof(SkipType);
 		public const string SkipUnless = nameof(SkipUnless);
