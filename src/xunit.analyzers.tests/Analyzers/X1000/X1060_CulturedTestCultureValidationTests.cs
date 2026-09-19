@@ -39,6 +39,14 @@ public class X1060_CulturedTestCultureValidationTests
 				[{|xUnit1060:CulturedFact(cultures: [])|}]
 				[{|xUnit1060:CulturedTheory(cultures: new string[] { })|}]
 				public void Failure4() { }
+
+				[{|xUnit1060:CulturedFact(null)|}]
+				[{|xUnit1060:CulturedTheory(cultures: null)|}]
+				public void Failure5() { }
+
+				[{|xUnit1060:CulturedFact(default)|}]
+				[{|xUnit1060:CulturedTheory((string[])null)|}]
+				public void Failure6() { }
 			}
 			""";
 

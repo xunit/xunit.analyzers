@@ -36,7 +36,8 @@ public class CulturedTestCultureValidation() :
 			while (cultures is IConversionOperation { IsImplicit: true } conversion)
 				cultures = conversion.Operand;
 
-			var isEmpty = cultures switch
+			// A null array (i.e., null, default, (string[])null) provides no cultures at all
+			var isEmpty = cultures.ConstantValue is { HasValue: true, Value: null } || cultures switch
 			{
 				IArrayCreationOperation arrayCreation =>
 					arrayCreation.DimensionSizes.Length == 1 && arrayCreation.DimensionSizes[0].ConstantValue is { HasValue: true, Value: 0 },
