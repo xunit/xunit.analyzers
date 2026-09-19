@@ -23,28 +23,20 @@ public class X1070_CulturedTestCultureValidationTests
 				[CulturedTheory(cultures: [Culture])]
 				public void Success2() { }
 
-				[CulturedFact(new string[] { {|#0:null|} })]
-				[CulturedTheory(new[] { "en-US", {|#1:null|} })]
+				[CulturedFact(new string[] { {|xUnit1070:null|} })]
+				[CulturedTheory(new[] { "en-US", {|xUnit1070:null|} })]
 				public void Failure1() { }
 
-				[CulturedFact([{|#2:null|}, "en-US"])]
-				[CulturedTheory(cultures: [{|#3:NullCulture|}])]
+				[CulturedFact([{|xUnit1070:null|}, "en-US"])]
+				[CulturedTheory(cultures: [{|xUnit1070:NullCulture|}])]
 				public void Failure2() { }
 
-				[CulturedFact(new string[] { {|#4:default|} })]
-				[CulturedTheory(new string[] { "en-US", {|#5:default(string)|} })]
+				[CulturedFact(new string[] { {|xUnit1070:default|} })]
+				[CulturedTheory(new string[] { "en-US", {|xUnit1070:default(string)|} })]
 				public void Failure3() { }
 			}
 			""";
-		var expected = new[] {
-			Verify.Diagnostic("xUnit1070").WithLocation(0),
-			Verify.Diagnostic("xUnit1070").WithLocation(1),
-			Verify.Diagnostic("xUnit1070").WithLocation(2),
-			Verify.Diagnostic("xUnit1070").WithLocation(3),
-			Verify.Diagnostic("xUnit1070").WithLocation(4),
-			Verify.Diagnostic("xUnit1070").WithLocation(5),
-		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp12, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp12, source);
 	}
 }
