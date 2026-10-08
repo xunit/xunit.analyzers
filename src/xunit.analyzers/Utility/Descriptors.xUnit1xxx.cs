@@ -654,7 +654,14 @@ public static partial class Descriptors
 			"Culture '{0}' is duplicated. Remove the duplicate culture."
 		);
 
-	// Placeholder for rule X1072
+	public static DiagnosticDescriptor X1072_TestMethodsFromReferencedAssembliesNotSupported { get; } =
+		Diagnostic(
+			"xUnit1072",
+			"Test methods from referenced assemblies are not supported in Native AOT",
+			Usage,
+			Warning,
+			"Inherited test method '{0}.{1}' is declared in a referenced assembly and will not run in Native AOT. Declare the test method in source instead."
+		);
 
 	// Placeholder for rule X1073
 
