@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Xunit;
+using Xunit.Analyzers;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodsFromReferencedAssembliesInAot>;
 
 public class X1072_TestMethodsFromReferencedAssembliesInAotTests
@@ -7,6 +9,8 @@ public class X1072_TestMethodsFromReferencedAssembliesInAotTests
 	[Fact]
 	public async ValueTask V2_and_V3()
 	{
+		Assert.Equal(DiagnosticSeverity.Warning, Descriptors.X1072_TestMethodsFromReferencedAssembliesNotSupported.DefaultSeverity);
+
 		var referenceSource = /* lang=c#-test */ """
 			using Xunit;
 
