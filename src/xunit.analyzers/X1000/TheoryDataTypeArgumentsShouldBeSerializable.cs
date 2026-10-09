@@ -46,7 +46,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 				return;
 			if (method.ContainingType is not INamedTypeSymbol testClass)
 				return;
-			if (!method.GetAttributes().ContainsAttributeType(typeSymbols.TheoryAttribute))
+			if (!method.GetAttributes().ContainsAttributeType(typeSymbols.TheoryAttributes))
 				return;
 			if (DiscoveryEnumerationIsDisabled(method, typeSymbols))
 				return;
@@ -93,7 +93,7 @@ public class TheoryDataTypeArgumentsShouldBeSerializable : XunitDiagnosticAnalyz
 	static bool AttributeIsTheoryOrDataAttribute(
 		AttributeData attribute,
 		SerializableTypeSymbols typeSymbols) =>
-			attribute.IsInstanceOf(typeSymbols.TheoryAttribute, exactMatch: true) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
+			typeSymbols.TheoryAttributes.Any(theoryAttribute => attribute.IsInstanceOf(theoryAttribute, exactMatch: true)) || attribute.IsInstanceOf(typeSymbols.DataAttribute);
 
 	static bool CanStaticallyVerifyAllValuesAreSerializable(
 		ISymbol? dataSource,

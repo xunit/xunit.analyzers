@@ -316,6 +316,14 @@ public class X1045_TheoryDataTypeArgumentsShouldBeSerializableTests
 				[MemberData(nameof(Property))]
 				public void DoesNotTrigger(object parameter) { }
 
+				[CulturedTheory(new[] { "en-US" }, DisableDiscoveryEnumeration = true)]
+				[ClassData(typeof(Class))]
+				[ClassData<Class>]
+				[MemberData(nameof(Field))]
+				[MemberData(nameof(Method), 1, "2")]
+				[MemberData(nameof(Property))]
+				public void DoesNotTrigger_CulturedTheory(object parameter) { }
+
 				[Theory]
 				[{|xUnit1045:ClassData(typeof(Class))|}]
 				[{|xUnit1045:ClassData<Class>|}]

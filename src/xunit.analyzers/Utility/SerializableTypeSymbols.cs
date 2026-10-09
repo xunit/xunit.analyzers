@@ -35,7 +35,7 @@ public sealed class SerializableTypeSymbols
 		INamedTypeSymbol? classDataAttributeOfT,
 		INamedTypeSymbol dataAttribute,
 		INamedTypeSymbol memberDataAttribute,
-		INamedTypeSymbol theoryAttribute,
+		ImmutableHashSet<INamedTypeSymbol> theoryAttributes,
 		Dictionary<int, INamedTypeSymbol> theoryDataTypes)
 	{
 		this.theoryDataTypes = theoryDataTypes;
@@ -80,7 +80,7 @@ public sealed class SerializableTypeSymbols
 		ClassDataAttributeOfT = classDataAttributeOfT;
 		DataAttribute = dataAttribute;
 		MemberDataAttribute = memberDataAttribute;
-		TheoryAttribute = theoryAttribute;
+		TheoryAttributes = theoryAttributes;
 	}
 
 	public INamedTypeSymbol? BigInteger => bigInteger.Value;
@@ -97,7 +97,7 @@ public sealed class SerializableTypeSymbols
 	public INamedTypeSymbol? IXunitSerializable => iXunitSerializable.Value;
 	public INamedTypeSymbol MemberDataAttribute { get; }
 	public INamedTypeSymbol? Range => range.Value;
-	public INamedTypeSymbol TheoryAttribute { get; }
+	public ImmutableHashSet<INamedTypeSymbol> TheoryAttributes { get; }
 	public INamedTypeSymbol? TheoryDataBaseType => theoryDataBaseType.Value;
 	public INamedTypeSymbol? TimeOnly => timeOnly.Value;
 	public INamedTypeSymbol? TimeSpan => timeSpan.Value;
@@ -114,7 +114,8 @@ public sealed class SerializableTypeSymbols
 		Guard.ArgumentNotNull(compilation);
 		Guard.ArgumentNotNull(xunitContext);
 
-		if (xunitContext.Core.TheoryAttributeType is not INamedTypeSymbol theoryAttribute)
+		var theoryAttributes = xunitContext.Core.TheoryAttributeTypes;
+		if (theoryAttributes.Count == 0)
 			return null;
 		if (xunitContext.Core.DataAttributeType is not INamedTypeSymbol dataAttribute)
 			return null;
@@ -130,7 +131,7 @@ public sealed class SerializableTypeSymbols
 			xunitContext.V3Core?.ClassDataAttributeOfTType,
 			dataAttribute,
 			memberDataAttribute,
-			theoryAttribute,
+			theoryAttributes,
 			TypeSymbolFactory.TheoryData_ByGenericArgumentCount(compilation)
 		);
 	}
