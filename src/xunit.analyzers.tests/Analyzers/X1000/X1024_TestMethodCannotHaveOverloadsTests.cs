@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 using Verify = CSharpVerifier<Xunit.Analyzers.TestMethodCannotHaveOverloads>;
 
@@ -84,6 +85,48 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 		await Verify.VerifyAnalyzer([source1, source2], expected);
 	}
 
+#if NETCOREAPP
+
+	[Fact]
+	public async ValueTask V2_and_V3_NetCore_NonAot()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public interface IHaveDefaultMethods
+			{
+				[Fact]
+				public void Passing() => Assert.IsType<ClassUnderTest>(this);
+
+				[Fact]
+				public void Failing() => Assert.True(false);
+
+				[Fact(Skip = "Statically skipped")]
+				public void Skipping() => Assert.True(false);
+
+				[Fact]
+				public void OverloadOfDefaultNotSupported() { }
+
+				void NonDefaultInterfaceMethodsSupported();
+			}
+
+			public class ClassUnderTest : IHaveDefaultMethods
+			{
+				public void {|#0:OverloadOfDefaultNotSupported|}() { }
+
+				[Fact]
+				public void NonDefaultInterfaceMethodsSupported() { }
+			}
+			""";
+		var expected = new[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("OverloadOfDefaultNotSupported", "ClassUnderTest", "IHaveDefaultMethods"),
+		};
+
+		await Verify.VerifyAnalyzerNonAot(LanguageVersion.CSharp8, source, expected);
+	}
+
+#endif
+
 	[Fact]
 	public async ValueTask V3_only()
 	{
@@ -163,4 +206,46 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 
 		await Verify.VerifyAnalyzerV3([source1, source2], expected);
 	}
+
+#if NETCOREAPP
+
+	[Fact]
+	public async ValueTask V3_only_NetCore_NonAot()
+	{
+		var source = /* lang=c#-test */ """
+			using Xunit;
+
+			public interface IHaveDefaultMethods
+			{
+				[CulturedFact(new[] { "en-US" })]
+				public void Passing() => Assert.IsType<ClassUnderTest>(this);
+
+				[CulturedFact(new[] { "en-US" })]
+				public void Failing() => Assert.True(false);
+
+				[CulturedFact(new[] { "en-US" }, Skip = "Statically skipped")]
+				public void Skipping() => Assert.True(false);
+
+				[CulturedFact(new[] { "en-US" })]
+				public void OverloadOfDefaultNotSupported() { }
+
+				void NonDefaultInterfaceMethodsSupported();
+			}
+
+			public class ClassUnderTest : IHaveDefaultMethods
+			{
+				public void {|#0:OverloadOfDefaultNotSupported|}() { }
+
+				[CulturedFact(new[] { "en-US" })]
+				public void NonDefaultInterfaceMethodsSupported() { }
+			}
+			""";
+		var expected = new[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("OverloadOfDefaultNotSupported", "ClassUnderTest", "IHaveDefaultMethods"),
+		};
+
+		await Verify.VerifyAnalyzerV3NonAot(LanguageVersion.CSharp8, source, expected);
+	}
+
+#endif
 }

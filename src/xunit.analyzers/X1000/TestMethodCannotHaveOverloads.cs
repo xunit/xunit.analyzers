@@ -32,7 +32,7 @@ public class TestMethodCannotHaveOverloads : XunitDiagnosticAnalyzer
 
 			var methodsByName =
 				typeSymbol
-					.GetInheritedAndOwnMembers()
+					.GetInheritedAndOwnMembers(includeDefaultInterfaceMethods: true)
 					.Where(s => s.Kind == SymbolKind.Method)
 					.Cast<IMethodSymbol>()
 					.Where(m => m.MethodKind == MethodKind.Ordinary)

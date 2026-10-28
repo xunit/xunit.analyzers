@@ -72,13 +72,19 @@ public static class SymbolExtensions
 
 	public static ImmutableArray<ISymbol> GetInheritedAndOwnMembers(
 		this ITypeSymbol? symbol,
-		string? name = null)
+		string? name = null,
+		bool includeDefaultInterfaceMethods = false)
 	{
 		var builder = ImmutableArray.CreateBuilder<ISymbol>();
-		while (symbol is not null)
+
+		if (symbol is not null)
 		{
-			builder.AddRange(name is null ? symbol.GetMembers() : symbol.GetMembers(name));
-			symbol = symbol.BaseType;
+			for (var current = symbol; current is not null; current = current.BaseType)
+				builder.AddRange(name is null ? current.GetMembers() : current.GetMembers(name));
+
+			if (includeDefaultInterfaceMethods)
+				foreach (var @interface in symbol.AllInterfaces)
+					builder.AddRange((name is null ? @interface.GetMembers() : @interface.GetMembers(name)).Where(m => !m.IsAbstract));
 		}
 
 		return builder.ToImmutable();
