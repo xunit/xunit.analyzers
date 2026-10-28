@@ -40,6 +40,11 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 				[Fact]
 				public override void TestMethod() { }
 			}
+
+			public class ForAbstractOverrides_DoesNotTrigger : AbstractBaseClass {
+				[Fact]
+				public override void TestMethod() { }
+			}
 			""";
 		var source2 = /* lang=c#-test */ """
 			using Xunit;
@@ -57,6 +62,11 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 			public class OverrideBaseClass {
 				[Fact]
 				public virtual void TestMethod() { }
+			}
+
+			public abstract class AbstractBaseClass {
+				[Fact]
+				public abstract void TestMethod();
 			}
 			""";
 		var expected = new[] {
@@ -110,6 +120,11 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 				[CulturedFact(new[] { "en-US" })]
 				public override void TestMethod() { }
 			}
+
+			public class ForAbstractOverrides_DoesNotTrigger : AbstractBaseClass {
+				[CulturedFact(new[] { "en-US" })]
+				public override void TestMethod() { }
+			}
 			""";
 		var source2 = /* lang=c#-test */ """
 			using Xunit;
@@ -127,6 +142,11 @@ public class X1024_TestMethodCannotHaveOverloadsTests
 			public class OverrideBaseClass {
 				[CulturedFact(new[] { "en-US" })]
 				public virtual void TestMethod() { }
+			}
+
+			public abstract class AbstractBaseClass {
+				[CulturedFact(new[] { "en-US" })]
+				public abstract void TestMethod();
 			}
 			""";
 		var expected = new[] {
