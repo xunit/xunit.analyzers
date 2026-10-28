@@ -228,7 +228,7 @@ public static partial class Descriptors
 			"Test methods cannot have overloads",
 			Usage,
 			Error,
-			"Test method '{0}' on test class '{1}' has the same name as another method declared on class '{2}'. Rename method(s) so that there are no overloaded names."
+			"Test method '{0}' on type '{1}' has the same name as another method declared on type '{2}'. Rename method(s) so that there are no overloaded names."
 		);
 
 	public static DiagnosticDescriptor X1025_InlineDataShouldBeUniqueWithinTheory { get; } =
