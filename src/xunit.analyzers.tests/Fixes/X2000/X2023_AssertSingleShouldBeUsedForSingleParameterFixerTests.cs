@@ -10,6 +10,7 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 	public async ValueTask V2_and_V3()
 	{
 		var before = /* lang=c#-test */ """
+			using System;
 			using System.Collections.Generic;
 			using System.Threading.Tasks;
 			using Xunit;
@@ -93,9 +94,64 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 							"abc",
 							item))|];
 				}
+
+				// https://github.com/xunit/xunit/issues/3659
+				[Fact]
+				public async Task WithParenthesizedLambda() {
+					[|Assert.Collection(default(IEnumerable<object>), (item) => Assert.NotNull(item))|];
+					[|Assert.Collection(default(IEnumerable<string>), (object item) => Assert.NotNull(item))|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), async (item) => Assert.Equal(42, await item))|];
+				}
+
+				[Fact]
+				public async Task WithAwaitedLambda() {
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), async item => await AsyncElementInspector(item))|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), item => AsyncElementInspector(item))|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), item => item ?? Task.CompletedTask)|];
+				}
+
+				[Fact]
+				public async Task WithMemberAccessInspector() {
+					[|Assert.Collection(default(IEnumerable<object>), this.ElementInspector)|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), this.AsyncElementInspector)|];
+				}
+
+				[Fact]
+				public async Task WithDelegateInspector() {
+					Action<object> inspector = ElementInspector;
+					Func<Task<int>, Task> asyncInspector = AsyncElementInspector;
+					[|Assert.Collection(default(IEnumerable<object>), inspector)|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), asyncInspector)|];
+				}
+
+				[Fact]
+				public void WithThrowingLambda() {
+					[|Assert.Collection(default(IEnumerable<object>), item => throw new InvalidOperationException())|];
+				}
+
+				[Fact]
+				public void WithReturnInNestedFunction() {
+					[|Assert.Collection(default(IEnumerable<object>), item => {
+						Func<bool> isNull = () => { return item == null; };
+						bool IsNull() { return item == null; }
+						Assert.False(isNull() || IsNull());
+					})|];
+				}
+
+				[Fact]
+				public async Task CannotFixLambdaWithReturn() {
+					[|Assert.Collection(default(IEnumerable<object>), item => { if (item == null) return; Assert.NotNull(item); })|];
+					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), item => { return AsyncElementInspector(item); })|];
+				}
+
+				[Fact]
+				public void CannotFixAnonymousMethod() {
+					[|Assert.Collection(default(IEnumerable<object>), delegate (object item) { Assert.NotNull(item); })|];
+				}
 			}
 			""";
 		var after = /* lang=c#-test */ """
+			using System;
 			using System.Collections.Generic;
 			using System.Threading.Tasks;
 			using Xunit;
@@ -185,9 +241,78 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 					var item = Assert.Single(default(IEnumerable<string>));
 					Assert.Equal("abc", item);
 				}
+
+				// https://github.com/xunit/xunit/issues/3659
+				[Fact]
+				public async Task WithParenthesizedLambda() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item);
+					object item_2 = Assert.Single(default(IEnumerable<string>));
+					Assert.NotNull(item_2);
+					var item_3 = Assert.Single(default(IEnumerable<Task<int>>));
+					Assert.Equal(42, await item_3);
+				}
+
+				[Fact]
+				public async Task WithAwaitedLambda() {
+					var item = Assert.Single(default(IEnumerable<Task<int>>));
+					await AsyncElementInspector(item);
+					var item_2 = Assert.Single(default(IEnumerable<Task<int>>));
+					await AsyncElementInspector(item_2);
+					var item_3 = Assert.Single(default(IEnumerable<Task<int>>));
+					await (item_3 ?? Task.CompletedTask);
+				}
+
+				[Fact]
+				public async Task WithMemberAccessInspector() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					this.ElementInspector(item);
+					var item_2 = Assert.Single(default(IEnumerable<Task<int>>));
+					await this.AsyncElementInspector(item_2);
+				}
+
+				[Fact]
+				public async Task WithDelegateInspector() {
+					Action<object> inspector = ElementInspector;
+					Func<Task<int>, Task> asyncInspector = AsyncElementInspector;
+					var item = Assert.Single(default(IEnumerable<object>));
+					inspector(item);
+					var item_2 = Assert.Single(default(IEnumerable<Task<int>>));
+					await asyncInspector(item_2);
+				}
+
+				[Fact]
+				public void WithThrowingLambda() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					throw new InvalidOperationException();
+				}
+
+				[Fact]
+				public void WithReturnInNestedFunction() {
+					var item = Assert.Single(default(IEnumerable<object>));
+					Func<bool> isNull = () => { return item == null; };
+					bool IsNull() { return item == null; }
+					Assert.False(isNull() || IsNull());
+				}
+
+				[Fact]
+				public async Task CannotFixLambdaWithReturn() {
+					{|#1:Assert.Collection(default(IEnumerable<object>), item => { if (item == null) return; Assert.NotNull(item); })|};
+					await {|#2:Assert.CollectionAsync(default(IEnumerable<Task<int>>), item => { return AsyncElementInspector(item); })|};
+				}
+
+				[Fact]
+				public void CannotFixAnonymousMethod() {
+					{|#3:Assert.Collection(default(IEnumerable<object>), delegate (object item) { Assert.NotNull(item); })|};
+				}
 			}
 			""";
-		var expected = Verify.Diagnostic().WithLocation(0).WithArguments("Collection");
+		var expected = new[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("Collection"),
+			Verify.Diagnostic().WithLocation(1).WithArguments("Collection"),
+			Verify.Diagnostic().WithLocation(2).WithArguments("CollectionAsync"),
+			Verify.Diagnostic().WithLocation(3).WithArguments("Collection"),
+		};
 
 		await Verify.VerifyCodeFix(LanguageVersion.CSharp8, before, after, AssertSingleShouldBeUsedForSingleParameterFixer.Key_UseSingleMethod, expected);
 	}
