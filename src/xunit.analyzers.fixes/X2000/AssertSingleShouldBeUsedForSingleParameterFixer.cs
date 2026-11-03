@@ -40,17 +40,27 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		return result;
 	}
 
-	static IEnumerable<SyntaxNode> GetLambdaStatements(SimpleLambdaExpressionSyntax lambdaExpression)
+	static IEnumerable<SyntaxNode> GetLambdaStatements(
+		CSharpSyntaxNode lambdaBody,
+		bool needAwait)
 	{
-		if (lambdaExpression.ExpressionBody is InvocationExpressionSyntax lambdaBody)
-			yield return ExpressionStatement(lambdaBody.NormalizeWhitespace()).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
-		else if (lambdaExpression.Block is not null && lambdaExpression.Block.Statements.Count != 0)
-			foreach (var statement in lambdaExpression.Block.Statements)
+		if (lambdaBody is ThrowExpressionSyntax throwExpression)
+			yield return ThrowStatement(throwExpression.Expression.NormalizeWhitespace()).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+		else if (lambdaBody is ExpressionSyntax expression)
+		{
+			// The simplifier removes the parentheses unless they're needed for precedence
+			if (needAwait)
+				expression = AwaitExpression(ParenthesizedExpression(expression));
+
+			yield return ExpressionStatement(expression.NormalizeWhitespace()).WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
+		}
+		else if (lambdaBody is BlockSyntax block)
+			foreach (var statement in block.Statements)
 				yield return statement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation);
 	}
 
 	static SyntaxNode GetMethodInvocation(
-		IdentifierNameSyntax methodExpression,
+		ExpressionSyntax methodExpression,
 		string parameterName,
 		bool needAwait)
 	{
@@ -67,12 +77,13 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 
 	static LocalDeclarationStatementSyntax OneItemVariableStatement(
 		string parameterName,
+		TypeSyntax? parameterType,
 		InvocationExpressionSyntax replacementNode)
 	{
 		var equalsToReplacementNode = EqualsValueClause(replacementNode.WithoutTrivia());
 
 		var oneItemVariableDeclaration = VariableDeclaration(
-			ParseTypeName("var"),
+			parameterType ?? ParseTypeName("var"),
 			SingletonSeparatedList(
 				VariableDeclarator(Identifier(parameterName))
 					.WithInitializer(equalsToReplacementNode)
@@ -108,9 +119,18 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		if (nodeToReplace is not ExpressionStatementSyntax)
 			return;
 
+		var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+		if (semanticModel is null)
+			return;
+
+		// Only offer the fix when the inspector can be kept, otherwise the assertion would be lost
+		var statements = GetReplacementStatements(semanticModel, invocation, nodeToReplace, assertMethodName, replacement, context.CancellationToken);
+		if (statements is null)
+			return;
+
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
-				ct => UseSingleMethod(context.Document, invocation, nodeToReplace, assertMethodName, replacement, ct),
+				ct => UseSingleMethod(context.Document, nodeToReplace, statements, ct),
 				Key_UseSingleMethod,
 				"Use Assert.{0}", replacement
 			),
@@ -118,66 +138,87 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		);
 	}
 
-	static async Task<Document> UseSingleMethod(
-		Document document,
+	static List<SyntaxNode>? GetReplacementStatements(
+		SemanticModel semanticModel,
 		InvocationExpressionSyntax invocation,
 		SyntaxNode nodeToReplace,
 		string assertMethodName,
 		string replacementMethod,
 		CancellationToken cancellationToken)
 	{
+		if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
+			return null;
+
+		var needAwait = assertMethodName == Constants.Asserts.CollectionAsync;
+		var inspector = invocation.ArgumentList.Arguments[1].Expression;
+		var startLocation = invocation.GetLocation().SourceSpan.Start;
+		var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
+		var replacementNode =
+			invocation
+				.WithArgumentList(ArgumentList(SeparatedList([Argument(invocation.ArgumentList.Arguments[0].Expression)])))
+				.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
+
+		if (inspector is LambdaExpressionSyntax lambdaExpression)
+		{
+			var parameter = lambdaExpression switch
+			{
+				SimpleLambdaExpressionSyntax simpleLambda => simpleLambda.Parameter,
+				ParenthesizedLambdaExpressionSyntax { ParameterList.Parameters.Count: 1 } parenthesizedLambda => parenthesizedLambda.ParameterList.Parameters[0],
+				_ => null,
+			};
+			if (parameter is null)
+				return null;
+
+			// Inlining a 'return' would return from the test method rather than the inspector
+			if (lambdaExpression.Block?.DescendantNodes(n => n is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax)).OfType<ReturnStatementSyntax>().Any() == true)
+				return null;
+
+			var body = lambdaExpression.Body;
+			var originalParameterName = parameter.Identifier.Text;
+			var parameterName = GetSafeVariableName(originalParameterName, localSymbols);
+
+			if (parameterName != originalParameterName)
+			{
+				var tokens =
+					body
+						.DescendantTokens()
+						.Where(t => t.IsKind(SyntaxKind.IdentifierToken) && t.Text == originalParameterName)
+						.ToArray();
+
+				body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
+			}
+
+			// A non-async inspector for 'Assert.CollectionAsync' returns its task, which must now be awaited
+			return [
+				OneItemVariableStatement(parameterName, parameter.Type, replacementNode).WithTriviaFrom(nodeToReplace),
+				.. GetLambdaStatements(body, needAwait && !lambdaExpression.Modifiers.Any(SyntaxKind.AsyncKeyword)),
+			];
+		}
+
+		if (inspector is SimpleNameSyntax or MemberAccessExpressionSyntax
+			&& (semanticModel.GetSymbolInfo(inspector, cancellationToken).Symbol is IMethodSymbol || semanticModel.GetTypeInfo(inspector, cancellationToken).Type?.TypeKind == TypeKind.Delegate))
+		{
+			var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);
+
+			return [
+				OneItemVariableStatement(parameterName, null, replacementNode).WithTriviaFrom(nodeToReplace),
+				GetMethodInvocation(inspector.WithoutTrivia(), parameterName, needAwait),
+			];
+		}
+
+		return null;
+	}
+
+	static async Task<Document> UseSingleMethod(
+		Document document,
+		SyntaxNode nodeToReplace,
+		List<SyntaxNode> statements,
+		CancellationToken cancellationToken)
+	{
 		var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
 
-		if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
-		{
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (semanticModel is not null && invocation.Parent is not null)
-			{
-				var statements = new List<SyntaxNode>();
-				var startLocation = invocation.GetLocation().SourceSpan.Start;
-				var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
-				var replacementNode =
-					invocation
-						.WithArgumentList(ArgumentList(SeparatedList([Argument(invocation.ArgumentList.Arguments[0].Expression)])))
-						.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
-
-				if (invocation.ArgumentList.Arguments[1].Expression is SimpleLambdaExpressionSyntax lambdaExpression)
-				{
-					var originalParameterName = lambdaExpression.Parameter.Identifier.Text;
-					var parameterName = GetSafeVariableName(originalParameterName, localSymbols);
-
-					if (parameterName != originalParameterName)
-					{
-						var body = lambdaExpression.Body;
-						var tokens =
-							body
-								.DescendantTokens()
-								.Where(t => t.IsKind(SyntaxKind.IdentifierToken) && t.Text == originalParameterName)
-								.ToArray();
-
-						body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
-						lambdaExpression = lambdaExpression.WithBody(body);
-					}
-
-					statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(nodeToReplace));
-					statements.AddRange(GetLambdaStatements(lambdaExpression));
-				}
-				else if (invocation.ArgumentList.Arguments[1].Expression is IdentifierNameSyntax identifierExpression)
-				{
-					var isMethod = semanticModel.GetSymbolInfo(identifierExpression, cancellationToken).Symbol?.Kind == SymbolKind.Method;
-					if (isMethod)
-					{
-						var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);
-
-						statements.Add(OneItemVariableStatement(parameterName, replacementNode).WithTriviaFrom(nodeToReplace));
-						statements.Add(GetMethodInvocation(identifierExpression, parameterName, needAwait: assertMethodName == Constants.Asserts.CollectionAsync));
-					}
-				}
-
-				editor.InsertBefore(nodeToReplace, statements);
-				editor.RemoveNode(nodeToReplace);
-			}
-		}
+		editor.InsertBefore(nodeToReplace, statements);
+		editor.RemoveNode(nodeToReplace);
 
 		return editor.GetChangedDocument();
 	}
