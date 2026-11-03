@@ -270,11 +270,35 @@ public class X2024_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 					Assert.False(ptr != null);
 					Assert.False(null != ptr);
 				}
+
+				unsafe void ComparingAgainstNullFunctionPointer_DoesNotTrigger(delegate*<void> ptr) {
+					Assert.True(ptr == null);
+					Assert.True(null == ptr);
+					Assert.True(ptr != null);
+					Assert.True(null != ptr);
+
+					Assert.False(ptr == null);
+					Assert.False(null == ptr);
+					Assert.False(ptr != null);
+					Assert.False(null != ptr);
+				}
+
+				unsafe void ComparingAgainstNullVoidPointer_DoesNotTrigger(void* ptr) {
+					Assert.True(ptr == null);
+					Assert.True(null == ptr);
+					Assert.True(ptr != null);
+					Assert.True(null != ptr);
+
+					Assert.False(ptr == null);
+					Assert.False(null == ptr);
+					Assert.False(ptr != null);
+					Assert.False(null != ptr);
+				}
 			}
 			""";
 
-		await Verify.VerifyAnalyzerV2(source);
-		await Verify_v3_Pre_301.VerifyAnalyzerV3(source);
+		await Verify.VerifyAnalyzerV2(LanguageVersion.CSharp9, source);
+		await Verify_v3_Pre_301.VerifyAnalyzerV3(LanguageVersion.CSharp9, source);
 	}
 
 	[Fact]
@@ -298,6 +322,30 @@ public class X2024_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 					{|#12:Assert.False(ptr != null)|};
 					{|#13:Assert.False(null != ptr)|};
 				}
+
+				unsafe void ComparingAgainstNullFunctionPointer_DoesNotTrigger(delegate*<void> ptr) {
+					Assert.True(ptr == null);
+					Assert.True(null == ptr);
+					Assert.True(ptr != null);
+					Assert.True(null != ptr);
+
+					Assert.False(ptr == null);
+					Assert.False(null == ptr);
+					Assert.False(ptr != null);
+					Assert.False(null != ptr);
+				}
+
+				unsafe void ComparingAgainstNullVoidPointer_DoesNotTrigger(void* ptr) {
+					Assert.True(ptr == null);
+					Assert.True(null == ptr);
+					Assert.True(ptr != null);
+					Assert.True(null != ptr);
+
+					Assert.False(ptr == null);
+					Assert.False(null == ptr);
+					Assert.False(ptr != null);
+					Assert.False(null != ptr);
+				}
 			}
 			""";
 		var expected = new[] {
@@ -312,7 +360,7 @@ public class X2024_BooleanAssertsShouldNotBeUsedForSimpleEqualityCheckTests
 			Verify.Diagnostic("xUnit2024").WithLocation(13).WithArguments("False", "Null"),
 		};
 
-		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp8, source, expected);
+		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp9, source, expected);
 	}
 
 	public class Analyzer_v3_Pre301 : BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck
