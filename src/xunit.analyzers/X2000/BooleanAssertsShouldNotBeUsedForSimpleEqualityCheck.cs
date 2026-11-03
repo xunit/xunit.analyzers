@@ -90,6 +90,10 @@ public class BooleanAssertsShouldNotBeUsedForSimpleEqualityCheck : AssertUsageAn
 				// Can't rewrite exactly if there is a "message" (second) argument
 				if (arguments.Count > 1)
 					return;
+				// Can't rewrite function pointers or void pointers, since no Null assertion accepts them
+				var nullOperandType = semanticModel?.GetTypeInfo(leftKind is not null ? binaryArgument.Right : binaryArgument.Left, context.CancellationToken).Type;
+				if (nullOperandType is IFunctionPointerTypeSymbol or IPointerTypeSymbol { PointedAtType.SpecialType: SpecialType.System_Void })
+					return;
 				// Can't rewrite if we're using a pointer and don't support pointers in Null assertions
 				if (!xunitContext.Assert.SupportsAssertNullWithPointers)
 					if (binaryArgument.Left.IsPointer(semanticModel, context.CancellationToken) || binaryArgument.Right.IsPointer(semanticModel, context.CancellationToken))
