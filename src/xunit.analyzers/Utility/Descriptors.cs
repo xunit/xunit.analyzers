@@ -12,12 +12,13 @@ public static partial class Descriptors
 		string title,
 		Category category,
 		DiagnosticSeverity defaultSeverity,
-		string messageFormat)
+		string messageFormat,
+		params string[] customTags)
 	{
 		var helpLink = $"https://xunit.net/xunit.analyzers/rules/{id}";
 		var categoryString = categoryMapping.GetOrAdd(category, c => c.ToString());
 
-		return new DiagnosticDescriptor(id, title, messageFormat, categoryString, defaultSeverity, isEnabledByDefault: true, helpLinkUri: helpLink);
+		return new DiagnosticDescriptor(id, title, messageFormat, categoryString, defaultSeverity, isEnabledByDefault: true, helpLinkUri: helpLink, customTags: customTags);
 	}
 
 	static SuppressionDescriptor Suppression(
