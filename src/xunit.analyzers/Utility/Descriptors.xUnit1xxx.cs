@@ -663,7 +663,15 @@ public static partial class Descriptors
 			"Inherited test method '{0}.{1}' is declared in a referenced assembly and will not run in Native AOT. Declare the test method in source instead."
 		);
 
-	// Placeholder for rule X1073
+	public static DiagnosticDescriptor X1073_CollectionDefinitionIsNeverUsed { get; } =
+		Diagnostic(
+			"xUnit1073",
+			"Collection definition is never used",
+			Usage,
+			Warning,
+			"Collection definition '{0}' is never used. Fix a misspelled collection name in a [Collection] attribute, or remove the unused definition.",
+			WellKnownDiagnosticTags.CompilationEnd
+		);
 
 	// Placeholder for rule X1074
 
