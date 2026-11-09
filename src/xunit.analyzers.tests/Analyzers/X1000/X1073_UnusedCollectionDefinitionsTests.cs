@@ -110,4 +110,63 @@ public class X1073_UnusedCollectionDefinitionsTests
 
 		await Verify.VerifyAnalyzerV3(LanguageVersion.CSharp11, source, expected);
 	}
+
+	[Fact]
+	public async ValueTask WithReferencedAssembly()
+	{
+		var referenceSource = /* lang=c#-test */ """
+			using Xunit;
+
+			namespace SharedTestInfrastructure {
+				public sealed class SharedFixture {
+					public const string CollectionName = "Shared";
+				}
+
+				[Collection(SharedFixture.CollectionName)]
+				public abstract class SharedTestBase { }
+
+				public abstract class IntermediateSharedTestBase : SharedTestBase { }
+
+				[Collection("GenericShared")]
+				public abstract class GenericSharedTestBase<T> { }
+			}
+			""";
+
+		var source = /* lang=c#-test */ """
+			using SharedTestInfrastructure;
+			using Xunit;
+
+			[CollectionDefinition(SharedFixture.CollectionName)]
+			public class SharedCollection { }
+
+			public class DirectDerivedTests : SharedTestBase {
+				[Fact]
+				public void TestMethod() { }
+			}
+
+			[CollectionDefinition("GenericShared")]
+			public class GenericSharedCollection { }
+
+			public class MultilevelAndGenericDerivedTests : GenericSharedTestBase<int> {
+				[Fact]
+				public void TestMethod() { }
+			}
+
+			public class MultilevelDerivedTests : IntermediateSharedTestBase {
+				[Fact]
+				public void TestMethod() { }
+			}
+
+			[CollectionDefinition("UnusedInReferencedScenario")]
+			public class {|#0:UnusedCollection|} { }
+			""";
+		var expected = new[] {
+			Verify.Diagnostic().WithLocation(0).WithArguments("UnusedInReferencedScenario"),
+		};
+
+		await Verify.VerifyAnalyzerNonAotWithMetadataReference(source, referenceSource, expected);
+#if NETCOREAPP && ROSLYN_LATEST
+		await Verify.VerifyAnalyzerV3AotWithMetadataReference(source, referenceSource, expected);
+#endif
+	}
 }

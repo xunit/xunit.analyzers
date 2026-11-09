@@ -30,6 +30,24 @@ public class UnusedCollectionDefinitions : XunitDiagnosticAnalyzer
 		var definitions = new ConcurrentBag<(INamedTypeSymbol Type, string? Name)>();
 		var referencedNames = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
 		var referencedTypes = new ConcurrentDictionary<INamedTypeSymbol, bool>(SymbolEqualityComparer.Default);
+		var visitedBaseTypes = new ConcurrentDictionary<INamedTypeSymbol, bool>(SymbolEqualityComparer.Default);
+
+		void CollectCollectionReference(AttributeData attribute)
+		{
+			if (collectionAttributeType.IsAssignableFrom(attribute.AttributeClass))
+			{
+				var argument = attribute.ConstructorArguments.FirstOrDefault().Value;
+				if (argument is string name)
+					referencedNames.TryAdd(name, true);
+				else if (argument is INamedTypeSymbol type)
+					referencedTypes.TryAdd(type, true);
+			}
+			else if (collectionAttributeOfTType is not null
+				&& attribute.AttributeClass is { IsGenericType: true } attributeClass
+				&& SymbolEqualityComparer.Default.Equals(collectionAttributeOfTType, attributeClass.ConstructUnboundGenericType())
+				&& attributeClass.TypeArguments.FirstOrDefault() is INamedTypeSymbol typeArgument)
+				referencedTypes.TryAdd(typeArgument, true);
+		}
 
 		context.RegisterSymbolAction(context =>
 		{
@@ -42,19 +60,23 @@ public class UnusedCollectionDefinitions : XunitDiagnosticAnalyzer
 
 				if (collectionDefinitionAttributeType.IsAssignableFrom(attribute.AttributeClass))
 					definitions.Add((namedType, attribute.ConstructorArguments.FirstOrDefault().Value as string));
-				else if (collectionAttributeType.IsAssignableFrom(attribute.AttributeClass))
+				else
+					CollectCollectionReference(attribute);
+			}
+
+			for (var baseType = namedType.BaseType; baseType is not null && baseType.SpecialType != SpecialType.System_Object; baseType = baseType.BaseType)
+			{
+				context.CancellationToken.ThrowIfCancellationRequested();
+
+				if (!baseType.DeclaringSyntaxReferences.IsEmpty || !visitedBaseTypes.TryAdd(baseType.OriginalDefinition, true))
+					continue;
+
+				foreach (var attribute in baseType.GetAttributes())
 				{
-					var argument = attribute.ConstructorArguments.FirstOrDefault().Value;
-					if (argument is string name)
-						referencedNames.TryAdd(name, true);
-					else if (argument is INamedTypeSymbol type)
-						referencedTypes.TryAdd(type, true);
+					context.CancellationToken.ThrowIfCancellationRequested();
+
+					CollectCollectionReference(attribute);
 				}
-				else if (collectionAttributeOfTType is not null
-					&& attribute.AttributeClass is { IsGenericType: true } attributeClass
-					&& SymbolEqualityComparer.Default.Equals(collectionAttributeOfTType, attributeClass.ConstructUnboundGenericType())
-					&& attributeClass.TypeArguments.FirstOrDefault() is INamedTypeSymbol typeArgument)
-					referencedTypes.TryAdd(typeArgument, true);
 			}
 		}, SymbolKind.NamedType);
 
