@@ -161,6 +161,21 @@ public class X1051_UseCancellationTokenTests
 				public void CulturedFact_WhenOverloadIsObsolete_DoesNotTrigger() {
 					FunctionWithOverload_Obsolete(42);
 				}
+
+				class ExternalClass {
+					public void OverloadNotVisible() { }
+					protected void OverloadNotVisible(CancellationToken cancellationToken) { }
+				}
+
+				[Fact]
+				public void Fact_WhenOverloadNotVisible_DoesNotTrigger() {
+					new ExternalClass().OverloadNotVisible();
+				}
+
+				[CulturedFact(new[] { "en-US" })]
+				public void CulturedFact_WhenOverloadNotVisible_DoesNotTrigger() {
+					new ExternalClass().OverloadNotVisible();
+				}
 			}
 			""";
 

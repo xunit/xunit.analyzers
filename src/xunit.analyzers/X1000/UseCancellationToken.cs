@@ -81,10 +81,17 @@ public class UseCancellationToken : XunitDiagnosticAnalyzer
 			// Look for an overload with the exact same parameter types + a CancellationToken
 			else
 			{
+				var testClassSymbol = default(INamedTypeSymbol);
+				if (context.ContainingSymbol is IMethodSymbol methodSymbol)
+					testClassSymbol = methodSymbol.ContainingType;
+
 				var targetParameterTypes = parameters.Select(p => p.Type).Concat([cancellationTokenType]).ToArray();
 				foreach (var member in invokedMethod.ContainingType.GetMembers(invokedMethod.Name))
 					if (member is IMethodSymbol method)
 					{
+						if (testClassSymbol is not null && !context.Compilation.IsSymbolAccessibleWithin(method, testClassSymbol))
+							continue;
+
 						if (attributeUsageAttribute is not null && obsoleteAttribute is not null)
 						{
 							var attributes = method.GetAttributesWithInheritance(attributeUsageAttribute);
