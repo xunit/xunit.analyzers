@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Composition;
 using System.Linq;
@@ -59,13 +60,19 @@ public class UseCancellationTokenFixer : XunitCodeFixProvider
 			return;
 
 		var arguments = invocation.ArgumentList.Arguments;
+		var namedArgumentIndex = default(int?);
 
 		for (var argumentIndex = 0; argumentIndex < arguments.Count; argumentIndex++)
 			if (arguments[argumentIndex].NameColon?.Name.Identifier.Text == parameterName)
 			{
+				namedArgumentIndex = argumentIndex;
 				parameterIndex = argumentIndex;
 				break;
 			}
+
+		var useExistingArgument =
+			parameterIndex < arguments.Count
+			&& (namedArgumentIndex is not null || arguments[parameterIndex].NameColon is null);
 
 		context.RegisterCodeFix(
 			XunitCodeAction.Create(
@@ -86,7 +93,7 @@ public class UseCancellationTokenFixer : XunitCodeFixProvider
 					if (invocationOperation.Arguments.FirstOrDefault(arg => arg.ArgumentKind == ArgumentKind.ParamArray) is { } paramsArgument)
 						TransformParamsArgument(args, paramsArgument, editor.Generator);
 
-					if (parameterIndex < args.Count)
+					if (parameterIndex < args.Count && (namedArgumentIndex is not null || args[parameterIndex].NameColon is null))
 						args[parameterIndex] = args[parameterIndex].WithExpression(testContextCancellationTokenExpression);
 					else
 					{
@@ -94,7 +101,7 @@ public class UseCancellationTokenFixer : XunitCodeFixProvider
 						if (parameterIndex > args.Count || args.Any(arg => arg.NameColon is not null))
 							argument = argument.WithNameColon(NameColon(parameterName));
 
-						args.Add(argument);
+						args.Insert(Math.Min(parameterIndex, args.Count), argument);
 					}
 
 					editor.ReplaceNode(
@@ -106,7 +113,7 @@ public class UseCancellationTokenFixer : XunitCodeFixProvider
 					return editor.GetChangedDocument();
 				},
 				Key_UseCancellationTokenArgument,
-				"{0} TestContext.Current.CancellationToken", parameterIndex < arguments.Count ? "Use" : "Add"
+				"{0} TestContext.Current.CancellationToken", useExistingArgument ? "Use" : "Add"
 			),
 			context.Diagnostics
 		);
