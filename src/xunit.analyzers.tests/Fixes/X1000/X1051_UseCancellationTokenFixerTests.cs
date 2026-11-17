@@ -45,9 +45,13 @@ public class X1051_UseCancellationTokenFixerTests
 					[|FunctionWithDefaults(42)|];
 					[|FunctionWithDefaults(cancellationToken: default(CancellationToken))|];
 					[|FunctionWithDefaults(42, cancellationToken: default(CancellationToken))|];
+					[|FunctionWithDefaults(_1: 42, _2: 2600, _3: "hello")|];
+					[|FunctionWithDefaults(42, _2: 2600, _3: "hello")|];
+					[|FunctionWithDefaults(42, _3: "hello")|];
+					[|FunctionWithDefaults(42, _2: 2600, cancellationToken: default(CancellationToken))|];
 				}
 
-				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken), int _2 = 2600, string _3 = "world") { }
 
 				[Fact]
 				public void WithParams()
@@ -106,9 +110,13 @@ public class X1051_UseCancellationTokenFixerTests
 					FunctionWithDefaults(42, TestContext.Current.CancellationToken);
 					FunctionWithDefaults(cancellationToken: TestContext.Current.CancellationToken);
 					FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken);
+					FunctionWithDefaults(_1: 42, cancellationToken: TestContext.Current.CancellationToken, _2: 2600, _3: "hello");
+					FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken, _2: 2600, _3: "hello");
+					FunctionWithDefaults(42, cancellationToken: TestContext.Current.CancellationToken, _3: "hello");
+					FunctionWithDefaults(42, _2: 2600, cancellationToken: TestContext.Current.CancellationToken);
 				}
 
-				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken)) { }
+				void FunctionWithDefaults(int _1 = 2112, CancellationToken cancellationToken = default(CancellationToken), int _2 = 2600, string _3 = "world") { }
 
 				[Fact]
 				public void WithParams()
