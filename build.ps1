@@ -4,9 +4,19 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ($null -eq (Get-Command "git" -ErrorAction Ignore)) {
-	throw "Could not find 'git'; please install the Git command line tooling"
+function GuardBin {
+	param (
+		[string]$binary,
+		[string]$message
+	)
+
+	if ($null -eq (Get-Command $binary -ErrorAction Ignore)) {
+		throw "Could not find '$binary'; $message"
+	}
 }
+
+GuardBin git "please install the Git CLI from https://git-scm.com/"
+GuardBin dotnet "please install the .NET SDK from https://dot.net/"
 
 & git submodule status | ForEach-Object {
 	if ($_[0] -eq '-') {
@@ -14,15 +24,6 @@ if ($null -eq (Get-Command "git" -ErrorAction Ignore)) {
 		& git submodule update --init "$($pieces[1])"
 		Write-Host ""
 	}
-}
-
-if ($null -eq (Get-Command "dotnet" -ErrorAction Ignore)) {
-	throw "Could not find 'dotnet'; please install the  .NET Core SDK"
-}
-
-$version = [Version]$([regex]::matches((&dotnet --version), '^(\d+\.)?(\d+\.)?(\*|\d+)').value)
-if ($version.Major -lt 10) {
-	throw ".NET SDK version ($version) is too low; please install version 10.0 or later"
 }
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Definition)
