@@ -1,12 +1,13 @@
 # Building xUnit.net Analyzers
 
-The primary build system for xUnit.net Analyzers is done via command line, and officially supports Linux and Windows. Users running macOS can generally follow the Linux instructions (while installing the macOS equivalents of the dependencies).
+The primary build system for xUnit.net is done via command line, and officially supports Linux and Windows. Users running macOS can generally follow the Linux instructions (while installing the macOS equivalents of the dependencies).
 
 # Pre-Requisites
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+* [.NET SDK 11.0](https://dotnet.microsoft.com/download/dotnet/11.0)
+* [.NET Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 * [git](https://git-scm.com/downloads)
 
 ## Linux Pre-Requisites
@@ -21,18 +22,16 @@ Note: Linux users cannot run the .NET Framework tests, as they are incompatible.
 
 Windows users will additionally need:
 
-* .NET Framework 4.7.2 or later (part of the Windows OS)
-* [PowerShell 7+](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows)
+* .NET Framework 4.8.1 or later (part of the Windows OS)
+* PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows))
 
 Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running `Set-ExecutionPolicy RemoteSigned` from within PowerShell, or by launching PowerShell with the `-ExecutionPolicy RemoteSigned` command line switch).
-
-_Note that the built-in version of PowerShell may work, but is unsupported by us. If you have PowerShell-related issues, please make sure you have installed PowerShell 7+ and the command prompt you opened is for PowerShell 7+, and not the built-in version of PowerShell._
 
 # Command-Line Build
 
 1. **Linux users:** Open a terminal to your favorite shell.
 
-    **Windows users:** Open PowerShell 7+.
+    **Windows users:** Open PowerShell (or PowerShell Core).
 
 1. From the root folder of the source repo, this command will build the code & run all tests:
 
@@ -47,6 +46,8 @@ _Note that the built-in version of PowerShell may work, but is unsupported by us
     * `Restore`: Perform package restore
     * `Build`: Build the source
     * `Test`: Run all unit tests
+    * `Packages`: Create NuGet packages
+    * `FormatSource`: Re-formats the source code
 
     You can get a list of options:
 

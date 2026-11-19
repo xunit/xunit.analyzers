@@ -30,7 +30,7 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+  <Target Name="UpdateNuSpecProperties" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <SignedPath />
       <SignedPath Condition=" '$(SIGN_APP_ID)' != '' ">signed\</SignedPath>

@@ -5,6 +5,7 @@
 
   <PropertyGroup>
     <AnnotatedReferenceAssemblyVersion>9.0.14</AnnotatedReferenceAssemblyVersion>
+    <BeforePack>$(BeforePack);UpdateNuSpecProperties</BeforePack>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
