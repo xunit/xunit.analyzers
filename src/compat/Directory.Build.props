@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);ROSLYN_LATEST</DefineConstants>
-    <MicrosoftCodeAnalysisVersion>5.3.0</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion>5.12.0</MicrosoftCodeAnalysisVersion>
   </PropertyGroup>
 
   <Import Project="..\Directory.Build.props"/>
