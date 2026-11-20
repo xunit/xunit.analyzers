@@ -40,6 +40,37 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		return result;
 	}
 
+	static ImmutableHashSet<string> GetLocalSymbols(
+		SemanticModel semanticModel,
+		InvocationExpressionSyntax invocation,
+		SyntaxNode nodeToReplace,
+		CancellationToken cancellationToken)
+	{
+		var startLocation = invocation.GetLocation().SourceSpan.Start;
+		var symbols =
+			semanticModel
+				.LookupSymbols(startLocation)
+				.Where(s => s is ILocalSymbol or IParameterSymbol)
+				.Select(s => s.Name)
+				.ToImmutableHashSet()
+				.ToBuilder();
+
+		if (nodeToReplace.Parent is SyntaxNode enclosingScope)
+		{
+			var nestedLocalNames =
+				enclosingScope
+					.DescendantNodes(n => n is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax))
+					.Select(n => semanticModel.GetDeclaredSymbol(n, cancellationToken))
+					.OfType<ILocalSymbol>()
+					.Select(s => s.Name);
+
+			foreach (var name in nestedLocalNames)
+				symbols.Add(name);
+		}
+
+		return symbols.ToImmutable();
+	}
+
 	static IEnumerable<SyntaxNode> GetLambdaStatements(
 		CSharpSyntaxNode lambdaBody,
 		bool needAwait)
@@ -99,15 +130,15 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		if (root is null)
 			return;
 
-		var invocation = root.FindNode(context.Span).FirstAncestorOrSelf<InvocationExpressionSyntax>();
-		if (invocation is null)
-			return;
-
 		if (context.Diagnostics.FirstOrDefault() is not Diagnostic diagnostic)
 			return;
 		if (!diagnostic.Properties.TryGetValue(Constants.Properties.AssertMethodName, out var assertMethodName) || assertMethodName is null)
 			return;
 		if (!diagnostic.Properties.TryGetValue(Constants.Properties.Replacement, out var replacement) || replacement is null)
+			return;
+
+		var invocation = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true).FirstAncestorOrSelf<InvocationExpressionSyntax>();
+		if (invocation is null)
 			return;
 
 		// We want to remove the 'await' in front of 'Assert.CollectionAsync' since 'Assert.Single' doesn't need it
@@ -146,17 +177,37 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 		string replacementMethod,
 		CancellationToken cancellationToken)
 	{
-		if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
+		if (invocation.ArgumentList.Arguments.Count != 2)
 			return null;
 
+		ExpressionSyntax? replacementExpression = invocation.Expression switch
+		{
+			MemberAccessExpressionSyntax { Name: GenericNameSyntax genericName } memberAccess =>
+				memberAccess.WithName(genericName.WithIdentifier(Identifier(replacementMethod))),
+			MemberAccessExpressionSyntax memberAccess =>
+				memberAccess.WithName(IdentifierName(replacementMethod)),
+			GenericNameSyntax genericName =>
+				genericName.WithIdentifier(Identifier(replacementMethod)),
+			IdentifierNameSyntax =>
+				IdentifierName(replacementMethod),
+			_ => null,
+		};
+		if (replacementExpression is null)
+			return null;
+
+		var firstArgument = invocation.ArgumentList.Arguments[0];
+		var secondArgument = invocation.ArgumentList.Arguments[1];
+		var (collectionExpression, inspector) =
+			firstArgument.NameColon?.Name.Identifier.Text == "elementInspectors" || secondArgument.NameColon?.Name.Identifier.Text == "collection"
+				? (secondArgument.Expression, firstArgument.Expression)
+				: (firstArgument.Expression, secondArgument.Expression);
+
 		var needAwait = assertMethodName == Constants.Asserts.CollectionAsync;
-		var inspector = invocation.ArgumentList.Arguments[1].Expression;
-		var startLocation = invocation.GetLocation().SourceSpan.Start;
-		var localSymbols = semanticModel.LookupSymbols(startLocation).OfType<ILocalSymbol>().Select(s => s.Name).ToImmutableHashSet();
+		var localSymbols = GetLocalSymbols(semanticModel, invocation, nodeToReplace, cancellationToken);
 		var replacementNode =
 			invocation
-				.WithArgumentList(ArgumentList(SeparatedList([Argument(invocation.ArgumentList.Arguments[0].Expression)])))
-				.WithExpression(memberAccess.WithName(IdentifierName(replacementMethod)));
+				.WithArgumentList(ArgumentList(SeparatedList([Argument(collectionExpression)])))
+				.WithExpression(replacementExpression);
 
 		if (inspector is LambdaExpressionSyntax lambdaExpression)
 		{
@@ -179,10 +230,16 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 
 			if (parameterName != originalParameterName)
 			{
+				var parameterSymbol = semanticModel.GetDeclaredSymbol(parameter, cancellationToken);
 				var tokens =
 					body
 						.DescendantTokens()
-						.Where(t => t.IsKind(SyntaxKind.IdentifierToken) && t.Text == originalParameterName)
+						.Where(t =>
+							t.IsKind(SyntaxKind.IdentifierToken)
+							&& t.Text == originalParameterName
+							&& t.Parent is not null
+							&& SymbolEqualityComparer.Default.Equals(semanticModel.GetSymbolInfo(t.Parent, cancellationToken).Symbol, parameterSymbol)
+						)
 						.ToArray();
 
 				body = body.ReplaceTokens(tokens, (t1, t2) => Identifier(t2.LeadingTrivia, parameterName, t2.TrailingTrivia));
@@ -195,8 +252,8 @@ public class AssertSingleShouldBeUsedForSingleParameterFixer : XunitCodeFixProvi
 			];
 		}
 
-		if (inspector is SimpleNameSyntax or MemberAccessExpressionSyntax
-			&& (semanticModel.GetSymbolInfo(inspector, cancellationToken).Symbol is IMethodSymbol || semanticModel.GetTypeInfo(inspector, cancellationToken).Type?.TypeKind == TypeKind.Delegate))
+		if ((inspector is SimpleNameSyntax or MemberAccessExpressionSyntax && semanticModel.GetSymbolInfo(inspector, cancellationToken).Symbol is IMethodSymbol)
+			|| (inspector is SimpleNameSyntax or MemberAccessExpressionSyntax or InvocationExpressionSyntax or ElementAccessExpressionSyntax && semanticModel.GetTypeInfo(inspector, cancellationToken).Type?.TypeKind == TypeKind.Delegate))
 		{
 			var parameterName = GetSafeVariableName(DefaultParameterName, localSymbols);
 

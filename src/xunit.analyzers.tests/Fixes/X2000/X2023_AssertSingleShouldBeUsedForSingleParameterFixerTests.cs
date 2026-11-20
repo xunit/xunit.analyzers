@@ -120,9 +120,14 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 				public async Task WithDelegateInspector() {
 					Action<object> inspector = ElementInspector;
 					Func<Task<int>, Task> asyncInspector = AsyncElementInspector;
+					Action<object>[] inspectors = new Action<object>[] { ElementInspector };
 					[|Assert.Collection(default(IEnumerable<object>), inspector)|];
 					await [|Assert.CollectionAsync(default(IEnumerable<Task<int>>), asyncInspector)|];
+					[|Assert.Collection(default(IEnumerable<object>), inspectors[0])|];
+					[|Assert.Collection(default(IEnumerable<object>), GetElementInspector())|];
 				}
+
+				Action<object> GetElementInspector() => ElementInspector;
 
 				[Fact]
 				public void WithThrowingLambda() {
@@ -147,6 +152,56 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 				[Fact]
 				public void CannotFixAnonymousMethod() {
 					[|Assert.Collection(default(IEnumerable<object>), delegate (object item) { Assert.NotNull(item); })|];
+				}
+
+				[Fact]
+				public void WithComplexCollectionExpressions() {
+					var holder = default(CollectionHolder);
+					[|Assert.Collection(holder.Items,
+						error => Assert.Equal(
+							"Response status code does not indicate success: 404 (Not Found).",
+							error))|];
+					[|Assert.Collection(
+						holder.GetItems(),
+						t => Assert.Equal("Query", t))|];
+					[|Assert.Collection(
+						holder.Map["address"].Items,
+						item => Assert.Equal("external", item))|];
+				}
+
+				[Fact]
+				public async Task WithGenericAndNamedArguments() {
+					[|Assert.Collection<object>(default(IEnumerable<object>), item => Assert.NotNull(item))|];
+					await [|Assert.CollectionAsync<Task<int>>(default(IEnumerable<Task<int>>), async item => Assert.Equal(42, await item))|];
+					[|Assert.Collection(collection: default(IEnumerable<object>), elementInspectors: item => Assert.NotNull(item))|];
+				}
+
+				[Theory]
+				[InlineData(42)]
+				public void WithParameterAndNestedScopeCollision(int item) {
+					var holder = default(CollectionHolder);
+					foreach (var nested in holder.Items) { }
+					[|Assert.Collection(default(IEnumerable<string>), item => Assert.Equal(holder.item, item))|];
+					[|Assert.Collection(default(IEnumerable<string>), nested => Assert.Equal(holder.item, nested))|];
+				}
+
+				class CollectionHolder {
+					public string item => "abc";
+					public IEnumerable<string> Items => default(IEnumerable<string>);
+					public IDictionary<string, CollectionHolder> Map => default(IDictionary<string, CollectionHolder>);
+					public IEnumerable<string> GetItems() => default(IEnumerable<string>);
+				}
+			}
+
+			namespace UsingStaticTests {
+				using static Xunit.Assert;
+
+				public class StaticAssertTestClass {
+					[Fact]
+					public void WithUsingStaticAssert() {
+						[|Collection(default(IEnumerable<object>), item => NotNull(item))|];
+						[|Collection<object>(default(IEnumerable<object>), item => NotNull(item))|];
+					}
 				}
 			}
 			""";
@@ -275,11 +330,18 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 				public async Task WithDelegateInspector() {
 					Action<object> inspector = ElementInspector;
 					Func<Task<int>, Task> asyncInspector = AsyncElementInspector;
+					Action<object>[] inspectors = new Action<object>[] { ElementInspector };
 					var item = Assert.Single(default(IEnumerable<object>));
 					inspector(item);
 					var item_2 = Assert.Single(default(IEnumerable<Task<int>>));
 					await asyncInspector(item_2);
+					var item_3 = Assert.Single(default(IEnumerable<object>));
+					inspectors[0](item_3);
+					var item_4 = Assert.Single(default(IEnumerable<object>));
+					GetElementInspector()(item_4);
 				}
+
+				Action<object> GetElementInspector() => ElementInspector;
 
 				[Fact]
 				public void WithThrowingLambda() {
@@ -304,6 +366,59 @@ public class X2023_AssertSingleShouldBeUsedForSingleParameterFixerTests
 				[Fact]
 				public void CannotFixAnonymousMethod() {
 					{|#3:Assert.Collection(default(IEnumerable<object>), delegate (object item) { Assert.NotNull(item); })|};
+				}
+
+				[Fact]
+				public void WithComplexCollectionExpressions() {
+					var holder = default(CollectionHolder);
+					var error = Assert.Single(holder.Items);
+					Assert.Equal("Response status code does not indicate success: 404 (Not Found).", error);
+					var t = Assert.Single(holder.GetItems());
+					Assert.Equal("Query", t);
+					var item = Assert.Single(holder.Map["address"].Items);
+					Assert.Equal("external", item);
+				}
+
+				[Fact]
+				public async Task WithGenericAndNamedArguments() {
+					var item = Assert.Single<object>(default(IEnumerable<object>));
+					Assert.NotNull(item);
+					var item_2 = Assert.Single<Task<int>>(default(IEnumerable<Task<int>>));
+					Assert.Equal(42, await item_2);
+					var item_3 = Assert.Single(default(IEnumerable<object>));
+					Assert.NotNull(item_3);
+				}
+
+				[Theory]
+				[InlineData(42)]
+				public void WithParameterAndNestedScopeCollision(int item) {
+					var holder = default(CollectionHolder);
+					foreach (var nested in holder.Items) { }
+					var item_2 = Assert.Single(default(IEnumerable<string>));
+					Assert.Equal(holder.item, item_2);
+					var nested_2 = Assert.Single(default(IEnumerable<string>));
+					Assert.Equal(holder.item, nested_2);
+				}
+
+				class CollectionHolder {
+					public string item => "abc";
+					public IEnumerable<string> Items => default(IEnumerable<string>);
+					public IDictionary<string, CollectionHolder> Map => default(IDictionary<string, CollectionHolder>);
+					public IEnumerable<string> GetItems() => default(IEnumerable<string>);
+				}
+			}
+
+			namespace UsingStaticTests {
+				using static Xunit.Assert;
+
+				public class StaticAssertTestClass {
+					[Fact]
+					public void WithUsingStaticAssert() {
+						var item = Single(default(IEnumerable<object>));
+						NotNull(item);
+						var item_2 = Single<object>(default(IEnumerable<object>));
+						NotNull(item_2);
+					}
 				}
 			}
 			""";
